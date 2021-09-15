@@ -207,6 +207,7 @@
 
 #include <bit>
 
+#include "PanicAssertions.hpp"
 #include "VirtualPageProtectionFlags.hpp"
 
 namespace Nominax::Foundation
@@ -220,6 +221,11 @@ namespace Nominax::Foundation
 		/// The size of the region in bytes.
 		/// </summary>
 		std::uint64_t Size { };
+
+		/// <summary>
+		/// The alignment of the block. 0 if default system alignment.
+		/// </summary>
+		std::uint64_t Alignment { };
 
 		/// <summary>
 		/// The current protection flags of the region.
@@ -238,7 +244,7 @@ namespace Nominax::Foundation
 		{
 			void*          Ptr;
 			std::uintptr_t Int;
-		}                  UserData { nullptr };
+		}  UserData { nullptr };
 
 		/// <summary>
 		/// Marks the region as locked.
@@ -351,8 +357,15 @@ namespace Nominax::Foundation
 		/// <param name="size">The size in bytes to allocate.</param>
 		/// <param name="flags">The page protection flags.</param>
 		/// <param name="locked">If true enable page protection lock - page protection flags cannot be changed afterwards.</param>
+        /// <param name="outHeader">If not null, the header pointer will be passed.</param>
 		/// <returns>The pointer to the allocated memory on success, nullptr on error!</returns>
-		static auto VirtualAlloc(std::uint64_t size, MemoryPageProtectionFlags flags, bool locked = false) -> void*;
+		static auto VirtualAlloc
+        (
+            std::uint64_t size,
+            MemoryPageProtectionFlags flags,
+            bool locked = false,
+            VirtualAllocationHeader** outHeader = nullptr
+        ) -> void*;
 
 		/// <summary>
 		/// Deallocates virtual memory in the process.
@@ -360,6 +373,31 @@ namespace Nominax::Foundation
 		/// <param name="region">Must be a pointer returned by VirtualAlloc().</param>
 		/// <returns>true on success, else false.</returns>
 		static auto VirtualDealloc(void* region) -> bool;
+
+		// <summary>
+		/// Allocates virtual memory in the process with specific alignment.
+		/// </summary>
+		/// <param name="size">The size in bytes to allocate.</param>
+        /// <param name="size">The alignment in bytes.</param>
+		/// <param name="flags">The page protection flags.</param>
+		/// <param name="locked">If true enable page protection lock - page protection flags cannot be changed afterwards.</param>
+        /// <param name="outHeader">If not null, the header pointer will be passed.</param>
+		/// <returns>The pointer to the allocated memory on success, nullptr on error!</returns>
+		static auto VirtualAllocAligned
+        (
+            std::uint64_t size,
+            std::uint64_t alignment,
+            MemoryPageProtectionFlags flags,
+            bool locked = false,
+            VirtualAllocationHeader** outHeader = nullptr
+        ) -> void*;
+
+		/// <summary>
+		/// Deallocates virtual memory in the process with specific alignment.
+		/// </summary>
+		/// <param name="region">Must be a pointer returned by VirtualAlloc().</param>
+		/// <returns>true on success, else false.</returns>
+		static auto VirtualDeallocAligned(void* region) -> bool;
 
 		/// <summary>
 		/// Updates the page protection flags of the specified region, if possible.
@@ -370,20 +408,13 @@ namespace Nominax::Foundation
 		/// <returns>true on success, else false.</returns>
 		static auto VirtualProtectPages(void* region, MemoryPageProtectionFlags newFlags, bool locked = false) -> bool;
 
-
-		static auto MapHeaderFromRegion(void* region, VirtualAllocationHeader*& out) -> bool;
+    private:
+		static auto MapHeaderFromRegion(void* region, VirtualAllocationHeader*& out) -> void;
 	};
 
-	inline auto VMM::MapHeaderFromRegion(void* const region, VirtualAllocationHeader*& out) -> bool
+	inline auto VMM::MapHeaderFromRegion(void* const region, VirtualAllocationHeader*& out) -> void
 	{
-		if (!region)
-		{
-			[[unlikely]]
-				return false;
-		}
-
+		NOX_DBG_PAS_NOT_NULL(region, "Region for header mapping was null!");
 		out = &VirtualAllocationHeader::MapHeader(VirtualAllocationHeader::ComputeRegionStart(region));
-
-		return true;
 	}
 }

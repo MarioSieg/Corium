@@ -203,6 +203,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+#include "Algorithm.hpp"
 #include "MappedMemory.hpp"
 #include "PanicAssertions.hpp"
 
@@ -210,13 +211,25 @@
 
 namespace Nominax::Foundation
 {
+    template <typename T>
+    concept MappedMemoryType = requires
+    {
+        std::is_trivial_v<T>;
+        IsPowerOfTwo(alignof(T));
+    };
+
+
     /// <summary>
     /// Thin wrapper around virtual mapped memory which allows
     /// to use the raw byte array with types.
     /// </summary>
-    template <typename T> requires std::is_trivial_v<T>
-    class MappedMemoryWrapper : public MappedMemory
+    template <typename T> requires MappedMemoryType<T>
+    class MappedMemoryWrapper
     {
+    protected:
+        void*                    Region_ { nullptr };
+        VirtualAllocationHeader* Header_ { nullptr };
+
     public:
         /// <summary>
         /// Construct and allocate new virtual memory mapping.
@@ -254,7 +267,76 @@ namespace Nominax::Foundation
         /// <summary>
         /// Destructor.
         /// </summary>
-        virtual ~MappedMemoryWrapper() override = default;
+        virtual ~MappedMemoryWrapper();
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns>The memory region allocated.</returns>
+        [[nodiscard]]
+        auto GetRawRegion() -> void*;
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns>The memory region allocated.</returns>
+        [[nodiscard]]
+        auto GetRawRegion() const -> const void*;
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns>The allocation header for the region..</returns>
+        [[nodiscard]]
+        auto GetHeader() const -> const VirtualAllocationHeader&;
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns>The size of the region in bytes.</returns>
+        [[nodiscard]]
+        auto GetByteSize() const -> std::uint64_t;
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns>The alignment of the allocated memory map. Is zero if default alignment is used.</returns>
+        [[nodiscard]]
+        auto GetByteAlignment() const -> std::uint64_t;
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns>The protection flags of the region.</returns>
+        [[nodiscard]]
+        auto GetProtectionFlags() const -> MemoryPageProtectionFlags;
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns>True if the region is locked, else false.</returns>
+        [[nodiscard]]
+        auto IsLocked() const -> bool;
+
+        /// <summary>
+        /// Set protection lock on the region.
+        /// </summary>
+        /// <returns></returns>
+        auto SetLock() const -> void;
+
+        /// <summary>
+        /// Try to dirty all pages so that physical memory is allocated from the kernel.
+        /// </summary>
+        /// <returns></returns>
+        auto DirtyPages() const -> void;
+
+        /// <summary>
+        /// Shortcut to call std::memset on the region.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="offset"></param>
+        /// <returns></returns>
+        auto MemSet(std::uint8_t value, std::uint64_t offset = 0) const -> void;
 
         /// <summary>
         /// Query buffer.
@@ -312,33 +394,133 @@ namespace Nominax::Foundation
         auto operator*() -> T&;
     };
 
-    template <typename T> requires std::is_trivial_v<T>
-    inline MappedMemoryWrapper<T>::MappedMemoryWrapper
+    template <typename T> requires MappedMemoryType<T>
+    MappedMemoryWrapper<T>::MappedMemoryWrapper
     (
         const std::uint64_t size,
         const MemoryPageProtectionFlags flags,
         const bool lockedProtection
-    ) : MappedMemory(size * sizeof(T), flags, lockedProtection) { }
+    )
+    {
+        NOX_DBG_PAS_NOT_ZERO(size, "Memory mapping with zero size requested!");
+        if constexpr (alignof(T) > alignof(std::max_align_t))
+        {
+            this->Region_ = VMM::VirtualAllocAligned(size * sizeof(T), alignof(T), flags, lockedProtection, &this->Header_);
+        }
+        else
+        {
+            this->Region_ = VMM::VirtualAlloc(size * sizeof(T), flags, lockedProtection, &this->Header_);
+        }
+        NOX_DBG_PAS_NOT_NULL(this->Region_, "Virtual memory allocation failed!");
+    }
 
-    template <typename T> requires std::is_trivial_v<T>
+    template <typename T> requires MappedMemoryType<T>
+    MappedMemoryWrapper<T>::~MappedMemoryWrapper()
+    {
+        if constexpr (alignof(T) > alignof(std::max_align_t))
+        {
+            VMM::VirtualDeallocAligned(this->Region_);
+        }
+        else
+        {
+            VMM::VirtualDealloc(this->Region_);
+        }
+    }
+
+    template <typename T> requires MappedMemoryType<T>
+    inline auto MappedMemoryWrapper<T>::GetRawRegion() -> void*
+    {
+        return this->Region_;
+    }
+
+    template <typename T> requires MappedMemoryType<T>
+    inline auto MappedMemoryWrapper<T>::GetRawRegion() const -> const void*
+    {
+        return this->Region_;
+    }
+
+
+    template <typename T> requires MappedMemoryType<T>
+    inline auto MappedMemoryWrapper<T>::GetHeader() const -> const VirtualAllocationHeader&
+    {
+        return *this->Header_;
+    }
+
+    template <typename T> requires MappedMemoryType<T>
+    inline auto MappedMemoryWrapper<T>::GetByteSize() const -> std::uint64_t
+    {
+        if constexpr (alignof(T) > alignof(std::max_align_t))
+        {
+            return this->Header_->Size - (alignof(T) - 1 + sizeof(void*));
+        }
+        else
+        {
+            return this->Header_->Size;
+        }
+    }
+
+    template<typename T> requires MappedMemoryType<T>
+    inline auto MappedMemoryWrapper<T>::GetByteAlignment() const -> std::uint64_t
+    {
+        if constexpr (alignof(T) > alignof(std::max_align_t))
+        {
+            return this->Header_->Alignment;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+    template <typename T> requires MappedMemoryType<T>
+    inline auto MappedMemoryWrapper<T>::GetProtectionFlags() const -> MemoryPageProtectionFlags
+    {
+        return this->Header_->ProtectionFlags;
+    }
+
+    template <typename T> requires MappedMemoryType<T>
+    inline auto MappedMemoryWrapper<T>::IsLocked() const -> bool
+    {
+        return this->Header_->IsLocked();
+    }
+
+    template <typename T> requires MappedMemoryType<T>
+    inline auto MappedMemoryWrapper<T>::SetLock() const -> void
+    {
+        this->Header_->SetLock();
+    }
+
+    template <typename T> requires MappedMemoryType<T>
+    inline auto MappedMemoryWrapper<T>::DirtyPages() const -> void
+    {
+        std::memset(this->Region_, 0, this->GetByteSize());
+    }
+
+    template <typename T> requires MappedMemoryType<T>
+    inline auto MappedMemoryWrapper<T>::MemSet(const std::uint8_t value, const std::uint64_t offset) const -> void
+    {
+        std::memset(static_cast<std::uint8_t*>(this->Region_) + offset, value, this->GetByteSize());
+    }
+
+    template <typename T> requires MappedMemoryType<T>
     inline auto MappedMemoryWrapper<T>::GetBuffer() -> T*
     {
         return static_cast<T*>(this->Region_);
     }
 
-    template <typename T> requires std::is_trivial_v<T>
+    template <typename T> requires MappedMemoryType<T>
     inline auto MappedMemoryWrapper<T>::GetBuffer() const -> const T*
     {
         return static_cast<const T*>(this->Region_);
     }
 
-    template <typename T> requires std::is_trivial_v<T>
+    template <typename T> requires MappedMemoryType<T>
     inline auto MappedMemoryWrapper<T>::GetSize() const -> std::uint64_t
     {
         return this->GetByteSize() / sizeof(T);
     }
 
-    template <typename T> requires std::is_trivial_v<T>
+    template <typename T> requires MappedMemoryType<T>
     inline auto MappedMemoryWrapper<T>::Fill(T&& value) -> void
     {
         T* i { this->GetBuffer() };
@@ -348,27 +530,27 @@ namespace Nominax::Foundation
         }
     }
 
-    template <typename T> requires std::is_trivial_v<T>
+    template <typename T> requires MappedMemoryType<T>
     inline auto MappedMemoryWrapper<T>::operator[](const std::uint64_t idx) -> T&
     {
         NOX_DBG_PAS_L(idx, this->GetSize(), "Subscript out of range!");
         return *(this->GetBuffer() + idx);
     }
 
-    template <typename T> requires std::is_trivial_v<T>
+    template <typename T> requires MappedMemoryType<T>
     inline auto MappedMemoryWrapper<T>::operator[](const std::uint64_t idx) const -> const T&
     {
         NOX_DBG_PAS_L(idx, this->GetSize(), "Subscript out of range!");
         return (*this->GetBuffer() + idx);
     }
 
-    template <typename T> requires std::is_trivial_v<T>
+    template <typename T> requires MappedMemoryType<T>
     inline auto MappedMemoryWrapper<T>::operator*() const -> const T&
     {
         return *this->GetBuffer();
     }
 
-    template <typename T> requires std::is_trivial_v<T>
+    template <typename T> requires MappedMemoryType<T>
     inline auto MappedMemoryWrapper<T>::operator*() -> T&
     {
         return *this->GetBuffer();

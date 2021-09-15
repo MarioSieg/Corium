@@ -280,9 +280,65 @@ TEST(MappedMemoryWrapper, Allocate)
             MappedMemoryWrapper<int> mem { size };
             ASSERT_EQ(mem.GetSize(), size);
             ASSERT_EQ(mem.GetByteSize(), size * sizeof(int));
+            ASSERT_EQ(mem.GetByteAlignment(), 0);
         }
    };
    ASSERT_NO_FATAL_FAILURE(executor());
+}
+
+TEST(MappedMemoryWrapper, AllocateMaxAligned)
+{
+    const auto executor
+    {
+        []
+        {
+            constexpr auto alignment { alignof(std::max_align_t) * 2 };
+            struct alignas(alignment) Dummy final
+            {
+                std::array<std::uint64_t, 16> X;
+            };
+            constexpr auto size { 32 };
+            MappedMemoryWrapper<Dummy> mem { size };
+            ASSERT_EQ(mem.GetSize(), size);
+            ASSERT_EQ(mem.GetByteSize(), size * sizeof(Dummy));
+            ASSERT_EQ(mem.GetByteAlignment(), alignment);
+            ASSERT_EQ(std::bit_cast<std::uintptr_t>(mem.GetRawRegion()) % alignment, 0);
+        }
+    };
+    ASSERT_NO_FATAL_FAILURE(executor());
+}
+
+TEST(MappedMemoryWrapper, AllocateMaxAlignedData)
+{
+    const auto executor
+    {
+        []
+        {
+            constexpr auto alignment { alignof(std::max_align_t) * 2 };
+            struct alignas(alignment) Dummy final
+            {
+                std::array<std::uint64_t, 16> X;
+            };
+
+            constexpr auto size { 32 };
+            MappedMemoryWrapper<Dummy> mem { size };
+            for (auto i { 0 }; i < size; ++i)
+            {
+                for (auto& x : mem[i].X)
+                {
+                    x = i * i;
+                }
+            }
+            for (auto i { 0 }; i < size; ++i)
+            {
+                for (const auto x : mem[i].X)
+                {
+                    ASSERT_EQ(x, i * i);
+                }
+            }
+        }
+    };
+    ASSERT_NO_FATAL_FAILURE(executor());
 }
 
 TEST(MappedMemoryWrapper, DataAccess)
