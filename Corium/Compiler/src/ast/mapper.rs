@@ -208,18 +208,22 @@ use crate::ast::*;
 use crate::error::list::ErrorList;
 use std::fmt;
 
-pub struct AstProcessorContext<'a> {
+pub trait Visitor<T> {
+    fn visit(&mut self, obj: T);
+}
+
+pub struct ParseTreeMapper<'a> {
     pub error_list: ErrorList,
     pub function_table: FunctionTable<'a>,
     pub module: ModuleName<'a>,
 }
 
-impl<'a> AstProcessorContext<'a> {
+impl<'a> ParseTreeMapper<'a> {
     pub fn new() -> Self {
         Self {
             error_list: ErrorList::new(),
             function_table: FunctionTable::new(),
-            module: ModuleName("default"),
+            module: ModuleName(QualifiedName("default")),
         }
     }
 
@@ -232,31 +236,39 @@ impl<'a> AstProcessorContext<'a> {
 
     pub fn process_node(&mut self, node: Node<'a>) {
         match node {
-            Node::Module(name) => self.process_module(name),
-            Node::Function(func) => self.process_function(func),
-            Node::QualifiedName(name) => self.process_qualified_name(name),
-            Node::Identifier(ident) => self.process_identifier(ident),
+            Node::Module(name) => self.visit(name),
+            Node::Function(func) => self.visit(func),
+            Node::QualifiedName(name) => self.visit(name),
+            Node::Identifier(ident) => self.visit(ident),
         }
-    }
-
-    pub fn process_module(&mut self, name: ModuleName<'a>) {
-        self.module = name;
-    }
-
-    pub fn process_function(&mut self, func: Function<'a>) {
-        self.function_table.insert(func.name, func);
-    }
-
-    pub fn process_qualified_name(&mut self, name: QualifiedName) {
-        println!("NAME: {}", name);
-    }
-
-    pub fn process_identifier(&mut self, ident: Identifier) {
-        println!("IDENT: {}", ident);
     }
 }
 
-impl<'a> fmt::Display for AstProcessorContext<'a> {
+impl<'a> Visitor<ModuleName<'a>> for ParseTreeMapper<'a> {
+    fn visit(&mut self, obj: ModuleName<'a>) {
+        self.module = obj;
+    }
+}
+
+impl<'a> Visitor<Function<'a>> for ParseTreeMapper<'a> {
+    fn visit(&mut self, obj: Function<'a>) {
+        self.function_table.insert(QualifiedName(obj.name.0), obj);
+    }
+}
+
+impl<'a> Visitor<QualifiedName<'a>> for ParseTreeMapper<'a> {
+    fn visit(&mut self, obj: QualifiedName) {
+        println!("NAME: {}", obj);
+    }
+}
+
+impl<'a> Visitor<Identifier<'a>> for ParseTreeMapper<'a> {
+    fn visit(&mut self, obj: Identifier) {
+        println!("IDENT: {}", obj);
+    }
+}
+
+impl<'a> fmt::Display for ParseTreeMapper<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "Current module: {}", self.module)?;
         for fun in self.function_table.values() {

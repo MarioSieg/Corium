@@ -215,7 +215,7 @@ mod unit;
 
 fn main() {
     let options = cli::Options::parse_and_validate();
-    println!("{:?}", options);
+    println!("{:#?}", options);
     let mut context = context::CompilerContext::new();
     for file in &options.input_files {
         context.enqueue_file(file);

@@ -259,7 +259,7 @@ impl<'a> AstParseable<'a> for Function<'a> {
         }
 
         Self {
-            name: ident,
+            name: Identifier(ident),
             parameters,
             return_type,
             block,
@@ -287,7 +287,7 @@ impl<'a> AstParseable<'a> for Variable<'a> {
         }
 
         Self {
-            name,
+            name: Identifier(name),
             type_hint,
             value,
             is_parameter,
@@ -318,7 +318,7 @@ impl<'a> AstParseable<'a> for ModuleName<'a> {
         let str = rule.as_str();
         let len = str.len() - 1;
         let skip_len = "module ".len();
-        Self(&str[skip_len..len])
+        Self(QualifiedName(&str[skip_len..len]))
     }
 }
 

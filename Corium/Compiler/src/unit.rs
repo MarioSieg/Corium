@@ -203,7 +203,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::processor::AstProcessorContext;
+use crate::ast::mapper::ParseTreeMapper;
 use crate::ast::RootList;
 use crate::error::list::ErrorList;
 use crate::error::Error;
@@ -224,7 +224,7 @@ pub struct CompilationUnit<'a> {
     id: Uuid,
     error_list: ErrorList,
     root: Option<Result<RootList<'a>, Error>>,
-    ast_processor: AstProcessorContext<'a>,
+    ast_processor: ParseTreeMapper<'a>,
 }
 
 impl<'a> CompilationUnit<'a> {
@@ -232,7 +232,7 @@ impl<'a> CompilationUnit<'a> {
         let id = Uuid::new_v4();
         let error_list = ErrorList::new();
         let root = None;
-        let ast_processor = AstProcessorContext::new();
+        let ast_processor = ParseTreeMapper::new();
         Self {
             source_code,
             file_name,
@@ -255,7 +255,7 @@ impl<'a> CompilationUnit<'a> {
         let id = Uuid::new_v4();
         let error_list = ErrorList::new();
         let root = None;
-        let ast_processor = AstProcessorContext::new();
+        let ast_processor = ParseTreeMapper::new();
         Self {
             source_code,
             file_name,
@@ -317,7 +317,7 @@ impl<'a> CompilationUnit<'a> {
     }
 
     #[inline]
-    pub fn get_ast_processor_context(&'a self) -> &'a AstProcessorContext {
+    pub fn get_ast_processor_context(&'a self) -> &'a ParseTreeMapper {
         &self.ast_processor
     }
 }

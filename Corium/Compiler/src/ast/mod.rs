@@ -207,8 +207,8 @@ use std::convert;
 use std::fmt;
 use std::fmt::Formatter;
 
+pub mod mapper;
 pub mod parse;
-pub mod processor;
 pub mod table;
 
 pub trait AstComponent: Clone + fmt::Display + fmt::Debug {
@@ -388,7 +388,7 @@ impl<'a> convert::From<&'a str> for TypeName<'a> {
             "char" => TypeName::Char,
             "bool" => TypeName::Bool,
             "string" => TypeName::String,
-            _ => TypeName::Custom(st),
+            _ => TypeName::Custom(Identifier(st)),
         }
     }
 }
@@ -568,10 +568,24 @@ impl<'a> fmt::Display for ModuleName<'a> {
 /// E. g. TestClass
 /// E. g. Module.TestClass
 /// E. g. Module.TestClass.Function
-pub type QualifiedName<'a> = &'a str;
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
+pub struct QualifiedName<'a>(pub &'a str);
+
+impl<'a> fmt::Display for QualifiedName<'a> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
 
 /// Represents an identifier such as a class or variable name.
-pub type Identifier<'a> = &'a str;
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
+pub struct Identifier<'a>(pub &'a str);
+
+impl<'a> fmt::Display for Identifier<'a> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
 
 /// Represents a Corium "int".
 pub type Int = i64;

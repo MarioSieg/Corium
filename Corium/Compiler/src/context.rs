@@ -224,14 +224,51 @@ impl<'a> CompilerContext<'a> {
         &self.queue
     }
 
-    pub fn compile(&'a mut self) {
+    pub fn has_compilation_units(&self) -> bool {
+        !self.queue.is_empty()
+    }
+
+    pub fn compile(&'a mut self) -> usize {
+        let mut count = 0;
         for compilation_unit in &mut self.queue {
             match compilation_unit.compile() {
-                Ok(()) => (),
+                Ok(()) => {
+                    count += 1;
+                }
                 Err(errors) => {
                     eprintln!("{}", errors)
                 }
             }
         }
+        count
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const TEST_FILE_PATH: &str = "../Docs/ParseTest.cor";
+
+    #[test]
+    fn new() {
+        let ctx = CompilerContext::new();
+        assert!(ctx.get_queue().is_empty());
+        assert!(!ctx.has_compilation_units());
+    }
+
+    #[test]
+    fn enqueue_file() {
+        let mut ctx = CompilerContext::new();
+        ctx.enqueue_file(Path::new(TEST_FILE_PATH));
+        assert_eq!(ctx.get_queue().len(), 1);
+        assert!(ctx.has_compilation_units());
+    }
+
+    #[test]
+    fn compile() {
+        let mut ctx = CompilerContext::new();
+        ctx.enqueue_file(Path::new(TEST_FILE_PATH));
+        assert_eq!(ctx.compile(), 1);
     }
 }
