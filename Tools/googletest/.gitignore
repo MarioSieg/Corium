@@ -19,9 +19,9 @@ bazel-testlogs
 *.suo
 *.user
 _ReSharper.Caches/
-Win32-Debug/
+Win32-UseSandboxVM/
 Win32-Release/
-x64-Debug/
+x64-UseSandboxVM/
 x64-Release/
 
 # Ignore autoconf / automake files

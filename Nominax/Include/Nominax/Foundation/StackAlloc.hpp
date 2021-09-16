@@ -228,7 +228,7 @@ namespace Nominax::Foundation
 	/// Above this size memory will be allocated on the heap
 	/// instead of the stack.
 	/// </summary>
-	constexpr std::uint64_t STACK_ALLOC_HEAP_THRESHOLD { 4_kB };
+	constexpr std::uint64_t STACK_ALLOC_HEAP_THRESHOLD { 4_KB };
 
 	/// <summary>
 	/// Restrict fixed stack allocation type.

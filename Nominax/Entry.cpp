@@ -209,11 +209,20 @@ using namespace Nominax::Prelude;
 
 auto main(const int argc, const char* const* const argv) -> int
 {
-	const EnvironmentDescriptor environmentDescriptor
-	{
-		.ArgC = argc,
-		.ArgV = argv
-	};
+    EnvironmentDescriptor environmentDescriptor
+    {
+        .ArgC = argc,
+        .ArgV = argv,
+        .AppName = "UntitledApp"
+    };
+
+    CLIParser parser { argc, argv };
+    const bool shouldBoot { environmentDescriptor.CLIOptions.ParseAndProcess(parser) };
+    if (!shouldBoot)
+    {
+        [[unlikely]]
+        return 0;
+    }
 
 	Environment environment { };
 	environment.Boot(environmentDescriptor);

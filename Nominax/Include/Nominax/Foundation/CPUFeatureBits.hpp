@@ -313,7 +313,7 @@ namespace Nominax::Foundation
 		CLFLUSH = 19,
 
 		/// <summary>
-		/// Debug store: save trace of executed jumps
+		/// UseSandboxVM store: save trace of executed jumps
 		/// </summary>
 		DS = 21,
 
@@ -424,7 +424,7 @@ namespace Nominax::Foundation
 		CNXTID = 42,
 
 		/// <summary>
-		/// Silicon Debug interface
+		/// Silicon UseSandboxVM interface
 		/// </summary>
 		SDBG = 43,
 

@@ -204,46 +204,59 @@
 //    limitations under the License.
 
 #include "../../../Nominax/Include/Nominax/Foundation/_Foundation.hpp"
+#include "../../Include/Nominax/Foundation/CLIParser.hpp"
+
 
 namespace Nominax::Foundation
 {
-	CliProcessor::CliProcessor(const int argc, const char* const* const argv)
+	CLIParser::CLIParser(const int argc, const char* const* const argv)
 	{
 		Args_.reserve(argc);
 		Args_.insert(argv, argc + argv);
 	}
 
-	auto CliProcessor::AddOption(const std::string_view name, const std::string_view description) -> bool
+	auto CLIParser::AddOption(const CLIOption& option) -> void
 	{
-		Options_.emplace_back(std::make_pair(name, description));
-		return this->HasFlag(name);
+		Options_.emplace_back(option);
 	}
 
-	auto CliProcessor::PrintAllOptions() -> void
+	auto CLIParser::IsEmpty() const -> bool
 	{
-		for (const auto& [k, v] : this->Options_)
-		{
-			Print("{} = {}\n", k, v);
-		}
+		return std::size(this->Args_) <= 1;
 	}
 
-	auto CliProcessor::IsEmpty() const -> bool
-	{
-		return this->Args_.size() <= 1;
-	}
-
-	auto CliProcessor::GetArgs() const -> const std::unordered_set<std::string_view>&
+	auto CLIParser::GetArgs() const -> const std::unordered_set<std::string_view>&
 	{
 		return this->Args_;
 	}
 
-	auto CliProcessor::GetOptions() const -> const std::vector<std::pair<std::string_view, std::string_view>>&
+	auto CLIParser::GetOptions() const -> const std::vector<CLIOption>&
 	{
 		return this->Options_;
 	}
 
-	auto CliProcessor::HasFlag(const std::string_view key) -> bool
+	auto CLIParser::HasFlag(const CLIOption& option) const -> bool
 	{
-		return std::ranges::find(this->Args_, key) != this->Args_.end();
+		const auto found
+        {
+            [this](const std::string_view target) -> bool
+            {
+                return std::ranges::find(this->Args_, target) != std::end(this->Args_);
+            }
+        };
+        return found(option.Short) || found(option.Long);
 	}
+
+    auto CLIParser::PrintAllOptions() const -> void
+    {
+        for (const auto& option : this->Options_)
+        {
+            Print("{} {} {}\n", option.Short, option.Long, option.Description);
+        }
+    }
+
+    auto CLIParser::PrintUsage() const -> void
+    {
+
+    }
 }

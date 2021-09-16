@@ -205,326 +205,114 @@
 
 #pragma once
 
-#include "Panic.hpp"
-#include "Platform.hpp"
+#include <string_view>
+#include <unordered_set>
+#include <vector>
 
 namespace Nominax::Foundation
 {
-	/// <summary>
-	/// Checks the condition and panics with the specified message,
-	/// if the condition is not true.
-	/// </summary>
-	#define NOX_PAS_TRUE(x, msg)							                    \
-	do														                    \
-	{														                    \
-		if (!( x ))                 						                    \
-		{													                    \
-		      [[unlikely]]									                    \
-              Panic(msg);	                                                    \
-		}													                    \
-	}														                    \
-	while(false)
+    struct CLIOption final
+    {
+        std::string_view Short { };
+        std::string_view Long { };
+        std::string_view Description { };
+    };
 
 	/// <summary>
-	/// Checks the condition and panics with the specified message,
-	/// if the condition is not true.
+	/// Helper to parse command line interface arguments.
 	/// </summary>
-	#define NOX_PAS_FALSE(x, msg)							                    \
-	do														                    \
-	{														                    \
-		if (( x ))											                    \
-		{													                    \
-		      [[unlikely]]									                    \
-              Panic(msg);	                                                    \
-		}													                    \
-	}														                    \
-	while(false)
+	class CLIParser final
+	{
+		std::unordered_set<std::string_view> Args_ { };
+		std::vector<CLIOption> Options_ { };
 
-	/// <summary>
-	/// Checks the condition and panics with the specified message,
-	/// if the condition is not true.
-	/// </summary>
-	#define NOX_PAS_NULL(x, msg) NOX_PAS_FALSE(x, msg)
+	public:
+		/// <summary>
+		/// Construct with argc and argv from
+		/// the entry point.
+		/// </summary>
+		/// <param name="argc"></param>
+		/// <param name="argv"></param>
+		/// <returns></returns>
+		CLIParser(int argc, const char* const* argv);
 
-	/// <summary>
-	/// Checks the condition and panics with the specified message,
-	/// if the condition is not true.
-	/// </summary>
-	#define NOX_PAS_NOT_NULL(x, msg) NOX_PAS_TRUE(x, msg)
+		/// <summary>
+		/// No copy.
+		/// </summary>
+		/// <param name="other"></param>
+		CLIParser(const CLIParser& other) = delete;
 
-	/// <summary>
-	/// Checks the condition and panics with the specified message,
-	/// if the condition is not true.
-	/// </summary>
-	#define NOX_PAS_ZERO(x, msg) NOX_PAS_FALSE(x, msg)
+		/// <summary>
+		/// Move constructor.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		CLIParser(CLIParser&& other) = default;
 
-	/// <summary>
-	/// Checks the condition and panics with the specified message,
-	/// if the condition is not true.
-	/// </summary>
-	#define NOX_PAS_NOT_ZERO(x, msg) NOX_PAS_TRUE(x, msg)
+		/// <summary>
+		/// No copy.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(const CLIParser& other) -> CLIParser& = delete;
 
-	/// <summary>
-	/// Checks the condition and panics with the specified message,
-	/// if the condition is not true.
-	/// </summary>
-	#define NOX_PAS_EQ(x, y, msg)							                    \
-	do														                    \
-	{														                    \
-		if (( x ) != ( y ))									                    \
-		{													                    \
-            [[unlikely]]									                    \
-            Panic(msg);	                                                        \
-		}													                    \
-	}														                    \
-	while(false)
+		/// <summary>
+		/// Move assignment operator.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(CLIParser&& other) -> CLIParser& = default;
 
-	/// <summary>
-	/// Checks the condition and panics with the specified message,
-	/// if the condition is not true.
-	/// </summary>
-	#define NOX_PAS_NE(x, y, msg)							                    \
-	do														                    \
-	{														                    \
-		if (( x ) == ( y ))									                    \
-		{													                    \
-            [[unlikely]]									                    \
-            Panic(msg);	                                                        \
-		}													                    \
-	}														                    \
-	while(false)
+		/// <summary>
+		/// Destructor.
+		/// </summary>
+		~CLIParser() = default;
 
-	/// <summary>
-	/// Checks the condition and panics with the specified message,
-	/// if the condition is not true.
-	/// </summary>
-	#define NOX_PAS_L(x, y, msg)							                    \
-	do														                    \
-	{														                    \
-		if (!(( x ) < ( y )))								                    \
-		{													                    \
-            [[unlikely]]									                    \
-            Panic(msg);	                                                        \
-		}													                    \
-	}														                    \
-	while(false)
+		/// <summary>
+		/// Returns true if the command line flag is set,
+		/// else false.
+		/// </summary>
+		/// <param name="key"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto HasFlag(const CLIOption& option) const -> bool;
 
-	/// <summary>
-	/// Checks the condition and panics with the specified message,
-	/// if the condition is not true.
-	/// </summary>
-	#define NOX_PAS_LE(x, y, msg)							                    \
-	do														                    \
-	{														                    \
-		if (!(( x ) <= ( y )))								                    \
-		{													                    \
-            [[unlikely]]									                    \
-            Panic(msg);	                                                        \
-		}													                    \
-	}														                    \
-	while(false)
+		/// <summary>
+		/// Adds a command line option with description.
+		/// </summary>
+		/// <param name="option">The new option.</param>
+		auto AddOption(const CLIOption& option) -> void;
 
-	/// <summary>
-	/// Checks the condition and panics with the specified message,
-	/// if the condition is not true.
-	/// </summary>
-	#define NOX_PAS_G(x, y, msg)							                    \
-	do														                    \
-	{														                    \
-		if (!(( x ) > ( y )))								                    \
-		{													                    \
-            [[unlikely]]									                    \
-            Panic(msg);	                                                        \
-		}													                    \
-	}														                    \
-	while(false)
-
-	/// <summary>
-	/// Checks the condition and panics with the specified message,
-	/// if the condition is not true.
-	/// </summary>
-	#define NOX_PAS_GE(x, y, msg)							                    \
-	do														                    \
-	{														                    \
-		if (!(( x ) >= ( y )))								                    \
-		{													                    \
-            [[unlikely]]									                    \
-            Panic(msg);	                                                        \
-		}													                    \
-	}														                    \
-	while(false)
-
-	#if NOX_DEBUG
-      
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_TRUE(x, msg)		NOX_PAS_TRUE(x, msg)
+		/// <summary>
+		/// Prints all the added options with description.
+		/// </summary>
+		auto PrintAllOptions() const -> void;
 
         /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
+        /// Prints the
         /// </summary>
-        #define NOX_DBG_PAS_FALSE(x, msg)		NOX_PAS_FALSE(x, msg)
+        auto PrintUsage() const -> void;
 
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_NULL(x, msg)		NOX_PAS_NULL(x, msg)
+		/// <summary>
+		/// Returns true if the argument count is less or equal to one,
+		/// because one is the self path, else false.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto IsEmpty() const -> bool;
 
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_NOT_NULL(x, msg)	NOX_PAS_NOT_NULL(x, msg)
+		/// <summary>
+		/// Returns argument set.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto GetArgs() const -> const std::unordered_set<std::string_view>&;
 
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_ZERO(x, msg)		NOX_PAS_ZERO(x, msg)
-
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_NOT_ZERO(x, msg)	NOX_PAS_NOT_ZERO(x, msg)
-
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_EQ(x, y, msg)		NOX_PAS_EQ(x, y, msg)
-
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_NE(x, y, msg)		NOX_PAS_NE(x, y, msg)
-
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_L(x, y, msg)		NOX_PAS_L(x, y, msg)
-
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_LE(x, y, msg)		NOX_PAS_LE(x, y, msg)
-
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_G(x, y, msg)		NOX_PAS_G(x, y, msg)
-
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_GE(x, y, msg)		NOX_PAS_GE(x, y, msg)
-
-    #else
-
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_TRUE(x, msg)
-
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_FALSE(x, msg)
-
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_NULL(x, msg)
-
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_NOT_NULL(x, msg)
-
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_ZERO(x, msg)
-
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_NOT_ZERO(x, msg)
-
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_EQ(x, y, msg)
-
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_NE(x, y, msg)
-
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_L(x, y, msg)
-
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_LE(x, y, msg)
-
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_G(x, y, msg)
-
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_GE(x, y, msg)
-
-	#endif
+		/// <summary>
+		/// Returns all added options.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto GetOptions() const -> const std::vector<CLIOption>&;
+	};
 }

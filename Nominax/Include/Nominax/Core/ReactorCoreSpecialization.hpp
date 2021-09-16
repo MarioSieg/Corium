@@ -255,7 +255,7 @@ namespace Nominax::Core
 				return "Fallback";
 
 			case ReactorCoreSpecialization::Debug:
-				return "Debug";
+				return "UseSandboxVM";
 
 			case ReactorCoreSpecialization::X86_64_AVX:
 				return "X86-64 AVX";

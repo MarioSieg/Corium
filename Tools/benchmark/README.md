@@ -119,7 +119,7 @@ dependency can be provided two ways:
 If you do not wish to build and run the tests, add `-DBENCHMARK_ENABLE_GTEST_TESTS=OFF`
 to `CMAKE_ARGS`.
 
-### Debug vs Release
+### UseSandboxVM vs Release
 
 By default, benchmark builds as a debug library. You will see a warning in the
 output when this is the case. To build it as a release library instead, add

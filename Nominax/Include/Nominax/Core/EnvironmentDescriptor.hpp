@@ -206,9 +206,10 @@
 #pragma once
 
 #include <string_view>
-
 #include <cstdint>
+
 #include "../Foundation/MemoryUnits.hpp"
+#include "../Foundation/CLIOptions.hpp"
 
 #include "ReactorCreationDescriptor.hpp"
 #include "ReactorPool.hpp"
@@ -240,6 +241,11 @@ namespace Nominax::Core
 		/// </summary>
 		std::string_view AppName { "Untitled App" };
 
+        /// <summary>
+        /// Parsed CLI options - if any.
+        /// </summary>
+        Foundation::CLIOptions CLIOptions { };
+
 		/// <summary>
 		/// If true, the fallback reactor implementation
 		/// will be used for all reactors, not the
@@ -250,12 +256,12 @@ namespace Nominax::Core
 		/// <summary>
 		/// The size of the boot pool
 		/// </summary>
-		std::uint64_t BootPoolSize { 128_kB };
+		std::uint64_t BootPoolSize { 128_KB };
 
 		/// <summary>
 		/// The size of the system memory pool size.
 		/// </summary>
-		std::uint64_t SystemPoolSize { 512_kB };
+		std::uint64_t SystemPoolSize { 512_KB };
 
         /// <summary>
         /// The boot mode of the reactor pool
@@ -272,7 +278,7 @@ namespace Nominax::Core
 		/// The reactor stack size in bytes.
 		/// Must be divisible by 8!
 		/// </summary>
-		std::uint64_t StackSize { 8_mB };
+		std::uint64_t StackSize { 8_MB };
 
 		/// <summary>
 		/// Power preference of the system.

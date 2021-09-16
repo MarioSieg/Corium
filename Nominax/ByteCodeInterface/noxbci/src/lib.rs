@@ -291,7 +291,7 @@ pub enum Instruction {
 }
 
 #[repr(u8)]
-#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+#[derive(UseSandboxVM, Copy, Clone, Eq, PartialEq)]
 pub enum InstructionCategory {
     Control = 0x00,
     Memory = 0x01,
@@ -534,7 +534,7 @@ impl fmt::Display for Instruction {
     }
 }
 
-impl fmt::Debug for Instruction {
+impl fmt::UseSandboxVM for Instruction {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
@@ -547,7 +547,7 @@ impl fmt::Debug for Instruction {
 
 /// Subroutine invocation id for system intrinsic routines.
 #[repr(u64)]
-#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+#[derive(UseSandboxVM, Copy, Clone, Eq, PartialEq)]
 pub enum SystemIntrinsicInvocationID {
     Cos = 0x00,
     Sin = 0x01,
@@ -600,7 +600,7 @@ pub type JumpAddress = u64;
 pub type UserIntrinsicInvocationID = u64;
 
 /// 64-bit byte code signal data contains either an instruction or an immediate value.
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(UseSandboxVM, Copy, Clone, PartialEq)]
 pub enum Signal {
     U64(u64),
     I64(i64),

@@ -292,19 +292,19 @@ namespace Nominax::Core
 		/// <summary>
 		/// WordSize in bytes of the system pool, if the given count was invalid.
 		/// </summary>
-		static constexpr std::uint64_t FALLBACK_SYSTEM_POOL_SIZE { 256_kB };
+		static constexpr std::uint64_t FALLBACK_SYSTEM_POOL_SIZE { 256_KB };
 		static_assert(FALLBACK_SYSTEM_POOL_SIZE);
 
 		/// <summary>
 		/// The min size of the boot pool.
 		/// </summary>
-		static constexpr std::uint64_t BOOT_POOL_SIZE_MIN { 32_kB };
+		static constexpr std::uint64_t BOOT_POOL_SIZE_MIN { 32_KB };
 		static_assert(BOOT_POOL_SIZE_MIN);
 
 		/// <summary>
 		/// The max size of the boot pool.
 		/// </summary>
-		static constexpr std::uint64_t BOOT_POOL_SIZE_MAX { 256_kB };
+		static constexpr std::uint64_t BOOT_POOL_SIZE_MAX { 256_KB };
 		static_assert(BOOT_POOL_SIZE_MAX);
 
 		/// <summary>
