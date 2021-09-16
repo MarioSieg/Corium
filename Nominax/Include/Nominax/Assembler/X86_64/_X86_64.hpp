@@ -205,20 +205,10 @@
 
 #pragma once
 
-#include "Descriptors.hpp"
 #include "Encoding.hpp"
-#include "EVEX.hpp"
-#include "Instruction.hpp"
-#include "InstructionInfoTable.hpp"
-#include "InstructionNameTable.hpp"
-#include "InstructionVariation.hpp"
-#include "InstructionVariationSizeTable.hpp"
 #include "ISAExtension.hpp"
-#include "Operand.hpp"
 #include "Register.hpp"
 #include "RegisterCache.hpp"
 #include "RegisterLayout.hpp"
 #include "RegisterSet.hpp"
-#include "REX.hpp"
 #include "Routines.hpp"
-#include "VEX.hpp"
