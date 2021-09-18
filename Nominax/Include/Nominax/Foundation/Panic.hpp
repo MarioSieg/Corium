@@ -205,22 +205,18 @@
 
 #pragma once
 
-#include <cstdint>
-#include <string_view>
-#include <experimental/source_location>
-
 #include "Platform.hpp"
-#include "Print.hpp"
-#include "VariadicMacroHelper.hpp"
+#include "SourceLocation.hpp"
 
 namespace Nominax
 {
 	/// <summary>
-	/// Implementation of the panic routine.
+	/// Aborts the runtime showing a message and some information.
 	/// </summary>
-	/// <param name="panicDescriptor"></param>
+	/// <param name="message"></param>
+	/// <param name="srcLoc"></param>
 	/// <returns></returns>
 	[[noreturn]]
 	NOX_COLD NOX_NEVER_INLINE
-	extern auto Panic(std::string_view message, const std::experimental::source_location& srcLoc = std::experimental::source_location::current()) -> void;
+	extern auto Panic(std::string_view message, const Foundation::SourceLocation& srcLoc = Foundation::SourceLocation::Current()) -> void;
 }

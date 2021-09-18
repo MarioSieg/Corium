@@ -280,13 +280,13 @@ namespace Nominax::Core
         /// </summary>
         /// <returns>True on success, else false.</returns>
         [[nodiscard]]
-        virtual auto Serialize(std::ofstream& out) const -> bool;
+        virtual auto Serialize(std::ofstream& out) const -> bool override;
 
         /// <summary>
         /// Deserialize from file stream.
         /// </summary>
         /// <returns>True on success, else false.</returns>
         [[nodiscard]]
-        virtual auto Deserialize(std::ifstream& in) -> bool;
+        virtual auto Deserialize(std::ifstream& in) -> bool override;
 	};
 }

@@ -210,15 +210,13 @@
 
 namespace Nominax
 {
-    static auto PrintPanicMessage(std::string_view message, const std::experimental::source_location& srcLoc) -> void;
+    static auto PrintPanicMessage(std::string_view message, const Foundation::SourceLocation& srcLoc) -> void;
 
-    NOX_COLD
-	auto Panic(const std::string_view message, const std::experimental::source_location& srcLoc) -> void
+    NOX_COLD auto Panic(const std::string_view message, const Foundation::SourceLocation& srcLoc) -> void
 	{
-        Assembler::X86_64::RegisterCache regCache { };
+        const Assembler::X86_64::RegisterCache regCache { };
         PrintPanicMessage(message, srcLoc);
         regCache.DumpSmart();
-
         std::fflush(stdout);
         std::fflush(stderr);
 		std::flush(std::cout);
@@ -228,17 +226,17 @@ namespace Nominax
 
     using Foundation::Print;
 
-    NOX_COLD static auto PrintPanicMessage(const std::string_view message, const std::experimental::source_location& srcLoc) -> void
+    NOX_COLD static auto PrintPanicMessage(const std::string_view message, const Foundation::SourceLocation& srcLoc) -> void
     {
 
         Print("\n! NOMINAX RUNTIME Panic !\n");
         Print
         (
-            "\"{}\"\n{}:{} in \"{}\"\n",
-            srcLoc.file_name(),
-            srcLoc.line(),
-            srcLoc.column(),
-            srcLoc.function_name()
+            "{}({}:{})\n-> {}\n",
+            srcLoc.GetFileName(),
+            srcLoc.GetLine(),
+            srcLoc.GetColumn(),
+            srcLoc.GetFunctionName()
         );
         Print("{}\n", message);
     }

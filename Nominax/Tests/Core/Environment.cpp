@@ -382,7 +382,7 @@ TEST(Environent, ConstructOfflineAccessDeath_SetOutputStream)
     {
         [&]
         {
-            env.SetOutputStream(nullptr);
+            env.SetOutputStream(*stdout);
         }
     };
     ASSERT_DEATH(executor(), "");
@@ -397,7 +397,7 @@ TEST(Environent, ConstructOfflineAccessDeath_SetErrorStream)
     {
         [&]
         {
-            env.SetErrorStream(nullptr);
+            env.SetErrorStream(*stdout);
         }
     };
     ASSERT_DEATH(executor(), "");
@@ -412,7 +412,7 @@ TEST(Environent, ConstructOfflineAccessDeath_SetInputStream)
     {
         [&]
         {
-            env.SetInputStream(nullptr);
+            env.SetInputStream(*stdout);
         }
     };
     ASSERT_DEATH(executor(), "");

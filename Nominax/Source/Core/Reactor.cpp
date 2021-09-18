@@ -217,7 +217,7 @@ namespace Nominax::Core
 		InterruptRoutineProxy&                  interruptHandler
 	) -> VerboseReactorDescriptor
 	{
-		const auto simpleDescriptor = BasicReactorDescriptor
+		const BasicReactorDescriptor simpleDescriptor
 		{
 			.CodeChunk = image.GetReactorView(),
 			.IntrinsicTable = intrinsicTable,

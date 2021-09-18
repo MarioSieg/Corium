@@ -203,6 +203,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+#include "../../../Nominax/Include/Nominax/Foundation/Print.hpp"
 #include "../../../Nominax/Include/Nominax/Core/_Core.hpp"
 #include "../../Include/Nominax/Core/ReactorPool.hpp"
 

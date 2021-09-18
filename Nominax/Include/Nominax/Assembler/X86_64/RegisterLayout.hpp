@@ -224,6 +224,7 @@ namespace Nominax::Assembler::X86_64
         std::array<std::uint8_t, sizeof(std::uint64_t)> AsU8S;
         class alignas(alignof(std::uint32_t)) GPR32Layout final
         {
+            [[maybe_unused]]
             std::uint32_t Unused;
         public:
            union alignas(alignof(std::uint32_t))
@@ -236,6 +237,7 @@ namespace Nominax::Assembler::X86_64
                std::array<std::uint16_t , sizeof(std::uint32_t) / sizeof(std::uint16_t)> AsU16S;
                class alignas(alignof(std::uint16_t)) GPR16Layout final
                {
+                   [[maybe_unused]]
                    std::uint16_t Unused;
                public:
                    union alignas(alignof(std::uint16_t))

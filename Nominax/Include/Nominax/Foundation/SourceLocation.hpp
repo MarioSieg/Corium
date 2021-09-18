@@ -205,330 +205,102 @@
 
 #pragma once
 
-#include <chrono>
-#include <memory>
-#include <memory_resource>
-
 #include <cstdint>
-#include "../Foundation/MemoryUnits.hpp"
-#include "../Foundation/CPUFeatureDetector.hpp"
-#include "../Foundation/SystemInfoSnapshot.hpp"
-#include "../Foundation/IAllocator.hpp"
-#include "../ByteCode/Stream.hpp"
-#include "../ByteCode/Image.hpp"
+#include <string_view>
 
-#include "EnvironmentDescriptor.hpp"
-#include "ReactorState.hpp"
-
-namespace Nominax::Core
+namespace Nominax::Foundation
 {
 	/// <summary>
-	/// Represents the whole runtime environment.
+	/// Custom implementation of std::source_location.
+	///	Because std::source_location is not yet implemented in all compilers.
 	/// </summary>
-	class [[nodiscard]] Environment
+	struct SourceLocation final
 	{
 		/// <summary>
-		/// Pimpl.
+		/// Query current source location.
 		/// </summary>
-		struct Context;
-
-		/// <summary>
-		/// Context deallocator.
-		/// </summary>
-		struct ContextDeleter final
-		{
-			auto operator()(const Context* context) const -> void;
-		};
-
-		/// <summary>
-		/// Pimpl ptr.
-		/// </summary>
-		std::unique_ptr<Context, ContextDeleter> Context_ { nullptr };
-
-	protected:
-		/// <summary>
-		/// This hook is executed before the environment boots.
-		/// </summary>
-		/// <returns>True on success, panic on false.</returns>
-		[[nodiscard]]
-		virtual auto OnPreBootHook() -> bool;
-
-		/// <summary>
-		/// This hook is executed after the environment boots.
-		/// </summary>
-		/// <returns>True on success, panic on false.</returns>
-		[[nodiscard]]
-		virtual auto OnPostBootHook() -> bool;
-
-		/// <summary>
-		/// This hook is executed before any code execution.
-		/// </summary>
-		/// <returns>True on success, panic on false.</returns>
-		[[nodiscard]]
-		virtual auto OnPreExecutionHook(const ByteCode::Image& appCodeBundle) -> bool;
-
-		/// <summary>
-		/// This hook is executed after any code execution.
-		/// </summary>
-		/// <returns>True on success, panic on false.</returns>
-		[[nodiscard]]
-		virtual auto OnPostExecutionHook() -> bool;
-
-		/// <summary>
-		/// This hook is executed before the environment shuts down.
-		/// </summary>
-		/// <returns>True on success, panic on false.</returns>
-		[[nodiscard]]
-		virtual auto OnPreShutdownHook() -> bool;
-
-		/// <summary>
-		/// This hook is executed after the environment shuts down.
-		/// </summary>
-		/// <returns>True on success, panic on false.</returns>
-		[[nodiscard]]
-		virtual auto OnPostShutdownHook() -> bool;
-
-	public:
-		/// <summary>
-		/// WordSize in bytes of the system pool, if the given count was invalid.
-		/// </summary>
-		static constexpr std::uint64_t FALLBACK_SYSTEM_POOL_SIZE { 256_KB };
-		static_assert(FALLBACK_SYSTEM_POOL_SIZE);
-
-		/// <summary>
-		/// The min size of the boot pool.
-		/// </summary>
-		static constexpr std::uint64_t BOOT_POOL_SIZE_MIN { 32_KB };
-		static_assert(BOOT_POOL_SIZE_MIN);
-
-		/// <summary>
-		/// The max size of the boot pool.
-		/// </summary>
-		static constexpr std::uint64_t BOOT_POOL_SIZE_MAX { 256_KB };
-		static_assert(BOOT_POOL_SIZE_MAX);
-
-		/// <summary>
-		/// Default constructor. Does not initialize the environment.
-		/// </summary>
-		explicit Environment(const Foundation::IAllocator* allocator = nullptr);
-
-		/// <summary>
-		/// No copy.
-		/// </summary>
-		/// <param name="other"></param>
-		Environment(const Environment& other) = delete;
-
-		/// <summary>
-		/// No move.
-		/// </summary>
-		/// <param name="other"></param>
-		Environment(Environment&& other) = delete;
-
-		/// <summary>
-		/// No copy.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		auto operator =(const Environment& other) -> Environment& = delete;
-
-		/// <summary>
-		/// No move.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		auto operator =(Environment&& other) -> Environment& = delete;
-
-		/// <summary>
-		/// Destructor.
-		/// If Shutdown() has not been called before
-		/// the destructor, the destructor will call it.
-		/// </summary>
-		virtual ~Environment();
-
-		/// <summary>
-		/// Boot up runtime environment.
-		/// Will panic if fatal errors are encountered.
-		/// </summary>
-		/// <returns></returns>
-		auto Boot(const EnvironmentDescriptor& descriptor) -> void;
-
-		/// <summary>
-		/// Execute stream on alpha reactor.
-		/// </summary>
-		/// <param name="image"></param>
+		/// <param name="line"></param>
+		/// <param name="column"></param>
+		/// <param name="fileName"></param>
+		/// <param name="functionName"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		auto Execute(const ByteCode::Image& image) -> const ReactorState&;
-
-		/// <summary>
-		/// Execute stream on alpha reactor.
-		/// </summary>
-		/// <param name="stream"></param>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto Execute(ByteCode::Stream&& stream) -> const ReactorState&;
-
-		/// <summary>
-		/// Execute stream on alpha reactor.
-		/// </summary>
-		/// <param name="stream"></param>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto Execute(const ByteCode::Stream& stream) -> const ReactorState&;
-
-		/// <summary>
-		/// Execute stream on alpha reactor.
-		/// </summary>
-		/// <param name="image"></param>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto operator()(const ByteCode::Image& image) -> const ReactorState&;
-
-		/// <summary>
-		/// Execute stream on alpha reactor.
-		/// </summary>
-		/// <param name="stream"></param>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto operator()(ByteCode::Stream&& stream) -> const ReactorState&;
-
-		/// <summary>
-		/// Execute stream on alpha reactor.
-		/// </summary>
-		/// <param name="stream"></param>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto operator()(const ByteCode::Stream& stream) -> const ReactorState&;
-
-		/// <summary>
-		/// Shutdown runtime environment.
-		/// Will panic if fatal errors are encountered.
-		/// </summary>
-		/// <returns></returns>
-		auto Shutdown() -> void;
+		static constexpr auto Current
+		(
+			std::uint_least32_t line = __builtin_LINE(),
+			std::uint_least32_t column = __builtin_COLUMN(),
+			std::string_view fileName = __builtin_FILE(),
+			std::string_view functionName = __builtin_FUNCTION()
+		) -> SourceLocation;
 
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <returns>True if the system is booted and online!</returns>
+		/// <returns>Current line number.</returns>
 		[[nodiscard]]
-		auto IsOnline() const -> bool;
+		constexpr auto GetLine() const -> std::uint_least32_t;
 
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <returns>The raw kernel pointer. Only useful for internal interop.-</returns>
+		/// <returns>Current column number.</returns>
 		[[nodiscard]]
-		auto GetKernel() const -> const void*;
+		constexpr auto GetColumn() const -> std::uint_least32_t;
 
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <returns>The boot time stamp.</returns>
+		/// <returns>Current file name.</returns>
 		[[nodiscard]]
-		auto GetBootStamp() const -> std::chrono::high_resolution_clock::time_point;
+		constexpr auto GetFileName() const -> std::string_view;
 
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <returns>The boot time in milliseconds.</returns>
+		/// <returns>Current function name.</returns>
 		[[nodiscard]]
-		auto GetBootTime() const -> std::chrono::milliseconds;
+		constexpr auto GetFunctionName() const -> std::string_view;
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>The system stat snapshot.</returns>
-		[[nodiscard]]
-		auto GetSystemInfoSnapshot() const -> const Foundation::SystemInfoSnapshot&;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>The cpu feature detector.</returns>
-		[[nodiscard]]
-		auto GetCpuFeatureSnapshot() const -> const Foundation::CPUFeatureDetector&;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>The app name for which the environment is hosted for.</returns>
-		[[nodiscard]]
-		auto GetAppName() const -> const std::pmr::string&;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>The size of the system pool in bytes.</returns>
-		[[nodiscard]]
-		auto GetMonotonicSystemPoolSize() const -> std::uint64_t;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>The count of reactor executions so far.</returns>
-		[[nodiscard]]
-		auto GetExecutionCount() const -> std::uint64_t;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>The local optimization info for the current machine.</returns>
-		[[nodiscard]]
-		auto GetOptimizationHints() const -> ByteCode::OptimizationHints;
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns>The output stream of the context.</returns>
-        [[nodiscard]]
-        auto GetOutputStream() const -> FILE&;
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns>The output stream of the context.</returns>
-        [[nodiscard]]
-        auto GetErrorStream() const -> FILE&;
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns>The output stream of the context.</returns>
-        [[nodiscard]]
-        auto GetInputStream() const -> FILE&;
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="stream">The new stream.</param>
-        auto SetOutputStream(FILE& stream) const -> void;
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="stream">The new stream.</param>
-        auto SetErrorStream(FILE& stream) const -> void;
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="stream">The new stream.</param>
-        auto SetInputStream(FILE& stream) const -> void;
+	private:
+		std::uint_least32_t Line;
+		std::uint_least32_t Column;
+		std::string_view FileName;
+		std::string_view FunctionName;
 	};
 
-	inline auto Environment::operator()(const ByteCode::Image& image) -> const ReactorState&
+	constexpr auto SourceLocation::Current
+	(
+		const std::uint_least32_t line,
+		const std::uint_least32_t column,
+		const std::string_view fileName,
+		const std::string_view functionName
+	) -> SourceLocation
 	{
-		return this->Execute(image);
+		SourceLocation result;
+		result.Line = line;
+		result.Column = column;
+		result.FileName = fileName;
+		result.FunctionName = functionName;
+		return result;
 	}
 
-	inline auto Environment::operator()(ByteCode::Stream&& stream) -> const ReactorState&
+	constexpr auto SourceLocation::GetLine() const -> std::uint_least32_t
 	{
-		return this->Execute(std::move(stream));
+		return this->Line;
 	}
 
-	inline auto Environment::operator()(const ByteCode::Stream& stream) -> const ReactorState&
+	constexpr auto SourceLocation::GetColumn() const -> std::uint_least32_t
 	{
-		return this->Execute(stream);
+		return this->Column;
+	}
+
+	constexpr auto SourceLocation::GetFileName() const -> std::string_view
+	{
+		return this->FileName;
+	}
+
+	constexpr auto SourceLocation::GetFunctionName() const -> std::string_view
+	{
+		return this->FunctionName;
 	}
 }

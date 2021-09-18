@@ -339,15 +339,6 @@ namespace Nominax::Core
 		return ptr.get();
 	}
 
-	/// <summary>
-	/// Clamps the size of the boot pool between a valid range,
-	/// </summary>
-	/// <param name="desiredSize"></param>
-	/// <returns></returns>
-	static constexpr auto ClampBootPoolSize(const std::uint64_t desiredSize) -> std::uint64_t
-	{
-		return std::clamp(desiredSize, Environment::BOOT_POOL_SIZE_MIN, Environment::BOOT_POOL_SIZE_MAX);
-	}
 
 	/// <summary>
 	/// Helper to allocate a environment pool.
@@ -379,9 +370,9 @@ namespace Nominax::Core
 	/// <param name="max"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	static constexpr auto ComputeMemoryPercent(const std::uint64_t used, const std::uint64_t max) -> double
+	static constexpr auto ComputeMemoryPercent(const std::uint64_t used, const std::uint64_t max) -> float
 	{
-		return static_cast<double>(used) * 100.0 / static_cast<double>(max);
+		return static_cast<float>(used) * 100.F / static_cast<float>(max);
 	}
 
 	/// <summary>
@@ -397,11 +388,11 @@ namespace Nominax::Core
 		std::pmr::monotonic_buffer_resource&   resource,
 		const std::unique_ptr<std::uint8_t[]>& buffer,
 		const std::uint64_t                    size
-	) -> std::pair<std::ptrdiff_t, double>
+	) -> std::pair<std::ptrdiff_t, float>
 	{
 		const std::uint8_t* const needle { static_cast<std::uint8_t*>(resource.allocate(sizeof(std::uint8_t), alignof(std::uint8_t))) };
-		const std::ptrdiff_t      offset { needle - *buffer };                             // compute allocation offset
-		const double              poolUsagePercent { ComputeMemoryPercent(offset, size) }; // compute percent usage
+		const std::ptrdiff_t offset { needle - *buffer };						// compute allocation offset
+		const float poolUsagePercent { ComputeMemoryPercent(offset, size) };	// compute percent usage
 		return { offset, poolUsagePercent };
 	}
 
@@ -415,7 +406,7 @@ namespace Nominax::Core
 	{
 		return fallback ? HyperVisor::GetFallbackRoutineLink() : HyperVisor::GetOptimalReactorRoutine(cpu);
 	}
-
+	
 	/// <summary>
 	/// Contains all the runtime variables required for the runtime system.
 	/// </summary>
@@ -448,40 +439,40 @@ namespace Nominax::Core
 	};
 
 	Environment::Context::Context(const EnvironmentDescriptor& descriptor) :
-            ReactorCount { ReactorPool::SmartQueryReactorCount(descriptor.ReactorCount) },
-            SystemPoolSize { ComputePoolSize(descriptor.SystemPoolSize, ReactorCount, descriptor.StackSize) },
-            SystemPool { AllocatePool(SystemPoolSize, "system") },
-            SystemPoolResource { *SystemPool, SystemPoolSize },
-            AppName { &SystemPoolResource },
-            BootStamp { std::chrono::high_resolution_clock::now() },
-            BootTime { },
-            SysInfoSnapshot { InitSysInfo() },
-            CPUFeatures {InitCpuFeatures() },
-            OptimalReactorRoutine { QueryExecRoutine(descriptor.ForceFallbackVM, CPUFeatures) },
-            CorePool
+	ReactorCount { ReactorPool::SmartQueryReactorCount(descriptor.ReactorCount) },
+	SystemPoolSize { ComputePoolSize(descriptor.SystemPoolSize, ReactorCount, descriptor.StackSize) },
+	SystemPool { AllocatePool(SystemPoolSize, "system") },
+	SystemPoolResource { *SystemPool, SystemPoolSize },
+	AppName { &SystemPoolResource },
+	BootStamp { std::chrono::high_resolution_clock::now() },
+	BootTime { },
+	SysInfoSnapshot { InitSysInfo() },
+	CPUFeatures {InitCpuFeatures() },
+	OptimalReactorRoutine { QueryExecRoutine(descriptor.ForceFallbackVM, CPUFeatures) },
+	CorePool
+	{
+		SystemPoolResource,
+	    descriptor.ReactorPoolMode,
+	    ReactorCount,
+	    ReactorSpawnDescriptor
 		{
-			SystemPoolResource,
-            descriptor.ReactorPoolMode,
-            ReactorCount,
-            ReactorSpawnDescriptor
-			{
-				.StackSize = MapStackSize(descriptor.StackSize),
-				.SharedIntrinsicTable = { },
-				.InterruptHandler = nullptr,
-				.PowerPref = descriptor.PowerPref
-			},
-			OptimalReactorRoutine
+			.StackSize = MapStackSize(descriptor.StackSize),
+			.SharedIntrinsicTable = { },
+			.InterruptHandler = nullptr,
+			.PowerPref = descriptor.PowerPref
 		},
-            ExecutionCount { },
-            OutputStream { stdout },
-            ErrorStream { stderr },
-            InputStream { stdin }
+		OptimalReactorRoutine
+	},
+	ExecutionCount { },
+	OutputStream { stdout },
+	ErrorStream { stderr },
+	InputStream { stdin }
 	{
 		// copy app name:
 		this->AppName = descriptor.AppName;
 	}
 
-	auto Environment::ContextDeleter::operator()(Context* const context) const -> void
+	auto Environment::ContextDeleter::operator()(const Context* const context) const -> void
 	{
 		delete context;
 	}
@@ -566,7 +557,7 @@ namespace Nominax::Core
 
 		// Get memory snapshot:
 		const std::uint64_t memSnapshot { OSI::QueryProcessMemoryUsed() };
-		const double memUsagePercent { ComputeMemoryPercent(memSnapshot, this->Context_->SysInfoSnapshot.TotalSystemMemory) };
+		const float memUsagePercent { ComputeMemoryPercent(memSnapshot, this->Context_->SysInfoSnapshot.TotalSystemMemory) };
 
 		// Fetch sys pool info
 		const auto [sysPoolSize, sysPoolPer]
@@ -589,13 +580,13 @@ namespace Nominax::Core
 			"Monotonic system pool snapshot: {:.1f} % [{:.1f} MB / {:.1f} MB]\n"
 			"Boot time: {}\n"
 			"\n",
-                memUsagePercent,
-                Bytes2Megabytes(static_cast<float>(memSnapshot)),
-                Bytes2Megabytes(static_cast<float>(this->Context_->SysInfoSnapshot.TotalSystemMemory)),
-                sysPoolPer,
-                Bytes2Megabytes(static_cast<float>(sysPoolSize)),
-                Bytes2Megabytes(static_cast<float>(this->Context_->SystemPoolSize)),
-                bootTime
+            memUsagePercent,
+            Bytes2Megabytes(static_cast<float>(memSnapshot)),
+            Bytes2Megabytes(static_cast<float>(this->Context_->SysInfoSnapshot.TotalSystemMemory)),
+            sysPoolPer,
+            Bytes2Megabytes(static_cast<float>(sysPoolSize)),
+            Bytes2Megabytes(static_cast<float>(this->Context_->SystemPoolSize)),
+            bootTime
 		);
 	}
 
@@ -644,9 +635,7 @@ namespace Nominax::Core
 	{
 		ByteCode::Image codeImage { };
 		const ByteCode::ValidationResultCode buildResult { ByteCode::Stream::Build(stream, this->GetOptimizationHints(), codeImage) };
-        NOX_PAS_EQ(buildResult, ByteCode::ValidationResultCode::Ok, Format("Byte code validation failed for stream! {}",
-                                                                           REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[ToUnderlying(
-                                                                                   buildResult)]));
+        NOX_PAS_EQ(buildResult, ByteCode::ValidationResultCode::Ok, Format("Byte code validation failed for stream! {}", REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[ToUnderlying(buildResult)]));
 		return (*this)(codeImage);
 	}
 
@@ -723,47 +712,47 @@ namespace Nominax::Core
 	auto Environment::GetOptimizationHints() const -> ByteCode::OptimizationHints
 	{
 		VALIDATE_ONLINE_BOOT_STATE();
-        JumpTable jumpTable { this->Context_->OptimalReactorRoutine.JTable };
+		const JumpTable jumpTable { this->Context_->OptimalReactorRoutine.JTable };
 		return
 		{
 			jumpTable
 		};
 	}
 
-    auto Environment::GetOutputStream() const -> FILE*
+    auto Environment::GetOutputStream() const -> FILE&
     {
         VALIDATE_ONLINE_BOOT_STATE();
-        return this->Context_->OutputStream;
+        return *this->Context_->OutputStream;
     }
 
-    auto Environment::GetErrorStream() const -> FILE*
+    auto Environment::GetErrorStream() const -> FILE&
     {
         VALIDATE_ONLINE_BOOT_STATE();
-        return this->Context_->ErrorStream;
+        return *this->Context_->ErrorStream;
     }
 
-    auto Environment::GetInputStream() const -> FILE*
+    auto Environment::GetInputStream() const -> FILE&
     {
         VALIDATE_ONLINE_BOOT_STATE();
-        return this->Context_->InputStream;
+        return *this->Context_->InputStream;
     }
 
-    auto Environment::SetOutputStream(FILE* const stream) -> void
+    auto Environment::SetOutputStream(FILE& stream) const -> void
     {
         VALIDATE_ONLINE_BOOT_STATE();
-        this->Context_->OutputStream = stream;
+        this->Context_->OutputStream = &stream;
     }
 
-    auto Environment::SetErrorStream(FILE* const stream) -> void
+    auto Environment::SetErrorStream(FILE& stream) const -> void
     {
         VALIDATE_ONLINE_BOOT_STATE();
-        this->Context_->ErrorStream = stream;
+        this->Context_->ErrorStream = &stream;
     }
 
-    auto Environment::SetInputStream(FILE* const stream) -> void
+    auto Environment::SetInputStream(FILE& stream) const -> void
     {
         VALIDATE_ONLINE_BOOT_STATE();
-        this->Context_->InputStream = stream;
+        this->Context_->InputStream = &stream;
     }
 
     #undef VALIDATE_ONLINE_BOOT_STATE

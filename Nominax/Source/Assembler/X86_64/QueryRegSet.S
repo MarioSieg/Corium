@@ -212,12 +212,8 @@
 
 #ifdef __WIN__
 #define AR0 rcx
-#define AR1 rdx
-#define AR2 r8
 #else
 #define AR0 rdi
-#define AR1 rsi
-#define AR2 rdx
 #endif
 
 # Query general purpose register set (%rip) does not count as GPR!
