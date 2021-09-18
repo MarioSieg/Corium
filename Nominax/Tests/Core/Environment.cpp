@@ -542,13 +542,8 @@ TEST(Environment, SystemConfig)
 {
 	Environment                 env { };
 	const char*                 args[3] {"Ignored", "Hey", "Ho"};
-	const EnvironmentDescriptor descriptor
-	{
-		.ArgC = sizeof args / sizeof*args,
-		.ArgV = args,
-		.AppName = "Hey:)",
-		.SystemPoolSize = 0
-	};
+	EnvironmentDescriptor descriptor { };
+    descriptor.AppName = "Hey:)";
 	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
 
 	ASSERT_EQ(env.GetAppName(), "Hey:)");
@@ -558,14 +553,9 @@ TEST(Environment, PoolSizeZero)
 {
 	Environment                 env { };
 	const char*                 args[3] {"Ignored", "Hey", "Ho"};
-	const EnvironmentDescriptor descriptor
-	{
-		.ArgC = sizeof args / sizeof *args,
-		.ArgV = args,
-		.AppName = "Hey:)",
-		.SystemPoolSize = 0,
-		.ReactorCount = 2
-	};
+    EnvironmentDescriptor descriptor { };
+    descriptor.AppName = "Hey:)";
+    descriptor.SystemPoolSize = 0;
 	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
 
 	ASSERT_EQ(env.GetAppName(), "Hey:)");

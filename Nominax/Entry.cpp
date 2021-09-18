@@ -207,21 +207,28 @@
 
 using namespace Nominax::Prelude;
 
+constexpr std::string_view CONFIG_FILE { "Nominax.ini" };
+
 auto main(const int argc, const char* const* const argv) -> int
 {
-    EnvironmentDescriptor environmentDescriptor
-    {
-        .ArgC = argc,
-        .ArgV = argv,
-        .AppName = "UntitledApp"
-    };
-
     CLIParser parser { argc, argv };
-    const bool shouldBoot { environmentDescriptor.CLIOptions.ParseAndProcess(parser) };
+    CLIOptions options { };
+    const bool shouldBoot { options.ParseAndProcess(parser) };
     if (!shouldBoot)
     {
         [[unlikely]]
         return 0;
+    }
+
+    EnvironmentDescriptor environmentDescriptor { };
+
+    if (!options.NoConfig)
+    {
+        if (!environmentDescriptor.DeserializeFromDisk(CONFIG_FILE))
+        {
+            [[maybe_unused]]
+            const auto _ { environmentDescriptor.SerializeToDisk(CONFIG_FILE) };
+        }
     }
 
 	Environment environment { };

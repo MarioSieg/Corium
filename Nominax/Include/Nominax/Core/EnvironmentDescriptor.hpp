@@ -209,7 +209,7 @@
 #include <cstdint>
 
 #include "../Foundation/MemoryUnits.hpp"
-#include "../Foundation/CLIOptions.hpp"
+#include "../Foundation/ISerializable.hpp"
 
 #include "ReactorCreationDescriptor.hpp"
 #include "ReactorPool.hpp"
@@ -224,39 +224,29 @@ namespace Nominax::Core
 	/// <summary>
 	/// Config descriptor for an environment.
 	/// </summary>
-	struct EnvironmentDescriptor final
+    struct EnvironmentDescriptor final : public Foundation::ISerializable
 	{
-		/// <summary>
-		/// Argument count.
-		/// </summary>
-		std::int32_t ArgC { 0 };
-
-		/// <summary>
-		/// Argument vector.
-		/// </summary>
-		const char* const* ArgV { nullptr };
-
 		/// <summary>
 		/// The name of the app.
 		/// </summary>
-		std::string_view AppName { "Untitled App" };
+		std::string AppName { "Untitled App" };
 
         /// <summary>
-        /// Parsed CLI options - if any.
+        /// Enables system protocol logging.
         /// </summary>
-        Foundation::CLIOptions CLIOptions { };
+        bool EnableProtocol { false };
+
+        /// <summary>
+        /// If true the debug sandbox VM will be used.
+        /// </summary>
+        bool ForceSandboxVM { false };
 
 		/// <summary>
 		/// If true, the fallback reactor implementation
 		/// will be used for all reactors, not the
 		/// runtime selected one (based on CPU features).
 		/// </summary>
-		bool ForceFallback { false };
-
-		/// <summary>
-		/// The size of the boot pool
-		/// </summary>
-		std::uint64_t BootPoolSize { 128_KB };
+		bool ForceFallbackVM { false };
 
 		/// <summary>
 		/// The size of the system memory pool size.
@@ -284,5 +274,19 @@ namespace Nominax::Core
 		/// Power preference of the system.
 		/// </summary>
 		PowerPreference PowerPref { PowerPreference::HighPerformance };
+
+        /// <summary>
+        /// Serialize to file stream.
+        /// </summary>
+        /// <returns>True on success, else false.</returns>
+        [[nodiscard]]
+        virtual auto Serialize(std::ofstream& out) const -> bool;
+
+        /// <summary>
+        /// Deserialize from file stream.
+        /// </summary>
+        /// <returns>True on success, else false.</returns>
+        [[nodiscard]]
+        virtual auto Deserialize(std::ifstream& in) -> bool;
 	};
 }

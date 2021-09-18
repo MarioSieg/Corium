@@ -210,12 +210,16 @@
 
 namespace Nominax::Foundation
 {
+    /// <summary>
+    /// Contains all options available on the command line.
+    /// </summary>
     struct CLIOptions final
     {
         bool EnableProtocol { false };
         bool ForceSandboxVM { false };
         bool ForceFallbackVM { false };
         bool PowerSafeMode { false };
+        bool NoConfig { false };
 
         auto Print() const -> void;
 

@@ -218,7 +218,7 @@ namespace Nominax::Foundation
 	/// <summary>
 	/// Represents an initialization (.ini) file.
 	/// </summary>
-	class IniFile final : public ISerializable
+	class INIFile final : public ISerializable
 	{
 	public:
 		/// <summary>
@@ -229,7 +229,7 @@ namespace Nominax::Foundation
 		/// <summary>
 		/// Represents a value.
 		/// </summary>
-		using Value = std::variant<std::string, std::int64_t, double>;
+		using Value = std::variant<std::string, std::int64_t, double, bool>;
 
 		/// <summary>
 		/// Represents a section with it's entries.
@@ -245,12 +245,6 @@ namespace Nominax::Foundation
 		/// The name of the default section.
 		/// </summary>
 		static constexpr std::string_view DEFAULT_SECTION_NAME { "Default" };
-
-		/// <summary>
-		/// We use spaces instead of tabs because
-		///	tabs are interpreted differently by different text editors.
-		/// </summary>
-		static constexpr std::string_view SECTION_CONTENT_INDENTATION { "    " };
 
 		/// <summary>
 		/// Token for section begin.
@@ -274,49 +268,50 @@ namespace Nominax::Foundation
 
 	private:
 		SectionMap Sections_ { };
+        Key CurrentSection { };
 
 	public:
 		/// <summary>
 		/// Ctor.
 		/// </summary>
-		IniFile() = default;
+		INIFile();
 
 		/// <summary>
 		/// Construct with sections.
 		/// </summary>
 		/// <param name="map"></param>
-		explicit IniFile(SectionMap&& map);
+		explicit INIFile(SectionMap&& map);
 
 		/// <summary>
 		/// Copy constructor.
 		/// </summary>
 		/// <param name="other"></param>
-		IniFile(const IniFile& other) = default;
+		INIFile(const INIFile& other) = default;
 
 		/// <summary>
 		/// Move constructor.
 		/// </summary>
 		/// <param name="other"></param>
-		IniFile(IniFile&& other) = default;
+		INIFile(INIFile&& other) = default;
 
 		/// <summary>
 		/// Copy assignment operator.
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		auto operator =(const IniFile& other) -> IniFile& = default;
+		auto operator =(const INIFile& other) -> INIFile& = default;
 
 		/// <summary>
 		/// Move assignment operator.
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		auto operator =(IniFile&& other) -> IniFile& = default;
+		auto operator =(INIFile&& other) -> INIFile& = default;
 
 		/// <summary>
 		/// Destructor.
 		/// </summary>
-		virtual ~IniFile() override = default;
+		virtual ~INIFile() override = default;
 
 		/// <summary>
 		/// Serialize to file stream.

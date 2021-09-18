@@ -203,60 +203,39 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../Include/Nominax/Foundation/CLIOptions.hpp"
-#include "../../Include/Nominax/Foundation/Version.hpp"
-#include "../../Include/Nominax/Foundation/Print.hpp"
+#include "../../Include/Nominax/Core/EnvironmentDescriptor.hpp"
+#include "../../Include/Nominax/Foundation/INIFile.hpp"
 
-#define MAKE_FLAG(name, short, long, desc)  \
-        constexpr CLIOption name            \
-        {                                   \
-            .Short = ( short ),             \
-            .Long = ( long ),               \
-            .Description = ( desc )         \
-        };                                  \
-        parser.AddOption(name)              \
-
-namespace Nominax::Foundation
+namespace Nominax::Core
 {
-    auto CLIOptions::ParseAndProcess(CLIParser& parser) -> bool
+    using Foundation::INIFile;
+
+    auto EnvironmentDescriptor::Serialize(std::ofstream& out) const -> bool
     {
-        MAKE_FLAG(help, "-h", "--help", "Display the help message listing all options.");
-        MAKE_FLAG(version, "-v", "--version", "Display the version of the runtime system plus addition information.");
-        MAKE_FLAG(protocol, "-p", "--protocol", "Enable protocol logging of the runtime system.");
-        MAKE_FLAG(sandbox, "-s", "--sandbox", "Force sandbox VM execution.");
-        MAKE_FLAG(fallback, "-f", "--fallback", "Force fallback VM execution.");
-        MAKE_FLAG(powersafe, "-ps", "--powersafe", "Enable powersafe mode for less CPU usage.");
-        MAKE_FLAG(noconfig, "-ncfg", "--noconfig", "Disable the creation of a config file.");
+        INIFile file { };
 
-        if (parser.HasFlag(help))
-        {
-            parser.PrintUsage();
-            parser.PrintAllOptions();
-            return false;
-        }
-        else if (parser.HasFlag(version))
-        {
-            PrintSystemInfo();
-            return false;
-        }
+        file.PushSection("App");
+        file.PushValue("Name", this->AppName);
+        file.PushValue("EnableProtocol", this->EnableProtocol);
 
-        this->EnableProtocol = parser.HasFlag(protocol);
-        this->ForceSandboxVM = parser.HasFlag(sandbox);
-        this->ForceFallbackVM = parser.HasFlag(fallback);
-        this->PowerSafeMode = parser.HasFlag(powersafe);
-        this->NoConfig = parser.HasFlag(noconfig);
+        file.PushSection("Runtime");
+        file.PushValue("ReactorPoolBootMode", this->ReactorPoolMode == ReactorPoolBootMode::Cached ? "Cached" : "Deferred");
+        file.PushValue("CachedReactorCount", static_cast<std::int64_t>(this->ReactorCount));
+        file.PushValue("PowerPreference", this->PowerPref == PowerPreference::LowPowerUsage ? "PowerSave" : "HighPerformance");
 
-        return true;
+        file.PushSection("Security");
+        file.PushValue("ForceSandboxVM", this->ForceSandboxVM);
+        file.PushValue("ForceFallbackVM", this->ForceFallbackVM);
+
+        file.PushSection("Memory");
+        file.PushValue("SystemPoolSize", static_cast<std::int64_t>(this->SystemPoolSize));
+        file.PushValue("ReactorStackSize", static_cast<std::int64_t>(this->StackSize));
+
+        return file.Serialize(out);
     }
 
-    auto CLIOptions::Print() const -> void
+    auto EnvironmentDescriptor::Deserialize([[maybe_unused]] std::ifstream& in) -> bool
     {
-        using Foundation::Print;
-
-        Print("Protocol enabled: {}\n", this->EnableProtocol);
-        Print("Force sandbox VM: {}\n", this->ForceSandboxVM);
-        Print("Force fallback VM: {}\n", this->ForceFallbackVM);
-        Print("Power safe mode: {}\n", this->PowerSafeMode);
-        Print("Config disabled: {}\n", this->NoConfig);
+        return false;
     }
 }

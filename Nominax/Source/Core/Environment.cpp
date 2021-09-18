@@ -427,7 +427,6 @@ namespace Nominax::Core
 		const std::uint64_t                                         SystemPoolSize;
 		const std::unique_ptr<std::uint8_t[]>                       SystemPool;
 		std::pmr::monotonic_buffer_resource                         SystemPoolResource;
-		std::pmr::unordered_set<std::pmr::string>                   Arguments;
 		std::pmr::string                                            AppName;
 		const std::chrono::high_resolution_clock::time_point        BootStamp;
 		std::chrono::milliseconds                                   BootTime;
@@ -453,13 +452,12 @@ namespace Nominax::Core
             SystemPoolSize { ComputePoolSize(descriptor.SystemPoolSize, ReactorCount, descriptor.StackSize) },
             SystemPool { AllocatePool(SystemPoolSize, "system") },
             SystemPoolResource { *SystemPool, SystemPoolSize },
-            Arguments { },
             AppName { &SystemPoolResource },
             BootStamp { std::chrono::high_resolution_clock::now() },
             BootTime { },
             SysInfoSnapshot { InitSysInfo() },
             CPUFeatures {InitCpuFeatures() },
-            OptimalReactorRoutine { QueryExecRoutine(descriptor.ForceFallback, CPUFeatures) },
+            OptimalReactorRoutine { QueryExecRoutine(descriptor.ForceFallbackVM, CPUFeatures) },
             CorePool
 		{
 			SystemPoolResource,
@@ -479,12 +477,6 @@ namespace Nominax::Core
             ErrorStream { stderr },
             InputStream { stdin }
 	{
-		if (descriptor.ArgC && descriptor.ArgV)
-		{
-			// copy arguments:
-			this->Arguments.insert(descriptor.ArgV + 1, descriptor.ArgV + descriptor.ArgC);
-		}
-
 		// copy app name:
 		this->AppName = descriptor.AppName;
 	}
@@ -552,18 +544,8 @@ namespace Nominax::Core
 		Print("\nBooting runtime environment...\nApp: \"{}\"\n", descriptor.AppName);
 		const auto tik { std::chrono::high_resolution_clock::now() };
 
-        descriptor.CLIOptions.Print();
-
 		// Invoke hook:
 		DISPATCH_HOOK(OnPreBootHook,);
-
-		Print
-		(
-			"Monotonic boot pool fixed size: {} MB, Min: {} MB, Max: {} MB\n",
-			Bytes2Megabytes(static_cast<double>(descriptor.BootPoolSize)),
-			Bytes2Megabytes(static_cast<double>(BOOT_POOL_SIZE_MIN)),
-			Bytes2Megabytes(static_cast<double>(BOOT_POOL_SIZE_MAX))
-		);
 
 		Print
 		(

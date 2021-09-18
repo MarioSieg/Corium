@@ -372,7 +372,7 @@ def build_corium_compiler():
     print("Target file: " + target_file)
     target_file_path = f"../../{compiler_build_dir}/release/{target_file}"
     print("Target file path: " + target_file_path)
-    output_file = mk_exe_name(f"../../{out_dir}/corium")
+    output_file = mk_exe_name(f"../../{out_dir}/Corium")
     if os.path.isfile(output_file):
         os.remove(output_file)
     print("Output file: " + output_file)
@@ -403,7 +403,7 @@ def build_nominax_runtime():
     print("Target file: " + target_file)
     target_file_path = f"{nominax_build_dir}{target_file}"
     print("Target file path: " + target_file_path)
-    output_file = mk_exe_name(f"{out_dir}/nominax")
+    output_file = mk_exe_name(f"{out_dir}/Nominax")
     if os.path.isfile(output_file):
         os.remove(output_file)
     print("Output file: " + output_file)

@@ -256,7 +256,7 @@ namespace Nominax::Foundation
 		if (!stream)
 		{
 			[[unlikely]]
-				return false;
+            return false;
 		}
 		return this->Serialize(stream);
 	}
@@ -267,7 +267,7 @@ namespace Nominax::Foundation
 		if (!stream)
 		{
 			[[unlikely]]
-				return false;
+            return false;
 		}
 		return this->Deserialize(stream);
 	}

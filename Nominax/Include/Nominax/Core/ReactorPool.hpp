@@ -205,6 +205,9 @@
 
 #pragma once
 
+#include <optional>
+#include <memory>
+
 #include "Reactor.hpp"
 
 namespace Nominax::Core
