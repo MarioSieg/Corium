@@ -232,10 +232,9 @@ namespace Nominax
         Print("\n! NOMINAX RUNTIME Panic !\n");
         Print
         (
-            "{}({}:{})\n-> {}\n",
+            "{}({})\n-> {}\n",
             srcLoc.GetFileName(),
             srcLoc.GetLine(),
-            srcLoc.GetColumn(),
             srcLoc.GetFunctionName()
         );
         Print("{}\n", message);

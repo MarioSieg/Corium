@@ -213,6 +213,7 @@ namespace Nominax::Foundation
 	/// <summary>
 	/// Custom implementation of std::source_location.
 	///	Because std::source_location is not yet implemented in all compilers.
+	/// But this implementation does not contain column because it's not implemented in GCC yet and not really needed.
 	/// </summary>
 	struct SourceLocation final
 	{
@@ -228,7 +229,6 @@ namespace Nominax::Foundation
 		static constexpr auto Current
 		(
 			std::uint_least32_t line = __builtin_LINE(),
-			std::uint_least32_t column = __builtin_COLUMN(),
 			std::string_view fileName = __builtin_FILE(),
 			std::string_view functionName = __builtin_FUNCTION()
 		) -> SourceLocation;
@@ -239,13 +239,6 @@ namespace Nominax::Foundation
 		/// <returns>Current line number.</returns>
 		[[nodiscard]]
 		constexpr auto GetLine() const -> std::uint_least32_t;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>Current column number.</returns>
-		[[nodiscard]]
-		constexpr auto GetColumn() const -> std::uint_least32_t;
 
 		/// <summary>
 		/// 
@@ -263,7 +256,6 @@ namespace Nominax::Foundation
 
 	private:
 		std::uint_least32_t Line;
-		std::uint_least32_t Column;
 		std::string_view FileName;
 		std::string_view FunctionName;
 	};
@@ -271,14 +263,12 @@ namespace Nominax::Foundation
 	constexpr auto SourceLocation::Current
 	(
 		const std::uint_least32_t line,
-		const std::uint_least32_t column,
 		const std::string_view fileName,
 		const std::string_view functionName
 	) -> SourceLocation
 	{
 		SourceLocation result;
 		result.Line = line;
-		result.Column = column;
 		result.FileName = fileName;
 		result.FunctionName = functionName;
 		return result;
@@ -287,11 +277,6 @@ namespace Nominax::Foundation
 	constexpr auto SourceLocation::GetLine() const -> std::uint_least32_t
 	{
 		return this->Line;
-	}
-
-	constexpr auto SourceLocation::GetColumn() const -> std::uint_least32_t
-	{
-		return this->Column;
 	}
 
 	constexpr auto SourceLocation::GetFileName() const -> std::string_view
