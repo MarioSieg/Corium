@@ -264,6 +264,10 @@ toolchains = {
     "LLVM": Toolchain([
         "clang",
         "clang++",
+    ], None),
+    "LLVM-CL": Toolchain([
+        "clang-cl",
+        "ninja"
     ], None)
 }
 
@@ -320,15 +324,15 @@ is_missing_toolchain = False
 
 # Check if we have the correct toolchains
 if not toolchains["Rust"].valid:
-    print("Missing Rust (Cargo) toolchain! Please install Rust first!")
+    print("Missing Rust (Cargo) toolchain! Please install Rust first and add it to $PATH!")
     is_missing_toolchain = True
 
 if not toolchains["CMake"].valid:
-    print("Missing CMAKE toolchain! Please install CMAKE first!")
+    print("Missing CMAKE toolchain! Please install CMAKE first and add it to $PATH!")
     is_missing_toolchain = True
 
-if not toolchains["GNU"].valid and not toolchains["LLVM"].valid:
-    print("Missing C++ toolchains! Please install the GNU C++ or LLVM C++ toolchain first!")
+if not toolchains["GNU"].valid and not toolchains["LLVM"].valid and toolchains["LLVM-CL"].valid:
+    print("Missing C++ toolchains! Please install the GNU C++ or LLVM C++ toolchain first and add it to $PATH!")
     is_missing_toolchain = True
 
 if is_missing_toolchain:
@@ -343,7 +347,7 @@ print("Great, required toolchains and prerequisites are installed!")
 
 print("Creating build directories...")
 
-compiler_build_dir = f"{build_dir}/CoriumC/"
+compiler_build_dir = f"{build_dir}/Corium/"
 nominax_build_dir = f"{build_dir}/Nominax/"
 
 mkdir(build_dir)
@@ -392,8 +396,32 @@ def build_nominax_runtime():
         print("Missing CMakeLists.txt in directory!")
         exit(-1)
     print("Configuring CMake...")
-    cmd = f"cmake -D CMAKE_C_COMPILER=gcc-11 -D CMAKE_CXX_COMPILER=g++-11 -B {nominax_build_dir} -DCMAKE_BUILD_TYPE=Release"
-    exec(cmd)
+    cmd = None
+    if osname == "Windows":
+        print("Expecting Visual Studio 16 2019 is installed!")
+        cc = "clang-cl"
+        cxx = "clang-cl"
+        make = "ninja"
+        ldir1 = "C:/Program Files (x86)/Windows Kits/10/Lib/10.0.19041.0/um/x64"
+        ldir2 = "C:/Program Files (x86)/Windows Kits/10/Lib/10.0.19041.0/ucrt/x64"
+        ldir3 = "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.29.30133/lib/onecore/x64"
+        if not os.path.isdir(ldir1):
+            print("Missing link dir: " + ldir1)
+        if not os.path.isdir(ldir2):
+            print("Missing link dir: " + ldir2)
+        if not os.path.isdir(ldir3):
+            print("Missing link dir: " + ldir3)
+        lflags1 = f"/LIBPATH:\"{ldir1}\""
+        lflags2 = f"/LIBPATH:\"{ldir2}\""
+        lflags3 = f"/LIBPATH:\"{ldir3}\""
+        cmd = f"cmake -E Tools/Env.bat LD_FLAGS=\"{lflags1} {lflags2} {lflags3}\""
+        exec(cmd)
+        cmd = f"cmake -DCMAKE_MAKE_PROGRAM=\"{make}\" -G Ninja -DCMAKE_C_COMPILER=\"{cc}\" -DCMAKE_CXX_COMPILER=\"{cxx}\" -B {nominax_build_dir} -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=20 -DRUN_HAVE_STD_REGEX=0 -DRUN_HAVE_POSIX_REGEX=0"
+    else:
+        cc = "gcc-11"
+        cxx = "g++-11"
+        cmd = f"cmake -DCMAKE_C_COMPILER={cc} -DCMAKE_CXX_COMPILER={cxx} -B {nominax_build_dir} -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=20"
+    exec(cmd, osname == "Windows")
     print("Invoking compiler services...")
     print("Comiling Nominax... This might take a long time depending on your hardware")
     print(f"Using {threads} threads for C++ compilation")

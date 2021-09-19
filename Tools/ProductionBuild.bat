@@ -1,1 +1,1 @@
-python3 ProductionBuild.py
+python ProductionBuild.py

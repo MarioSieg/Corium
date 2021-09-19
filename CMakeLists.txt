@@ -18,8 +18,8 @@ IF (MSVC AND NOT ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
 ENDIF()
 
 OPTION("NOMINAX_FAST_MATH" "Use fast but IEEE incompatible math" ON)
-OPTION("NOMINAX_BUILD_UNIT_TESTS" "Build the unit tests for all projects" ON)
-OPTION("NOMINAX_BUILD_BENCHMARKS" "Build the benchmarks for all projects" ON)
+OPTION("NOMINAX_BUILD_UNIT_TESTS" "Build the unit tests for all projects" OFF)
+OPTION("NOMINAX_BUILD_BENCHMARKS" "Build the benchmarks for all projects" OFF)
 
 INCLUDE("CMake/UnitTests.cmake")
 INCLUDE("CMake/Benchmarks.cmake")
