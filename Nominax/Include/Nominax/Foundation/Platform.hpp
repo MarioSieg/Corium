@@ -1,7 +1,5 @@
-// File: Platform.hpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -276,6 +274,14 @@
 #	undef NOX_DEBUG
 #	define NOX_DEBUG true
 #	define NOX_DEBUG_ONLY(expr) expr
+#endif
+
+#ifdef __NOX_TEST__
+#   undef NOX_TEST
+#   define NOX_TEST true
+#else
+#   undef NOX_TEST
+#   define NOX_TEST false
 #endif
 
 #if defined(_WIN64) || defined(__CYGWIN__)

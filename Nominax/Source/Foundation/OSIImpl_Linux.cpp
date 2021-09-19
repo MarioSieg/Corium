@@ -1,7 +1,5 @@
-// File: OSIImpl_Linux.cpp
 // Author: Mario
-// Created: 20.08.2021 2:41 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -241,10 +239,10 @@ namespace Nominax::Foundation
 		if (!file)
 		{
 			[[unlikely]]
-				return 0;
+            return 0;
 		}
-		long       pages = 0;
-		const auto items { std::fscanf(file, "%*s%ld", &pages) };
+		long pages { 0 };
+		const int items { std::fscanf(file, "%*s%ld", &pages) };
 		std::fclose(file);
 		return static_cast<std::uint64_t>(items == 1 ? pages * sysconf(_SC_PAGESIZE) : 0);
 	}

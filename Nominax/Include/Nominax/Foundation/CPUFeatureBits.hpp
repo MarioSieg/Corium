@@ -1,7 +1,5 @@
-// File: CPUFeatureBits.hpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -315,7 +313,7 @@ namespace Nominax::Foundation
 		CLFLUSH = 19,
 
 		/// <summary>
-		/// Debug store: save trace of executed jumps
+		/// UseSandboxVM store: save trace of executed jumps
 		/// </summary>
 		DS = 21,
 
@@ -426,7 +424,7 @@ namespace Nominax::Foundation
 		CNXTID = 42,
 
 		/// <summary>
-		/// Silicon Debug interface
+		/// Silicon UseSandboxVM interface
 		/// </summary>
 		SDBG = 43,
 

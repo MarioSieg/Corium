@@ -1,7 +1,5 @@
-// File: ReactorTestHelper.hpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -244,7 +242,7 @@ constexpr VerboseReactorDescriptor MOCK_REACTOR_INPUT
 
 inline std::array MockCode
 {
-	Signal { Instruction::NOp }, // first padding
-	Signal { Instruction::Int },
+	Signal { Instruction::NOP }, // first padding
+	Signal { Instruction::INT },
 	Signal { INT64_C(5) },
 };

@@ -1,7 +1,5 @@
-// File: Stream.cpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -220,8 +218,8 @@ TEST(BytecodeStream, Push)
 	ASSERT_EQ(stream.Size(), 0);
 
 	stream << static_cast<std::uint64_t>(0);
-	stream << Instruction::NOp;
-	stream << Instruction::Call;
+	stream << Instruction::NOP;
+	stream << Instruction::CALL;
 	stream << SystemIntrinsicInvocationID::ACos;
 	stream << UserIntrinsicInvocationID {3};
 	stream << 3.5;
@@ -230,8 +228,8 @@ TEST(BytecodeStream, Push)
 
 	ASSERT_EQ(stream.Size(), 8);
 	ASSERT_TRUE(stream[0].Contains(UINT64_C(0)));
-	ASSERT_TRUE(stream[1].Contains(Instruction::NOp));
-	ASSERT_TRUE(stream[2].Contains(Instruction::Call));
+	ASSERT_TRUE(stream[1].Contains(Instruction::NOP));
+	ASSERT_TRUE(stream[2].Contains(Instruction::CALL));
 	ASSERT_TRUE(stream[3].Contains(SystemIntrinsicInvocationID::ACos));
 	ASSERT_TRUE(stream[4].Contains(UserIntrinsicInvocationID{ 3 }));
 	ASSERT_TRUE(stream[5].Contains(3.5));
@@ -300,20 +298,20 @@ TEST(BytecodeStream, CodeGenerationNoOpt)
     }
     stream.Epilogue();
 	ASSERT_EQ(stream.Size(), 15);
-	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Push));
+	ASSERT_TRUE(stream[0].Contains(Instruction::NOP));
+	ASSERT_TRUE(stream[1].Contains(Instruction::PUSH));
 	ASSERT_TRUE(stream[2].Contains<std::int64_t>(2));
-	ASSERT_TRUE(stream[3].Contains(Instruction::Push));
+	ASSERT_TRUE(stream[3].Contains(Instruction::PUSH));
 	ASSERT_TRUE(stream[4].Contains<std::int64_t>(2));
-	ASSERT_TRUE(stream[5].Contains(Instruction::IMul));
-	ASSERT_TRUE(stream[6].Contains(Instruction::Push));
+	ASSERT_TRUE(stream[5].Contains(Instruction::IMUL));
+	ASSERT_TRUE(stream[6].Contains(Instruction::PUSH));
 	ASSERT_TRUE(stream[7].Contains<std::int64_t>(1));
-	ASSERT_TRUE(stream[8].Contains(Instruction::IAdd));
-	ASSERT_TRUE(stream[9].Contains(Instruction::Push));
+	ASSERT_TRUE(stream[8].Contains(Instruction::IADD));
+	ASSERT_TRUE(stream[9].Contains(Instruction::PUSH));
 	ASSERT_TRUE(stream[10].Contains<std::int64_t>(1));
-	ASSERT_TRUE(stream[11].Contains(Instruction::IDiv));
-	ASSERT_TRUE(stream[12].Contains(Instruction::Pop));
-	ASSERT_TRUE(stream[13].Contains(Instruction::Int));
+	ASSERT_TRUE(stream[11].Contains(Instruction::IDIV));
+	ASSERT_TRUE(stream[12].Contains(Instruction::POP));
+	ASSERT_TRUE(stream[13].Contains(Instruction::INT));
 	ASSERT_TRUE(stream[14].Contains<std::int64_t>(0));
 }
 
@@ -330,14 +328,14 @@ TEST(BytecodeStream, CodeGenerationOpt3)
     }
     stream.Epilogue();
 	ASSERT_EQ(stream.Size(), 9);
-	ASSERT_TRUE(stream[0].Contains(Instruction::NOp));
-	ASSERT_TRUE(stream[1].Contains(Instruction::Push));
+	ASSERT_TRUE(stream[0].Contains(Instruction::NOP));
+	ASSERT_TRUE(stream[1].Contains(Instruction::PUSH));
 	ASSERT_TRUE(stream[2].Contains<std::int64_t>(2));
-	ASSERT_TRUE(stream[3].Contains(Instruction::IPushO));
-	ASSERT_TRUE(stream[4].Contains(Instruction::ISal));
-	ASSERT_TRUE(stream[5].Contains(Instruction::IInc));
-	ASSERT_TRUE(stream[6].Contains(Instruction::Pop));
-	ASSERT_TRUE(stream[7].Contains(Instruction::Int));
+	ASSERT_TRUE(stream[3].Contains(Instruction::IPUSHO));
+	ASSERT_TRUE(stream[4].Contains(Instruction::ISAL));
+	ASSERT_TRUE(stream[5].Contains(Instruction::IINC));
+	ASSERT_TRUE(stream[6].Contains(Instruction::POP));
+	ASSERT_TRUE(stream[7].Contains(Instruction::INT));
 	ASSERT_TRUE(stream[8].Contains<std::int64_t>(0));
 }
 

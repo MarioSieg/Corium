@@ -1,7 +1,5 @@
-// File: Routines.hpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -212,8 +210,8 @@
 namespace Nominax::Assembler::X86_64::Routines
 {
 	/// <summary>
-		/// Returns a special constant value depending on the OS for testing.
-		/// </summary>
+    /// Returns a special constant value depending on the OS for testing.
+    /// </summary>
 	extern "C" NOX_ASM_ROUTINE auto MockCall() -> std::uint64_t;
 
 	/// <summary>
@@ -221,14 +219,14 @@ namespace Nominax::Assembler::X86_64::Routines
 	/// Warning! Do not use this! On most systems it will crash
 	/// because the in instruction cannot get executed from user space.
 	/// </summary>
-	extern "C" NOX_ASM_ROUTINE auto VmDetector() -> bool;
+	extern "C" NOX_ASM_ROUTINE auto VMDetector() -> bool;
 
 	/// <summary>
 	/// Detects vm ware using a port read action.
 	/// Warning! Do not use this! On most systems it will crash
 	/// because the in instruction cannot get executed from user space.
 	/// </summary>
-	extern "C" NOX_ASM_ROUTINE auto VmWareDetector() -> bool;
+	extern "C" NOX_ASM_ROUTINE auto VMWareDetector() -> bool;
 
 	/// <summary>
 	/// Assembly routine which calls cpuid
@@ -241,7 +239,7 @@ namespace Nominax::Assembler::X86_64::Routines
 	/// constructor.
 	/// Implementation: Source/Arch/X86_64.CpuId.S
 	/// </summary>
-	extern "C" NOX_ASM_ROUTINE auto CpuId
+	extern "C" NOX_ASM_ROUTINE auto CPUID
 	(
 		std::uint64_t* out1,
 		std::uint64_t* out2,
@@ -249,34 +247,65 @@ namespace Nominax::Assembler::X86_64::Routines
 	) -> std::uint32_t;
 
 	/// <summary>
-	/// Queries the 16 GPR 64-bit registers and the 16 XMM 128-bit registers.
+	/// Queries the 16 64-bit GPR registers (%rax - %r15).
 	/// </summary>
-	extern "C" NOX_ASM_ROUTINE auto QueryRegSet(std::uint64_t gpr[16], std::uint64_t sse[32]) -> void;
+	/// <param name="REG_STORAGE_GPR">A pointer to the data of GPRRegisterSet.</param>
+	extern "C" NOX_ASM_ROUTINE auto QueryRegSet_GPR(GPRRegister64Layout* out) -> void;
+
+    /// <summary>
+    /// Queries the 16 128-bit SSE registers (%xmm0 - %xmm15).
+    /// </summary>
+    /// <param name="REG_STORAGE_GPR">A pointer to the data of SSERegisterSet.</param>
+	extern "C" NOX_ASM_ROUTINE auto QueryRegSet_SSE(SSERegister128Layout* out) -> void;
+
+    /// <summary>
+    /// Queries the 16 256-bit AVX registers (%ymm0 - %ymm15).
+    /// </summary>
+    /// <param name="REG_STORAGE_GPR">A pointer to the data of AVXRegisterSet.</param>
+    extern "C" NOX_ASM_ROUTINE auto QueryRegSet_AVX(AVXRegister256Layout* out) -> void;
+
+    /// <summary>
+    /// Queries the 32 512-bit AVX-512 registers (%zmm0 - %zmm31).
+    /// </summary>
+    /// <param name="REG_STORAGE_GPR">A pointer to the data of AVX512RegisterSet.</param>
+    extern "C" NOX_ASM_ROUTINE auto QueryRegSet_AVX512(AVX512Register512Layout* out) -> void;
+
+    /// <summary>
+    /// Queries the 16 16-bit mask registers (%k0 - %k7).
+    /// </summary>
+    /// <param name="REG_STORAGE_GPR">A pointer to the data of AVX512MaskRegisterSet.</param>
+    extern "C" NOX_ASM_ROUTINE auto QueryRegSet_AVX512Masks(AVX512MaskRegister16Layout* out) -> void;
+
+    /// <summary>
+    /// Queries the 16 64-bit mask registers (AVX 512 BW) (%k0 - %k7).
+    /// </summary>
+    /// <param name="REG_STORAGE_GPR">A pointer to the data of AVX512BWMaskRegisterSet.</param>
+    extern "C" NOX_ASM_ROUTINE auto QueryRegSet_AVX512BWMasks(AVX512BWMaskRegister64Layout* out) -> void;
 
 	/// <summary>
 	/// Returns 1 if the current CPU supports the CPUID instruction, else 0.
 	/// Implementation: Source/Arch/X86_64.CpuId.S
 	/// </summary>
-	extern "C" NOX_ASM_ROUTINE auto IsCpuIdSupported() -> bool;
+	extern "C" NOX_ASM_ROUTINE auto IsCPUIDSupported() -> bool;
 
 	/// <summary>
 	/// Returns true if the OS supports AVX YMM registers, else false.
 	/// Warning! Check if os supports OSXSAVE first!
 	/// </summary>
-	extern "C" NOX_ASM_ROUTINE auto IsAvxSupportedByOs() -> bool;
+	extern "C" NOX_ASM_ROUTINE auto IsAVXSupportedByOS() -> bool;
 
 	/// <summary>
 	/// Returns true if the OS supports AVX512 ZMM registers, else false.
 	/// Warning! Check if os supports OSXSAVE first!
 	/// </summary>
-	extern "C" NOX_ASM_ROUTINE auto IsAvx512SupportedByOs() -> bool;
+	extern "C" NOX_ASM_ROUTINE auto IsAVX512SupportedByOS() -> bool;
 
 	/// <summary>
 	/// Queries the value of the %rip instruction pointer.
 	/// </summary>
-	/// <returns></returns>
+	/// <returns>The %rip instruction pointer.</returns>
 	[[nodiscard]]
-	inline auto QueryRip() -> const void*
+	inline auto QueryRIP() -> const void*
 	{
 		std::uintptr_t rip;
 		asm volatile
@@ -285,6 +314,6 @@ namespace Nominax::Assembler::X86_64::Routines
 			"1: popq %0"
 			: "=r"(rip)
 		);
-		return reinterpret_cast<const void*>(rip);
+		return std::bit_cast<const void*>(rip);
 	}
 }

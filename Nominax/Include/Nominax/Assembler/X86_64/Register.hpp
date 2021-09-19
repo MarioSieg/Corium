@@ -1,7 +1,5 @@
-// File: Register.hpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -213,8 +211,8 @@ namespace Nominax::Assembler::X86_64
 {
 	enum class RegisterType : std::uint8_t
 	{
-		Gpr,
-		Simd
+		GPR,
+		SIMD
 	};
 
 	/// <summary>
@@ -225,12 +223,12 @@ namespace Nominax::Assembler::X86_64
 		/// <summary>
 		/// The virtual register id.
 		/// </summary>
-		const std::uint8_t VirtualId;
+		const std::uint8_t VirtualID;
 
 		/// <summary>
 		/// The physical register id (in the CPU).
 		/// </summary>
-		const std::uint8_t PhysicalId;
+		const std::uint8_t PhysicalID;
 
 		/// <summary>
 		/// The name of the register.
@@ -260,7 +258,7 @@ namespace Nominax::Assembler::X86_64
 
 	constexpr auto Register::operator==(const Register& other) const -> bool
 	{
-		return this->VirtualId == other.VirtualId;
+		return this->VirtualID == other.VirtualID;
 	}
 
 	constexpr auto Register::operator!=(const Register& other) const -> bool
@@ -273,11 +271,11 @@ namespace Nominax::Assembler::X86_64
 	/// </summary>
 	constexpr Register RAX
 	{
-		.VirtualId = 0x00,
-		.PhysicalId = 0x00,
+		.VirtualID = 0x00,
+		.PhysicalID = 0x00,
 		.Name = "rax",
 		.Size = WordSize::QWord,
-		.Type = RegisterType::Gpr
+		.Type = RegisterType::GPR
 	};
 
 	/// <summary>
@@ -285,11 +283,11 @@ namespace Nominax::Assembler::X86_64
 	/// </summary>
 	constexpr Register RBX
 	{
-		.VirtualId = 0x01,
-		.PhysicalId = 0x03,
+		.VirtualID = 0x01,
+		.PhysicalID = 0x03,
 		.Name = "rbx",
 		.Size = WordSize::QWord,
-		.Type = RegisterType::Gpr
+		.Type = RegisterType::GPR
 	};
 
 	/// <summary>
@@ -297,11 +295,11 @@ namespace Nominax::Assembler::X86_64
 	/// </summary>
 	constexpr Register RCX
 	{
-		.VirtualId = 0x02,
-		.PhysicalId = 0x01,
+		.VirtualID = 0x02,
+		.PhysicalID = 0x01,
 		.Name = "rcx",
 		.Size = WordSize::QWord,
-		.Type = RegisterType::Gpr
+		.Type = RegisterType::GPR
 	};
 
 	/// <summary>
@@ -309,11 +307,11 @@ namespace Nominax::Assembler::X86_64
 	/// </summary>
 	constexpr Register RDX
 	{
-		.VirtualId = 0x03,
-		.PhysicalId = 0x02,
+		.VirtualID = 0x03,
+		.PhysicalID = 0x02,
 		.Name = "rdx",
 		.Size = WordSize::QWord,
-		.Type = RegisterType::Gpr
+		.Type = RegisterType::GPR
 	};
 
 	/// <summary>
@@ -321,11 +319,11 @@ namespace Nominax::Assembler::X86_64
 	/// </summary>
 	constexpr Register RSI
 	{
-		.VirtualId = 0x04,
-		.PhysicalId = 0x06,
+		.VirtualID = 0x04,
+		.PhysicalID = 0x06,
 		.Name = "rsi",
 		.Size = WordSize::QWord,
-		.Type = RegisterType::Gpr
+		.Type = RegisterType::GPR
 	};
 
 	/// <summary>
@@ -333,11 +331,11 @@ namespace Nominax::Assembler::X86_64
 	/// </summary>
 	constexpr Register RDI
 	{
-		.VirtualId = 0x05,
-		.PhysicalId = 0x07,
+		.VirtualID = 0x05,
+		.PhysicalID = 0x07,
 		.Name = "rdi",
 		.Size = WordSize::QWord,
-		.Type = RegisterType::Gpr
+		.Type = RegisterType::GPR
 	};
 
 	/// <summary>
@@ -345,11 +343,11 @@ namespace Nominax::Assembler::X86_64
 	/// </summary>
 	constexpr Register RBP
 	{
-		.VirtualId = 0x06,
-		.PhysicalId = 0x05,
+		.VirtualID = 0x06,
+		.PhysicalID = 0x05,
 		.Name = "rbp",
 		.Size = WordSize::QWord,
-		.Type = RegisterType::Gpr
+		.Type = RegisterType::GPR
 	};
 
 	/// <summary>
@@ -357,11 +355,11 @@ namespace Nominax::Assembler::X86_64
 	/// </summary>
 	constexpr Register RSP
 	{
-		.VirtualId = 0x07,
-		.PhysicalId = 0x04,
+		.VirtualID = 0x07,
+		.PhysicalID = 0x04,
 		.Name = "rsp",
 		.Size = WordSize::QWord,
-		.Type = RegisterType::Gpr
+		.Type = RegisterType::GPR
 	};
 
 	/// <summary>
@@ -369,11 +367,11 @@ namespace Nominax::Assembler::X86_64
 	/// </summary>
 	constexpr Register R8
 	{
-		.VirtualId = 0x08,
-		.PhysicalId = 0x00,
+		.VirtualID = 0x08,
+		.PhysicalID = 0x00,
 		.Name = "r8",
 		.Size = WordSize::QWord,
-		.Type = RegisterType::Gpr
+		.Type = RegisterType::GPR
 	};
 
 	/// <summary>
@@ -381,11 +379,11 @@ namespace Nominax::Assembler::X86_64
 	/// </summary>
 	constexpr Register R9
 	{
-		.VirtualId = 0x09,
-		.PhysicalId = 0x01,
+		.VirtualID = 0x09,
+		.PhysicalID = 0x01,
 		.Name = "r9",
 		.Size = WordSize::QWord,
-		.Type = RegisterType::Gpr
+		.Type = RegisterType::GPR
 	};
 
 	/// <summary>
@@ -393,11 +391,11 @@ namespace Nominax::Assembler::X86_64
 	/// </summary>
 	constexpr Register R10
 	{
-		.VirtualId = 0x0A,
-		.PhysicalId = 0x02,
+		.VirtualID = 0x0A,
+		.PhysicalID = 0x02,
 		.Name = "r10",
 		.Size = WordSize::QWord,
-		.Type = RegisterType::Gpr
+		.Type = RegisterType::GPR
 	};
 
 	/// <summary>
@@ -405,11 +403,11 @@ namespace Nominax::Assembler::X86_64
 	/// </summary>
 	constexpr Register R11
 	{
-		.VirtualId = 0x0B,
-		.PhysicalId = 0x03,
+		.VirtualID = 0x0B,
+		.PhysicalID = 0x03,
 		.Name = "r11",
 		.Size = WordSize::QWord,
-		.Type = RegisterType::Gpr
+		.Type = RegisterType::GPR
 	};
 
 	/// <summary>
@@ -417,11 +415,11 @@ namespace Nominax::Assembler::X86_64
 	/// </summary>
 	constexpr Register R12
 	{
-		.VirtualId = 0x0C,
-		.PhysicalId = 0x04,
+		.VirtualID = 0x0C,
+		.PhysicalID = 0x04,
 		.Name = "r12",
 		.Size = WordSize::QWord,
-		.Type = RegisterType::Gpr
+		.Type = RegisterType::GPR
 	};
 
 	/// <summary>
@@ -429,11 +427,11 @@ namespace Nominax::Assembler::X86_64
 	/// </summary>
 	constexpr Register R13
 	{
-		.VirtualId = 0x0D,
-		.PhysicalId = 0x05,
+		.VirtualID = 0x0D,
+		.PhysicalID = 0x05,
 		.Name = "r13",
 		.Size = WordSize::QWord,
-		.Type = RegisterType::Gpr
+		.Type = RegisterType::GPR
 	};
 
 	/// <summary>
@@ -441,11 +439,11 @@ namespace Nominax::Assembler::X86_64
 	/// </summary>
 	constexpr Register R14
 	{
-		.VirtualId = 0x0E,
-		.PhysicalId = 0x06,
+		.VirtualID = 0x0E,
+		.PhysicalID = 0x06,
 		.Name = "r14",
 		.Size = WordSize::QWord,
-		.Type = RegisterType::Gpr
+		.Type = RegisterType::GPR
 	};
 
 	/// <summary>
@@ -453,11 +451,11 @@ namespace Nominax::Assembler::X86_64
 	/// </summary>
 	constexpr Register R15
 	{
-		.VirtualId = 0x0F,
-		.PhysicalId = 0x07,
+		.VirtualID = 0x0F,
+		.PhysicalID = 0x07,
 		.Name = "r15",
 		.Size = WordSize::QWord,
-		.Type = RegisterType::Gpr
+		.Type = RegisterType::GPR
 	};
 
 	constexpr std::array<std::reference_wrapper<const Register>, 16> ALL_GPR_REGISTERS

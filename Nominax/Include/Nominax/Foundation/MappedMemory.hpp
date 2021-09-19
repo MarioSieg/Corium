@@ -1,7 +1,5 @@
-// File: MappedMemory.hpp
 // Author: Mario
-// Created: 03.09.2021 11:54 AM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -217,8 +215,9 @@ namespace Nominax::Foundation
 	/// <summary>
 	/// RAII wrapper around a virtual memory mapping.
 	/// </summary>
-	class MappedMemory final
+	class MappedMemory
 	{
+    protected:
 		void*                    Region_ { nullptr };
 		VirtualAllocationHeader* Header_ { nullptr };
 
@@ -233,9 +232,9 @@ namespace Nominax::Foundation
 		/// See class VMM in VirtualPageAllocator.hpp for more info!</param>
 		explicit MappedMemory
 		(
-			std::uint64_t             size,
-			MemoryPageProtectionFlags flags            = MemoryPageProtectionFlags::ReadWrite,
-			bool                      lockedProtection = false
+			std::uint64_t size,
+			MemoryPageProtectionFlags flags = MemoryPageProtectionFlags::ReadWrite,
+			bool lockedProtection = false
 		);
 
 		/// <summary>
@@ -268,14 +267,21 @@ namespace Nominax::Foundation
 		/// Destructor.
 		/// Panics on fail.
 		/// </summary>
-		~MappedMemory();
+		virtual ~MappedMemory();
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The memory region allocated.</returns>
 		[[nodiscard]]
-		auto GetRegion() const -> void*;
+		auto GetRawRegion() -> void*;
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns>The memory region allocated.</returns>
+        [[nodiscard]]
+        auto GetRawRegion() const -> const void*;
 
 		/// <summary>
 		/// 
@@ -289,7 +295,7 @@ namespace Nominax::Foundation
 		/// </summary>
 		/// <returns>The size of the region in bytes.</returns>
 		[[nodiscard]]
-		auto GetSize() const -> std::uint64_t;
+		auto GetByteSize() const -> std::uint64_t;
 
 		/// <summary>
 		/// 
@@ -335,7 +341,12 @@ namespace Nominax::Foundation
 		auto QueryRegion() const -> const T&;
 	};
 
-	inline auto MappedMemory::GetRegion() const -> void*
+    inline auto MappedMemory::GetRawRegion() -> void*
+    {
+        return this->Region_;
+    }
+
+	inline auto MappedMemory::GetRawRegion() const -> const void*
 	{
 		return this->Region_;
 	}
@@ -345,7 +356,7 @@ namespace Nominax::Foundation
 		return *this->Header_;
 	}
 
-	inline auto MappedMemory::GetSize() const -> std::uint64_t
+	inline auto MappedMemory::GetByteSize() const -> std::uint64_t
 	{
 		return this->Header_->Size;
 	}
@@ -373,11 +384,11 @@ namespace Nominax::Foundation
 
 	inline auto MappedMemory::DirtyPages() const -> void
 	{
-		std::memset(this->Region_, 0, this->GetSize());
+		std::memset(this->Region_, 0, this->GetByteSize());
 	}
 
 	inline auto MappedMemory::MemSet(const std::uint8_t value, const std::uint64_t offset) const -> void
 	{
-		std::memset(static_cast<std::uint8_t*>(this->Region_) + offset, value, this->GetSize());
+		std::memset(static_cast<std::uint8_t*>(this->Region_) + offset, value, this->GetByteSize());
 	}
 }

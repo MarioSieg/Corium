@@ -1,7 +1,5 @@
-// File: Benchmarks.cpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -218,18 +216,18 @@ auto Loop1BillionVectors(State& state) -> void
 {
 	LoopBenchmark(state, [](Stream& stream)
 	{
-		stream << Instruction::VecPush;
+		stream << Instruction::VPUSH;
 		stream << 1.0;
 		stream << 2.0;
 		stream << 3.0;
 		stream << 8.0;
-		stream << Instruction::VecPush;
+		stream << Instruction::VPUSH;
 		stream << 4.0;
 		stream << 2.0;
 		stream << 0.5;
 		stream << 4.0;
-		stream << Instruction::VecDiv;
-		stream << Instruction::VecPop;
+		stream << Instruction::VDIV;
+		stream << Instruction::VPOP;
 	}, 1'000'000'000);
 }
 
@@ -239,7 +237,7 @@ auto Loop1BillionMatrices(State& state) -> void
 {
 	LoopBenchmark(state, [](Stream& stream)
 	{
-		stream << Instruction::MatPush;
+		stream << Instruction::MPUSH;
 		stream << 1.0;
 		stream << 4.0;
 		stream << 3.0;
@@ -256,7 +254,7 @@ auto Loop1BillionMatrices(State& state) -> void
 		stream << 2.0;
 		stream << 3.0;
 		stream << 6.0;
-		stream << Instruction::MatPush;
+		stream << Instruction::MPUSH;
 		stream << 1.0;
 		stream << 2.0;
 		stream << 3.0;
@@ -273,8 +271,8 @@ auto Loop1BillionMatrices(State& state) -> void
 		stream << 2.0;
 		stream << 3.0;
 		stream << 6.0;
-		stream << Instruction::MatAdd;
-		stream << Instruction::MatPop;
+		stream << Instruction::MADD;
+		stream << Instruction::MPOP;
 	}, 1'000'000'000);
 }
 
@@ -290,9 +288,9 @@ auto ValidateAlgorithm1BillionEntries(State& state) -> void
 
 	for (std::size_t i {0}; i < count; ++i)
 	{
-		stream << Instruction::Jmp;
+		stream << Instruction::JMP;
 		stream << JumpAddress {0};
-		stream << Instruction::Sto;
+		stream << Instruction::STO;
 		stream << static_cast<std::uint64_t>(1);
 		stream << -0.5;
 	}
@@ -321,9 +319,9 @@ auto TransformAlgorithm1BillionEntries(State& state) -> void
 
 	for (std::size_t i {0}; i < count; ++i)
 	{
-		stream << Instruction::Jmp;
+		stream << Instruction::JMP;
 		stream << JumpAddress {0};
-		stream << Instruction::Sto;
+		stream << Instruction::STO;
 		stream << static_cast<std::uint64_t>(1);
 		stream << -0.5;
 	}
@@ -335,7 +333,7 @@ auto TransformAlgorithm1BillionEntries(State& state) -> void
 	for (auto _ : state)
 	{
 		Image chunk { };
-		TransformStreamToImageByMove(std::move(stream), Env->GetOptimizationHints(), chunk);
+        LinkStreamToImageByMove(std::move(stream), Env->GetOptimizationHints(), chunk);
 		NOX_PAS_EQ(chunk.GetSize(), size, "Invalid chunk!");
 	}
 }

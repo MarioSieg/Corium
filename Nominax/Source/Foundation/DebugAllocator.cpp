@@ -1,7 +1,5 @@
-// File: DebugAllocator.cpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -234,7 +232,7 @@ namespace Nominax::Foundation
 	{
 		IAllocator::Allocate(out, size);
 		const auto [count, suffix] { GetMemoryUnitInfo(size) };
-		Print(TextColor::BrightGreen, "Allocate({:#X}, {} {})\n", reinterpret_cast<std::uintptr_t>(out), count, suffix);
+		Print("Allocate({:#X}, {} {})\n", reinterpret_cast<std::uintptr_t>(out), count, suffix);
 		++this->Allocations_;
 		this->BytesAllocated_ += size;
 	}
@@ -243,14 +241,13 @@ namespace Nominax::Foundation
 	{
 		IAllocator::Reallocate(out, size);
 		const auto [count, suffix] { GetMemoryUnitInfo(size) };
-		Print(TextColor::BrightYellow, "Reallocate({:#X}, {} {})\n", reinterpret_cast<std::uintptr_t>(out), count,
-		      suffix);
+		Print("Reallocate({:#X}, {} {})\n", reinterpret_cast<std::uintptr_t>(out), count, suffix);
 		++this->Reallocations_;
 	}
 
 	auto DebugAllocator::Deallocate(void*& out) const -> void
 	{
-		Print(TextColor::BrightRed, "Deallocate({:#X})\n", reinterpret_cast<std::uintptr_t>(out));
+		Print("Deallocate({:#X})\n", reinterpret_cast<std::uintptr_t>(out));
 		IAllocator::Deallocate(out);
 		++this->Deallocations_;
 	}
@@ -259,8 +256,7 @@ namespace Nominax::Foundation
 	{
 		IAllocator::AllocateAligned(out, size, alignment);
 		const auto [count, suffix] { GetMemoryUnitInfo(size) };
-		Print(TextColor::BrightGreen, "AllocateAligned({:#X}, {} {}, {} A)\n", reinterpret_cast<std::uintptr_t>(out),
-		      count, suffix, alignment);
+		Print("AllocateAligned({:#X}, {} {}, {} A)\n", reinterpret_cast<std::uintptr_t>(out), count, suffix, alignment);
 		++this->Allocations_;
 		this->BytesAllocated_ += size;
 	}
@@ -269,14 +265,13 @@ namespace Nominax::Foundation
 	{
 		IAllocator::ReallocateAligned(out, size, alignment);
 		const auto [count, suffix] { GetMemoryUnitInfo(size) };
-		Print(TextColor::BrightGreen, "ReallocateAligned({:#X}, {} {}, {} A)\n", reinterpret_cast<std::uintptr_t>(out),
-		      count, suffix, alignment);
+		Print("ReallocateAligned({:#X}, {} {}, {} A)\n", reinterpret_cast<std::uintptr_t>(out), count, suffix, alignment);
 		++this->Reallocations_;
 	}
 
 	auto DebugAllocator::DeallocateAligned(void*& out) const -> void
 	{
-		Print(TextColor::BrightRed, "DeallocateAligned({:#X})\n", reinterpret_cast<std::uintptr_t>(out));
+		Print("DeallocateAligned({:#X})\n", reinterpret_cast<std::uintptr_t>(out));
 		IAllocator::DeallocateAligned(out);
 		++this->Deallocations_;
 	}
@@ -284,14 +279,14 @@ namespace Nominax::Foundation
 	auto DebugAllocator::DumpAllocationInfo() const -> void
 	{
 		const auto [count, suffix] { GetMemoryUnitInfo(this->BytesAllocated_) };
-		Print(TextColor::BrightGreen, "Allocations: {}\n", this->Allocations_);
-		Print(TextColor::BrightGreen, "Reallocations: {}\n", this->Reallocations_);
-		Print(TextColor::BrightGreen, "Deallocations: {}\n", this->Deallocations_);
-		Print(TextColor::BrightGreen, "Total: {} {}\n", count, suffix);
+		Print("Allocations: {}\n", this->Allocations_);
+		Print("Reallocations: {}\n", this->Reallocations_);
+		Print("Deallocations: {}\n", this->Deallocations_);
+		Print("Total: {} {}\n", count, suffix);
 		if (this->Allocations_ != this->Deallocations_)
 		{
-			Print(TextColor::BrightYellow, "Missing allocations: {}\n", this->Allocations_ - this->Deallocations_);
+			Print("Missing allocations: {}\n", this->Allocations_ - this->Deallocations_);
 		}
-		Print(TextColor::BrightYellow, "Warning! Some global shutdown deallocations might not be tracked!\n");
+		Print("Warning! Some global shutdown deallocations might not be tracked!\n");
 	}
 }

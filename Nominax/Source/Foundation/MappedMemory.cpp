@@ -1,7 +1,5 @@
-// File: MappedMemory.cpp
 // Author: Mario
-// Created: 03.09.2021 11:54 AM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -212,17 +210,16 @@ namespace Nominax::Foundation
 {
 	MappedMemory::MappedMemory(const std::uint64_t size, const MemoryPageProtectionFlags flags, const bool lockedProtection)
 	{
-		NOX_PAS_NOT_ZERO(size, "Memory mapping with zero size requested!");
-		void* const region { VMM::VirtualAlloc(size, flags, lockedProtection) };
-		NOX_PAS_NOT_NULL(region, "Virtual memory allocation failed!");
+		NOX_DBG_PAS_NOT_ZERO(size, "Memory mapping with zero size requested!");
+		void* const region { VMM::VirtualAlloc(size, flags, lockedProtection, &this->Header_) };
+		NOX_DBG_PAS_NOT_NULL(region, "Virtual memory allocation failed!");
 		this->Region_ = region;
-		const bool result { VMM::MapHeaderFromRegion(region, this->Header_) };
-		NOX_PAS_TRUE(result, "Header mapping for memory mapping failed!");
 	}
 
 	MappedMemory::~MappedMemory()
 	{
+        [[maybe_unused]]
 		const bool result { VMM::VirtualDealloc(this->Region_) };
-		NOX_PAS_TRUE(result, "Virtual memory deallocation failed!");
+		NOX_DBG_PAS_TRUE(result, "Virtual memory deallocation failed!");
 	}
 }

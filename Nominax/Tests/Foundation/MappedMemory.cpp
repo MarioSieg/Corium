@@ -1,7 +1,5 @@
-// File: MappedMemory.cpp
 // Author: Mario
-// Created: 03.09.2021 11:54 AM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -214,8 +212,8 @@ TEST(MappedMemory, Allocate)
 		[]
 		{
 			const MappedMemory mem { sizeof(int) * 2 };
-			ASSERT_NE(mem.GetRegion(), nullptr);
-			ASSERT_EQ(mem.GetSize(), sizeof(int) * 2);
+			ASSERT_NE(mem.GetRawRegion(), nullptr);
+			ASSERT_EQ(mem.GetByteSize(), sizeof(int) * 2);
 			ASSERT_FALSE(mem.IsLocked());
 			ASSERT_EQ(mem.GetProtectionFlags(), MemoryPageProtectionFlags::ReadWrite);
 		}
@@ -229,8 +227,8 @@ TEST(MappedMemory, Access)
 	{
 		[]
 		{
-			const MappedMemory mem { sizeof(int) * 2 };
-			const auto         a { static_cast<int*>(mem.GetRegion()) };
+			MappedMemory mem { sizeof(int) * 2 };
+			const auto         a { static_cast<int*>(mem.GetRawRegion()) };
 			a[0] = 22;
 			a[1] = -10;
 			ASSERT_EQ(a[0], 22);
@@ -247,7 +245,7 @@ TEST(MappedMemory, Lock)
 	{
 		[]
 		{
-			const MappedMemory mem { sizeof(int) * 2 };
+			MappedMemory mem { sizeof(int) * 2 };
 			ASSERT_FALSE(mem.IsLocked());
 			mem.SetLock();
 			ASSERT_TRUE(mem.IsLocked());
@@ -262,12 +260,138 @@ TEST(MappedMemory, MemSet)
 	{
 		[]
 		{
-			const MappedMemory mem { sizeof(std::uint8_t) * 2 };
+			MappedMemory mem { sizeof(std::uint8_t) * 2 };
 			mem.MemSet(10);
-			const auto a { static_cast<std::uint8_t*>(mem.GetRegion()) };
+			const auto a { static_cast<std::uint8_t*>(mem.GetRawRegion()) };
 			ASSERT_EQ(a[0], 10);
 			ASSERT_EQ(a[1], 10);
 		}
 	};
 	ASSERT_NO_FATAL_FAILURE(exec());
+}
+
+TEST(MappedMemoryWrapper, Allocate)
+{
+   const auto executor
+   {
+        []
+        {
+            constexpr auto size { 32 };
+            MappedMemoryWrapper<int> mem { size };
+            ASSERT_EQ(mem.GetSize(), size);
+            ASSERT_EQ(mem.GetByteSize(), size * sizeof(int));
+            ASSERT_EQ(mem.GetByteAlignment(), 0);
+        }
+   };
+   ASSERT_NO_FATAL_FAILURE(executor());
+}
+
+TEST(MappedMemoryWrapper, AllocateMaxAligned)
+{
+    const auto executor
+    {
+        []
+        {
+            constexpr auto alignment { alignof(std::max_align_t) * 2 };
+            struct alignas(alignment) Dummy final
+            {
+                std::array<std::uint64_t, 16> X;
+            };
+            constexpr auto size { 32 };
+            MappedMemoryWrapper<Dummy> mem { size };
+            ASSERT_EQ(mem.GetSize(), size);
+            ASSERT_EQ(mem.GetByteSize(), size * sizeof(Dummy));
+            ASSERT_EQ(mem.GetByteAlignment(), alignment);
+            ASSERT_EQ(std::bit_cast<std::uintptr_t>(mem.GetRawRegion()) % alignment, 0);
+        }
+    };
+    ASSERT_NO_FATAL_FAILURE(executor());
+}
+
+TEST(MappedMemoryWrapper, AllocateMaxAlignedData)
+{
+    const auto executor
+    {
+        []
+        {
+            constexpr auto alignment { alignof(std::max_align_t) * 2 };
+            struct alignas(alignment) Dummy final
+            {
+                std::array<std::uint64_t, 16> X;
+            };
+
+            constexpr auto size { 32 };
+            MappedMemoryWrapper<Dummy> mem { size };
+            for (auto i { 0 }; i < size; ++i)
+            {
+                for (auto& x : mem[i].X)
+                {
+                    x = i * i;
+                }
+            }
+            for (auto i { 0 }; i < size; ++i)
+            {
+                for (const auto x : mem[i].X)
+                {
+                    ASSERT_EQ(x, i * i);
+                }
+            }
+        }
+    };
+    ASSERT_NO_FATAL_FAILURE(executor());
+}
+
+TEST(MappedMemoryWrapper, DataAccess)
+{
+    const auto executor
+    {
+        []
+        {
+            constexpr auto size { 32 };
+            MappedMemoryWrapper<int> mem { size };
+            mem[0] = -10;
+            ASSERT_EQ(mem[0], -10);
+            ASSERT_EQ(*mem, -10);
+        }
+    };
+    ASSERT_NO_FATAL_FAILURE(executor());
+}
+
+TEST(MappedMemoryWrapper, DataAccessFull)
+{
+    const auto executor
+    {
+        []
+        {
+            constexpr auto size { 32 };
+            MappedMemoryWrapper<int> mem { size };
+            for (auto i  { 0 }; i < size; ++i)
+            {
+                mem[i] = i;
+            }
+            for (auto i { 0 }; i < size; ++i)
+            {
+                ASSERT_EQ(mem[i], i);
+            }
+        }
+    };
+    ASSERT_NO_FATAL_FAILURE(executor());
+}
+
+TEST(MappedMemoryWrapper, DataAccessFill)
+{
+    const auto executor
+    {
+        []
+        {
+            constexpr auto size { 32 };
+            MappedMemoryWrapper<int> mem { size };
+            mem.Fill(0xFF);
+            for (auto i { 0 }; i < size; ++i)
+            {
+                ASSERT_EQ(mem[i], 0xFF);
+            }
+        }
+    };
+    ASSERT_NO_FATAL_FAILURE(executor());
 }

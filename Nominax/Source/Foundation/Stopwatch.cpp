@@ -1,7 +1,5 @@
-// File: Stopwatch.cpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -213,9 +211,9 @@ namespace Nominax::Foundation
 	{
 		std::tm buffer { };
 		#if NOX_COM_GCC
-		localtime_r(&time, &buffer);
+			localtime_r(&time, &buffer);
 		#elif NOX_OS_WINDOWS
-		localtime_s(&buffer, &time);
+			localtime_s(&buffer, &time);
 		#else
 		static std::mutex mtx;
 		std::lock_guard<std::mutex> lock(mtx);

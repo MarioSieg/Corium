@@ -1,7 +1,5 @@
-// File: ReactorCoreSpecialization.hpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -257,7 +255,7 @@ namespace Nominax::Core
 				return "Fallback";
 
 			case ReactorCoreSpecialization::Debug:
-				return "Debug";
+				return "UseSandboxVM";
 
 			case ReactorCoreSpecialization::X86_64_AVX:
 				return "X86-64 AVX";

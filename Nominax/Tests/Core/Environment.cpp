@@ -1,7 +1,5 @@
-// File: Environment.cpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -219,11 +217,15 @@ TEST(Environent, ConstructOfflineAccessDeath_GetBootStamp)
 	const Environment env { };
 	ASSERT_FALSE(env.IsOnline());
 	ASSERT_EQ(env.GetKernel(), nullptr);
-	ASSERT_DEATH([&env]()
-	                          {
-	                          [[maybe_unused]]
-	                          auto x{ env.GetBootStamp() };
-	                          }(), "");
+    const auto executor
+    {
+        [&]
+        {
+            [[maybe_unused]]
+            const auto& x { env.GetBootStamp() };
+        }
+    };
+    ASSERT_DEATH(executor(), "");
 }
 
 
@@ -232,11 +234,15 @@ TEST(Environent, ConstructOfflineAccessDeath_GetBootTime)
 	const Environment env { };
 	ASSERT_FALSE(env.IsOnline());
 	ASSERT_EQ(env.GetKernel(), nullptr);
-	ASSERT_DEATH([&env]()
-	                          {
-	                          [[maybe_unused]]
-	                          auto x{ env.GetBootTime() };
-	                          }(), "");
+    const auto executor
+    {
+        [&]
+        {
+            [[maybe_unused]]
+            const auto& x { env.GetBootTime() };
+        }
+    };
+    ASSERT_DEATH(executor(), "");
 }
 
 TEST(Environent, ConstructOfflineAccessDeath_GetSystemSnapshot)
@@ -319,17 +325,94 @@ TEST(Environent, ConstructOfflineAccessDeath_GetExecutionCount)
     ASSERT_DEATH(executor(), "");
 }
 
-TEST(Environent, ConstructOfflineAccessDeath_GetExecutionTimeHistory)
+TEST(Environent, ConstructOfflineAccessDeath_GetOutputStream)
 {
-	const Environment env { };
-	ASSERT_FALSE(env.IsOnline());
-	ASSERT_EQ(env.GetKernel(), nullptr);
+    const Environment env { };
+    ASSERT_FALSE(env.IsOnline());
+    ASSERT_EQ(env.GetKernel(), nullptr);
     const auto executor
     {
         [&]
         {
             [[maybe_unused]]
-            const auto& x{ env.GetExecutionTimeHistory() };
+            const auto& x{ env.GetOutputStream() };
+        }
+    };
+    ASSERT_DEATH(executor(), "");
+}
+
+TEST(Environent, ConstructOfflineAccessDeath_GetErrorStream)
+{
+    const Environment env { };
+    ASSERT_FALSE(env.IsOnline());
+    ASSERT_EQ(env.GetKernel(), nullptr);
+    const auto executor
+    {
+        [&]
+        {
+            [[maybe_unused]]
+            const auto& x{ env.GetErrorStream() };
+        }
+    };
+    ASSERT_DEATH(executor(), "");
+}
+
+TEST(Environent, ConstructOfflineAccessDeath_GetInputStream)
+{
+    const Environment env { };
+    ASSERT_FALSE(env.IsOnline());
+    ASSERT_EQ(env.GetKernel(), nullptr);
+    const auto executor
+    {
+        [&]
+        {
+            [[maybe_unused]]
+            const auto& x{ env.GetInputStream() };
+        }
+    };
+    ASSERT_DEATH(executor(), "");
+}
+
+TEST(Environent, ConstructOfflineAccessDeath_SetOutputStream)
+{
+    Environment env { };
+    ASSERT_FALSE(env.IsOnline());
+    ASSERT_EQ(env.GetKernel(), nullptr);
+    const auto executor
+    {
+        [&]
+        {
+            env.SetOutputStream(*stdout);
+        }
+    };
+    ASSERT_DEATH(executor(), "");
+}
+
+TEST(Environent, ConstructOfflineAccessDeath_SetErrorStream)
+{
+    Environment env { };
+    ASSERT_FALSE(env.IsOnline());
+    ASSERT_EQ(env.GetKernel(), nullptr);
+    const auto executor
+    {
+        [&]
+        {
+            env.SetErrorStream(*stdout);
+        }
+    };
+    ASSERT_DEATH(executor(), "");
+}
+
+TEST(Environent, ConstructOfflineAccessDeath_SetInputStream)
+{
+    Environment env { };
+    ASSERT_FALSE(env.IsOnline());
+    ASSERT_EQ(env.GetKernel(), nullptr);
+    const auto executor
+    {
+        [&]
+        {
+            env.SetInputStream(*stdout);
         }
     };
     ASSERT_DEATH(executor(), "");
@@ -364,7 +447,6 @@ TEST(Environment, BootShutdown)
 	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
 	ASSERT_NE(env.GetKernel(), nullptr);
 	ASSERT_TRUE(env.IsOnline());
-	ASSERT_NE(env.GetBootTime().count(), 0);
 	ASSERT_NE(env.GetBootStamp().time_since_epoch().count(), 0);
 	ASSERT_NO_FATAL_FAILURE(env.Shutdown());
 	ASSERT_FALSE(env.IsOnline());
@@ -460,13 +542,8 @@ TEST(Environment, SystemConfig)
 {
 	Environment                 env { };
 	const char*                 args[3] {"Ignored", "Hey", "Ho"};
-	const EnvironmentDescriptor descriptor
-	{
-		.ArgC = sizeof args / sizeof*args,
-		.ArgV = args,
-		.AppName = "Hey:)",
-		.SystemPoolSize = 0
-	};
+	EnvironmentDescriptor descriptor { };
+    descriptor.AppName = "Hey:)";
 	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
 
 	ASSERT_EQ(env.GetAppName(), "Hey:)");
@@ -476,14 +553,9 @@ TEST(Environment, PoolSizeZero)
 {
 	Environment                 env { };
 	const char*                 args[3] {"Ignored", "Hey", "Ho"};
-	const EnvironmentDescriptor descriptor
-	{
-		.ArgC = sizeof args / sizeof *args,
-		.ArgV = args,
-		.AppName = "Hey:)",
-		.SystemPoolSize = 0,
-		.ReactorCount = 2
-	};
+    EnvironmentDescriptor descriptor { };
+    descriptor.AppName = "Hey:)";
+    descriptor.SystemPoolSize = 0;
 	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
 
 	ASSERT_EQ(env.GetAppName(), "Hey:)");
@@ -516,7 +588,6 @@ TEST(Environment, Execution)
 	};
 	ASSERT_NO_FATAL_FAILURE(executor());
 	ASSERT_EQ(env.GetExecutionCount(), 1);
-	ASSERT_EQ(env.GetExecutionTimeHistory().size(), 1);
 	ASSERT_NO_FATAL_FAILURE(env.Shutdown());
 }
 
@@ -605,7 +676,6 @@ TEST(Environment, ExecutionHooks)
 	ASSERT_EQ(env.GetExecutionCount(), 1);
 	ASSERT_EQ(counter, 2);
 	ASSERT_EQ(streamSize, ssize);
-	ASSERT_EQ(env.GetExecutionTimeHistory().size(), 1);
 	ASSERT_NO_FATAL_FAILURE(env.Shutdown());
 }
 

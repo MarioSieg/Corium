@@ -1,7 +1,5 @@
-// File: INIFile.cpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -205,29 +203,36 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../../Nominax/Include/Nominax/Foundation/_Foundation.hpp"
+#include "../../Include/Nominax/Foundation/INIFile.hpp"
+#include "../../Include/Nominax/Foundation/Algorithm.hpp"
 
 namespace Nominax::Foundation
 {
-	IniFile::IniFile(SectionMap&& map) : Sections_ { std::move(map) } { }
+    INIFile::INIFile()
+    {
+        this->PushSection(Key { DEFAULT_SECTION_NAME });
+    }
 
-	auto IniFile::PushSection(Key&& name) -> void
+	INIFile::INIFile(SectionMap&& map) : Sections_ {std::move(map) }
+    {
+        if (std::empty(this->Sections_))
+        {
+            this->PushSection(Key { DEFAULT_SECTION_NAME });
+        }
+    }
+
+	auto INIFile::PushSection(Key&& name) -> void
 	{
-		this->Sections_.insert({ std::move(name), { } });
+        this->CurrentSection = name;
+        this->Sections_.insert_or_assign(std::move(name), Section { });
 	}
 
-	auto IniFile::PushValue(Key&& key, Value&& value) -> void
+	auto INIFile::PushValue(Key&& key, Value&& value) -> void
 	{
-		if (std::empty(this->Sections_))
-		{
-			[[unlikely]]
-				this->PushSection(Key { DEFAULT_SECTION_NAME });
-		}
-		auto& [_, values] { *std::begin(this->Sections_) };
-		values.insert_or_assign(std::move(key), std::move(value));
+		this->Sections_[this->CurrentSection].insert_or_assign(std::move(key), std::move(value));
 	}
 
-	auto IniFile::Serialize([[maybe_unused]] std::ofstream& out) const -> bool
+	auto INIFile::Serialize([[maybe_unused]] std::ofstream& out) const -> bool
 	{
 		for (const auto& [section, entries] : this->Sections_)
 		{
@@ -238,19 +243,30 @@ namespace Nominax::Foundation
 			out << SECTION_BEGIN << section << SECTION_END << '\n';
 			for (const auto& [key, value] : entries)
 			{
-				out << SECTION_CONTENT_INDENTATION << key << ' ' << EQU << ' ';
-				if (const std::string* const str = std::get_if<std::string>(&value))
-				{
-					out << *str;
-				}
-				else if (const std::int64_t* const integer = std::get_if<std::int64_t>(&value))
-				{
-					out << *integer;
-				}
-				else if (const double* const floating = std::get_if<double>(&value))
-				{
-					out << *floating;
-				}
+				out << key << ' ' << EQU << ' ';
+
+                std::visit
+                (
+                    Overload
+                    {
+                        [&out](const std::string& val)
+                        {
+                            out << "\"" << val << "\"";
+                        },
+                        [&out](const std::int64_t val)
+                        {
+                            out << val;
+                        },
+                        [&out](const double val)
+                        {
+                            out << val;
+                        },
+                        [&out](const bool val)
+                        {
+                            out << (val ? "Yes" : "No");
+                        }
+                    }, value
+                );
 				out << '\n';
 			}
 			out << '\n';
@@ -258,8 +274,8 @@ namespace Nominax::Foundation
 		return true;
 	}
 
-	auto IniFile::Deserialize([[maybe_unused]] std::ifstream& in) -> bool
+	auto INIFile::Deserialize([[maybe_unused]] std::ifstream& in) -> bool
 	{
-		return true;
+		return false;
 	}
 }

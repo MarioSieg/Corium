@@ -1,7 +1,5 @@
-// File: ScopedVariable.hpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -481,7 +479,7 @@ namespace Nominax::ByteCode
 		auto RotateRight(T value) -> ScopedVariable&;
 
 		/// <summary>
-		/// Pop variable from stack.
+		/// POP variable from stack.
 		/// </summary>
 		~ScopedVariable();
 
@@ -516,7 +514,7 @@ namespace Nominax::ByteCode
 		if (this->Attached_.GetOptimizationLevel() == OptimizationLevel::Off)
 		{
 			// ReSharper disable once CppRedundantTemplateKeyword
-			this->Attached_.template Do<Instruction::NOp>();
+			this->Attached_.template Do<Instruction::NOP>();
 		}
 		return *this;
 	}

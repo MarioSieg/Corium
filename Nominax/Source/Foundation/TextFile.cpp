@@ -1,7 +1,5 @@
-// File: TextFile.cpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -277,7 +275,7 @@ namespace Nominax::Foundation
 		if (!this->ReadFromFile(std::move(path)))
 		{
 			[[unlikely]]
-				Panic(NOX_PANIC_INFO(), "Failed to read text file from path: {}", path.string());
+            Panic(Format("Failed to read text file from path: {}", path.string()));
 		}
 	}
 
@@ -285,11 +283,16 @@ namespace Nominax::Foundation
 	{
 		this->Content_.erase
 		(
-			std::remove_if(std::execution::par_unseq, std::begin(this->Content_), std::end(this->Content_),
-			               [](const char c) -> bool
-			               {
-				               return c == ' ';
-			               }),
+			std::remove_if
+            (
+                std::execution::par_unseq,
+                std::begin(this->Content_),
+                std::end(this->Content_),
+                [](const char c) -> bool
+                {
+                    return c == ' ';
+                }
+           ),
 			std::end(this->Content_)
 		);
 	}

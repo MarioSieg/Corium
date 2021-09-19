@@ -1,7 +1,5 @@
-// File: ReactorCoreHypervisor.cpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -212,6 +210,8 @@
 
 namespace Nominax::Core
 {
+    using Foundation::Print;
+
 	auto SingletonExecutionProxy
 	(
 		const VerboseReactorDescriptor& input,
@@ -316,9 +316,9 @@ namespace Nominax::Core
 		ReactorCoreSpecialization specialization { SmartSelectReactor(features) };
 		ReactorCoreExecutionRoutine& routine { *GetReactorRoutineFromRegistryByTarget(specialization) };
 		JumpTable jumpTable { QueryJumpTable(routine) };
-		Foundation::Print
+		Print
 		(
-			"Execution Routine: {}, Registry ID: {:X}, Query: {}, Hypervisor Registry Size: {}\n",
+			"Execution Routine: {}, Registry ID: {:X}, Fetch: {}, Hypervisor Registry Size: {}\n",
 			GetReactorCoreSpecializationName(specialization),
 			static_cast<std::uint64_t>(specialization),
 			++QueryCounter,
@@ -329,7 +329,6 @@ namespace Nominax::Core
 			[[unlikely]]
             Print
             (
-                Foundation::LogLevel::Warning,
                 "Current query count is: {}! Multiple queries should be avoided, consider caching the routine link!\n",
                 QueryCounter
             );

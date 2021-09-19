@@ -1,7 +1,5 @@
-// File: ISerializable.cpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -258,7 +256,7 @@ namespace Nominax::Foundation
 		if (!stream)
 		{
 			[[unlikely]]
-				return false;
+            return false;
 		}
 		return this->Serialize(stream);
 	}
@@ -269,7 +267,7 @@ namespace Nominax::Foundation
 		if (!stream)
 		{
 			[[unlikely]]
-				return false;
+            return false;
 		}
 		return this->Deserialize(stream);
 	}

@@ -1,7 +1,5 @@
-// File: SystemAllocator.hpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -428,9 +426,9 @@ namespace Nominax::Foundation
 	NOX_HOT NOX_FLATTEN inline auto SystemAllocator::AllocateAligned(const std::uint64_t size, const std::uint64_t alignment) -> void*
 	{
 		#if NOX_OS_WINDOWS && NOX_COM_CLANG
-		return _aligned_malloc(size, alignment);
+			return _aligned_malloc(size, alignment);
 		#else
-		return aligned_alloc(alignment, size);
+			return aligned_alloc(alignment, size);
 		#endif
 	}
 
@@ -442,21 +440,21 @@ namespace Nominax::Foundation
 	NOX_HOT NOX_FLATTEN inline auto SystemAllocator::ReallocateAligned(void* const where, const std::uint64_t size, const std::uint64_t alignment) -> void*
 	{
 		#if NOX_OS_WINDOWS && NOX_COM_CLANG
-		return _aligned_realloc(where, size, alignment);
+			return _aligned_realloc(where, size, alignment);
 		#else
-		auto* const mem { AllocateAligned(size, alignment) };
-		std::memcpy(mem, where, size);
-		DeallocateAligned(where);
-		return mem;
+			auto* const mem { AllocateAligned(size, alignment) };
+			std::memcpy(mem, where, size);
+			DeallocateAligned(where);
+			return mem;
 		#endif
 	}
 
 	NOX_HOT NOX_FLATTEN inline auto SystemAllocator::DeallocateAligned(void* const ptr) -> void
 	{
 		#if NOX_OS_WINDOWS && NOX_COM_CLANG
-		_aligned_free(ptr);
+			_aligned_free(ptr);
 		#else
-		std::free(ptr);
+			std::free(ptr);
 		#endif
 	}
 

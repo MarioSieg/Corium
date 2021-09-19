@@ -1,7 +1,5 @@
-// File: _ByteCode.hpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -218,7 +216,7 @@
 #include "ShuntingYard.hpp"
 #include "Signal.hpp"
 #include "Stream.hpp"
-#include "Transformator.hpp"
+#include "Linker.hpp"
 #include "InstructionMetaDataRegistry.hpp"
 #include "Validator.hpp"
 #include "ValidationResult.hpp"

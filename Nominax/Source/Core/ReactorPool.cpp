@@ -1,7 +1,5 @@
-// File: ReactorPool.cpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -205,13 +203,13 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+#include "../../../Nominax/Include/Nominax/Foundation/Print.hpp"
 #include "../../../Nominax/Include/Nominax/Core/_Core.hpp"
 #include "../../Include/Nominax/Core/ReactorPool.hpp"
 
 namespace Nominax::Core
 {
     using Foundation::Print;
-    using Foundation::LogLevel;
 
 	ReactorPool::ReactorPool
 	(

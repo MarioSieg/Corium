@@ -1,7 +1,5 @@
-// File: Entry.cpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -209,16 +207,33 @@
 
 using namespace Nominax::Prelude;
 
+constexpr std::string_view CONFIG_FILE { "Nominax.ini" };
+
 auto main(const int argc, const char* const* const argv) -> int
 {
-	const EnvironmentDescriptor environmentDescriptor
-	{
-		.ArgC = argc,
-		.ArgV = argv
-	};
+    CLIParser parser { argc, argv };
+    CLIOptions options { };
+    const bool shouldBoot { options.ParseAndProcess(parser) };
+    if (!shouldBoot)
+    {
+        [[unlikely]]
+        return 0;
+    }
+
+    EnvironmentDescriptor environmentDescriptor { };
+
+    if (!options.NoConfig)
+    {
+        if (!environmentDescriptor.DeserializeFromDisk(CONFIG_FILE))
+        {
+            [[maybe_unused]]
+            const auto _ { environmentDescriptor.SerializeToDisk(CONFIG_FILE) };
+        }
+    }
 
 	Environment environment { };
 	environment.Boot(environmentDescriptor);
 	environment.Shutdown();
+
 	return 0;
 }

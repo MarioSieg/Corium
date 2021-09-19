@@ -1,7 +1,5 @@
-// File: StackAlloc.hpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -207,11 +205,12 @@
 
 #pragma once
 
-#include "Platform.hpp"
 #include <cstdint>
+
+#include "Platform.hpp"
 #include "MemoryUnits.hpp"
 
-#if _WIN64
+#if NOX_OS_WINDOWS
 #	include <malloc.h>
 #else
 #	include <alloca.h>
@@ -220,16 +219,16 @@
 namespace Nominax::Foundation
 {
 	#if NOX_OS_WINDOWS
-	#define NOX_ALLOCA_STUB(size) ::_alloca(size)
+		#define NOX_ALLOCA_STUB(size) ::_alloca(size)
 	#else
-#define NOX_ALLOCA_STUB(size) ::alloca(size)
+		#define NOX_ALLOCA_STUB(size) ::alloca(size)
 	#endif
 
 	/// <summary>
 	/// Above this size memory will be allocated on the heap
 	/// instead of the stack.
 	/// </summary>
-	constexpr std::uint64_t STACK_ALLOC_HEAP_THRESHOLD { 4_kB };
+	constexpr std::uint64_t STACK_ALLOC_HEAP_THRESHOLD { 4_KB };
 
 	/// <summary>
 	/// Restrict fixed stack allocation type.
@@ -452,7 +451,7 @@ namespace Nominax::Foundation
 	/// <param name="count">The amount of "type" to allocate. Here, the dynamic version allows dynamic values,
 	/// but if the byte size is above "STACK_ALLOC_HEAP_THRESHOLD", the memory is allocated on the heap instead.</param>
 	/// <returns>The stack guard which released the memory on exit.</returns>
-	#define DynamicStackAllocation(type, count)										\
+	#define DynamicStackAllocation(type, count)											\
 		{																				\
 			IsHybridHeap < type >( count ),												\
 			IsHybridHeap < type >( count )												\

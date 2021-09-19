@@ -1,7 +1,5 @@
-// File: _Foundation.hpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -211,7 +209,8 @@
 #include "Alignment.hpp"
 #include "AllocatorProxy.hpp"
 #include "AtomicState.hpp"
-#include "CLIProcessor.hpp"
+#include "CLIOptions.hpp"
+#include "CLIParser.hpp"
 #include "ComparatorF64.hpp"
 #include "CPU.hpp"
 #include "CPUFeatureBits.hpp"
@@ -225,6 +224,7 @@
 #include "ISerializable.hpp"
 #include "MachineClass.hpp"
 #include "MappedMemory.hpp"
+#include "MappedMemoryWrapper.hpp"
 #include "MemoryUnits.hpp"
 #include "Object.hpp"
 #include "ObjectHeader.hpp"

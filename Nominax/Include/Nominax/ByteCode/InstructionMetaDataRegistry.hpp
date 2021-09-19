@@ -1,7 +1,5 @@
-// File: InstructionMetaDataRegistry.hpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -375,13 +373,17 @@ namespace Nominax::ByteCode
                                 ANY_SCALAR_VALUE_TYPE,
                                 ANY_SCALAR_VALUE_TYPE,
                                 ANY_SCALAR_VALUE_TYPE,
-                                ANY_SCALAR_VALUE_TYPE,
+                                ANY_SCALAR_VALUE_TYPE
                             },
             /* mpop     */  InstructionOperandTable { },
             /* madd     */  InstructionOperandTable { },
             /* msub     */  InstructionOperandTable { },
             /* mmul     */  InstructionOperandTable { },
-            /* mdiv     */  InstructionOperandTable { }
+            /* mdiv     */  InstructionOperandTable { },
+            /* cvti2f   */  InstructionOperandTable { },
+            /* cvtf2i   */  InstructionOperandTable { },
+            /* cvti2c   */  InstructionOperandTable { },
+            /* cvti2b   */  InstructionOperandTable { }
         };
 
         /// <summary>
@@ -405,7 +407,7 @@ namespace Nominax::ByteCode
             "swap",
             "nop",
             "jmp",
-            "jmprel",
+            "jmpr",
             "jz",
             "jnz",
             "jocmpi",
@@ -462,7 +464,11 @@ namespace Nominax::ByteCode
             "madd",
             "msub",
             "mmul",
-            "mdiv"
+            "mdiv",
+            "cvti2f",
+            "cvtf2i",
+            "cvti2c",
+            "cvti2b"
         };
 
         /// <summary>
@@ -543,7 +549,11 @@ namespace Nominax::ByteCode
             InstructionCategory::VectorArithmetic,
             InstructionCategory::VectorArithmetic,
             InstructionCategory::VectorArithmetic,
-            InstructionCategory::VectorArithmetic
+            InstructionCategory::VectorArithmetic,
+            InstructionCategory::Memory,
+            InstructionCategory::Memory,
+            InstructionCategory::Memory,
+            InstructionCategory::Memory
         };
 
         /// <summary>
@@ -624,7 +634,11 @@ namespace Nominax::ByteCode
             16,
             16,
             16,
-            16
+            16,
+            1,
+            1,
+            1,
+            1
         };
 
         /// <summary>
@@ -705,7 +719,29 @@ namespace Nominax::ByteCode
             32,
             32,
             32,
-            32
+            32,
+            1,
+            1,
+            1,
+            1
+        };
+
+        /// <summary>
+        /// Contains the stack difference after the instruction was executed.
+        /// Automatically computed from the push and pop table.
+        /// </summary>
+        [[maybe_unused]]
+        static constexpr std::array<std::int8_t, ToUnderlying(Instruction::Count_)> STACK_DIFF_TABLE
+        {
+            []
+            {
+                std::array<std::int8_t, ToUnderlying(Instruction::Count_)> result { };
+                for (std::uint64_t i { 0 }; i < ToUnderlying(Instruction::Count_); ++i)
+                {
+                    result[i] = static_cast<std::int8_t>(PUSH_RECORD_TABLE[i] - POP_RECORD_TABLE[i]);
+                }
+                return result;
+            }()
         };
 
         /// <summary>
@@ -732,61 +768,65 @@ namespace Nominax::ByteCode
             "relative indirect jump unconditional jump",
             "jump if zero",
             "jump if not zero",
-            "jump if one - compare as integer",
+            "jump if one - compare as int",
             "jump if one - compare as float",
-            "jump if not one - compare as integer",
-            "jump if not one - compare as  integer",
-            "jump if equal as integer",
+            "jump if not one - compare as int",
+            "jump if not one - compare as  int",
+            "jump if equal as int",
             "jump if equal - compare as F32ing point",
-            "jump if not equal - compare  as integer",
+            "jump if not equal - compare  as int",
             "jump if not equal - compare  as F32ing point",
-            "jump if above - compare  as integer",
+            "jump if above - compare  as int",
             "jump if above - compare  as F32ing point",
             "jump if less - compare as F32ing point",
             "jump if less - compare as F32ing point",
-            "jump if above or equal - compare as integer",
+            "jump if above or equal - compare as int",
             "jump if above or equal - compare as F32ing point",
-            "jump if less or equal - compare as integer",
+            "jump if less or equal - compare as int",
             "jump if less or equal - compare as F32ing point",
-            "push zero as integer",
-            "push one as  integer",
+            "push zero as int",
+            "push one as  int",
             "push one as F32ing point",
-            "integer increment",
-            "integer decrement",
-            "integer addition",
-            "integer subtraction",
-            "integer multiplication",
-            "integer division",
-            "integer remainder",
-            "integer bitwise and",
-            "integer bitwise or",
-            "integer bitwise xor",
-            "integer bitwise complement",
-            "integer bitwise arithmetic left shift",
-            "integer bitwise arithmetic right shift",
-            "integer bitwise rotation left",
-            "integer bitwise right rotation",
-            "integer negation",
-            "floating point addition",
-            "floating point subtraction",
-            "floating point multiplication",
-            "floating point division",
-            "floating point remainder",
-            "floating point negation",
-            "floating point increment",
-            "floating point decrement",
-            "push vec4 quad vector",
-            "pop vec4 quad vector",
-            "simd floating point vec4 quad vector addition",
-            "simd floating point vec4 quad vector subtraction",
-            "simd floating point vec4 quad vector multiplication",
-            "simd floating point vec4 quad vector division",
-            "push mat4x4 matrix",
-            "pop mat4x4 matrix",
-            "simd floating point mat4x4 matrix addition",
-            "simd floating point mat4x4 matrix subtraction",
-            "simd floating point mat4x4 matrix multiplication",
-            "simd floating point mat4x4 matrix division"
+            "int increment",
+            "int decrement",
+            "int addition",
+            "int subtraction",
+            "int multiplication",
+            "int division",
+            "int remainder",
+            "int bitwise and",
+            "int bitwise or",
+            "int bitwise xor",
+            "int bitwise complement",
+            "int bitwise arithmetic left shift",
+            "int bitwise arithmetic right shift",
+            "int bitwise rotation left",
+            "int bitwise right rotation",
+            "int negation",
+            "float addition",
+            "float subtraction",
+            "float multiplication",
+            "float division",
+            "float remainder",
+            "float negation",
+            "float increment",
+            "float decrement",
+            "push vector4",
+            "pop vector4",
+            "simd float vector4 addition",
+            "simd float vector4 subtraction",
+            "simd float vector4 multiplication",
+            "simd float vector4 division",
+            "push matrix4x4",
+            "pop matrix4x4 ",
+            "simd float matrix4x4 matrix addition",
+            "simd float matrix4x4 matrix subtraction",
+            "simd float matrix4x4 matrix multiplication",
+            "simd float matrix4x4 matrix division",
+            "convert int to float",
+            "convert float to int",
+            "convert int to char",
+            "convert int to bool"
         };
 
         static constexpr auto LookupInstructArgumentType(const Instruction instruction, const std::uint64_t typeIndex) -> TypeIndexBitFlagVector
@@ -823,5 +863,104 @@ namespace Nominax::ByteCode
         {
             return std::size(OPERAND_TYPE_TABLE[ToUnderlying(instruction)]);
         }
+
+        /// <summary>
+        /// Contains the amount of stack pops each instruction will perform.
+        /// </summary>
+        [[maybe_unused]]
+        static constexpr std::array<std::uint8_t, ToUnderlying(Instruction::Count_)> IMMEDIATE_ARGUMENT_COUNT_TABLE
+        {
+            /* int      */  1,
+            /* intrin   */  1,
+            /* cintrin  */  1,
+            /* call     */  1,
+            /* ret      */  0,
+            /* mov      */  2,
+            /* sto      */  2,
+            /* push     */  1,
+            /* pop      */  0,
+            /* pop2     */  0,
+            /* dupl     */  0,
+            /* dupl2    */  0,
+            /* swap     */  0,
+            /* nop      */  0,
+            /* jmp      */  1,
+            /* jmprel   */  1,
+            /* jz       */  1,
+            /* jnz      */  1,
+            /* jocmpi  */   1,
+            /* jocmpf  */   1,
+            /* jnocmpi */   1,
+            /* jnocmpf */   1,
+            /* jecmpi  */   1,
+            /* jecmpf  */   1,
+            /* jnecmpi */   1,
+            /* jnecmpf */   1,
+            /* jacmpi  */   1,
+            /* jacmpf  */   1,
+            /* jlcmpi  */   1,
+            /* jlcmpf  */   1,
+            /* jaecmpi */   1,
+            /* jaecmpf */   1,
+            /* jlecmpi */   1,
+            /* jlecmpf */   1,
+            /* pushz    */  0,
+            /* ipusho   */  0,
+            /* fpusho   */  0,
+            /* iinc     */  0,
+            /* idec     */  0,
+            /* iadd     */  0,
+            /* isub     */  0,
+            /* imul     */  0,
+            /* idiv     */  0,
+            /* imod     */  0,
+            /* iand     */  0,
+            /* ior      */  0,
+            /* ixor     */  0,
+            /* icom     */  0,
+            /* isal     */  0,
+            /* isar     */  0,
+            /* irol     */  0,
+            /* iror     */  0,
+            /* ineg     */  0,
+            /* fadd     */  0,
+            /* fsub     */  0,
+            /* fmul     */  0,
+            /* fdiv     */  0,
+            /* fmod     */  0,
+            /* fneg     */  0,
+            /* finc     */  0,
+            /* fdec     */  0,
+            /* vpush    */  4,
+            /* vpop     */  0,
+            /* vadd     */  0,
+            /* vsub     */  0,
+            /* vmul     */  0,
+            /* vdiv     */  0,
+            /* mpush    */  16,
+            /* mpop     */  0,
+            /* madd     */  0,
+            /* msub     */  0,
+            /* mmul     */  0,
+            /* mdiv     */  0,
+            /* cvti2f   */  0,
+            /* cvtf2i   */  0,
+            /* cvti2c   */  0,
+            /* cvti2b   */  0
+        };
     };
+
+    static consteval auto ValidateImmediateArgumentCounts() -> bool
+    {
+        for (std::uint64_t i { 0 }; i < ToUnderlying(Instruction::Count_); ++i)
+        {
+            if (InstructionMetaDataRegistry::IMMEDIATE_ARGUMENT_COUNT_TABLE[i] != std::size(InstructionMetaDataRegistry::OPERAND_TYPE_TABLE[i]))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    static_assert(ValidateImmediateArgumentCounts(), "Mismatch in operand type table and immediate argument count table!");
 }

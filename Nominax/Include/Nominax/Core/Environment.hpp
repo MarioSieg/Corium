@@ -1,7 +1,5 @@
-// File: Environment.hpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -239,7 +237,7 @@ namespace Nominax::Core
 		/// </summary>
 		struct ContextDeleter final
 		{
-			auto operator()(Context* context) const -> void;
+			auto operator()(const Context* context) const -> void;
 		};
 
 		/// <summary>
@@ -294,19 +292,19 @@ namespace Nominax::Core
 		/// <summary>
 		/// WordSize in bytes of the system pool, if the given count was invalid.
 		/// </summary>
-		static constexpr std::uint64_t FALLBACK_SYSTEM_POOL_SIZE { 256_kB };
+		static constexpr std::uint64_t FALLBACK_SYSTEM_POOL_SIZE { 256_KB };
 		static_assert(FALLBACK_SYSTEM_POOL_SIZE);
 
 		/// <summary>
 		/// The min size of the boot pool.
 		/// </summary>
-		static constexpr std::uint64_t BOOT_POOL_SIZE_MIN { 32_kB };
+		static constexpr std::uint64_t BOOT_POOL_SIZE_MIN { 32_KB };
 		static_assert(BOOT_POOL_SIZE_MIN);
 
 		/// <summary>
 		/// The max size of the boot pool.
 		/// </summary>
-		static constexpr std::uint64_t BOOT_POOL_SIZE_MAX { 256_kB };
+		static constexpr std::uint64_t BOOT_POOL_SIZE_MAX { 256_KB };
 		static_assert(BOOT_POOL_SIZE_MAX);
 
 		/// <summary>
@@ -475,16 +473,48 @@ namespace Nominax::Core
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <returns>The history of execution times.</returns>
-		[[nodiscard]]
-		auto GetExecutionTimeHistory() const -> const std::pmr::vector<std::chrono::duration<double, std::micro>>&;
-
-		/// <summary>
-		/// 
-		/// </summary>
 		/// <returns>The local optimization info for the current machine.</returns>
 		[[nodiscard]]
 		auto GetOptimizationHints() const -> ByteCode::OptimizationHints;
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns>The output stream of the context.</returns>
+        [[nodiscard]]
+        auto GetOutputStream() const -> FILE&;
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns>The output stream of the context.</returns>
+        [[nodiscard]]
+        auto GetErrorStream() const -> FILE&;
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns>The output stream of the context.</returns>
+        [[nodiscard]]
+        auto GetInputStream() const -> FILE&;
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="stream">The new stream.</param>
+        auto SetOutputStream(FILE& stream) const -> void;
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="stream">The new stream.</param>
+        auto SetErrorStream(FILE& stream) const -> void;
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="stream">The new stream.</param>
+        auto SetInputStream(FILE& stream) const -> void;
 	};
 
 	inline auto Environment::operator()(const ByteCode::Image& image) -> const ReactorState&

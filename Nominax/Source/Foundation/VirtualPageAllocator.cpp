@@ -1,7 +1,5 @@
-// File: VirtualPageAllocator.cpp
 // Author: Mario
-// Created: 25.08.2021 6:00 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -213,23 +211,33 @@ namespace Nominax::Foundation
 {
 	using VAH = VirtualAllocationHeader;
 
-	auto VMM::VirtualAlloc(const std::uint64_t size, const MemoryPageProtectionFlags flags, const bool locked) -> void*
+	auto VMM::VirtualAlloc
+    (
+        const std::uint64_t size,
+        const MemoryPageProtectionFlags flags,
+        const bool locked,
+        VAH** const outHeader
+    ) -> void*
 	{
 		if (!size)
 		{
 			[[unlikely]]
-				return nullptr;
+            return nullptr;
 		}
 		void* const block { OSI::MemoryMap(sizeof(VAH) + size, flags) };
 		NOX_DBG_PAS_NOT_NULL(block, "Memory mapping failed!");
 		auto& header { *static_cast<VAH*>(block) };
-		header.Size            = size;
+		header.Size = size;
 		header.ProtectionFlags = flags;
 		if (locked)
 		{
 			header.SetLock(); // The region is now locked, so no more protection flag changes in the future!
 		}
 		header.UserData.Ptr = nullptr;
+        if (outHeader)
+        {
+            *outHeader = &header;
+        }
 		return static_cast<std::byte*>(block) + sizeof(VAH);
 	}
 
@@ -241,7 +249,7 @@ namespace Nominax::Foundation
             return false;
 		}
 		auto* const blockOffset { VAH::ComputeRegionStart(region) };
-		auto&       header { VAH::MapHeader(blockOffset) };
+		auto& header { VAH::MapHeader(blockOffset) };
 		return OSI::MemoryUnmap(blockOffset, sizeof(VAH) + header.Size);
 	}
 
@@ -253,7 +261,7 @@ namespace Nominax::Foundation
 				return false;
 		}
 		auto* const blockOffset { VAH::ComputeRegionStart(region) };
-		auto&       header { VAH::MapHeader(blockOffset) };
+		auto& header { VAH::MapHeader(blockOffset) };
 		if (header.IsLocked()) // Already locked, we can't change any protection flags...
 		{
 			return false;
@@ -262,7 +270,7 @@ namespace Nominax::Foundation
 		if (!result)
 		{
 			[[unlikely]]
-				return false;
+            return false;
 		}
 		header.ProtectionFlags = newFlags;
 		if (locked)
@@ -270,5 +278,33 @@ namespace Nominax::Foundation
 			header.SetLock(); // The region is now locked, so no more protection flag changes in the future!
 		}
 		return true;
+	}
+
+	auto VMM::VirtualAllocAligned
+	(
+		const std::uint64_t size,
+		const std::uint64_t alignment,
+		const MemoryPageProtectionFlags flags,
+		const bool locked,
+        VAH** const outHeader
+	) -> void*
+	{
+		const std::uint64_t offset { alignment - 1 + sizeof(void*) };
+		void* origin { VirtualAlloc(size + offset, flags, locked) };
+        VAH* header;
+        MapHeaderFromRegion(origin, header);
+        header->Alignment = alignment;
+        if (outHeader)
+        {
+            *outHeader = header;
+        }
+		void** const aligned { reinterpret_cast<void**>((std::bit_cast<std::uintptr_t>(origin) + offset) & ~(alignment - 1)) };
+		aligned[-1] = origin;
+		return aligned;
+	}
+
+	auto VMM::VirtualDeallocAligned(void* const region) -> bool
+	{
+		return VirtualDealloc(reinterpret_cast<void**>(region)[-1]);
 	}
 }

@@ -1,7 +1,5 @@
-// File: VectorLib.hpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -221,45 +219,49 @@ namespace Nominax::Foundation::VectorLib
 	constexpr std::uint64_t V128_ALIGN
 	{
 		#ifdef __SSE__
-	16
+			16
 		#else
-		alignof(float)
+			alignof(float)
 		#endif
 	};
 
 	constexpr std::uint64_t V256_ALIGN
 	{
 		#if defined(__AVX__)
-	32
+			32
 		#elif defined(__SSE__)
-	16
+			16
 		#else
-		alignof(float)
+			alignof(float)
 		#endif
 	};
 
 	constexpr std::uint64_t V512_ALIGN
 	{
 		#if defined(__AVX512F__)
-	64
+			64
 		#elif defined(__AVX__)
-	32
+			32
 		#elif defined(__SSE__)
-	16
+			16
 		#else
-		alignof(float)
+			alignof(float)
 		#endif
 	};
 
 	NOX_FORCE_INLINE inline auto F64_X2_To_F32_X2(float* const NOX_RESTRICT out, const double* const NOX_RESTRICT in) -> void
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
-		const __m128d x = _mm_loadu_pd(in);
-		const __m128 y = _mm_cvtpd_ps(x);
-		_mm_storel_pi(reinterpret_cast<__m64*>(out), y);
+
+			const __m128d x = _mm_loadu_pd(in);
+			const __m128 y = _mm_cvtpd_ps(x);
+			_mm_storel_pi(reinterpret_cast<__m64*>(out), y);
+
 		#else
-		out[0] = static_cast<float>(in[0]);
-		out[1] = static_cast<float>(in[1]);
+
+			out[0] = static_cast<float>(in[0]);
+			out[1] = static_cast<float>(in[1]);
+
 		#endif
 	}
 
@@ -267,25 +269,24 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
-		const __m256d x = _mm256_loadu_pd(in);		// 32 B - 4 * double
-		const __m128 y = _mm256_cvtpd_ps(x);		// 16 B - 4 * float
-		_mm_storeu_ps(out, y);
-
+			const __m256d x = _mm256_loadu_pd(in);		// 32 B - 4 * double
+			const __m128 y = _mm256_cvtpd_ps(x);		// 16 B - 4 * float
+			_mm_storeu_ps(out, y);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
-		const __m128d x1 = _mm_loadu_pd(in);		// 16 B - 2 * double
-		const __m128d x2 = _mm_loadu_pd(in + 2);	// 16 B - 2 * double
-		const __m128 y1 = _mm_cvtpd_ps(x1);			// 8 B - 2 * float
-		__m128 y2 = _mm_cvtpd_ps(x2);				// 8 B - 2 * float
-		y2 = _mm_movelh_ps(y2, y1);					// y1_lo -> y2_hi
-		_mm_storeu_ps(out, y2);
+			const __m128d x1 = _mm_loadu_pd(in);		// 16 B - 2 * double
+			const __m128d x2 = _mm_loadu_pd(in + 2);	// 16 B - 2 * double
+			const __m128 y1 = _mm_cvtpd_ps(x1);			// 8 B - 2 * float
+			__m128 y2 = _mm_cvtpd_ps(x2);				// 8 B - 2 * float
+			y2 = _mm_movelh_ps(y2, y1);					// y1_lo -> y2_hi
+			_mm_storeu_ps(out, y2);
 
 		#else
-		out[0] = static_cast<float>(in[0]);
-		out[1] = static_cast<float>(in[1]);
-		out[2] = static_cast<float>(in[2]);
-		out[3] = static_cast<float>(in[3]);
+			out[0] = static_cast<float>(in[0]);
+			out[1] = static_cast<float>(in[1]);
+			out[2] = static_cast<float>(in[2]);
+			out[3] = static_cast<float>(in[3]);
 		#endif
 	}
 
@@ -299,58 +300,59 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
-		__m512 x = _mm512_load_ps(inout);
-		const __m512 y = _mm512_load_ps(in);
-		x = _mm512_add_ps(x, y);
-		_mm512_store_ps(inout, x);
+			__m512 x = _mm512_load_ps(inout);
+			const __m512 y = _mm512_load_ps(in);
+			x = _mm512_add_ps(x, y);
+			_mm512_store_ps(inout, x);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
-		__m256 x1 = _mm256_load_ps(inout);
-		__m256 x2 = _mm256_load_ps(inout + 8);
-		const __m256 y1 = _mm256_load_ps(in);
-		const __m256 y2 = _mm256_load_ps(in + 8);
-		x1 = _mm256_add_ps(x1, y1);
-		x2 = _mm256_add_ps(x2, y2);
-		_mm256_store_ps(inout, x1);
-		_mm256_store_ps(inout + 8, x2);
+			__m256 x1 = _mm256_load_ps(inout);
+			__m256 x2 = _mm256_load_ps(inout + 8);
+			const __m256 y1 = _mm256_load_ps(in);
+			const __m256 y2 = _mm256_load_ps(in + 8);
+			x1 = _mm256_add_ps(x1, y1);
+			x2 = _mm256_add_ps(x2, y2);
+			_mm256_store_ps(inout, x1);
+			_mm256_store_ps(inout + 8, x2);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
-		__m128 x1 = _mm_load_ps(inout);
-		__m128 x2 = _mm_load_ps(inout + 4);
-		__m128 x3 = _mm_load_ps(inout + 8);
-		__m128 x4 = _mm_load_ps(inout + 12);
-		const __m128 y1 = _mm_load_ps(in);
-		const __m128 y2 = _mm_load_ps(in + 4);
-		const __m128 y3 = _mm_load_ps(in + 8);
-		const __m128 y4 = _mm_load_ps(in + 12);
-		x1 = _mm_add_ps(x1, y1);
-		x2 = _mm_add_ps(x2, y2);
-		x3 = _mm_add_ps(x3, y3);
-		x4 = _mm_add_ps(x4, y4);
-		_mm_store_ps(inout, x1);
-		_mm_store_ps(inout + 4, x2);
-		_mm_store_ps(inout + 8, x3);
-		_mm_store_ps(inout + 12, x4);
+			__m128 x1 = _mm_load_ps(inout);
+			__m128 x2 = _mm_load_ps(inout + 4);
+			__m128 x3 = _mm_load_ps(inout + 8);
+			__m128 x4 = _mm_load_ps(inout + 12);
+			const __m128 y1 = _mm_load_ps(in);
+			const __m128 y2 = _mm_load_ps(in + 4);
+			const __m128 y3 = _mm_load_ps(in + 8);
+			const __m128 y4 = _mm_load_ps(in + 12);
+			x1 = _mm_add_ps(x1, y1);
+			x2 = _mm_add_ps(x2, y2);
+			x3 = _mm_add_ps(x3, y3);
+			x4 = _mm_add_ps(x4, y4);
+			_mm_store_ps(inout, x1);
+			_mm_store_ps(inout + 4, x2);
+			_mm_store_ps(inout + 8, x3);
+			_mm_store_ps(inout + 12, x4);
+
 		#else
 
-		inout[0] += in[0];
-		inout[1] += in[1];
-		inout[2] += in[2];
-		inout[3] += in[3];
-		inout[4] += in[4];
-		inout[5] += in[5];
-		inout[6] += in[6];
-		inout[7] += in[7];
-		inout[8] += in[8];
-		inout[9] += in[9];
-		inout[10] += in[10];
-		inout[11] += in[11];
-		inout[12] += in[12];
-		inout[13] += in[13];
-		inout[14] += in[14];
-		inout[15] += in[15];
+			inout[0] += in[0];
+			inout[1] += in[1];
+			inout[2] += in[2];
+			inout[3] += in[3];
+			inout[4] += in[4];
+			inout[5] += in[5];
+			inout[6] += in[6];
+			inout[7] += in[7];
+			inout[8] += in[8];
+			inout[9] += in[9];
+			inout[10] += in[10];
+			inout[11] += in[11];
+			inout[12] += in[12];
+			inout[13] += in[13];
+			inout[14] += in[14];
+			inout[15] += in[15];
 
 		#endif
 	}
@@ -365,58 +367,59 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
-		__m512 x = _mm512_load_ps(inout);
-		const __m512 y = _mm512_load_ps(in);
-		x = _mm512_sub_ps(x, y);
-		_mm512_store_ps(inout, x);
+			__m512 x = _mm512_load_ps(inout);
+			const __m512 y = _mm512_load_ps(in);
+			x = _mm512_sub_ps(x, y);
+			_mm512_store_ps(inout, x);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
-		__m256 x1 = _mm256_load_ps(inout);
-		__m256 x2 = _mm256_load_ps(inout + 8);
-		const __m256 y1 = _mm256_load_ps(in);
-		const __m256 y2 = _mm256_load_ps(in + 8);
-		x1 = _mm256_sub_ps(x1, y1);
-		x2 = _mm256_sub_ps(x2, y2);
-		_mm256_store_ps(inout, x1);
-		_mm256_store_ps(inout + 8, x2);
+			__m256 x1 = _mm256_load_ps(inout);
+			__m256 x2 = _mm256_load_ps(inout + 8);
+			const __m256 y1 = _mm256_load_ps(in);
+			const __m256 y2 = _mm256_load_ps(in + 8);
+			x1 = _mm256_sub_ps(x1, y1);
+			x2 = _mm256_sub_ps(x2, y2);
+			_mm256_store_ps(inout, x1);
+			_mm256_store_ps(inout + 8, x2);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
-		__m128 x1 = _mm_load_ps(inout);
-		__m128 x2 = _mm_load_ps(inout + 4);
-		__m128 x3 = _mm_load_ps(inout + 8);
-		__m128 x4 = _mm_load_ps(inout + 12);
-		const __m128 y1 = _mm_load_ps(in);
-		const __m128 y2 = _mm_load_ps(in + 4);
-		const __m128 y3 = _mm_load_ps(in + 8);
-		const __m128 y4 = _mm_load_ps(in + 12);
-		x1 = _mm_sub_ps(x1, y1);
-		x2 = _mm_sub_ps(x2, y2);
-		x3 = _mm_sub_ps(x3, y3);
-		x4 = _mm_sub_ps(x4, y4);
-		_mm_store_ps(inout, x1);
-		_mm_store_ps(inout + 4, x2);
-		_mm_store_ps(inout + 8, x3);
-		_mm_store_ps(inout + 12, x4);
+			__m128 x1 = _mm_load_ps(inout);
+			__m128 x2 = _mm_load_ps(inout + 4);
+			__m128 x3 = _mm_load_ps(inout + 8);
+			__m128 x4 = _mm_load_ps(inout + 12);
+			const __m128 y1 = _mm_load_ps(in);
+			const __m128 y2 = _mm_load_ps(in + 4);
+			const __m128 y3 = _mm_load_ps(in + 8);
+			const __m128 y4 = _mm_load_ps(in + 12);
+			x1 = _mm_sub_ps(x1, y1);
+			x2 = _mm_sub_ps(x2, y2);
+			x3 = _mm_sub_ps(x3, y3);
+			x4 = _mm_sub_ps(x4, y4);
+			_mm_store_ps(inout, x1);
+			_mm_store_ps(inout + 4, x2);
+			_mm_store_ps(inout + 8, x3);
+			_mm_store_ps(inout + 12, x4);
+
 		#else
 
-		inout[0] -= in[0];
-		inout[1] -= in[1];
-		inout[2] -= in[2];
-		inout[3] -= in[3];
-		inout[4] -= in[4];
-		inout[5] -= in[5];
-		inout[6] -= in[6];
-		inout[7] -= in[7];
-		inout[8] -= in[8];
-		inout[9] -= in[9];
-		inout[10] -= in[10];
-		inout[11] -= in[11];
-		inout[12] -= in[12];
-		inout[13] -= in[13];
-		inout[14] -= in[14];
-		inout[15] -= in[15];
+			inout[0] -= in[0];
+			inout[1] -= in[1];
+			inout[2] -= in[2];
+			inout[3] -= in[3];
+			inout[4] -= in[4];
+			inout[5] -= in[5];
+			inout[6] -= in[6];
+			inout[7] -= in[7];
+			inout[8] -= in[8];
+			inout[9] -= in[9];
+			inout[10] -= in[10];
+			inout[11] -= in[11];
+			inout[12] -= in[12];
+			inout[13] -= in[13];
+			inout[14] -= in[14];
+			inout[15] -= in[15];
 
 		#endif
 	}
@@ -431,58 +434,59 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
-		__m512 x = _mm512_load_ps(inout);
-		const __m512 y = _mm512_load_ps(in);
-		x = _mm512_mul_ps(x, y);
-		_mm512_store_ps(inout, x);
+			__m512 x = _mm512_load_ps(inout);
+			const __m512 y = _mm512_load_ps(in);
+			x = _mm512_mul_ps(x, y);
+			_mm512_store_ps(inout, x);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
-		__m256 x1 = _mm256_load_ps(inout);
-		__m256 x2 = _mm256_load_ps(inout + 8);
-		const __m256 y1 = _mm256_load_ps(in);
-		const __m256 y2 = _mm256_load_ps(in + 8);
-		x1 = _mm256_mul_ps(x1, y1);
-		x2 = _mm256_mul_ps(x2, y2);
-		_mm256_store_ps(inout, x1);
-		_mm256_store_ps(inout + 8, x2);
+			__m256 x1 = _mm256_load_ps(inout);
+			__m256 x2 = _mm256_load_ps(inout + 8);
+			const __m256 y1 = _mm256_load_ps(in);
+			const __m256 y2 = _mm256_load_ps(in + 8);
+			x1 = _mm256_mul_ps(x1, y1);
+			x2 = _mm256_mul_ps(x2, y2);
+			_mm256_store_ps(inout, x1);
+			_mm256_store_ps(inout + 8, x2);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
-		__m128 x1 = _mm_load_ps(inout);
-		__m128 x2 = _mm_load_ps(inout + 4);
-		__m128 x3 = _mm_load_ps(inout + 8);
-		__m128 x4 = _mm_load_ps(inout + 12);
-		const __m128 y1 = _mm_load_ps(in);
-		const __m128 y2 = _mm_load_ps(in + 4);
-		const __m128 y3 = _mm_load_ps(in + 8);
-		const __m128 y4 = _mm_load_ps(in + 12);
-		x1 = _mm_mul_ps(x1, y1);
-		x2 = _mm_mul_ps(x2, y2);
-		x3 = _mm_mul_ps(x3, y3);
-		x4 = _mm_mul_ps(x4, y4);
-		_mm_store_ps(inout, x1);
-		_mm_store_ps(inout + 4, x2);
-		_mm_store_ps(inout + 8, x3);
-		_mm_store_ps(inout + 12, x4);
+			__m128 x1 = _mm_load_ps(inout);
+			__m128 x2 = _mm_load_ps(inout + 4);
+			__m128 x3 = _mm_load_ps(inout + 8);
+			__m128 x4 = _mm_load_ps(inout + 12);
+			const __m128 y1 = _mm_load_ps(in);
+			const __m128 y2 = _mm_load_ps(in + 4);
+			const __m128 y3 = _mm_load_ps(in + 8);
+			const __m128 y4 = _mm_load_ps(in + 12);
+			x1 = _mm_mul_ps(x1, y1);
+			x2 = _mm_mul_ps(x2, y2);
+			x3 = _mm_mul_ps(x3, y3);
+			x4 = _mm_mul_ps(x4, y4);
+			_mm_store_ps(inout, x1);
+			_mm_store_ps(inout + 4, x2);
+			_mm_store_ps(inout + 8, x3);
+			_mm_store_ps(inout + 12, x4);
+
 		#else
 
-		inout[0] *= in[0];
-		inout[1] *= in[1];
-		inout[2] *= in[2];
-		inout[3] *= in[3];
-		inout[4] *= in[4];
-		inout[5] *= in[5];
-		inout[6] *= in[6];
-		inout[7] *= in[7];
-		inout[8] *= in[8];
-		inout[9] *= in[9];
-		inout[10] *= in[10];
-		inout[11] *= in[11];
-		inout[12] *= in[12];
-		inout[13] *= in[13];
-		inout[14] *= in[14];
-		inout[15] *= in[15];
+			inout[0] *= in[0];
+			inout[1] *= in[1];
+			inout[2] *= in[2];
+			inout[3] *= in[3];
+			inout[4] *= in[4];
+			inout[5] *= in[5];
+			inout[6] *= in[6];
+			inout[7] *= in[7];
+			inout[8] *= in[8];
+			inout[9] *= in[9];
+			inout[10] *= in[10];
+			inout[11] *= in[11];
+			inout[12] *= in[12];
+			inout[13] *= in[13];
+			inout[14] *= in[14];
+			inout[15] *= in[15];
 
 		#endif
 	}
@@ -497,58 +501,59 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
-		__m512 x = _mm512_load_ps(inout);
-		const __m512 y = _mm512_load_ps(in);
-		x = _mm512_div_ps(x, y);
-		_mm512_store_ps(inout, x);
+			__m512 x = _mm512_load_ps(inout);
+			const __m512 y = _mm512_load_ps(in);
+			x = _mm512_div_ps(x, y);
+			_mm512_store_ps(inout, x);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
-		__m256 x1 = _mm256_load_ps(inout);
-		__m256 x2 = _mm256_load_ps(inout + 8);
-		const __m256 y1 = _mm256_load_ps(in);
-		const __m256 y2 = _mm256_load_ps(in + 8);
-		x1 = _mm256_div_ps(x1, y1);
-		x2 = _mm256_div_ps(x2, y2);
-		_mm256_store_ps(inout, x1);
-		_mm256_store_ps(inout + 8, x2);
+			__m256 x1 = _mm256_load_ps(inout);
+			__m256 x2 = _mm256_load_ps(inout + 8);
+			const __m256 y1 = _mm256_load_ps(in);
+			const __m256 y2 = _mm256_load_ps(in + 8);
+			x1 = _mm256_div_ps(x1, y1);
+			x2 = _mm256_div_ps(x2, y2);
+			_mm256_store_ps(inout, x1);
+			_mm256_store_ps(inout + 8, x2);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
-		__m128 x1 = _mm_load_ps(inout);
-		__m128 x2 = _mm_load_ps(inout + 4);
-		__m128 x3 = _mm_load_ps(inout + 8);
-		__m128 x4 = _mm_load_ps(inout + 12);
-		const __m128 y1 = _mm_load_ps(in);
-		const __m128 y2 = _mm_load_ps(in + 4);
-		const __m128 y3 = _mm_load_ps(in + 8);
-		const __m128 y4 = _mm_load_ps(in + 12);
-		x1 = _mm_div_ps(x1, y1);
-		x2 = _mm_div_ps(x2, y2);
-		x3 = _mm_div_ps(x3, y3);
-		x4 = _mm_div_ps(x4, y4);
-		_mm_store_ps(inout, x1);
-		_mm_store_ps(inout + 4, x2);
-		_mm_store_ps(inout + 8, x3);
-		_mm_store_ps(inout + 12, x4);
+			__m128 x1 = _mm_load_ps(inout);
+			__m128 x2 = _mm_load_ps(inout + 4);
+			__m128 x3 = _mm_load_ps(inout + 8);
+			__m128 x4 = _mm_load_ps(inout + 12);
+			const __m128 y1 = _mm_load_ps(in);
+			const __m128 y2 = _mm_load_ps(in + 4);
+			const __m128 y3 = _mm_load_ps(in + 8);
+			const __m128 y4 = _mm_load_ps(in + 12);
+			x1 = _mm_div_ps(x1, y1);
+			x2 = _mm_div_ps(x2, y2);
+			x3 = _mm_div_ps(x3, y3);
+			x4 = _mm_div_ps(x4, y4);
+			_mm_store_ps(inout, x1);
+			_mm_store_ps(inout + 4, x2);
+			_mm_store_ps(inout + 8, x3);
+			_mm_store_ps(inout + 12, x4);
+
 		#else
 
-		inout[0] /= in[0];
-		inout[1] /= in[1];
-		inout[2] /= in[2];
-		inout[3] /= in[3];
-		inout[4] /= in[4];
-		inout[5] /= in[5];
-		inout[6] /= in[6];
-		inout[7] /= in[7];
-		inout[8] /= in[8];
-		inout[9] /= in[9];
-		inout[10] /= in[10];
-		inout[11] /= in[11];
-		inout[12] /= in[12];
-		inout[13] /= in[13];
-		inout[14] /= in[14];
-		inout[15] /= in[15];
+			inout[0] /= in[0];
+			inout[1] /= in[1];
+			inout[2] /= in[2];
+			inout[3] /= in[3];
+			inout[4] /= in[4];
+			inout[5] /= in[5];
+			inout[6] /= in[6];
+			inout[7] /= in[7];
+			inout[8] /= in[8];
+			inout[9] /= in[9];
+			inout[10] /= in[10];
+			inout[11] /= in[11];
+			inout[12] /= in[12];
+			inout[13] /= in[13];
+			inout[14] /= in[14];
+			inout[15] /= in[15];
 
 		#endif
 	}
@@ -563,58 +568,59 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
-		__m512 x = _mm512_loadu_ps(inout);
-		const __m512 y = _mm512_loadu_ps(in);
-		x = _mm512_add_ps(x, y);
-		_mm512_storeu_ps(inout, x);
+			__m512 x = _mm512_loadu_ps(inout);
+			const __m512 y = _mm512_loadu_ps(in);
+			x = _mm512_add_ps(x, y);
+			_mm512_storeu_ps(inout, x);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
-		__m256 x1 = _mm256_loadu_ps(inout);
-		__m256 x2 = _mm256_loadu_ps(inout + 8);
-		const __m256 y1 = _mm256_loadu_ps(in);
-		const __m256 y2 = _mm256_loadu_ps(in + 8);
-		x1 = _mm256_add_ps(x1, y1);
-		x2 = _mm256_add_ps(x2, y2);
-		_mm256_storeu_ps(inout, x1);
-		_mm256_storeu_ps(inout + 8, x2);
+			__m256 x1 = _mm256_loadu_ps(inout);
+			__m256 x2 = _mm256_loadu_ps(inout + 8);
+			const __m256 y1 = _mm256_loadu_ps(in);
+			const __m256 y2 = _mm256_loadu_ps(in + 8);
+			x1 = _mm256_add_ps(x1, y1);
+			x2 = _mm256_add_ps(x2, y2);
+			_mm256_storeu_ps(inout, x1);
+			_mm256_storeu_ps(inout + 8, x2);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
-		__m128 x1 = _mm_loadu_ps(inout);
-		__m128 x2 = _mm_loadu_ps(inout + 4);
-		__m128 x3 = _mm_loadu_ps(inout + 8);
-		__m128 x4 = _mm_loadu_ps(inout + 12);
-		const __m128 y1 = _mm_loadu_ps(in);
-		const __m128 y2 = _mm_loadu_ps(in + 4);
-		const __m128 y3 = _mm_loadu_ps(in + 8);
-		const __m128 y4 = _mm_loadu_ps(in + 12);
-		x1 = _mm_add_ps(x1, y1);
-		x2 = _mm_add_ps(x2, y2);
-		x3 = _mm_add_ps(x3, y3);
-		x4 = _mm_add_ps(x4, y4);
-		_mm_storeu_ps(inout, x1);
-		_mm_storeu_ps(inout + 4, x2);
-		_mm_storeu_ps(inout + 8, x3);
-		_mm_storeu_ps(inout + 12, x4);
+			__m128 x1 = _mm_loadu_ps(inout);
+			__m128 x2 = _mm_loadu_ps(inout + 4);
+			__m128 x3 = _mm_loadu_ps(inout + 8);
+			__m128 x4 = _mm_loadu_ps(inout + 12);
+			const __m128 y1 = _mm_loadu_ps(in);
+			const __m128 y2 = _mm_loadu_ps(in + 4);
+			const __m128 y3 = _mm_loadu_ps(in + 8);
+			const __m128 y4 = _mm_loadu_ps(in + 12);
+			x1 = _mm_add_ps(x1, y1);
+			x2 = _mm_add_ps(x2, y2);
+			x3 = _mm_add_ps(x3, y3);
+			x4 = _mm_add_ps(x4, y4);
+			_mm_storeu_ps(inout, x1);
+			_mm_storeu_ps(inout + 4, x2);
+			_mm_storeu_ps(inout + 8, x3);
+			_mm_storeu_ps(inout + 12, x4);
+
 		#else
 
-		inout[0] += in[0];
-		inout[1] += in[1];
-		inout[2] += in[2];
-		inout[3] += in[3];
-		inout[4] += in[4];
-		inout[5] += in[5];
-		inout[6] += in[6];
-		inout[7] += in[7];
-		inout[8] += in[8];
-		inout[9] += in[9];
-		inout[10] += in[10];
-		inout[11] += in[11];
-		inout[12] += in[12];
-		inout[13] += in[13];
-		inout[14] += in[14];
-		inout[15] += in[15];
+			inout[0] += in[0];
+			inout[1] += in[1];
+			inout[2] += in[2];
+			inout[3] += in[3];
+			inout[4] += in[4];
+			inout[5] += in[5];
+			inout[6] += in[6];
+			inout[7] += in[7];
+			inout[8] += in[8];
+			inout[9] += in[9];
+			inout[10] += in[10];
+			inout[11] += in[11];
+			inout[12] += in[12];
+			inout[13] += in[13];
+			inout[14] += in[14];
+			inout[15] += in[15];
 
 		#endif
 	}
@@ -629,58 +635,59 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
-		__m512 x = _mm512_loadu_ps(inout);
-		const __m512 y = _mm512_loadu_ps(in);
-		x = _mm512_sub_ps(x, y);
-		_mm512_storeu_ps(inout, x);
+			__m512 x = _mm512_loadu_ps(inout);
+			const __m512 y = _mm512_loadu_ps(in);
+			x = _mm512_sub_ps(x, y);
+			_mm512_storeu_ps(inout, x);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
-		__m256 x1 = _mm256_loadu_ps(inout);
-		__m256 x2 = _mm256_loadu_ps(inout + 8);
-		const __m256 y1 = _mm256_loadu_ps(in);
-		const __m256 y2 = _mm256_loadu_ps(in + 8);
-		x1 = _mm256_sub_ps(x1, y1);
-		x2 = _mm256_sub_ps(x2, y2);
-		_mm256_storeu_ps(inout, x1);
-		_mm256_storeu_ps(inout + 8, x2);
+			__m256 x1 = _mm256_loadu_ps(inout);
+			__m256 x2 = _mm256_loadu_ps(inout + 8);
+			const __m256 y1 = _mm256_loadu_ps(in);
+			const __m256 y2 = _mm256_loadu_ps(in + 8);
+			x1 = _mm256_sub_ps(x1, y1);
+			x2 = _mm256_sub_ps(x2, y2);
+			_mm256_storeu_ps(inout, x1);
+			_mm256_storeu_ps(inout + 8, x2);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
-		__m128 x1 = _mm_loadu_ps(inout);
-		__m128 x2 = _mm_loadu_ps(inout + 4);
-		__m128 x3 = _mm_loadu_ps(inout + 8);
-		__m128 x4 = _mm_loadu_ps(inout + 12);
-		const __m128 y1 = _mm_loadu_ps(in);
-		const __m128 y2 = _mm_loadu_ps(in + 4);
-		const __m128 y3 = _mm_loadu_ps(in + 8);
-		const __m128 y4 = _mm_loadu_ps(in + 12);
-		x1 = _mm_sub_ps(x1, y1);
-		x2 = _mm_sub_ps(x2, y2);
-		x3 = _mm_sub_ps(x3, y3);
-		x4 = _mm_sub_ps(x4, y4);
-		_mm_storeu_ps(inout, x1);
-		_mm_storeu_ps(inout + 4, x2);
-		_mm_storeu_ps(inout + 8, x3);
-		_mm_storeu_ps(inout + 12, x4);
+			__m128 x1 = _mm_loadu_ps(inout);
+			__m128 x2 = _mm_loadu_ps(inout + 4);
+			__m128 x3 = _mm_loadu_ps(inout + 8);
+			__m128 x4 = _mm_loadu_ps(inout + 12);
+			const __m128 y1 = _mm_loadu_ps(in);
+			const __m128 y2 = _mm_loadu_ps(in + 4);
+			const __m128 y3 = _mm_loadu_ps(in + 8);
+			const __m128 y4 = _mm_loadu_ps(in + 12);
+			x1 = _mm_sub_ps(x1, y1);
+			x2 = _mm_sub_ps(x2, y2);
+			x3 = _mm_sub_ps(x3, y3);
+			x4 = _mm_sub_ps(x4, y4);
+			_mm_storeu_ps(inout, x1);
+			_mm_storeu_ps(inout + 4, x2);
+			_mm_storeu_ps(inout + 8, x3);
+			_mm_storeu_ps(inout + 12, x4);
+
 		#else
 
-		inout[0] -= in[0];
-		inout[1] -= in[1];
-		inout[2] -= in[2];
-		inout[3] -= in[3];
-		inout[4] -= in[4];
-		inout[5] -= in[5];
-		inout[6] -= in[6];
-		inout[7] -= in[7];
-		inout[8] -= in[8];
-		inout[9] -= in[9];
-		inout[10] -= in[10];
-		inout[11] -= in[11];
-		inout[12] -= in[12];
-		inout[13] -= in[13];
-		inout[14] -= in[14];
-		inout[15] -= in[15];
+			inout[0] -= in[0];
+			inout[1] -= in[1];
+			inout[2] -= in[2];
+			inout[3] -= in[3];
+			inout[4] -= in[4];
+			inout[5] -= in[5];
+			inout[6] -= in[6];
+			inout[7] -= in[7];
+			inout[8] -= in[8];
+			inout[9] -= in[9];
+			inout[10] -= in[10];
+			inout[11] -= in[11];
+			inout[12] -= in[12];
+			inout[13] -= in[13];
+			inout[14] -= in[14];
+			inout[15] -= in[15];
 
 		#endif
 	}
@@ -695,58 +702,59 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
-		__m512 x = _mm512_loadu_ps(inout);
-		const __m512 y = _mm512_loadu_ps(in);
-		x = _mm512_mul_ps(x, y);
-		_mm512_storeu_ps(inout, x);
+			__m512 x = _mm512_loadu_ps(inout);
+			const __m512 y = _mm512_loadu_ps(in);
+			x = _mm512_mul_ps(x, y);
+			_mm512_storeu_ps(inout, x);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
-		__m256 x1 = _mm256_loadu_ps(inout);
-		__m256 x2 = _mm256_loadu_ps(inout + 8);
-		const __m256 y1 = _mm256_loadu_ps(in);
-		const __m256 y2 = _mm256_loadu_ps(in + 8);
-		x1 = _mm256_mul_ps(x1, y1);
-		x2 = _mm256_mul_ps(x2, y2);
-		_mm256_storeu_ps(inout, x1);
-		_mm256_storeu_ps(inout + 8, x2);
+			__m256 x1 = _mm256_loadu_ps(inout);
+			__m256 x2 = _mm256_loadu_ps(inout + 8);
+			const __m256 y1 = _mm256_loadu_ps(in);
+			const __m256 y2 = _mm256_loadu_ps(in + 8);
+			x1 = _mm256_mul_ps(x1, y1);
+			x2 = _mm256_mul_ps(x2, y2);
+			_mm256_storeu_ps(inout, x1);
+			_mm256_storeu_ps(inout + 8, x2);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
-		__m128 x1 = _mm_loadu_ps(inout);
-		__m128 x2 = _mm_loadu_ps(inout + 4);
-		__m128 x3 = _mm_loadu_ps(inout + 8);
-		__m128 x4 = _mm_loadu_ps(inout + 12);
-		const __m128 y1 = _mm_loadu_ps(in);
-		const __m128 y2 = _mm_loadu_ps(in + 4);
-		const __m128 y3 = _mm_loadu_ps(in + 8);
-		const __m128 y4 = _mm_loadu_ps(in + 12);
-		x1 = _mm_mul_ps(x1, y1);
-		x2 = _mm_mul_ps(x2, y2);
-		x3 = _mm_mul_ps(x3, y3);
-		x4 = _mm_mul_ps(x4, y4);
-		_mm_storeu_ps(inout, x1);
-		_mm_storeu_ps(inout + 4, x2);
-		_mm_storeu_ps(inout + 8, x3);
-		_mm_storeu_ps(inout + 12, x4);
+			__m128 x1 = _mm_loadu_ps(inout);
+			__m128 x2 = _mm_loadu_ps(inout + 4);
+			__m128 x3 = _mm_loadu_ps(inout + 8);
+			__m128 x4 = _mm_loadu_ps(inout + 12);
+			const __m128 y1 = _mm_loadu_ps(in);
+			const __m128 y2 = _mm_loadu_ps(in + 4);
+			const __m128 y3 = _mm_loadu_ps(in + 8);
+			const __m128 y4 = _mm_loadu_ps(in + 12);
+			x1 = _mm_mul_ps(x1, y1);
+			x2 = _mm_mul_ps(x2, y2);
+			x3 = _mm_mul_ps(x3, y3);
+			x4 = _mm_mul_ps(x4, y4);
+			_mm_storeu_ps(inout, x1);
+			_mm_storeu_ps(inout + 4, x2);
+			_mm_storeu_ps(inout + 8, x3);
+			_mm_storeu_ps(inout + 12, x4);
+
 		#else
 
-		inout[0] *= in[0];
-		inout[1] *= in[1];
-		inout[2] *= in[2];
-		inout[3] *= in[3];
-		inout[4] *= in[4];
-		inout[5] *= in[5];
-		inout[6] *= in[6];
-		inout[7] *= in[7];
-		inout[8] *= in[8];
-		inout[9] *= in[9];
-		inout[10] *= in[10];
-		inout[11] *= in[11];
-		inout[12] *= in[12];
-		inout[13] *= in[13];
-		inout[14] *= in[14];
-		inout[15] *= in[15];
+			inout[0] *= in[0];
+			inout[1] *= in[1];
+			inout[2] *= in[2];
+			inout[3] *= in[3];
+			inout[4] *= in[4];
+			inout[5] *= in[5];
+			inout[6] *= in[6];
+			inout[7] *= in[7];
+			inout[8] *= in[8];
+			inout[9] *= in[9];
+			inout[10] *= in[10];
+			inout[11] *= in[11];
+			inout[12] *= in[12];
+			inout[13] *= in[13];
+			inout[14] *= in[14];
+			inout[15] *= in[15];
 
 		#endif
 	}
@@ -761,58 +769,59 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
-		__m512 x = _mm512_loadu_ps(inout);
-		const __m512 y = _mm512_loadu_ps(in);
-		x = _mm512_div_ps(x, y);
-		_mm512_storeu_ps(inout, x);
+			__m512 x = _mm512_loadu_ps(inout);
+			const __m512 y = _mm512_loadu_ps(in);
+			x = _mm512_div_ps(x, y);
+			_mm512_storeu_ps(inout, x);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
-		__m256 x1 = _mm256_loadu_ps(inout);
-		__m256 x2 = _mm256_loadu_ps(inout + 8);
-		const __m256 y1 = _mm256_loadu_ps(in);
-		const __m256 y2 = _mm256_loadu_ps(in + 8);
-		x1 = _mm256_div_ps(x1, y1);
-		x2 = _mm256_div_ps(x2, y2);
-		_mm256_storeu_ps(inout, x1);
-		_mm256_storeu_ps(inout + 8, x2);
+			__m256 x1 = _mm256_loadu_ps(inout);
+			__m256 x2 = _mm256_loadu_ps(inout + 8);
+			const __m256 y1 = _mm256_loadu_ps(in);
+			const __m256 y2 = _mm256_loadu_ps(in + 8);
+			x1 = _mm256_div_ps(x1, y1);
+			x2 = _mm256_div_ps(x2, y2);
+			_mm256_storeu_ps(inout, x1);
+			_mm256_storeu_ps(inout + 8, x2);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
-		__m128 x1 = _mm_loadu_ps(inout);
-		__m128 x2 = _mm_loadu_ps(inout + 4);
-		__m128 x3 = _mm_loadu_ps(inout + 8);
-		__m128 x4 = _mm_loadu_ps(inout + 12);
-		const __m128 y1 = _mm_loadu_ps(in);
-		const __m128 y2 = _mm_loadu_ps(in + 4);
-		const __m128 y3 = _mm_loadu_ps(in + 8);
-		const __m128 y4 = _mm_loadu_ps(in + 12);
-		x1 = _mm_div_ps(x1, y1);
-		x2 = _mm_div_ps(x2, y2);
-		x3 = _mm_div_ps(x3, y3);
-		x4 = _mm_div_ps(x4, y4);
-		_mm_storeu_ps(inout, x1);
-		_mm_storeu_ps(inout + 4, x2);
-		_mm_storeu_ps(inout + 8, x3);
-		_mm_storeu_ps(inout + 12, x4);
+			__m128 x1 = _mm_loadu_ps(inout);
+			__m128 x2 = _mm_loadu_ps(inout + 4);
+			__m128 x3 = _mm_loadu_ps(inout + 8);
+			__m128 x4 = _mm_loadu_ps(inout + 12);
+			const __m128 y1 = _mm_loadu_ps(in);
+			const __m128 y2 = _mm_loadu_ps(in + 4);
+			const __m128 y3 = _mm_loadu_ps(in + 8);
+			const __m128 y4 = _mm_loadu_ps(in + 12);
+			x1 = _mm_div_ps(x1, y1);
+			x2 = _mm_div_ps(x2, y2);
+			x3 = _mm_div_ps(x3, y3);
+			x4 = _mm_div_ps(x4, y4);
+			_mm_storeu_ps(inout, x1);
+			_mm_storeu_ps(inout + 4, x2);
+			_mm_storeu_ps(inout + 8, x3);
+			_mm_storeu_ps(inout + 12, x4);
+
 		#else
 
-		inout[0] /= in[0];
-		inout[1] /= in[1];
-		inout[2] /= in[2];
-		inout[3] /= in[3];
-		inout[4] /= in[4];
-		inout[5] /= in[5];
-		inout[6] /= in[6];
-		inout[7] /= in[7];
-		inout[8] /= in[8];
-		inout[9] /= in[9];
-		inout[10] /= in[10];
-		inout[11] /= in[11];
-		inout[12] /= in[12];
-		inout[13] /= in[13];
-		inout[14] /= in[14];
-		inout[15] /= in[15];
+			inout[0] /= in[0];
+			inout[1] /= in[1];
+			inout[2] /= in[2];
+			inout[3] /= in[3];
+			inout[4] /= in[4];
+			inout[5] /= in[5];
+			inout[6] /= in[6];
+			inout[7] /= in[7];
+			inout[8] /= in[8];
+			inout[9] /= in[9];
+			inout[10] /= in[10];
+			inout[11] /= in[11];
+			inout[12] /= in[12];
+			inout[13] /= in[13];
+			inout[14] /= in[14];
+			inout[15] /= in[15];
 
 		#endif
 	}
@@ -827,17 +836,17 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
-		__m128 x = _mm_load_ps(inout);
-		const __m128 y = _mm_load_ps(in);
-		x = _mm_add_ps(x, y);
-		_mm_store_ps(inout, x);
+			__m128 x = _mm_load_ps(inout);
+			const __m128 y = _mm_load_ps(in);
+			x = _mm_add_ps(x, y);
+			_mm_store_ps(inout, x);
 
 		#else
 
-		inout[0] += in[0];
-		inout[1] += in[1];
-		inout[2] += in[2];
-		inout[3] += in[3];
+			inout[0] += in[0];
+			inout[1] += in[1];
+			inout[2] += in[2];
+			inout[3] += in[3];
 
 		#endif
 	}
@@ -852,17 +861,17 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
-		__m128 x = _mm_load_ps(inout);
-		const __m128 y = _mm_load_ps(in);
-		x = _mm_sub_ps(x, y);
-		_mm_store_ps(inout, x);
+			__m128 x = _mm_load_ps(inout);
+			const __m128 y = _mm_load_ps(in);
+			x = _mm_sub_ps(x, y);
+			_mm_store_ps(inout, x);
 
 		#else
 
-		inout[0] -= in[0];
-		inout[1] -= in[1];
-		inout[2] -= in[2];
-		inout[3] -= in[3];
+			inout[0] -= in[0];
+			inout[1] -= in[1];
+			inout[2] -= in[2];
+			inout[3] -= in[3];
 
 		#endif
 	}
@@ -877,17 +886,17 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
-		__m128 x = _mm_load_ps(inout);
-		const __m128 y = _mm_load_ps(in);
-		x = _mm_mul_ps(x, y);
-		_mm_store_ps(inout, x);
+			__m128 x = _mm_load_ps(inout);
+			const __m128 y = _mm_load_ps(in);
+			x = _mm_mul_ps(x, y);
+			_mm_store_ps(inout, x);
 
 		#else
 
-		inout[0] *= in[0];
-		inout[1] *= in[1];
-		inout[2] *= in[2];
-		inout[3] *= in[3];
+			inout[0] *= in[0];
+			inout[1] *= in[1];
+			inout[2] *= in[2];
+			inout[3] *= in[3];
 
 		#endif
 	}
@@ -902,17 +911,17 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
-		__m128 x = _mm_load_ps(inout);
-		const __m128 y = _mm_load_ps(in);
-		x = _mm_div_ps(x, y);
-		_mm_store_ps(inout, x);
+			__m128 x = _mm_load_ps(inout);
+			const __m128 y = _mm_load_ps(in);
+			x = _mm_div_ps(x, y);
+			_mm_store_ps(inout, x);
 
 		#else
 
-		inout[0] /= in[0];
-		inout[1] /= in[1];
-		inout[2] /= in[2];
-		inout[3] /= in[3];
+			inout[0] /= in[0];
+			inout[1] /= in[1];
+			inout[2] /= in[2];
+			inout[3] /= in[3];
 
 		#endif
 	}
@@ -927,17 +936,17 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
-		__m128 x = _mm_loadu_ps(inout);
-		const __m128 y = _mm_loadu_ps(in);
-		x = _mm_add_ps(x, y);
-		_mm_storeu_ps(inout, x);
+			__m128 x = _mm_loadu_ps(inout);
+			const __m128 y = _mm_loadu_ps(in);
+			x = _mm_add_ps(x, y);
+			_mm_storeu_ps(inout, x);
 
 		#else
 
-		inout[0] += in[0];
-		inout[1] += in[1];
-		inout[2] += in[2];
-		inout[3] += in[3];
+			inout[0] += in[0];
+			inout[1] += in[1];
+			inout[2] += in[2];
+			inout[3] += in[3];
 
 		#endif
 	}
@@ -952,17 +961,17 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
-		__m128 x = _mm_loadu_ps(inout);
-		const __m128 y = _mm_loadu_ps(in);
-		x = _mm_sub_ps(x, y);
-		_mm_storeu_ps(inout, x);
+			__m128 x = _mm_loadu_ps(inout);
+			const __m128 y = _mm_loadu_ps(in);
+			x = _mm_sub_ps(x, y);
+			_mm_storeu_ps(inout, x);
 
 		#else
 
-		inout[0] -= in[0];
-		inout[1] -= in[1];
-		inout[2] -= in[2];
-		inout[3] -= in[3];
+			inout[0] -= in[0];
+			inout[1] -= in[1];
+			inout[2] -= in[2];
+			inout[3] -= in[3];
 
 		#endif
 	}
@@ -977,17 +986,17 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
-		__m128 x = _mm_loadu_ps(inout);
-		const __m128 y = _mm_loadu_ps(in);
-		x = _mm_mul_ps(x, y);
-		_mm_storeu_ps(inout, x);
+			__m128 x = _mm_loadu_ps(inout);
+			const __m128 y = _mm_loadu_ps(in);
+			x = _mm_mul_ps(x, y);
+			_mm_storeu_ps(inout, x);
 
 		#else
 
-		inout[0] *= in[0];
-		inout[1] *= in[1];
-		inout[2] *= in[2];
-		inout[3] *= in[3];
+			inout[0] *= in[0];
+			inout[1] *= in[1];
+			inout[2] *= in[2];
+			inout[3] *= in[3];
 
 		#endif
 	}
@@ -1002,17 +1011,17 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
-		__m128 x = _mm_loadu_ps(inout);
-		const __m128 y = _mm_loadu_ps(in);
-		x = _mm_div_ps(x, y);
-		_mm_storeu_ps(inout, x);
+			__m128 x = _mm_loadu_ps(inout);
+			const __m128 y = _mm_loadu_ps(in);
+			x = _mm_div_ps(x, y);
+			_mm_storeu_ps(inout, x);
 
 		#else
 
-		inout[0] /= in[0];
-		inout[1] /= in[1];
-		inout[2] /= in[2];
-		inout[3] /= in[3];
+			inout[0] /= in[0];
+			inout[1] /= in[1];
+			inout[2] /= in[2];
+			inout[3] /= in[3];
 
 		#endif
 	}
@@ -1027,32 +1036,32 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
-		__m256 x = _mm256_load_ps(inout);
-		const __m256 y = _mm256_load_ps(in);
-		x = _mm256_add_ps(x, y);
-		_mm256_store_ps(inout, x);
+			__m256 x = _mm256_load_ps(inout);
+			const __m256 y = _mm256_load_ps(in);
+			x = _mm256_add_ps(x, y);
+			_mm256_store_ps(inout, x);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
-		__m128 x1 = _mm_load_ps(inout);
-		__m128 x2 = _mm_load_ps(inout + 4);
-		const __m128 y1 = _mm_load_ps(in);
-		const __m128 y2 = _mm_load_ps(in + 4);
-		x1 = _mm_add_ps(x1, y1);
-		x2 = _mm_add_ps(x2, y2);
-		_mm_store_ps(inout, x1);
-		_mm_store_ps(inout + 4, x2);
+			__m128 x1 = _mm_load_ps(inout);
+			__m128 x2 = _mm_load_ps(inout + 4);
+			const __m128 y1 = _mm_load_ps(in);
+			const __m128 y2 = _mm_load_ps(in + 4);
+			x1 = _mm_add_ps(x1, y1);
+			x2 = _mm_add_ps(x2, y2);
+			_mm_store_ps(inout, x1);
+			_mm_store_ps(inout + 4, x2);
 
 		#else
 
-		inout[0] += in[0];
-		inout[1] += in[1];
-		inout[2] += in[2];
-		inout[3] += in[3];
-		inout[4] += in[4];
-		inout[5] += in[5];
-		inout[6] += in[6];
-		inout[7] += in[7];
+			inout[0] += in[0];
+			inout[1] += in[1];
+			inout[2] += in[2];
+			inout[3] += in[3];
+			inout[4] += in[4];
+			inout[5] += in[5];
+			inout[6] += in[6];
+			inout[7] += in[7];
 
 		#endif
 	}
@@ -1067,32 +1076,32 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
-		__m256 x = _mm256_load_ps(inout);
-		const __m256 y = _mm256_load_ps(in);
-		x = _mm256_sub_ps(x, y);
-		_mm256_store_ps(inout, x);
+			__m256 x = _mm256_load_ps(inout);
+			const __m256 y = _mm256_load_ps(in);
+			x = _mm256_sub_ps(x, y);
+			_mm256_store_ps(inout, x);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
-		__m128 x1 = _mm_load_ps(inout);
-		__m128 x2 = _mm_load_ps(inout + 4);
-		const __m128 y1 = _mm_load_ps(in);
-		const __m128 y2 = _mm_load_ps(in + 4);
-		x1 = _mm_sub_ps(x1, y1);
-		x2 = _mm_sub_ps(x2, y2);
-		_mm_store_ps(inout, x1);
-		_mm_store_ps(inout + 4, x2);
+			__m128 x1 = _mm_load_ps(inout);
+			__m128 x2 = _mm_load_ps(inout + 4);
+			const __m128 y1 = _mm_load_ps(in);
+			const __m128 y2 = _mm_load_ps(in + 4);
+			x1 = _mm_sub_ps(x1, y1);
+			x2 = _mm_sub_ps(x2, y2);
+			_mm_store_ps(inout, x1);
+			_mm_store_ps(inout + 4, x2);
 
 		#else
 
-		inout[0] -= in[0];
-		inout[1] -= in[1];
-		inout[2] -= in[2];
-		inout[3] -= in[3];
-		inout[4] -= in[4];
-		inout[5] -= in[5];
-		inout[6] -= in[6];
-		inout[7] -= in[7];
+			inout[0] -= in[0];
+			inout[1] -= in[1];
+			inout[2] -= in[2];
+			inout[3] -= in[3];
+			inout[4] -= in[4];
+			inout[5] -= in[5];
+			inout[6] -= in[6];
+			inout[7] -= in[7];
 
 		#endif
 	}
@@ -1107,32 +1116,32 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
-		__m256 x = _mm256_load_ps(inout);
-		const __m256 y = _mm256_load_ps(in);
-		x = _mm256_mul_ps(x, y);
-		_mm256_store_ps(inout, x);
+			__m256 x = _mm256_load_ps(inout);
+			const __m256 y = _mm256_load_ps(in);
+			x = _mm256_mul_ps(x, y);
+			_mm256_store_ps(inout, x);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
-		__m128 x1 = _mm_load_ps(inout);
-		__m128 x2 = _mm_load_ps(inout + 4);
-		const __m128 y1 = _mm_load_ps(in);
-		const __m128 y2 = _mm_load_ps(in + 4);
-		x1 = _mm_mul_ps(x1, y1);
-		x2 = _mm_mul_ps(x2, y2);
-		_mm_store_ps(inout, x1);
-		_mm_store_ps(inout + 4, x2);
+			__m128 x1 = _mm_load_ps(inout);
+			__m128 x2 = _mm_load_ps(inout + 4);
+			const __m128 y1 = _mm_load_ps(in);
+			const __m128 y2 = _mm_load_ps(in + 4);
+			x1 = _mm_mul_ps(x1, y1);
+			x2 = _mm_mul_ps(x2, y2);
+			_mm_store_ps(inout, x1);
+			_mm_store_ps(inout + 4, x2);
 
 		#else
 
-		inout[0] *= in[0];
-		inout[1] *= in[1];
-		inout[2] *= in[2];
-		inout[3] *= in[3];
-		inout[4] *= in[4];
-		inout[5] *= in[5];
-		inout[6] *= in[6];
-		inout[7] *= in[7];
+			inout[0] *= in[0];
+			inout[1] *= in[1];
+			inout[2] *= in[2];
+			inout[3] *= in[3];
+			inout[4] *= in[4];
+			inout[5] *= in[5];
+			inout[6] *= in[6];
+			inout[7] *= in[7];
 
 		#endif
 	}
@@ -1147,32 +1156,32 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
-		__m256 x = _mm256_load_ps(inout);
-		const __m256 y = _mm256_load_ps(in);
-		x = _mm256_div_ps(x, y);
-		_mm256_store_ps(inout, x);
+			__m256 x = _mm256_load_ps(inout);
+			const __m256 y = _mm256_load_ps(in);
+			x = _mm256_div_ps(x, y);
+			_mm256_store_ps(inout, x);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
-		__m128 x1 = _mm_load_ps(inout);
-		__m128 x2 = _mm_load_ps(inout + 4);
-		const __m128 y1 = _mm_load_ps(in);
-		const __m128 y2 = _mm_load_ps(in + 4);
-		x1 = _mm_div_ps(x1, y1);
-		x2 = _mm_div_ps(x2, y2);
-		_mm_store_ps(inout, x1);
-		_mm_store_ps(inout + 4, x2);
+			__m128 x1 = _mm_load_ps(inout);
+			__m128 x2 = _mm_load_ps(inout + 4);
+			const __m128 y1 = _mm_load_ps(in);
+			const __m128 y2 = _mm_load_ps(in + 4);
+			x1 = _mm_div_ps(x1, y1);
+			x2 = _mm_div_ps(x2, y2);
+			_mm_store_ps(inout, x1);
+			_mm_store_ps(inout + 4, x2);
 
 		#else
 
-		inout[0] /= in[0];
-		inout[1] /= in[1];
-		inout[2] /= in[2];
-		inout[3] /= in[3];
-		inout[4] /= in[4];
-		inout[5] /= in[5];
-		inout[6] /= in[6];
-		inout[7] /= in[7];
+			inout[0] /= in[0];
+			inout[1] /= in[1];
+			inout[2] /= in[2];
+			inout[3] /= in[3];
+			inout[4] /= in[4];
+			inout[5] /= in[5];
+			inout[6] /= in[6];
+			inout[7] /= in[7];
 
 		#endif
 	}
@@ -1187,32 +1196,32 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
-		__m256 x = _mm256_loadu_ps(inout);
-		const __m256 y = _mm256_loadu_ps(in);
-		x = _mm256_add_ps(x, y);
-		_mm256_storeu_ps(inout, x);
+			__m256 x = _mm256_loadu_ps(inout);
+			const __m256 y = _mm256_loadu_ps(in);
+			x = _mm256_add_ps(x, y);
+			_mm256_storeu_ps(inout, x);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
-		__m128 x1 = _mm_loadu_ps(inout);
-		__m128 x2 = _mm_loadu_ps(inout + 4);
-		const __m128 y1 = _mm_loadu_ps(in);
-		const __m128 y2 = _mm_loadu_ps(in + 4);
-		x1 = _mm_add_ps(x1, y1);
-		x2 = _mm_add_ps(x2, y2);
-		_mm_storeu_ps(inout, x1);
-		_mm_storeu_ps(inout + 4, x2);
+			__m128 x1 = _mm_loadu_ps(inout);
+			__m128 x2 = _mm_loadu_ps(inout + 4);
+			const __m128 y1 = _mm_loadu_ps(in);
+			const __m128 y2 = _mm_loadu_ps(in + 4);
+			x1 = _mm_add_ps(x1, y1);
+			x2 = _mm_add_ps(x2, y2);
+			_mm_storeu_ps(inout, x1);
+			_mm_storeu_ps(inout + 4, x2);
 
 		#else
 
-		inout[0] += in[0];
-		inout[1] += in[1];
-		inout[2] += in[2];
-		inout[3] += in[3];
-		inout[4] += in[4];
-		inout[5] += in[5];
-		inout[6] += in[6];
-		inout[7] += in[7];
+			inout[0] += in[0];
+			inout[1] += in[1];
+			inout[2] += in[2];
+			inout[3] += in[3];
+			inout[4] += in[4];
+			inout[5] += in[5];
+			inout[6] += in[6];
+			inout[7] += in[7];
 
 		#endif
 	}
@@ -1227,32 +1236,32 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
-		__m256 x = _mm256_loadu_ps(inout);
-		const __m256 y = _mm256_loadu_ps(in);
-		x = _mm256_sub_ps(x, y);
-		_mm256_storeu_ps(inout, x);
+			__m256 x = _mm256_loadu_ps(inout);
+			const __m256 y = _mm256_loadu_ps(in);
+			x = _mm256_sub_ps(x, y);
+			_mm256_storeu_ps(inout, x);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
-		__m128 x1 = _mm_loadu_ps(inout);
-		__m128 x2 = _mm_loadu_ps(inout + 4);
-		const __m128 y1 = _mm_loadu_ps(in);
-		const __m128 y2 = _mm_loadu_ps(in + 4);
-		x1 = _mm_sub_ps(x1, y1);
-		x2 = _mm_sub_ps(x2, y2);
-		_mm_storeu_ps(inout, x1);
-		_mm_storeu_ps(inout + 4, x2);
+			__m128 x1 = _mm_loadu_ps(inout);
+			__m128 x2 = _mm_loadu_ps(inout + 4);
+			const __m128 y1 = _mm_loadu_ps(in);
+			const __m128 y2 = _mm_loadu_ps(in + 4);
+			x1 = _mm_sub_ps(x1, y1);
+			x2 = _mm_sub_ps(x2, y2);
+			_mm_storeu_ps(inout, x1);
+			_mm_storeu_ps(inout + 4, x2);
 
 		#else
 
-		inout[0] -= in[0];
-		inout[1] -= in[1];
-		inout[2] -= in[2];
-		inout[3] -= in[3];
-		inout[4] -= in[4];
-		inout[5] -= in[5];
-		inout[6] -= in[6];
-		inout[7] -= in[7];
+			inout[0] -= in[0];
+			inout[1] -= in[1];
+			inout[2] -= in[2];
+			inout[3] -= in[3];
+			inout[4] -= in[4];
+			inout[5] -= in[5];
+			inout[6] -= in[6];
+			inout[7] -= in[7];
 
 		#endif
 	}
@@ -1267,32 +1276,32 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
-		__m256 x = _mm256_loadu_ps(inout);
-		const __m256 y = _mm256_loadu_ps(in);
-		x = _mm256_mul_ps(x, y);
-		_mm256_storeu_ps(inout, x);
+			__m256 x = _mm256_loadu_ps(inout);
+			const __m256 y = _mm256_loadu_ps(in);
+			x = _mm256_mul_ps(x, y);
+			_mm256_storeu_ps(inout, x);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
-		__m128 x1 = _mm_loadu_ps(inout);
-		__m128 x2 = _mm_loadu_ps(inout + 4);
-		const __m128 y1 = _mm_loadu_ps(in);
-		const __m128 y2 = _mm_loadu_ps(in + 4);
-		x1 = _mm_mul_ps(x1, y1);
-		x2 = _mm_mul_ps(x2, y2);
-		_mm_storeu_ps(inout, x1);
-		_mm_storeu_ps(inout + 4, x2);
+			__m128 x1 = _mm_loadu_ps(inout);
+			__m128 x2 = _mm_loadu_ps(inout + 4);
+			const __m128 y1 = _mm_loadu_ps(in);
+			const __m128 y2 = _mm_loadu_ps(in + 4);
+			x1 = _mm_mul_ps(x1, y1);
+			x2 = _mm_mul_ps(x2, y2);
+			_mm_storeu_ps(inout, x1);
+			_mm_storeu_ps(inout + 4, x2);
 
 		#else
 
-		inout[0] *= in[0];
-		inout[1] *= in[1];
-		inout[2] *= in[2];
-		inout[3] *= in[3];
-		inout[4] *= in[4];
-		inout[5] *= in[5];
-		inout[6] *= in[6];
-		inout[7] *= in[7];
+			inout[0] *= in[0];
+			inout[1] *= in[1];
+			inout[2] *= in[2];
+			inout[3] *= in[3];
+			inout[4] *= in[4];
+			inout[5] *= in[5];
+			inout[6] *= in[6];
+			inout[7] *= in[7];
 
 		#endif
 	}
@@ -1307,32 +1316,32 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
-		__m256 x = _mm256_loadu_ps(inout);
-		const __m256 y = _mm256_loadu_ps(in);
-		x = _mm256_div_ps(x, y);
-		_mm256_storeu_ps(inout, x);
+			__m256 x = _mm256_loadu_ps(inout);
+			const __m256 y = _mm256_loadu_ps(in);
+			x = _mm256_div_ps(x, y);
+			_mm256_storeu_ps(inout, x);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE__)
 
-		__m128 x1 = _mm_loadu_ps(inout);
-		__m128 x2 = _mm_loadu_ps(inout + 4);
-		const __m128 y1 = _mm_loadu_ps(in);
-		const __m128 y2 = _mm_loadu_ps(in + 4);
-		x1 = _mm_div_ps(x1, y1);
-		x2 = _mm_div_ps(x2, y2);
-		_mm_storeu_ps(inout, x1);
-		_mm_storeu_ps(inout + 4, x2);
+			__m128 x1 = _mm_loadu_ps(inout);
+			__m128 x2 = _mm_loadu_ps(inout + 4);
+			const __m128 y1 = _mm_loadu_ps(in);
+			const __m128 y2 = _mm_loadu_ps(in + 4);
+			x1 = _mm_div_ps(x1, y1);
+			x2 = _mm_div_ps(x2, y2);
+			_mm_storeu_ps(inout, x1);
+			_mm_storeu_ps(inout + 4, x2);
 
 		#else
 
-		inout[0] /= in[0];
-		inout[1] /= in[1];
-		inout[2] /= in[2];
-		inout[3] /= in[3];
-		inout[4] /= in[4];
-		inout[5] /= in[5];
-		inout[6] /= in[6];
-		inout[7] /= in[7];
+			inout[0] /= in[0];
+			inout[1] /= in[1];
+			inout[2] /= in[2];
+			inout[3] /= in[3];
+			inout[4] /= in[4];
+			inout[5] /= in[5];
+			inout[6] /= in[6];
+			inout[7] /= in[7];
 
 		#endif
 	}
@@ -1347,86 +1356,87 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
-		__m512d x1 = _mm512_load_pd(inout);
-		__m512d x2 = _mm512_load_pd(inout + 8);
-		const __m512d y1 = _mm512_load_pd(in);
-		const __m512d y2 = _mm512_load_pd(in + 8);
-		x1 = _mm512_add_pd(x1, y1);
-		x2 = _mm512_add_pd(x2, y2);
-		_mm512_store_pd(inout, x1);
-		_mm512_store_pd(inout + 8, x2);
+			__m512d x1 = _mm512_load_pd(inout);
+			__m512d x2 = _mm512_load_pd(inout + 8);
+			const __m512d y1 = _mm512_load_pd(in);
+			const __m512d y2 = _mm512_load_pd(in + 8);
+			x1 = _mm512_add_pd(x1, y1);
+			x2 = _mm512_add_pd(x2, y2);
+			_mm512_store_pd(inout, x1);
+			_mm512_store_pd(inout + 8, x2);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
-		__m256d x1 = _mm256_load_pd(inout);
-		__m256d x2 = _mm256_load_pd(inout + 4);
-		__m256d x3 = _mm256_load_pd(inout + 8);
-		__m256d x4 = _mm256_load_pd(inout + 12);
-		const __m256d y1 = _mm256_load_pd(in);
-		const __m256d y2 = _mm256_load_pd(in + 4);
-		const __m256d y3 = _mm256_load_pd(in + 8);
-		const __m256d y4 = _mm256_load_pd(in + 12);
-		x1 = _mm256_add_pd(x1, y1);
-		x2 = _mm256_add_pd(x2, y2);
-		x3 = _mm256_add_pd(x3, y3);
-		x4 = _mm256_add_pd(x4, y4);
-		_mm256_store_pd(inout, x1);
-		_mm256_store_pd(inout + 4, x2);
-		_mm256_store_pd(inout + 8, x3);
-		_mm256_store_pd(inout + 12, x4);
+			__m256d x1 = _mm256_load_pd(inout);
+			__m256d x2 = _mm256_load_pd(inout + 4);
+			__m256d x3 = _mm256_load_pd(inout + 8);
+			__m256d x4 = _mm256_load_pd(inout + 12);
+			const __m256d y1 = _mm256_load_pd(in);
+			const __m256d y2 = _mm256_load_pd(in + 4);
+			const __m256d y3 = _mm256_load_pd(in + 8);
+			const __m256d y4 = _mm256_load_pd(in + 12);
+			x1 = _mm256_add_pd(x1, y1);
+			x2 = _mm256_add_pd(x2, y2);
+			x3 = _mm256_add_pd(x3, y3);
+			x4 = _mm256_add_pd(x4, y4);
+			_mm256_store_pd(inout, x1);
+			_mm256_store_pd(inout + 4, x2);
+			_mm256_store_pd(inout + 8, x3);
+			_mm256_store_pd(inout + 12, x4);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
-		__m128d x1 = _mm_load_pd(inout);
-		__m128d x2 = _mm_load_pd(inout + 2);
-		__m128d x3 = _mm_load_pd(inout + 4);
-		__m128d x4 = _mm_load_pd(inout + 6);
-		__m128d x5 = _mm_load_pd(inout + 8);
-		__m128d x6 = _mm_load_pd(inout + 10);
-		__m128d x7 = _mm_load_pd(inout + 12);
-		__m128d x8 = _mm_load_pd(inout + 14);
-		const __m128d y1 = _mm_load_pd(in);
-		const __m128d y2 = _mm_load_pd(in + 2);
-		const __m128d y3 = _mm_load_pd(in + 4);
-		const __m128d y4 = _mm_load_pd(in + 6);
-		const __m128d y5 = _mm_load_pd(in + 8);
-		const __m128d y6 = _mm_load_pd(in + 10);
-		const __m128d y7 = _mm_load_pd(in + 12);
-		const __m128d y8 = _mm_load_pd(in + 14);
-		x1 = _mm_add_pd(x1, y1);
-		x2 = _mm_add_pd(x2, y2);
-		x3 = _mm_add_pd(x3, y3);
-		x4 = _mm_add_pd(x4, y4);
-		x5 = _mm_add_pd(x5, y5);
-		x6 = _mm_add_pd(x6, y6);
-		x7 = _mm_add_pd(x7, y7);
-		x8 = _mm_add_pd(x8, y8);
-		_mm_store_pd(inout, x1);
-		_mm_store_pd(inout + 2, x2);
-		_mm_store_pd(inout + 4, x3);
-		_mm_store_pd(inout + 6, x4);
-		_mm_store_pd(inout + 8, x5);
-		_mm_store_pd(inout + 10, x6);
-		_mm_store_pd(inout + 12, x7);
-		_mm_store_pd(inout + 14, x8);
+			__m128d x1 = _mm_load_pd(inout);
+			__m128d x2 = _mm_load_pd(inout + 2);
+			__m128d x3 = _mm_load_pd(inout + 4);
+			__m128d x4 = _mm_load_pd(inout + 6);
+			__m128d x5 = _mm_load_pd(inout + 8);
+			__m128d x6 = _mm_load_pd(inout + 10);
+			__m128d x7 = _mm_load_pd(inout + 12);
+			__m128d x8 = _mm_load_pd(inout + 14);
+			const __m128d y1 = _mm_load_pd(in);
+			const __m128d y2 = _mm_load_pd(in + 2);
+			const __m128d y3 = _mm_load_pd(in + 4);
+			const __m128d y4 = _mm_load_pd(in + 6);
+			const __m128d y5 = _mm_load_pd(in + 8);
+			const __m128d y6 = _mm_load_pd(in + 10);
+			const __m128d y7 = _mm_load_pd(in + 12);
+			const __m128d y8 = _mm_load_pd(in + 14);
+			x1 = _mm_add_pd(x1, y1);
+			x2 = _mm_add_pd(x2, y2);
+			x3 = _mm_add_pd(x3, y3);
+			x4 = _mm_add_pd(x4, y4);
+			x5 = _mm_add_pd(x5, y5);
+			x6 = _mm_add_pd(x6, y6);
+			x7 = _mm_add_pd(x7, y7);
+			x8 = _mm_add_pd(x8, y8);
+			_mm_store_pd(inout, x1);
+			_mm_store_pd(inout + 2, x2);
+			_mm_store_pd(inout + 4, x3);
+			_mm_store_pd(inout + 6, x4);
+			_mm_store_pd(inout + 8, x5);
+			_mm_store_pd(inout + 10, x6);
+			_mm_store_pd(inout + 12, x7);
+			_mm_store_pd(inout + 14, x8);
+
 		#else
 
-		inout[0] += in[0];
-		inout[1] += in[1];
-		inout[2] += in[2];
-		inout[3] += in[3];
-		inout[4] += in[4];
-		inout[5] += in[5];
-		inout[6] += in[6];
-		inout[7] += in[7];
-		inout[8] += in[8];
-		inout[9] += in[9];
-		inout[10] += in[10];
-		inout[11] += in[11];
-		inout[12] += in[12];
-		inout[13] += in[13];
-		inout[14] += in[14];
-		inout[15] += in[15];
+			inout[0] += in[0];
+			inout[1] += in[1];
+			inout[2] += in[2];
+			inout[3] += in[3];
+			inout[4] += in[4];
+			inout[5] += in[5];
+			inout[6] += in[6];
+			inout[7] += in[7];
+			inout[8] += in[8];
+			inout[9] += in[9];
+			inout[10] += in[10];
+			inout[11] += in[11];
+			inout[12] += in[12];
+			inout[13] += in[13];
+			inout[14] += in[14];
+			inout[15] += in[15];
 
 		#endif
 	}
@@ -1441,86 +1451,87 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
-		__m512d x1 = _mm512_load_pd(inout);
-		__m512d x2 = _mm512_load_pd(inout + 8);
-		const __m512d y1 = _mm512_load_pd(in);
-		const __m512d y2 = _mm512_load_pd(in + 8);
-		x1 = _mm512_sub_pd(x1, y1);
-		x2 = _mm512_sub_pd(x2, y2);
-		_mm512_store_pd(inout, x1);
-		_mm512_store_pd(inout + 8, x2);
+			__m512d x1 = _mm512_load_pd(inout);
+			__m512d x2 = _mm512_load_pd(inout + 8);
+			const __m512d y1 = _mm512_load_pd(in);
+			const __m512d y2 = _mm512_load_pd(in + 8);
+			x1 = _mm512_sub_pd(x1, y1);
+			x2 = _mm512_sub_pd(x2, y2);
+			_mm512_store_pd(inout, x1);
+			_mm512_store_pd(inout + 8, x2);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
-		__m256d x1 = _mm256_load_pd(inout);
-		__m256d x2 = _mm256_load_pd(inout + 4);
-		__m256d x3 = _mm256_load_pd(inout + 8);
-		__m256d x4 = _mm256_load_pd(inout + 12);
-		const __m256d y1 = _mm256_load_pd(in);
-		const __m256d y2 = _mm256_load_pd(in + 4);
-		const __m256d y3 = _mm256_load_pd(in + 8);
-		const __m256d y4 = _mm256_load_pd(in + 12);
-		x1 = _mm256_sub_pd(x1, y1);
-		x2 = _mm256_sub_pd(x2, y2);
-		x3 = _mm256_sub_pd(x3, y3);
-		x4 = _mm256_sub_pd(x4, y4);
-		_mm256_store_pd(inout, x1);
-		_mm256_store_pd(inout + 4, x2);
-		_mm256_store_pd(inout + 8, x3);
-		_mm256_store_pd(inout + 12, x4);
+			__m256d x1 = _mm256_load_pd(inout);
+			__m256d x2 = _mm256_load_pd(inout + 4);
+			__m256d x3 = _mm256_load_pd(inout + 8);
+			__m256d x4 = _mm256_load_pd(inout + 12);
+			const __m256d y1 = _mm256_load_pd(in);
+			const __m256d y2 = _mm256_load_pd(in + 4);
+			const __m256d y3 = _mm256_load_pd(in + 8);
+			const __m256d y4 = _mm256_load_pd(in + 12);
+			x1 = _mm256_sub_pd(x1, y1);
+			x2 = _mm256_sub_pd(x2, y2);
+			x3 = _mm256_sub_pd(x3, y3);
+			x4 = _mm256_sub_pd(x4, y4);
+			_mm256_store_pd(inout, x1);
+			_mm256_store_pd(inout + 4, x2);
+			_mm256_store_pd(inout + 8, x3);
+			_mm256_store_pd(inout + 12, x4);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
-		__m128d x1 = _mm_load_pd(inout);
-		__m128d x2 = _mm_load_pd(inout + 2);
-		__m128d x3 = _mm_load_pd(inout + 4);
-		__m128d x4 = _mm_load_pd(inout + 6);
-		__m128d x5 = _mm_load_pd(inout + 8);
-		__m128d x6 = _mm_load_pd(inout + 10);
-		__m128d x7 = _mm_load_pd(inout + 12);
-		__m128d x8 = _mm_load_pd(inout + 14);
-		const __m128d y1 = _mm_load_pd(in);
-		const __m128d y2 = _mm_load_pd(in + 2);
-		const __m128d y3 = _mm_load_pd(in + 4);
-		const __m128d y4 = _mm_load_pd(in + 6);
-		const __m128d y5 = _mm_load_pd(in + 8);
-		const __m128d y6 = _mm_load_pd(in + 10);
-		const __m128d y7 = _mm_load_pd(in + 12);
-		const __m128d y8 = _mm_load_pd(in + 14);
-		x1 = _mm_sub_pd(x1, y1);
-		x2 = _mm_sub_pd(x2, y2);
-		x3 = _mm_sub_pd(x3, y3);
-		x4 = _mm_sub_pd(x4, y4);
-		x5 = _mm_sub_pd(x5, y5);
-		x6 = _mm_sub_pd(x6, y6);
-		x7 = _mm_sub_pd(x7, y7);
-		x8 = _mm_sub_pd(x8, y8);
-		_mm_store_pd(inout, x1);
-		_mm_store_pd(inout + 2, x2);
-		_mm_store_pd(inout + 4, x3);
-		_mm_store_pd(inout + 6, x4);
-		_mm_store_pd(inout + 8, x5);
-		_mm_store_pd(inout + 10, x6);
-		_mm_store_pd(inout + 12, x7);
-		_mm_store_pd(inout + 14, x8);
+			__m128d x1 = _mm_load_pd(inout);
+			__m128d x2 = _mm_load_pd(inout + 2);
+			__m128d x3 = _mm_load_pd(inout + 4);
+			__m128d x4 = _mm_load_pd(inout + 6);
+			__m128d x5 = _mm_load_pd(inout + 8);
+			__m128d x6 = _mm_load_pd(inout + 10);
+			__m128d x7 = _mm_load_pd(inout + 12);
+			__m128d x8 = _mm_load_pd(inout + 14);
+			const __m128d y1 = _mm_load_pd(in);
+			const __m128d y2 = _mm_load_pd(in + 2);
+			const __m128d y3 = _mm_load_pd(in + 4);
+			const __m128d y4 = _mm_load_pd(in + 6);
+			const __m128d y5 = _mm_load_pd(in + 8);
+			const __m128d y6 = _mm_load_pd(in + 10);
+			const __m128d y7 = _mm_load_pd(in + 12);
+			const __m128d y8 = _mm_load_pd(in + 14);
+			x1 = _mm_sub_pd(x1, y1);
+			x2 = _mm_sub_pd(x2, y2);
+			x3 = _mm_sub_pd(x3, y3);
+			x4 = _mm_sub_pd(x4, y4);
+			x5 = _mm_sub_pd(x5, y5);
+			x6 = _mm_sub_pd(x6, y6);
+			x7 = _mm_sub_pd(x7, y7);
+			x8 = _mm_sub_pd(x8, y8);
+			_mm_store_pd(inout, x1);
+			_mm_store_pd(inout + 2, x2);
+			_mm_store_pd(inout + 4, x3);
+			_mm_store_pd(inout + 6, x4);
+			_mm_store_pd(inout + 8, x5);
+			_mm_store_pd(inout + 10, x6);
+			_mm_store_pd(inout + 12, x7);
+			_mm_store_pd(inout + 14, x8);
+
 		#else
 
-		inout[0] -= in[0];
-		inout[1] -= in[1];
-		inout[2] -= in[2];
-		inout[3] -= in[3];
-		inout[4] -= in[4];
-		inout[5] -= in[5];
-		inout[6] -= in[6];
-		inout[7] -= in[7];
-		inout[8] -= in[8];
-		inout[9] -= in[9];
-		inout[10] -= in[10];
-		inout[11] -= in[11];
-		inout[12] -= in[12];
-		inout[13] -= in[13];
-		inout[14] -= in[14];
-		inout[15] -= in[15];
+			inout[0] -= in[0];
+			inout[1] -= in[1];
+			inout[2] -= in[2];
+			inout[3] -= in[3];
+			inout[4] -= in[4];
+			inout[5] -= in[5];
+			inout[6] -= in[6];
+			inout[7] -= in[7];
+			inout[8] -= in[8];
+			inout[9] -= in[9];
+			inout[10] -= in[10];
+			inout[11] -= in[11];
+			inout[12] -= in[12];
+			inout[13] -= in[13];
+			inout[14] -= in[14];
+			inout[15] -= in[15];
 
 		#endif
 	}
@@ -1535,86 +1546,87 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
-		__m512d x1 = _mm512_load_pd(inout);
-		__m512d x2 = _mm512_load_pd(inout + 8);
-		const __m512d y1 = _mm512_load_pd(in);
-		const __m512d y2 = _mm512_load_pd(in + 8);
-		x1 = _mm512_mul_pd(x1, y1);
-		x2 = _mm512_mul_pd(x2, y2);
-		_mm512_store_pd(inout, x1);
-		_mm512_store_pd(inout + 8, x2);
+			__m512d x1 = _mm512_load_pd(inout);
+			__m512d x2 = _mm512_load_pd(inout + 8);
+			const __m512d y1 = _mm512_load_pd(in);
+			const __m512d y2 = _mm512_load_pd(in + 8);
+			x1 = _mm512_mul_pd(x1, y1);
+			x2 = _mm512_mul_pd(x2, y2);
+			_mm512_store_pd(inout, x1);
+			_mm512_store_pd(inout + 8, x2);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
-		__m256d x1 = _mm256_load_pd(inout);
-		__m256d x2 = _mm256_load_pd(inout + 4);
-		__m256d x3 = _mm256_load_pd(inout + 8);
-		__m256d x4 = _mm256_load_pd(inout + 12);
-		const __m256d y1 = _mm256_load_pd(in);
-		const __m256d y2 = _mm256_load_pd(in + 4);
-		const __m256d y3 = _mm256_load_pd(in + 8);
-		const __m256d y4 = _mm256_load_pd(in + 12);
-		x1 = _mm256_mul_pd(x1, y1);
-		x2 = _mm256_mul_pd(x2, y2);
-		x3 = _mm256_mul_pd(x3, y3);
-		x4 = _mm256_mul_pd(x4, y4);
-		_mm256_store_pd(inout, x1);
-		_mm256_store_pd(inout + 4, x2);
-		_mm256_store_pd(inout + 8, x3);
-		_mm256_store_pd(inout + 12, x4);
+			__m256d x1 = _mm256_load_pd(inout);
+			__m256d x2 = _mm256_load_pd(inout + 4);
+			__m256d x3 = _mm256_load_pd(inout + 8);
+			__m256d x4 = _mm256_load_pd(inout + 12);
+			const __m256d y1 = _mm256_load_pd(in);
+			const __m256d y2 = _mm256_load_pd(in + 4);
+			const __m256d y3 = _mm256_load_pd(in + 8);
+			const __m256d y4 = _mm256_load_pd(in + 12);
+			x1 = _mm256_mul_pd(x1, y1);
+			x2 = _mm256_mul_pd(x2, y2);
+			x3 = _mm256_mul_pd(x3, y3);
+			x4 = _mm256_mul_pd(x4, y4);
+			_mm256_store_pd(inout, x1);
+			_mm256_store_pd(inout + 4, x2);
+			_mm256_store_pd(inout + 8, x3);
+			_mm256_store_pd(inout + 12, x4);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
-		__m128d x1 = _mm_load_pd(inout);
-		__m128d x2 = _mm_load_pd(inout + 2);
-		__m128d x3 = _mm_load_pd(inout + 4);
-		__m128d x4 = _mm_load_pd(inout + 6);
-		__m128d x5 = _mm_load_pd(inout + 8);
-		__m128d x6 = _mm_load_pd(inout + 10);
-		__m128d x7 = _mm_load_pd(inout + 12);
-		__m128d x8 = _mm_load_pd(inout + 14);
-		const __m128d y1 = _mm_load_pd(in);
-		const __m128d y2 = _mm_load_pd(in + 2);
-		const __m128d y3 = _mm_load_pd(in + 4);
-		const __m128d y4 = _mm_load_pd(in + 6);
-		const __m128d y5 = _mm_load_pd(in + 8);
-		const __m128d y6 = _mm_load_pd(in + 10);
-		const __m128d y7 = _mm_load_pd(in + 12);
-		const __m128d y8 = _mm_load_pd(in + 14);
-		x1 = _mm_mul_pd(x1, y1);
-		x2 = _mm_mul_pd(x2, y2);
-		x3 = _mm_mul_pd(x3, y3);
-		x4 = _mm_mul_pd(x4, y4);
-		x5 = _mm_mul_pd(x5, y5);
-		x6 = _mm_mul_pd(x6, y6);
-		x7 = _mm_mul_pd(x7, y7);
-		x8 = _mm_mul_pd(x8, y8);
-		_mm_store_pd(inout, x1);
-		_mm_store_pd(inout + 2, x2);
-		_mm_store_pd(inout + 4, x3);
-		_mm_store_pd(inout + 6, x4);
-		_mm_store_pd(inout + 8, x5);
-		_mm_store_pd(inout + 10, x6);
-		_mm_store_pd(inout + 12, x7);
-		_mm_store_pd(inout + 14, x8);
+			__m128d x1 = _mm_load_pd(inout);
+			__m128d x2 = _mm_load_pd(inout + 2);
+			__m128d x3 = _mm_load_pd(inout + 4);
+			__m128d x4 = _mm_load_pd(inout + 6);
+			__m128d x5 = _mm_load_pd(inout + 8);
+			__m128d x6 = _mm_load_pd(inout + 10);
+			__m128d x7 = _mm_load_pd(inout + 12);
+			__m128d x8 = _mm_load_pd(inout + 14);
+			const __m128d y1 = _mm_load_pd(in);
+			const __m128d y2 = _mm_load_pd(in + 2);
+			const __m128d y3 = _mm_load_pd(in + 4);
+			const __m128d y4 = _mm_load_pd(in + 6);
+			const __m128d y5 = _mm_load_pd(in + 8);
+			const __m128d y6 = _mm_load_pd(in + 10);
+			const __m128d y7 = _mm_load_pd(in + 12);
+			const __m128d y8 = _mm_load_pd(in + 14);
+			x1 = _mm_mul_pd(x1, y1);
+			x2 = _mm_mul_pd(x2, y2);
+			x3 = _mm_mul_pd(x3, y3);
+			x4 = _mm_mul_pd(x4, y4);
+			x5 = _mm_mul_pd(x5, y5);
+			x6 = _mm_mul_pd(x6, y6);
+			x7 = _mm_mul_pd(x7, y7);
+			x8 = _mm_mul_pd(x8, y8);
+			_mm_store_pd(inout, x1);
+			_mm_store_pd(inout + 2, x2);
+			_mm_store_pd(inout + 4, x3);
+			_mm_store_pd(inout + 6, x4);
+			_mm_store_pd(inout + 8, x5);
+			_mm_store_pd(inout + 10, x6);
+			_mm_store_pd(inout + 12, x7);
+			_mm_store_pd(inout + 14, x8);
+
 		#else
 
-		inout[0] *= in[0];
-		inout[1] *= in[1];
-		inout[2] *= in[2];
-		inout[3] *= in[3];
-		inout[4] *= in[4];
-		inout[5] *= in[5];
-		inout[6] *= in[6];
-		inout[7] *= in[7];
-		inout[8] *= in[8];
-		inout[9] *= in[9];
-		inout[10] *= in[10];
-		inout[11] *= in[11];
-		inout[12] *= in[12];
-		inout[13] *= in[13];
-		inout[14] *= in[14];
-		inout[15] *= in[15];
+			inout[0] *= in[0];
+			inout[1] *= in[1];
+			inout[2] *= in[2];
+			inout[3] *= in[3];
+			inout[4] *= in[4];
+			inout[5] *= in[5];
+			inout[6] *= in[6];
+			inout[7] *= in[7];
+			inout[8] *= in[8];
+			inout[9] *= in[9];
+			inout[10] *= in[10];
+			inout[11] *= in[11];
+			inout[12] *= in[12];
+			inout[13] *= in[13];
+			inout[14] *= in[14];
+			inout[15] *= in[15];
 
 		#endif
 	}
@@ -1629,86 +1641,87 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
-		__m512d x1 = _mm512_load_pd(inout);
-		__m512d x2 = _mm512_load_pd(inout + 8);
-		const __m512d y1 = _mm512_load_pd(in);
-		const __m512d y2 = _mm512_load_pd(in + 8);
-		x1 = _mm512_div_pd(x1, y1);
-		x2 = _mm512_div_pd(x2, y2);
-		_mm512_store_pd(inout, x1);
-		_mm512_store_pd(inout + 8, x2);
+			__m512d x1 = _mm512_load_pd(inout);
+			__m512d x2 = _mm512_load_pd(inout + 8);
+			const __m512d y1 = _mm512_load_pd(in);
+			const __m512d y2 = _mm512_load_pd(in + 8);
+			x1 = _mm512_div_pd(x1, y1);
+			x2 = _mm512_div_pd(x2, y2);
+			_mm512_store_pd(inout, x1);
+			_mm512_store_pd(inout + 8, x2);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
-		__m256d x1 = _mm256_load_pd(inout);
-		__m256d x2 = _mm256_load_pd(inout + 4);
-		__m256d x3 = _mm256_load_pd(inout + 8);
-		__m256d x4 = _mm256_load_pd(inout + 12);
-		const __m256d y1 = _mm256_load_pd(in);
-		const __m256d y2 = _mm256_load_pd(in + 4);
-		const __m256d y3 = _mm256_load_pd(in + 8);
-		const __m256d y4 = _mm256_load_pd(in + 12);
-		x1 = _mm256_div_pd(x1, y1);
-		x2 = _mm256_div_pd(x2, y2);
-		x3 = _mm256_div_pd(x3, y3);
-		x4 = _mm256_div_pd(x4, y4);
-		_mm256_store_pd(inout, x1);
-		_mm256_store_pd(inout + 4, x2);
-		_mm256_store_pd(inout + 8, x3);
-		_mm256_store_pd(inout + 12, x4);
+			__m256d x1 = _mm256_load_pd(inout);
+			__m256d x2 = _mm256_load_pd(inout + 4);
+			__m256d x3 = _mm256_load_pd(inout + 8);
+			__m256d x4 = _mm256_load_pd(inout + 12);
+			const __m256d y1 = _mm256_load_pd(in);
+			const __m256d y2 = _mm256_load_pd(in + 4);
+			const __m256d y3 = _mm256_load_pd(in + 8);
+			const __m256d y4 = _mm256_load_pd(in + 12);
+			x1 = _mm256_div_pd(x1, y1);
+			x2 = _mm256_div_pd(x2, y2);
+			x3 = _mm256_div_pd(x3, y3);
+			x4 = _mm256_div_pd(x4, y4);
+			_mm256_store_pd(inout, x1);
+			_mm256_store_pd(inout + 4, x2);
+			_mm256_store_pd(inout + 8, x3);
+			_mm256_store_pd(inout + 12, x4);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
-		__m128d x1 = _mm_load_pd(inout);
-		__m128d x2 = _mm_load_pd(inout + 2);
-		__m128d x3 = _mm_load_pd(inout + 4);
-		__m128d x4 = _mm_load_pd(inout + 6);
-		__m128d x5 = _mm_load_pd(inout + 8);
-		__m128d x6 = _mm_load_pd(inout + 10);
-		__m128d x7 = _mm_load_pd(inout + 12);
-		__m128d x8 = _mm_load_pd(inout + 14);
-		const __m128d y1 = _mm_load_pd(in);
-		const __m128d y2 = _mm_load_pd(in + 2);
-		const __m128d y3 = _mm_load_pd(in + 4);
-		const __m128d y4 = _mm_load_pd(in + 6);
-		const __m128d y5 = _mm_load_pd(in + 8);
-		const __m128d y6 = _mm_load_pd(in + 10);
-		const __m128d y7 = _mm_load_pd(in + 12);
-		const __m128d y8 = _mm_load_pd(in + 14);
-		x1 = _mm_div_pd(x1, y1);
-		x2 = _mm_div_pd(x2, y2);
-		x3 = _mm_div_pd(x3, y3);
-		x4 = _mm_div_pd(x4, y4);
-		x5 = _mm_div_pd(x5, y5);
-		x6 = _mm_div_pd(x6, y6);
-		x7 = _mm_div_pd(x7, y7);
-		x8 = _mm_div_pd(x8, y8);
-		_mm_store_pd(inout, x1);
-		_mm_store_pd(inout + 2, x2);
-		_mm_store_pd(inout + 4, x3);
-		_mm_store_pd(inout + 6, x4);
-		_mm_store_pd(inout + 8, x5);
-		_mm_store_pd(inout + 10, x6);
-		_mm_store_pd(inout + 12, x7);
-		_mm_store_pd(inout + 14, x8);
+			__m128d x1 = _mm_load_pd(inout);
+			__m128d x2 = _mm_load_pd(inout + 2);
+			__m128d x3 = _mm_load_pd(inout + 4);
+			__m128d x4 = _mm_load_pd(inout + 6);
+			__m128d x5 = _mm_load_pd(inout + 8);
+			__m128d x6 = _mm_load_pd(inout + 10);
+			__m128d x7 = _mm_load_pd(inout + 12);
+			__m128d x8 = _mm_load_pd(inout + 14);
+			const __m128d y1 = _mm_load_pd(in);
+			const __m128d y2 = _mm_load_pd(in + 2);
+			const __m128d y3 = _mm_load_pd(in + 4);
+			const __m128d y4 = _mm_load_pd(in + 6);
+			const __m128d y5 = _mm_load_pd(in + 8);
+			const __m128d y6 = _mm_load_pd(in + 10);
+			const __m128d y7 = _mm_load_pd(in + 12);
+			const __m128d y8 = _mm_load_pd(in + 14);
+			x1 = _mm_div_pd(x1, y1);
+			x2 = _mm_div_pd(x2, y2);
+			x3 = _mm_div_pd(x3, y3);
+			x4 = _mm_div_pd(x4, y4);
+			x5 = _mm_div_pd(x5, y5);
+			x6 = _mm_div_pd(x6, y6);
+			x7 = _mm_div_pd(x7, y7);
+			x8 = _mm_div_pd(x8, y8);
+			_mm_store_pd(inout, x1);
+			_mm_store_pd(inout + 2, x2);
+			_mm_store_pd(inout + 4, x3);
+			_mm_store_pd(inout + 6, x4);
+			_mm_store_pd(inout + 8, x5);
+			_mm_store_pd(inout + 10, x6);
+			_mm_store_pd(inout + 12, x7);
+			_mm_store_pd(inout + 14, x8);
+
 		#else
 
-		inout[0] /= in[0];
-		inout[1] /= in[1];
-		inout[2] /= in[2];
-		inout[3] /= in[3];
-		inout[4] /= in[4];
-		inout[5] /= in[5];
-		inout[6] /= in[6];
-		inout[7] /= in[7];
-		inout[8] /= in[8];
-		inout[9] /= in[9];
-		inout[10] /= in[10];
-		inout[11] /= in[11];
-		inout[12] /= in[12];
-		inout[13] /= in[13];
-		inout[14] /= in[14];
-		inout[15] /= in[15];
+			inout[0] /= in[0];
+			inout[1] /= in[1];
+			inout[2] /= in[2];
+			inout[3] /= in[3];
+			inout[4] /= in[4];
+			inout[5] /= in[5];
+			inout[6] /= in[6];
+			inout[7] /= in[7];
+			inout[8] /= in[8];
+			inout[9] /= in[9];
+			inout[10] /= in[10];
+			inout[11] /= in[11];
+			inout[12] /= in[12];
+			inout[13] /= in[13];
+			inout[14] /= in[14];
+			inout[15] /= in[15];
 
 		#endif
 	}
@@ -1723,86 +1736,87 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
-		__m512d x1 = _mm512_loadu_pd(inout);
-		__m512d x2 = _mm512_loadu_pd(inout + 8);
-		const __m512d y1 = _mm512_loadu_pd(in);
-		const __m512d y2 = _mm512_loadu_pd(in + 8);
-		x1 = _mm512_add_pd(x1, y1);
-		x2 = _mm512_add_pd(x2, y2);
-		_mm512_storeu_pd(inout, x1);
-		_mm512_storeu_pd(inout + 8, x2);
+			__m512d x1 = _mm512_loadu_pd(inout);
+			__m512d x2 = _mm512_loadu_pd(inout + 8);
+			const __m512d y1 = _mm512_loadu_pd(in);
+			const __m512d y2 = _mm512_loadu_pd(in + 8);
+			x1 = _mm512_add_pd(x1, y1);
+			x2 = _mm512_add_pd(x2, y2);
+			_mm512_storeu_pd(inout, x1);
+			_mm512_storeu_pd(inout + 8, x2);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
-		__m256d x1 = _mm256_loadu_pd(inout);
-		__m256d x2 = _mm256_loadu_pd(inout + 4);
-		__m256d x3 = _mm256_loadu_pd(inout + 8);
-		__m256d x4 = _mm256_loadu_pd(inout + 12);
-		const __m256d y1 = _mm256_loadu_pd(in);
-		const __m256d y2 = _mm256_loadu_pd(in + 4);
-		const __m256d y3 = _mm256_loadu_pd(in + 8);
-		const __m256d y4 = _mm256_loadu_pd(in + 12);
-		x1 = _mm256_add_pd(x1, y1);
-		x2 = _mm256_add_pd(x2, y2);
-		x3 = _mm256_add_pd(x3, y3);
-		x4 = _mm256_add_pd(x4, y4);
-		_mm256_storeu_pd(inout, x1);
-		_mm256_storeu_pd(inout + 4, x2);
-		_mm256_storeu_pd(inout + 8, x3);
-		_mm256_storeu_pd(inout + 12, x4);
+			__m256d x1 = _mm256_loadu_pd(inout);
+			__m256d x2 = _mm256_loadu_pd(inout + 4);
+			__m256d x3 = _mm256_loadu_pd(inout + 8);
+			__m256d x4 = _mm256_loadu_pd(inout + 12);
+			const __m256d y1 = _mm256_loadu_pd(in);
+			const __m256d y2 = _mm256_loadu_pd(in + 4);
+			const __m256d y3 = _mm256_loadu_pd(in + 8);
+			const __m256d y4 = _mm256_loadu_pd(in + 12);
+			x1 = _mm256_add_pd(x1, y1);
+			x2 = _mm256_add_pd(x2, y2);
+			x3 = _mm256_add_pd(x3, y3);
+			x4 = _mm256_add_pd(x4, y4);
+			_mm256_storeu_pd(inout, x1);
+			_mm256_storeu_pd(inout + 4, x2);
+			_mm256_storeu_pd(inout + 8, x3);
+			_mm256_storeu_pd(inout + 12, x4);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
-		__m128d x1 = _mm_loadu_pd(inout);
-		__m128d x2 = _mm_loadu_pd(inout + 2);
-		__m128d x3 = _mm_loadu_pd(inout + 4);
-		__m128d x4 = _mm_loadu_pd(inout + 6);
-		__m128d x5 = _mm_loadu_pd(inout + 8);
-		__m128d x6 = _mm_loadu_pd(inout + 10);
-		__m128d x7 = _mm_loadu_pd(inout + 12);
-		__m128d x8 = _mm_loadu_pd(inout + 14);
-		const __m128d y1 = _mm_loadu_pd(in);
-		const __m128d y2 = _mm_loadu_pd(in + 2);
-		const __m128d y3 = _mm_loadu_pd(in + 4);
-		const __m128d y4 = _mm_loadu_pd(in + 6);
-		const __m128d y5 = _mm_loadu_pd(in + 8);
-		const __m128d y6 = _mm_loadu_pd(in + 10);
-		const __m128d y7 = _mm_loadu_pd(in + 12);
-		const __m128d y8 = _mm_loadu_pd(in + 14);
-		x1 = _mm_add_pd(x1, y1);
-		x2 = _mm_add_pd(x2, y2);
-		x3 = _mm_add_pd(x3, y3);
-		x4 = _mm_add_pd(x4, y4);
-		x5 = _mm_add_pd(x5, y5);
-		x6 = _mm_add_pd(x6, y6);
-		x7 = _mm_add_pd(x7, y7);
-		x8 = _mm_add_pd(x8, y8);
-		_mm_storeu_pd(inout, x1);
-		_mm_storeu_pd(inout + 2, x2);
-		_mm_storeu_pd(inout + 4, x3);
-		_mm_storeu_pd(inout + 6, x4);
-		_mm_storeu_pd(inout + 8, x5);
-		_mm_storeu_pd(inout + 10, x6);
-		_mm_storeu_pd(inout + 12, x7);
-		_mm_storeu_pd(inout + 14, x8);
+			__m128d x1 = _mm_loadu_pd(inout);
+			__m128d x2 = _mm_loadu_pd(inout + 2);
+			__m128d x3 = _mm_loadu_pd(inout + 4);
+			__m128d x4 = _mm_loadu_pd(inout + 6);
+			__m128d x5 = _mm_loadu_pd(inout + 8);
+			__m128d x6 = _mm_loadu_pd(inout + 10);
+			__m128d x7 = _mm_loadu_pd(inout + 12);
+			__m128d x8 = _mm_loadu_pd(inout + 14);
+			const __m128d y1 = _mm_loadu_pd(in);
+			const __m128d y2 = _mm_loadu_pd(in + 2);
+			const __m128d y3 = _mm_loadu_pd(in + 4);
+			const __m128d y4 = _mm_loadu_pd(in + 6);
+			const __m128d y5 = _mm_loadu_pd(in + 8);
+			const __m128d y6 = _mm_loadu_pd(in + 10);
+			const __m128d y7 = _mm_loadu_pd(in + 12);
+			const __m128d y8 = _mm_loadu_pd(in + 14);
+			x1 = _mm_add_pd(x1, y1);
+			x2 = _mm_add_pd(x2, y2);
+			x3 = _mm_add_pd(x3, y3);
+			x4 = _mm_add_pd(x4, y4);
+			x5 = _mm_add_pd(x5, y5);
+			x6 = _mm_add_pd(x6, y6);
+			x7 = _mm_add_pd(x7, y7);
+			x8 = _mm_add_pd(x8, y8);
+			_mm_storeu_pd(inout, x1);
+			_mm_storeu_pd(inout + 2, x2);
+			_mm_storeu_pd(inout + 4, x3);
+			_mm_storeu_pd(inout + 6, x4);
+			_mm_storeu_pd(inout + 8, x5);
+			_mm_storeu_pd(inout + 10, x6);
+			_mm_storeu_pd(inout + 12, x7);
+			_mm_storeu_pd(inout + 14, x8);
+
 		#else
 
-		inout[0] += in[0];
-		inout[1] += in[1];
-		inout[2] += in[2];
-		inout[3] += in[3];
-		inout[4] += in[4];
-		inout[5] += in[5];
-		inout[6] += in[6];
-		inout[7] += in[7];
-		inout[8] += in[8];
-		inout[9] += in[9];
-		inout[10] += in[10];
-		inout[11] += in[11];
-		inout[12] += in[12];
-		inout[13] += in[13];
-		inout[14] += in[14];
-		inout[15] += in[15];
+			inout[0] += in[0];
+			inout[1] += in[1];
+			inout[2] += in[2];
+			inout[3] += in[3];
+			inout[4] += in[4];
+			inout[5] += in[5];
+			inout[6] += in[6];
+			inout[7] += in[7];
+			inout[8] += in[8];
+			inout[9] += in[9];
+			inout[10] += in[10];
+			inout[11] += in[11];
+			inout[12] += in[12];
+			inout[13] += in[13];
+			inout[14] += in[14];
+			inout[15] += in[15];
 
 		#endif
 	}
@@ -1817,86 +1831,87 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
-		__m512d x1 = _mm512_loadu_pd(inout);
-		__m512d x2 = _mm512_loadu_pd(inout + 8);
-		const __m512d y1 = _mm512_loadu_pd(in);
-		const __m512d y2 = _mm512_loadu_pd(in + 8);
-		x1 = _mm512_sub_pd(x1, y1);
-		x2 = _mm512_sub_pd(x2, y2);
-		_mm512_storeu_pd(inout, x1);
-		_mm512_storeu_pd(inout + 8, x2);
+			__m512d x1 = _mm512_loadu_pd(inout);
+			__m512d x2 = _mm512_loadu_pd(inout + 8);
+			const __m512d y1 = _mm512_loadu_pd(in);
+			const __m512d y2 = _mm512_loadu_pd(in + 8);
+			x1 = _mm512_sub_pd(x1, y1);
+			x2 = _mm512_sub_pd(x2, y2);
+			_mm512_storeu_pd(inout, x1);
+			_mm512_storeu_pd(inout + 8, x2);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
-		__m256d x1 = _mm256_loadu_pd(inout);
-		__m256d x2 = _mm256_loadu_pd(inout + 4);
-		__m256d x3 = _mm256_loadu_pd(inout + 8);
-		__m256d x4 = _mm256_loadu_pd(inout + 12);
-		const __m256d y1 = _mm256_loadu_pd(in);
-		const __m256d y2 = _mm256_loadu_pd(in + 4);
-		const __m256d y3 = _mm256_loadu_pd(in + 8);
-		const __m256d y4 = _mm256_loadu_pd(in + 12);
-		x1 = _mm256_sub_pd(x1, y1);
-		x2 = _mm256_sub_pd(x2, y2);
-		x3 = _mm256_sub_pd(x3, y3);
-		x4 = _mm256_sub_pd(x4, y4);
-		_mm256_storeu_pd(inout, x1);
-		_mm256_storeu_pd(inout + 4, x2);
-		_mm256_storeu_pd(inout + 8, x3);
-		_mm256_storeu_pd(inout + 12, x4);
+			__m256d x1 = _mm256_loadu_pd(inout);
+			__m256d x2 = _mm256_loadu_pd(inout + 4);
+			__m256d x3 = _mm256_loadu_pd(inout + 8);
+			__m256d x4 = _mm256_loadu_pd(inout + 12);
+			const __m256d y1 = _mm256_loadu_pd(in);
+			const __m256d y2 = _mm256_loadu_pd(in + 4);
+			const __m256d y3 = _mm256_loadu_pd(in + 8);
+			const __m256d y4 = _mm256_loadu_pd(in + 12);
+			x1 = _mm256_sub_pd(x1, y1);
+			x2 = _mm256_sub_pd(x2, y2);
+			x3 = _mm256_sub_pd(x3, y3);
+			x4 = _mm256_sub_pd(x4, y4);
+			_mm256_storeu_pd(inout, x1);
+			_mm256_storeu_pd(inout + 4, x2);
+			_mm256_storeu_pd(inout + 8, x3);
+			_mm256_storeu_pd(inout + 12, x4);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
-		__m128d x1 = _mm_loadu_pd(inout);
-		__m128d x2 = _mm_loadu_pd(inout + 2);
-		__m128d x3 = _mm_loadu_pd(inout + 4);
-		__m128d x4 = _mm_loadu_pd(inout + 6);
-		__m128d x5 = _mm_loadu_pd(inout + 8);
-		__m128d x6 = _mm_loadu_pd(inout + 10);
-		__m128d x7 = _mm_loadu_pd(inout + 12);
-		__m128d x8 = _mm_loadu_pd(inout + 14);
-		const __m128d y1 = _mm_loadu_pd(in);
-		const __m128d y2 = _mm_loadu_pd(in + 2);
-		const __m128d y3 = _mm_loadu_pd(in + 4);
-		const __m128d y4 = _mm_loadu_pd(in + 6);
-		const __m128d y5 = _mm_loadu_pd(in + 8);
-		const __m128d y6 = _mm_loadu_pd(in + 10);
-		const __m128d y7 = _mm_loadu_pd(in + 12);
-		const __m128d y8 = _mm_loadu_pd(in + 14);
-		x1 = _mm_sub_pd(x1, y1);
-		x2 = _mm_sub_pd(x2, y2);
-		x3 = _mm_sub_pd(x3, y3);
-		x4 = _mm_sub_pd(x4, y4);
-		x5 = _mm_sub_pd(x5, y5);
-		x6 = _mm_sub_pd(x6, y6);
-		x7 = _mm_sub_pd(x7, y7);
-		x8 = _mm_sub_pd(x8, y8);
-		_mm_storeu_pd(inout, x1);
-		_mm_storeu_pd(inout + 2, x2);
-		_mm_storeu_pd(inout + 4, x3);
-		_mm_storeu_pd(inout + 6, x4);
-		_mm_storeu_pd(inout + 8, x5);
-		_mm_storeu_pd(inout + 10, x6);
-		_mm_storeu_pd(inout + 12, x7);
-		_mm_storeu_pd(inout + 14, x8);
+			__m128d x1 = _mm_loadu_pd(inout);
+			__m128d x2 = _mm_loadu_pd(inout + 2);
+			__m128d x3 = _mm_loadu_pd(inout + 4);
+			__m128d x4 = _mm_loadu_pd(inout + 6);
+			__m128d x5 = _mm_loadu_pd(inout + 8);
+			__m128d x6 = _mm_loadu_pd(inout + 10);
+			__m128d x7 = _mm_loadu_pd(inout + 12);
+			__m128d x8 = _mm_loadu_pd(inout + 14);
+			const __m128d y1 = _mm_loadu_pd(in);
+			const __m128d y2 = _mm_loadu_pd(in + 2);
+			const __m128d y3 = _mm_loadu_pd(in + 4);
+			const __m128d y4 = _mm_loadu_pd(in + 6);
+			const __m128d y5 = _mm_loadu_pd(in + 8);
+			const __m128d y6 = _mm_loadu_pd(in + 10);
+			const __m128d y7 = _mm_loadu_pd(in + 12);
+			const __m128d y8 = _mm_loadu_pd(in + 14);
+			x1 = _mm_sub_pd(x1, y1);
+			x2 = _mm_sub_pd(x2, y2);
+			x3 = _mm_sub_pd(x3, y3);
+			x4 = _mm_sub_pd(x4, y4);
+			x5 = _mm_sub_pd(x5, y5);
+			x6 = _mm_sub_pd(x6, y6);
+			x7 = _mm_sub_pd(x7, y7);
+			x8 = _mm_sub_pd(x8, y8);
+			_mm_storeu_pd(inout, x1);
+			_mm_storeu_pd(inout + 2, x2);
+			_mm_storeu_pd(inout + 4, x3);
+			_mm_storeu_pd(inout + 6, x4);
+			_mm_storeu_pd(inout + 8, x5);
+			_mm_storeu_pd(inout + 10, x6);
+			_mm_storeu_pd(inout + 12, x7);
+			_mm_storeu_pd(inout + 14, x8);
+
 		#else
 
-		inout[0] -= in[0];
-		inout[1] -= in[1];
-		inout[2] -= in[2];
-		inout[3] -= in[3];
-		inout[4] -= in[4];
-		inout[5] -= in[5];
-		inout[6] -= in[6];
-		inout[7] -= in[7];
-		inout[8] -= in[8];
-		inout[9] -= in[9];
-		inout[10] -= in[10];
-		inout[11] -= in[11];
-		inout[12] -= in[12];
-		inout[13] -= in[13];
-		inout[14] -= in[14];
-		inout[15] -= in[15];
+			inout[0] -= in[0];
+			inout[1] -= in[1];
+			inout[2] -= in[2];
+			inout[3] -= in[3];
+			inout[4] -= in[4];
+			inout[5] -= in[5];
+			inout[6] -= in[6];
+			inout[7] -= in[7];
+			inout[8] -= in[8];
+			inout[9] -= in[9];
+			inout[10] -= in[10];
+			inout[11] -= in[11];
+			inout[12] -= in[12];
+			inout[13] -= in[13];
+			inout[14] -= in[14];
+			inout[15] -= in[15];
 
 		#endif
 	}
@@ -1911,86 +1926,87 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
-		__m512d x1 = _mm512_loadu_pd(inout);
-		__m512d x2 = _mm512_loadu_pd(inout + 8);
-		const __m512d y1 = _mm512_loadu_pd(in);
-		const __m512d y2 = _mm512_loadu_pd(in + 8);
-		x1 = _mm512_mul_pd(x1, y1);
-		x2 = _mm512_mul_pd(x2, y2);
-		_mm512_storeu_pd(inout, x1);
-		_mm512_storeu_pd(inout + 8, x2);
+			__m512d x1 = _mm512_loadu_pd(inout);
+			__m512d x2 = _mm512_loadu_pd(inout + 8);
+			const __m512d y1 = _mm512_loadu_pd(in);
+			const __m512d y2 = _mm512_loadu_pd(in + 8);
+			x1 = _mm512_mul_pd(x1, y1);
+			x2 = _mm512_mul_pd(x2, y2);
+			_mm512_storeu_pd(inout, x1);
+			_mm512_storeu_pd(inout + 8, x2);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
-		__m256d x1 = _mm256_loadu_pd(inout);
-		__m256d x2 = _mm256_loadu_pd(inout + 4);
-		__m256d x3 = _mm256_loadu_pd(inout + 8);
-		__m256d x4 = _mm256_loadu_pd(inout + 12);
-		const __m256d y1 = _mm256_loadu_pd(in);
-		const __m256d y2 = _mm256_loadu_pd(in + 4);
-		const __m256d y3 = _mm256_loadu_pd(in + 8);
-		const __m256d y4 = _mm256_loadu_pd(in + 12);
-		x1 = _mm256_mul_pd(x1, y1);
-		x2 = _mm256_mul_pd(x2, y2);
-		x3 = _mm256_mul_pd(x3, y3);
-		x4 = _mm256_mul_pd(x4, y4);
-		_mm256_storeu_pd(inout, x1);
-		_mm256_storeu_pd(inout + 4, x2);
-		_mm256_storeu_pd(inout + 8, x3);
-		_mm256_storeu_pd(inout + 12, x4);
+			__m256d x1 = _mm256_loadu_pd(inout);
+			__m256d x2 = _mm256_loadu_pd(inout + 4);
+			__m256d x3 = _mm256_loadu_pd(inout + 8);
+			__m256d x4 = _mm256_loadu_pd(inout + 12);
+			const __m256d y1 = _mm256_loadu_pd(in);
+			const __m256d y2 = _mm256_loadu_pd(in + 4);
+			const __m256d y3 = _mm256_loadu_pd(in + 8);
+			const __m256d y4 = _mm256_loadu_pd(in + 12);
+			x1 = _mm256_mul_pd(x1, y1);
+			x2 = _mm256_mul_pd(x2, y2);
+			x3 = _mm256_mul_pd(x3, y3);
+			x4 = _mm256_mul_pd(x4, y4);
+			_mm256_storeu_pd(inout, x1);
+			_mm256_storeu_pd(inout + 4, x2);
+			_mm256_storeu_pd(inout + 8, x3);
+			_mm256_storeu_pd(inout + 12, x4);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
-		__m128d x1 = _mm_loadu_pd(inout);
-		__m128d x2 = _mm_loadu_pd(inout + 2);
-		__m128d x3 = _mm_loadu_pd(inout + 4);
-		__m128d x4 = _mm_loadu_pd(inout + 6);
-		__m128d x5 = _mm_loadu_pd(inout + 8);
-		__m128d x6 = _mm_loadu_pd(inout + 10);
-		__m128d x7 = _mm_loadu_pd(inout + 12);
-		__m128d x8 = _mm_loadu_pd(inout + 14);
-		const __m128d y1 = _mm_loadu_pd(in);
-		const __m128d y2 = _mm_loadu_pd(in + 2);
-		const __m128d y3 = _mm_loadu_pd(in + 4);
-		const __m128d y4 = _mm_loadu_pd(in + 6);
-		const __m128d y5 = _mm_loadu_pd(in + 8);
-		const __m128d y6 = _mm_loadu_pd(in + 10);
-		const __m128d y7 = _mm_loadu_pd(in + 12);
-		const __m128d y8 = _mm_loadu_pd(in + 14);
-		x1 = _mm_mul_pd(x1, y1);
-		x2 = _mm_mul_pd(x2, y2);
-		x3 = _mm_mul_pd(x3, y3);
-		x4 = _mm_mul_pd(x4, y4);
-		x5 = _mm_mul_pd(x5, y5);
-		x6 = _mm_mul_pd(x6, y6);
-		x7 = _mm_mul_pd(x7, y7);
-		x8 = _mm_mul_pd(x8, y8);
-		_mm_storeu_pd(inout, x1);
-		_mm_storeu_pd(inout + 2, x2);
-		_mm_storeu_pd(inout + 4, x3);
-		_mm_storeu_pd(inout + 6, x4);
-		_mm_storeu_pd(inout + 8, x5);
-		_mm_storeu_pd(inout + 10, x6);
-		_mm_storeu_pd(inout + 12, x7);
-		_mm_storeu_pd(inout + 14, x8);
+			__m128d x1 = _mm_loadu_pd(inout);
+			__m128d x2 = _mm_loadu_pd(inout + 2);
+			__m128d x3 = _mm_loadu_pd(inout + 4);
+			__m128d x4 = _mm_loadu_pd(inout + 6);
+			__m128d x5 = _mm_loadu_pd(inout + 8);
+			__m128d x6 = _mm_loadu_pd(inout + 10);
+			__m128d x7 = _mm_loadu_pd(inout + 12);
+			__m128d x8 = _mm_loadu_pd(inout + 14);
+			const __m128d y1 = _mm_loadu_pd(in);
+			const __m128d y2 = _mm_loadu_pd(in + 2);
+			const __m128d y3 = _mm_loadu_pd(in + 4);
+			const __m128d y4 = _mm_loadu_pd(in + 6);
+			const __m128d y5 = _mm_loadu_pd(in + 8);
+			const __m128d y6 = _mm_loadu_pd(in + 10);
+			const __m128d y7 = _mm_loadu_pd(in + 12);
+			const __m128d y8 = _mm_loadu_pd(in + 14);
+			x1 = _mm_mul_pd(x1, y1);
+			x2 = _mm_mul_pd(x2, y2);
+			x3 = _mm_mul_pd(x3, y3);
+			x4 = _mm_mul_pd(x4, y4);
+			x5 = _mm_mul_pd(x5, y5);
+			x6 = _mm_mul_pd(x6, y6);
+			x7 = _mm_mul_pd(x7, y7);
+			x8 = _mm_mul_pd(x8, y8);
+			_mm_storeu_pd(inout, x1);
+			_mm_storeu_pd(inout + 2, x2);
+			_mm_storeu_pd(inout + 4, x3);
+			_mm_storeu_pd(inout + 6, x4);
+			_mm_storeu_pd(inout + 8, x5);
+			_mm_storeu_pd(inout + 10, x6);
+			_mm_storeu_pd(inout + 12, x7);
+			_mm_storeu_pd(inout + 14, x8);
+
 		#else
 
-		inout[0] *= in[0];
-		inout[1] *= in[1];
-		inout[2] *= in[2];
-		inout[3] *= in[3];
-		inout[4] *= in[4];
-		inout[5] *= in[5];
-		inout[6] *= in[6];
-		inout[7] *= in[7];
-		inout[8] *= in[8];
-		inout[9] *= in[9];
-		inout[10] *= in[10];
-		inout[11] *= in[11];
-		inout[12] *= in[12];
-		inout[13] *= in[13];
-		inout[14] *= in[14];
-		inout[15] *= in[15];
+			inout[0] *= in[0];
+			inout[1] *= in[1];
+			inout[2] *= in[2];
+			inout[3] *= in[3];
+			inout[4] *= in[4];
+			inout[5] *= in[5];
+			inout[6] *= in[6];
+			inout[7] *= in[7];
+			inout[8] *= in[8];
+			inout[9] *= in[9];
+			inout[10] *= in[10];
+			inout[11] *= in[11];
+			inout[12] *= in[12];
+			inout[13] *= in[13];
+			inout[14] *= in[14];
+			inout[15] *= in[15];
 
 		#endif
 	}
@@ -2005,86 +2021,87 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
-		__m512d x1 = _mm512_loadu_pd(inout);
-		__m512d x2 = _mm512_loadu_pd(inout + 8);
-		const __m512d y1 = _mm512_loadu_pd(in);
-		const __m512d y2 = _mm512_loadu_pd(in + 8);
-		x1 = _mm512_div_pd(x1, y1);
-		x2 = _mm512_div_pd(x2, y2);
-		_mm512_storeu_pd(inout, x1);
-		_mm512_storeu_pd(inout + 8, x2);
+			__m512d x1 = _mm512_loadu_pd(inout);
+			__m512d x2 = _mm512_loadu_pd(inout + 8);
+			const __m512d y1 = _mm512_loadu_pd(in);
+			const __m512d y2 = _mm512_loadu_pd(in + 8);
+			x1 = _mm512_div_pd(x1, y1);
+			x2 = _mm512_div_pd(x2, y2);
+			_mm512_storeu_pd(inout, x1);
+			_mm512_storeu_pd(inout + 8, x2);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
-		__m256d x1 = _mm256_loadu_pd(inout);
-		__m256d x2 = _mm256_loadu_pd(inout + 4);
-		__m256d x3 = _mm256_loadu_pd(inout + 8);
-		__m256d x4 = _mm256_loadu_pd(inout + 12);
-		const __m256d y1 = _mm256_loadu_pd(in);
-		const __m256d y2 = _mm256_loadu_pd(in + 4);
-		const __m256d y3 = _mm256_loadu_pd(in + 8);
-		const __m256d y4 = _mm256_loadu_pd(in + 12);
-		x1 = _mm256_div_pd(x1, y1);
-		x2 = _mm256_div_pd(x2, y2);
-		x3 = _mm256_div_pd(x3, y3);
-		x4 = _mm256_div_pd(x4, y4);
-		_mm256_storeu_pd(inout, x1);
-		_mm256_storeu_pd(inout + 4, x2);
-		_mm256_storeu_pd(inout + 8, x3);
-		_mm256_storeu_pd(inout + 12, x4);
+			__m256d x1 = _mm256_loadu_pd(inout);
+			__m256d x2 = _mm256_loadu_pd(inout + 4);
+			__m256d x3 = _mm256_loadu_pd(inout + 8);
+			__m256d x4 = _mm256_loadu_pd(inout + 12);
+			const __m256d y1 = _mm256_loadu_pd(in);
+			const __m256d y2 = _mm256_loadu_pd(in + 4);
+			const __m256d y3 = _mm256_loadu_pd(in + 8);
+			const __m256d y4 = _mm256_loadu_pd(in + 12);
+			x1 = _mm256_div_pd(x1, y1);
+			x2 = _mm256_div_pd(x2, y2);
+			x3 = _mm256_div_pd(x3, y3);
+			x4 = _mm256_div_pd(x4, y4);
+			_mm256_storeu_pd(inout, x1);
+			_mm256_storeu_pd(inout + 4, x2);
+			_mm256_storeu_pd(inout + 8, x3);
+			_mm256_storeu_pd(inout + 12, x4);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
-		__m128d x1 = _mm_loadu_pd(inout);
-		__m128d x2 = _mm_loadu_pd(inout + 2);
-		__m128d x3 = _mm_loadu_pd(inout + 4);
-		__m128d x4 = _mm_loadu_pd(inout + 6);
-		__m128d x5 = _mm_loadu_pd(inout + 8);
-		__m128d x6 = _mm_loadu_pd(inout + 10);
-		__m128d x7 = _mm_loadu_pd(inout + 12);
-		__m128d x8 = _mm_loadu_pd(inout + 14);
-		const __m128d y1 = _mm_loadu_pd(in);
-		const __m128d y2 = _mm_loadu_pd(in + 2);
-		const __m128d y3 = _mm_loadu_pd(in + 4);
-		const __m128d y4 = _mm_loadu_pd(in + 6);
-		const __m128d y5 = _mm_loadu_pd(in + 8);
-		const __m128d y6 = _mm_loadu_pd(in + 10);
-		const __m128d y7 = _mm_loadu_pd(in + 12);
-		const __m128d y8 = _mm_loadu_pd(in + 14);
-		x1 = _mm_div_pd(x1, y1);
-		x2 = _mm_div_pd(x2, y2);
-		x3 = _mm_div_pd(x3, y3);
-		x4 = _mm_div_pd(x4, y4);
-		x5 = _mm_div_pd(x5, y5);
-		x6 = _mm_div_pd(x6, y6);
-		x7 = _mm_div_pd(x7, y7);
-		x8 = _mm_div_pd(x8, y8);
-		_mm_storeu_pd(inout, x1);
-		_mm_storeu_pd(inout + 2, x2);
-		_mm_storeu_pd(inout + 4, x3);
-		_mm_storeu_pd(inout + 6, x4);
-		_mm_storeu_pd(inout + 8, x5);
-		_mm_storeu_pd(inout + 10, x6);
-		_mm_storeu_pd(inout + 12, x7);
-		_mm_storeu_pd(inout + 14, x8);
+			__m128d x1 = _mm_loadu_pd(inout);
+			__m128d x2 = _mm_loadu_pd(inout + 2);
+			__m128d x3 = _mm_loadu_pd(inout + 4);
+			__m128d x4 = _mm_loadu_pd(inout + 6);
+			__m128d x5 = _mm_loadu_pd(inout + 8);
+			__m128d x6 = _mm_loadu_pd(inout + 10);
+			__m128d x7 = _mm_loadu_pd(inout + 12);
+			__m128d x8 = _mm_loadu_pd(inout + 14);
+			const __m128d y1 = _mm_loadu_pd(in);
+			const __m128d y2 = _mm_loadu_pd(in + 2);
+			const __m128d y3 = _mm_loadu_pd(in + 4);
+			const __m128d y4 = _mm_loadu_pd(in + 6);
+			const __m128d y5 = _mm_loadu_pd(in + 8);
+			const __m128d y6 = _mm_loadu_pd(in + 10);
+			const __m128d y7 = _mm_loadu_pd(in + 12);
+			const __m128d y8 = _mm_loadu_pd(in + 14);
+			x1 = _mm_div_pd(x1, y1);
+			x2 = _mm_div_pd(x2, y2);
+			x3 = _mm_div_pd(x3, y3);
+			x4 = _mm_div_pd(x4, y4);
+			x5 = _mm_div_pd(x5, y5);
+			x6 = _mm_div_pd(x6, y6);
+			x7 = _mm_div_pd(x7, y7);
+			x8 = _mm_div_pd(x8, y8);
+			_mm_storeu_pd(inout, x1);
+			_mm_storeu_pd(inout + 2, x2);
+			_mm_storeu_pd(inout + 4, x3);
+			_mm_storeu_pd(inout + 6, x4);
+			_mm_storeu_pd(inout + 8, x5);
+			_mm_storeu_pd(inout + 10, x6);
+			_mm_storeu_pd(inout + 12, x7);
+			_mm_storeu_pd(inout + 14, x8);
+
 		#else
 
-		inout[0] /= in[0];
-		inout[1] /= in[1];
-		inout[2] /= in[2];
-		inout[3] /= in[3];
-		inout[4] /= in[4];
-		inout[5] /= in[5];
-		inout[6] /= in[6];
-		inout[7] /= in[7];
-		inout[8] /= in[8];
-		inout[9] /= in[9];
-		inout[10] /= in[10];
-		inout[11] /= in[11];
-		inout[12] /= in[12];
-		inout[13] /= in[13];
-		inout[14] /= in[14];
-		inout[15] /= in[15];
+			inout[0] /= in[0];
+			inout[1] /= in[1];
+			inout[2] /= in[2];
+			inout[3] /= in[3];
+			inout[4] /= in[4];
+			inout[5] /= in[5];
+			inout[6] /= in[6];
+			inout[7] /= in[7];
+			inout[8] /= in[8];
+			inout[9] /= in[9];
+			inout[10] /= in[10];
+			inout[11] /= in[11];
+			inout[12] /= in[12];
+			inout[13] /= in[13];
+			inout[14] /= in[14];
+			inout[15] /= in[15];
 
 		#endif
 	}
@@ -2099,15 +2116,15 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
-		__m128d x = _mm_load_pd(inout);
-		const __m128d y = _mm_load_pd(in);
-		x = _mm_add_pd(x, y);
-		_mm_store_pd(inout, x);
+			__m128d x = _mm_load_pd(inout);
+			const __m128d y = _mm_load_pd(in);
+			x = _mm_add_pd(x, y);
+			_mm_store_pd(inout, x);
 
 		#else
 
-		inout[0] += in[0];
-		inout[1] += in[1];
+			inout[0] += in[0];
+			inout[1] += in[1];
 
 		#endif
 	}
@@ -2122,15 +2139,15 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
-		__m128d x = _mm_load_pd(inout);
-		const __m128d y = _mm_load_pd(in);
-		x = _mm_sub_pd(x, y);
-		_mm_store_pd(inout, x);
+			__m128d x = _mm_load_pd(inout);
+			const __m128d y = _mm_load_pd(in);
+			x = _mm_sub_pd(x, y);
+			_mm_store_pd(inout, x);
 
 		#else
 
-		inout[0] + -in[0];
-		inout[1] -= in[1];
+			inout[0] -= in[0];
+			inout[1] -= in[1];
 
 		#endif
 	}
@@ -2145,15 +2162,15 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
-		__m128d x = _mm_load_pd(inout);
-		const __m128d y = _mm_load_pd(in);
-		x = _mm_mul_pd(x, y);
-		_mm_store_pd(inout, x);
+			__m128d x = _mm_load_pd(inout);
+			const __m128d y = _mm_load_pd(in);
+			x = _mm_mul_pd(x, y);
+			_mm_store_pd(inout, x);
 
 		#else
 
-		inout[0] *= in[0];
-		inout[1] *= in[1];
+			inout[0] *= in[0];
+			inout[1] *= in[1];
 
 		#endif
 	}
@@ -2168,15 +2185,15 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
-		__m128d x = _mm_load_pd(inout);
-		const __m128d y = _mm_load_pd(in);
-		x = _mm_div_pd(x, y);
-		_mm_store_pd(inout, x);
+			__m128d x = _mm_load_pd(inout);
+			const __m128d y = _mm_load_pd(in);
+			x = _mm_div_pd(x, y);
+			_mm_store_pd(inout, x);
 
 		#else
 
-		inout[0] /= in[0];
-		inout[1] /= in[1];
+			inout[0] /= in[0];
+			inout[1] /= in[1];
 
 		#endif
 	}
@@ -2191,15 +2208,15 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
-		__m128d x = _mm_loadu_pd(inout);
-		const __m128d y = _mm_loadu_pd(in);
-		x = _mm_add_pd(x, y);
-		_mm_storeu_pd(inout, x);
+			__m128d x = _mm_loadu_pd(inout);
+			const __m128d y = _mm_loadu_pd(in);
+			x = _mm_add_pd(x, y);
+			_mm_storeu_pd(inout, x);
 
 		#else
 
-		inout[0] += in[0];
-		inout[1] += in[1];
+			inout[0] += in[0];
+			inout[1] += in[1];
 
 		#endif
 	}
@@ -2214,14 +2231,15 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
-		__m128d x = _mm_loadu_pd(inout);
-		const __m128d y = _mm_loadu_pd(in);
-		x = _mm_sub_pd(x, y);
-		_mm_storeu_pd(inout, x);
+			__m128d x = _mm_loadu_pd(inout);
+			const __m128d y = _mm_loadu_pd(in);
+			x = _mm_sub_pd(x, y);
+			_mm_storeu_pd(inout, x);
 
 		#else
-		inout[0] + -in[0];
-		inout[1] -= in[1];
+
+			inout[0] -= in[0];
+			inout[1] -= in[1];
 
 		#endif
 	}
@@ -2236,15 +2254,15 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
-		__m128d x = _mm_loadu_pd(inout);
-		const __m128d y = _mm_loadu_pd(in);
-		x = _mm_mul_pd(x, y);
-		_mm_storeu_pd(inout, x);
+			__m128d x = _mm_loadu_pd(inout);
+			const __m128d y = _mm_loadu_pd(in);
+			x = _mm_mul_pd(x, y);
+			_mm_storeu_pd(inout, x);
 
 		#else
 
-		inout[0] *= in[0];
-		inout[1] *= in[1];
+			inout[0] *= in[0];
+			inout[1] *= in[1];
 
 		#endif
 	}
@@ -2259,15 +2277,15 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
-		__m128d x = _mm_loadu_pd(inout);
-		const __m128d y = _mm_loadu_pd(in);
-		x = _mm_div_pd(x, y);
-		_mm_storeu_pd(inout, x);
+			__m128d x = _mm_loadu_pd(inout);
+			const __m128d y = _mm_loadu_pd(in);
+			x = _mm_div_pd(x, y);
+			_mm_storeu_pd(inout, x);
 
 		#else
 
-		inout[0] /= in[0];
-		inout[1] /= in[1];
+			inout[0] /= in[0];
+			inout[1] /= in[1];
 
 		#endif
 	}
@@ -2282,28 +2300,28 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
-		__m256d x = _mm256_load_pd(inout);
-		const __m256d y = _mm256_load_pd(in);
-		x = _mm256_add_pd(x, y);
-		_mm256_store_pd(inout, x);
+			__m256d x = _mm256_load_pd(inout);
+			const __m256d y = _mm256_load_pd(in);
+			x = _mm256_add_pd(x, y);
+			_mm256_store_pd(inout, x);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
-		__m128d x1 = _mm_load_pd(inout);
-		__m128d x2 = _mm_load_pd(inout + 2);
-		const __m128d y1 = _mm_load_pd(in);
-		const __m128d y2 = _mm_load_pd(in + 2);
-		x1 = _mm_add_pd(x1, y1);
-		x2 = _mm_add_pd(x2, y2);
-		_mm_store_pd(inout, x1);
-		_mm_store_pd(inout + 2, x2);
+			__m128d x1 = _mm_load_pd(inout);
+			__m128d x2 = _mm_load_pd(inout + 2);
+			const __m128d y1 = _mm_load_pd(in);
+			const __m128d y2 = _mm_load_pd(in + 2);
+			x1 = _mm_add_pd(x1, y1);
+			x2 = _mm_add_pd(x2, y2);
+			_mm_store_pd(inout, x1);
+			_mm_store_pd(inout + 2, x2);
 
 		#else
 
-		inout[0] += in[0];
-		inout[1] += in[1];
-		inout[2] += in[2];
-		inout[3] += in[3];
+			inout[0] += in[0];
+			inout[1] += in[1];
+			inout[2] += in[2];
+			inout[3] += in[3];
 
 		#endif
 	}
@@ -2318,28 +2336,28 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
-		__m256d x = _mm256_load_pd(inout);
-		const __m256d y = _mm256_load_pd(in);
-		x = _mm256_sub_pd(x, y);
-		_mm256_store_pd(inout, x);
+			__m256d x = _mm256_load_pd(inout);
+			const __m256d y = _mm256_load_pd(in);
+			x = _mm256_sub_pd(x, y);
+			_mm256_store_pd(inout, x);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
-		__m128d x1 = _mm_load_pd(inout);
-		__m128d x2 = _mm_load_pd(inout + 2);
-		const __m128d y1 = _mm_load_pd(in);
-		const __m128d y2 = _mm_load_pd(in + 2);
-		x1 = _mm_sub_pd(x1, y1);
-		x2 = _mm_sub_pd(x2, y2);
-		_mm_store_pd(inout, x1);
-		_mm_store_pd(inout + 2, x2);
+			__m128d x1 = _mm_load_pd(inout);
+			__m128d x2 = _mm_load_pd(inout + 2);
+			const __m128d y1 = _mm_load_pd(in);
+			const __m128d y2 = _mm_load_pd(in + 2);
+			x1 = _mm_sub_pd(x1, y1);
+			x2 = _mm_sub_pd(x2, y2);
+			_mm_store_pd(inout, x1);
+			_mm_store_pd(inout + 2, x2);
 
 		#else
 
-		inout[0] -= in[0];
-		inout[1] -= in[1];
-		inout[2] -= in[2];
-		inout[3] -= in[3];
+			inout[0] -= in[0];
+			inout[1] -= in[1];
+			inout[2] -= in[2];
+			inout[3] -= in[3];
 
 		#endif
 	}
@@ -2354,28 +2372,28 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
-		__m256d x = _mm256_load_pd(inout);
-		const __m256d y = _mm256_load_pd(in);
-		x = _mm256_mul_pd(x, y);
-		_mm256_store_pd(inout, x);
+			__m256d x = _mm256_load_pd(inout);
+			const __m256d y = _mm256_load_pd(in);
+			x = _mm256_mul_pd(x, y);
+			_mm256_store_pd(inout, x);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
-		__m128d x1 = _mm_load_pd(inout);
-		__m128d x2 = _mm_load_pd(inout + 2);
-		const __m128d y1 = _mm_load_pd(in);
-		const __m128d y2 = _mm_load_pd(in + 2);
-		x1 = _mm_mul_pd(x1, y1);
-		x2 = _mm_mul_pd(x2, y2);
-		_mm_store_pd(inout, x1);
-		_mm_store_pd(inout + 2, x2);
+			__m128d x1 = _mm_load_pd(inout);
+			__m128d x2 = _mm_load_pd(inout + 2);
+			const __m128d y1 = _mm_load_pd(in);
+			const __m128d y2 = _mm_load_pd(in + 2);
+			x1 = _mm_mul_pd(x1, y1);
+			x2 = _mm_mul_pd(x2, y2);
+			_mm_store_pd(inout, x1);
+			_mm_store_pd(inout + 2, x2);
 
 		#else
 
-		inout[0] *= in[0];
-		inout[1] *= in[1];
-		inout[2] *= in[2];
-		inout[3] *= in[3];
+			inout[0] *= in[0];
+			inout[1] *= in[1];
+			inout[2] *= in[2];
+			inout[3] *= in[3];
 
 		#endif
 	}
@@ -2390,28 +2408,28 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
-		__m256d x = _mm256_load_pd(inout);
-		const __m256d y = _mm256_load_pd(in);
-		x = _mm256_div_pd(x, y);
-		_mm256_store_pd(inout, x);
+			__m256d x = _mm256_load_pd(inout);
+			const __m256d y = _mm256_load_pd(in);
+			x = _mm256_div_pd(x, y);
+			_mm256_store_pd(inout, x);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
-		__m128d x1 = _mm_load_pd(inout);
-		__m128d x2 = _mm_load_pd(inout + 2);
-		const __m128d y1 = _mm_load_pd(in);
-		const __m128d y2 = _mm_load_pd(in + 2);
-		x1 = _mm_div_pd(x1, y1);
-		x2 = _mm_div_pd(x2, y2);
-		_mm_store_pd(inout, x1);
-		_mm_store_pd(inout + 2, x2);
+			__m128d x1 = _mm_load_pd(inout);
+			__m128d x2 = _mm_load_pd(inout + 2);
+			const __m128d y1 = _mm_load_pd(in);
+			const __m128d y2 = _mm_load_pd(in + 2);
+			x1 = _mm_div_pd(x1, y1);
+			x2 = _mm_div_pd(x2, y2);
+			_mm_store_pd(inout, x1);
+			_mm_store_pd(inout + 2, x2);
 
 		#else
 
-		inout[0] /= in[0];
-		inout[1] /= in[1];
-		inout[2] /= in[2];
-		inout[3] /= in[3];
+			inout[0] /= in[0];
+			inout[1] /= in[1];
+			inout[2] /= in[2];
+			inout[3] /= in[3];
 
 		#endif
 	}
@@ -2426,28 +2444,28 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
-		__m256d x = _mm256_loadu_pd(inout);
-		const __m256d y = _mm256_loadu_pd(in);
-		x = _mm256_add_pd(x, y);
-		_mm256_storeu_pd(inout, x);
+			__m256d x = _mm256_loadu_pd(inout);
+			const __m256d y = _mm256_loadu_pd(in);
+			x = _mm256_add_pd(x, y);
+			_mm256_storeu_pd(inout, x);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
-		__m128d x1 = _mm_loadu_pd(inout);
-		__m128d x2 = _mm_loadu_pd(inout + 2);
-		const __m128d y1 = _mm_loadu_pd(in);
-		const __m128d y2 = _mm_loadu_pd(in + 2);
-		x1 = _mm_add_pd(x1, y1);
-		x2 = _mm_add_pd(x2, y2);
-		_mm_storeu_pd(inout, x1);
-		_mm_storeu_pd(inout + 2, x2);
+			__m128d x1 = _mm_loadu_pd(inout);
+			__m128d x2 = _mm_loadu_pd(inout + 2);
+			const __m128d y1 = _mm_loadu_pd(in);
+			const __m128d y2 = _mm_loadu_pd(in + 2);
+			x1 = _mm_add_pd(x1, y1);
+			x2 = _mm_add_pd(x2, y2);
+			_mm_storeu_pd(inout, x1);
+			_mm_storeu_pd(inout + 2, x2);
 
 		#else
 
-		inout[0] += in[0];
-		inout[1] += in[1];
-		inout[2] += in[2];
-		inout[3] += in[3];
+			inout[0] += in[0];
+			inout[1] += in[1];
+			inout[2] += in[2];
+			inout[3] += in[3];
 
 		#endif
 	}
@@ -2462,28 +2480,28 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
-		__m256d x = _mm256_loadu_pd(inout);
-		const __m256d y = _mm256_loadu_pd(in);
-		x = _mm256_sub_pd(x, y);
-		_mm256_storeu_pd(inout, x);
+			__m256d x = _mm256_loadu_pd(inout);
+			const __m256d y = _mm256_loadu_pd(in);
+			x = _mm256_sub_pd(x, y);
+			_mm256_storeu_pd(inout, x);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
-		__m128d x1 = _mm_loadu_pd(inout);
-		__m128d x2 = _mm_loadu_pd(inout + 2);
-		const __m128d y1 = _mm_loadu_pd(in);
-		const __m128d y2 = _mm_loadu_pd(in + 2);
-		x1 = _mm_sub_pd(x1, y1);
-		x2 = _mm_sub_pd(x2, y2);
-		_mm_storeu_pd(inout, x1);
-		_mm_storeu_pd(inout + 2, x2);
+			__m128d x1 = _mm_loadu_pd(inout);
+			__m128d x2 = _mm_loadu_pd(inout + 2);
+			const __m128d y1 = _mm_loadu_pd(in);
+			const __m128d y2 = _mm_loadu_pd(in + 2);
+			x1 = _mm_sub_pd(x1, y1);
+			x2 = _mm_sub_pd(x2, y2);
+			_mm_storeu_pd(inout, x1);
+			_mm_storeu_pd(inout + 2, x2);
 
 		#else
 
-		inout[0] -= in[0];
-		inout[1] -= in[1];
-		inout[2] -= in[2];
-		inout[3] -= in[3];
+			inout[0] -= in[0];
+			inout[1] -= in[1];
+			inout[2] -= in[2];
+			inout[3] -= in[3];
 
 		#endif
 	}
@@ -2498,28 +2516,28 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
-		__m256d x = _mm256_loadu_pd(inout);
-		const __m256d y = _mm256_loadu_pd(in);
-		x = _mm256_mul_pd(x, y);
-		_mm256_storeu_pd(inout, x);
+			__m256d x = _mm256_loadu_pd(inout);
+			const __m256d y = _mm256_loadu_pd(in);
+			x = _mm256_mul_pd(x, y);
+			_mm256_storeu_pd(inout, x);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
-		__m128d x1 = _mm_loadu_pd(inout);
-		__m128d x2 = _mm_loadu_pd(inout + 2);
-		const __m128d y1 = _mm_loadu_pd(in);
-		const __m128d y2 = _mm_loadu_pd(in + 2);
-		x1 = _mm_mul_pd(x1, y1);
-		x2 = _mm_mul_pd(x2, y2);
-		_mm_storeu_pd(inout, x1);
-		_mm_storeu_pd(inout + 2, x2);
+			__m128d x1 = _mm_loadu_pd(inout);
+			__m128d x2 = _mm_loadu_pd(inout + 2);
+			const __m128d y1 = _mm_loadu_pd(in);
+			const __m128d y2 = _mm_loadu_pd(in + 2);
+			x1 = _mm_mul_pd(x1, y1);
+			x2 = _mm_mul_pd(x2, y2);
+			_mm_storeu_pd(inout, x1);
+			_mm_storeu_pd(inout + 2, x2);
 
 		#else
 
-		inout[0] *= in[0];
-		inout[1] *= in[1];
-		inout[2] *= in[2];
-		inout[3] *= in[3];
+			inout[0] *= in[0];
+			inout[1] *= in[1];
+			inout[2] *= in[2];
+			inout[3] *= in[3];
 
 		#endif
 	}
@@ -2534,28 +2552,28 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
-		__m256d x = _mm256_loadu_pd(inout);
-		const __m256d y = _mm256_loadu_pd(in);
-		x = _mm256_div_pd(x, y);
-		_mm256_storeu_pd(inout, x);
+			__m256d x = _mm256_loadu_pd(inout);
+			const __m256d y = _mm256_loadu_pd(in);
+			x = _mm256_div_pd(x, y);
+			_mm256_storeu_pd(inout, x);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
-		__m128d x1 = _mm_loadu_pd(inout);
-		__m128d x2 = _mm_loadu_pd(inout + 2);
-		const __m128d y1 = _mm_loadu_pd(in);
-		const __m128d y2 = _mm_loadu_pd(in + 2);
-		x1 = _mm_div_pd(x1, y1);
-		x2 = _mm_div_pd(x2, y2);
-		_mm_storeu_pd(inout, x1);
-		_mm_storeu_pd(inout + 2, x2);
+			__m128d x1 = _mm_loadu_pd(inout);
+			__m128d x2 = _mm_loadu_pd(inout + 2);
+			const __m128d y1 = _mm_loadu_pd(in);
+			const __m128d y2 = _mm_loadu_pd(in + 2);
+			x1 = _mm_div_pd(x1, y1);
+			x2 = _mm_div_pd(x2, y2);
+			_mm_storeu_pd(inout, x1);
+			_mm_storeu_pd(inout + 2, x2);
 
 		#else
 
-		inout[0] /= in[0];
-		inout[1] /= in[1];
-		inout[2] /= in[2];
-		inout[3] /= in[3];
+			inout[0] /= in[0];
+			inout[1] /= in[1];
+			inout[2] /= in[2];
+			inout[3] /= in[3];
 
 		#endif
 	}
@@ -2570,50 +2588,51 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
-		__m512d x = _mm512_load_pd(inout);
-		const __m512d y = _mm512_load_pd(in);
-		x = _mm512_add_pd(x, y);
-		_mm512_store_pd(inout, x);
+			__m512d x = _mm512_load_pd(inout);
+			const __m512d y = _mm512_load_pd(in);
+			x = _mm512_add_pd(x, y);
+			_mm512_store_pd(inout, x);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
-		__m256d x1 = _mm256_load_pd(inout);
-		__m256d x2 = _mm256_load_pd(inout + 4);
-		const __m256d y1 = _mm256_load_pd(in);
-		const __m256d y2 = _mm256_load_pd(in + 4);
-		x1 = _mm256_add_pd(x1, y1);
-		x2 = _mm256_add_pd(x2, y2);
-		_mm256_store_pd(inout, x1);
-		_mm256_store_pd(inout + 4, x2);
+			__m256d x1 = _mm256_load_pd(inout);
+			__m256d x2 = _mm256_load_pd(inout + 4);
+			const __m256d y1 = _mm256_load_pd(in);
+			const __m256d y2 = _mm256_load_pd(in + 4);
+			x1 = _mm256_add_pd(x1, y1);
+			x2 = _mm256_add_pd(x2, y2);
+			_mm256_store_pd(inout, x1);
+			_mm256_store_pd(inout + 4, x2);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
 		__m128d x1 = _mm_load_pd(inout);
-		__m128d x2 = _mm_load_pd(inout + 2);
-		__m128d x3 = _mm_load_pd(inout + 4);
-		__m128d x4 = _mm_load_pd(inout + 6);
-		const __m128d y1 = _mm_load_pd(in);
-		const __m128d y2 = _mm_load_pd(in + 2);
-		const __m128d y3 = _mm_load_pd(in + 4);
-		const __m128d y4 = _mm_load_pd(in + 6);
-		x1 = _mm_add_pd(x1, y1);
-		x2 = _mm_add_pd(x2, y2);
-		x3 = _mm_add_pd(x3, y3);
-		x4 = _mm_add_pd(x4, y4);
-		_mm_store_pd(inout, x1);
-		_mm_store_pd(inout + 2, x2);
-		_mm_store_pd(inout + 4, x3);
-		_mm_store_pd(inout + 6, x4);
+			__m128d x2 = _mm_load_pd(inout + 2);
+			__m128d x3 = _mm_load_pd(inout + 4);
+			__m128d x4 = _mm_load_pd(inout + 6);
+			const __m128d y1 = _mm_load_pd(in);
+			const __m128d y2 = _mm_load_pd(in + 2);
+			const __m128d y3 = _mm_load_pd(in + 4);
+			const __m128d y4 = _mm_load_pd(in + 6);
+			x1 = _mm_add_pd(x1, y1);
+			x2 = _mm_add_pd(x2, y2);
+			x3 = _mm_add_pd(x3, y3);
+			x4 = _mm_add_pd(x4, y4);
+			_mm_store_pd(inout, x1);
+			_mm_store_pd(inout + 2, x2);
+			_mm_store_pd(inout + 4, x3);
+			_mm_store_pd(inout + 6, x4);
+
 		#else
 
-		inout[0] += in[0];
-		inout[1] += in[1];
-		inout[2] += in[2];
-		inout[3] += in[3];
-		inout[4] += in[4];
-		inout[5] += in[5];
-		inout[6] += in[6];
-		inout[7] += in[7];
+			inout[0] += in[0];
+			inout[1] += in[1];
+			inout[2] += in[2];
+			inout[3] += in[3];
+			inout[4] += in[4];
+			inout[5] += in[5];
+			inout[6] += in[6];
+			inout[7] += in[7];
 
 		#endif
 	}
@@ -2628,50 +2647,51 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
-		__m512d x = _mm512_load_pd(inout);
-		const __m512d y = _mm512_load_pd(in);
-		x = _mm512_sub_pd(x, y);
-		_mm512_store_pd(inout, x);
+			__m512d x = _mm512_load_pd(inout);
+			const __m512d y = _mm512_load_pd(in);
+			x = _mm512_sub_pd(x, y);
+			_mm512_store_pd(inout, x);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
-		__m256d x1 = _mm256_load_pd(inout);
-		__m256d x2 = _mm256_load_pd(inout + 4);
-		const __m256d y1 = _mm256_load_pd(in);
-		const __m256d y2 = _mm256_load_pd(in + 4);
-		x1 = _mm256_sub_pd(x1, y1);
-		x2 = _mm256_sub_pd(x2, y2);
-		_mm256_store_pd(inout, x1);
-		_mm256_store_pd(inout + 4, x2);
+			__m256d x1 = _mm256_load_pd(inout);
+			__m256d x2 = _mm256_load_pd(inout + 4);
+			const __m256d y1 = _mm256_load_pd(in);
+			const __m256d y2 = _mm256_load_pd(in + 4);
+			x1 = _mm256_sub_pd(x1, y1);
+			x2 = _mm256_sub_pd(x2, y2);
+			_mm256_store_pd(inout, x1);
+			_mm256_store_pd(inout + 4, x2);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
-		__m128d x1 = _mm_load_pd(inout);
-		__m128d x2 = _mm_load_pd(inout + 2);
-		__m128d x3 = _mm_load_pd(inout + 4);
-		__m128d x4 = _mm_load_pd(inout + 6);
-		const __m128d y1 = _mm_load_pd(in);
-		const __m128d y2 = _mm_load_pd(in + 2);
-		const __m128d y3 = _mm_load_pd(in + 4);
-		const __m128d y4 = _mm_load_pd(in + 6);
-		x1 = _mm_sub_pd(x1, y1);
-		x2 = _mm_sub_pd(x2, y2);
-		x3 = _mm_sub_pd(x3, y3);
-		x4 = _mm_sub_pd(x4, y4);
-		_mm_store_pd(inout, x1);
-		_mm_store_pd(inout + 2, x2);
-		_mm_store_pd(inout + 4, x3);
-		_mm_store_pd(inout + 6, x4);
+			__m128d x1 = _mm_load_pd(inout);
+			__m128d x2 = _mm_load_pd(inout + 2);
+			__m128d x3 = _mm_load_pd(inout + 4);
+			__m128d x4 = _mm_load_pd(inout + 6);
+			const __m128d y1 = _mm_load_pd(in);
+			const __m128d y2 = _mm_load_pd(in + 2);
+			const __m128d y3 = _mm_load_pd(in + 4);
+			const __m128d y4 = _mm_load_pd(in + 6);
+			x1 = _mm_sub_pd(x1, y1);
+			x2 = _mm_sub_pd(x2, y2);
+			x3 = _mm_sub_pd(x3, y3);
+			x4 = _mm_sub_pd(x4, y4);
+			_mm_store_pd(inout, x1);
+			_mm_store_pd(inout + 2, x2);
+			_mm_store_pd(inout + 4, x3);
+			_mm_store_pd(inout + 6, x4);
+
 		#else
 
-		inout[0] -= in[0];
-		inout[1] -= in[1];
-		inout[2] -= in[2];
-		inout[3] -= in[3];
-		inout[4] -= in[4];
-		inout[5] -= in[5];
-		inout[6] -= in[6];
-		inout[7] -= in[7];
+			inout[0] -= in[0];
+			inout[1] -= in[1];
+			inout[2] -= in[2];
+			inout[3] -= in[3];
+			inout[4] -= in[4];
+			inout[5] -= in[5];
+			inout[6] -= in[6];
+			inout[7] -= in[7];
 
 		#endif
 	}
@@ -2686,50 +2706,51 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
-		__m512d x = _mm512_load_pd(inout);
-		const __m512d y = _mm512_load_pd(in);
-		x = _mm512_mul_pd(x, y);
-		_mm512_store_pd(inout, x);
+			__m512d x = _mm512_load_pd(inout);
+			const __m512d y = _mm512_load_pd(in);
+			x = _mm512_mul_pd(x, y);
+			_mm512_store_pd(inout, x);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
-		__m256d x1 = _mm256_load_pd(inout);
-		__m256d x2 = _mm256_load_pd(inout + 4);
-		const __m256d y1 = _mm256_load_pd(in);
-		const __m256d y2 = _mm256_load_pd(in + 4);
-		x1 = _mm256_mul_pd(x1, y1);
-		x2 = _mm256_mul_pd(x2, y2);
-		_mm256_store_pd(inout, x1);
-		_mm256_store_pd(inout + 4, x2);
+			__m256d x1 = _mm256_load_pd(inout);
+			__m256d x2 = _mm256_load_pd(inout + 4);
+			const __m256d y1 = _mm256_load_pd(in);
+			const __m256d y2 = _mm256_load_pd(in + 4);
+			x1 = _mm256_mul_pd(x1, y1);
+			x2 = _mm256_mul_pd(x2, y2);
+			_mm256_store_pd(inout, x1);
+			_mm256_store_pd(inout + 4, x2);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
-		__m128d x1 = _mm_load_pd(inout);
-		__m128d x2 = _mm_load_pd(inout + 2);
-		__m128d x3 = _mm_load_pd(inout + 4);
-		__m128d x4 = _mm_load_pd(inout + 6);
-		const __m128d y1 = _mm_load_pd(in);
-		const __m128d y2 = _mm_load_pd(in + 2);
-		const __m128d y3 = _mm_load_pd(in + 4);
-		const __m128d y4 = _mm_load_pd(in + 6);
-		x1 = _mm_mul_pd(x1, y1);
-		x2 = _mm_mul_pd(x2, y2);
-		x3 = _mm_mul_pd(x3, y3);
-		x4 = _mm_mul_pd(x4, y4);
-		_mm_store_pd(inout, x1);
-		_mm_store_pd(inout + 2, x2);
-		_mm_store_pd(inout + 4, x3);
-		_mm_store_pd(inout + 6, x4);
+			__m128d x1 = _mm_load_pd(inout);
+			__m128d x2 = _mm_load_pd(inout + 2);
+			__m128d x3 = _mm_load_pd(inout + 4);
+			__m128d x4 = _mm_load_pd(inout + 6);
+			const __m128d y1 = _mm_load_pd(in);
+			const __m128d y2 = _mm_load_pd(in + 2);
+			const __m128d y3 = _mm_load_pd(in + 4);
+			const __m128d y4 = _mm_load_pd(in + 6);
+			x1 = _mm_mul_pd(x1, y1);
+			x2 = _mm_mul_pd(x2, y2);
+			x3 = _mm_mul_pd(x3, y3);
+			x4 = _mm_mul_pd(x4, y4);
+			_mm_store_pd(inout, x1);
+			_mm_store_pd(inout + 2, x2);
+			_mm_store_pd(inout + 4, x3);
+			_mm_store_pd(inout + 6, x4);
+
 		#else
 
-		inout[0] *= in[0];
-		inout[1] *= in[1];
-		inout[2] *= in[2];
-		inout[3] *= in[3];
-		inout[4] *= in[4];
-		inout[5] *= in[5];
-		inout[6] *= in[6];
-		inout[7] *= in[7];
+			inout[0] *= in[0];
+			inout[1] *= in[1];
+			inout[2] *= in[2];
+			inout[3] *= in[3];
+			inout[4] *= in[4];
+			inout[5] *= in[5];
+			inout[6] *= in[6];
+			inout[7] *= in[7];
 
 		#endif
 	}
@@ -2744,50 +2765,51 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
-		__m512d x = _mm512_loadu_pd(inout);
-		const __m512d y = _mm512_loadu_pd(in);
-		x = _mm512_div_pd(x, y);
-		_mm512_storeu_pd(inout, x);
+			__m512d x = _mm512_loadu_pd(inout);
+			const __m512d y = _mm512_loadu_pd(in);
+			x = _mm512_div_pd(x, y);
+			_mm512_storeu_pd(inout, x);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
-		__m256d x1 = _mm256_loadu_pd(inout);
-		__m256d x2 = _mm256_loadu_pd(inout + 4);
-		const __m256d y1 = _mm256_loadu_pd(in);
-		const __m256d y2 = _mm256_loadu_pd(in + 4);
-		x1 = _mm256_div_pd(x1, y1);
-		x2 = _mm256_div_pd(x2, y2);
-		_mm256_storeu_pd(inout, x1);
-		_mm256_storeu_pd(inout + 4, x2);
+			__m256d x1 = _mm256_loadu_pd(inout);
+			__m256d x2 = _mm256_loadu_pd(inout + 4);
+			const __m256d y1 = _mm256_loadu_pd(in);
+			const __m256d y2 = _mm256_loadu_pd(in + 4);
+			x1 = _mm256_div_pd(x1, y1);
+			x2 = _mm256_div_pd(x2, y2);
+			_mm256_storeu_pd(inout, x1);
+			_mm256_storeu_pd(inout + 4, x2);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
-		__m128d x1 = _mm_loadu_pd(inout);
-		__m128d x2 = _mm_loadu_pd(inout + 2);
-		__m128d x3 = _mm_loadu_pd(inout + 4);
-		__m128d x4 = _mm_loadu_pd(inout + 6);
-		const __m128d y1 = _mm_loadu_pd(in);
-		const __m128d y2 = _mm_loadu_pd(in + 2);
-		const __m128d y3 = _mm_loadu_pd(in + 4);
-		const __m128d y4 = _mm_loadu_pd(in + 6);
-		x1 = _mm_div_pd(x1, y1);
-		x2 = _mm_div_pd(x2, y2);
-		x3 = _mm_div_pd(x3, y3);
-		x4 = _mm_div_pd(x4, y4);
-		_mm_storeu_pd(inout, x1);
-		_mm_storeu_pd(inout + 2, x2);
-		_mm_storeu_pd(inout + 4, x3);
-		_mm_storeu_pd(inout + 6, x4);
+			__m128d x1 = _mm_loadu_pd(inout);
+			__m128d x2 = _mm_loadu_pd(inout + 2);
+			__m128d x3 = _mm_loadu_pd(inout + 4);
+			__m128d x4 = _mm_loadu_pd(inout + 6);
+			const __m128d y1 = _mm_loadu_pd(in);
+			const __m128d y2 = _mm_loadu_pd(in + 2);
+			const __m128d y3 = _mm_loadu_pd(in + 4);
+			const __m128d y4 = _mm_loadu_pd(in + 6);
+			x1 = _mm_div_pd(x1, y1);
+			x2 = _mm_div_pd(x2, y2);
+			x3 = _mm_div_pd(x3, y3);
+			x4 = _mm_div_pd(x4, y4);
+			_mm_storeu_pd(inout, x1);
+			_mm_storeu_pd(inout + 2, x2);
+			_mm_storeu_pd(inout + 4, x3);
+			_mm_storeu_pd(inout + 6, x4);
+
 		#else
 
-		inout[0] /= in[0];
-		inout[1] /= in[1];
-		inout[2] /= in[2];
-		inout[3] /= in[3];
-		inout[4] /= in[4];
-		inout[5] /= in[5];
-		inout[6] /= in[6];
-		inout[7] /= in[7];
+			inout[0] /= in[0];
+			inout[1] /= in[1];
+			inout[2] /= in[2];
+			inout[3] /= in[3];
+			inout[4] /= in[4];
+			inout[5] /= in[5];
+			inout[6] /= in[6];
+			inout[7] /= in[7];
 
 		#endif
 	}
@@ -2802,50 +2824,51 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
-		__m512d x = _mm512_loadu_pd(inout);
-		const __m512d y = _mm512_loadu_pd(in);
-		x = _mm512_add_pd(x, y);
-		_mm512_storeu_pd(inout, x);
+			__m512d x = _mm512_loadu_pd(inout);
+			const __m512d y = _mm512_loadu_pd(in);
+			x = _mm512_add_pd(x, y);
+			_mm512_storeu_pd(inout, x);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
-		__m256d x1 = _mm256_loadu_pd(inout);
-		__m256d x2 = _mm256_loadu_pd(inout + 4);
-		const __m256d y1 = _mm256_loadu_pd(in);
-		const __m256d y2 = _mm256_loadu_pd(in + 4);
-		x1 = _mm256_add_pd(x1, y1);
-		x2 = _mm256_add_pd(x2, y2);
-		_mm256_storeu_pd(inout, x1);
-		_mm256_storeu_pd(inout + 4, x2);
+			__m256d x1 = _mm256_loadu_pd(inout);
+			__m256d x2 = _mm256_loadu_pd(inout + 4);
+			const __m256d y1 = _mm256_loadu_pd(in);
+			const __m256d y2 = _mm256_loadu_pd(in + 4);
+			x1 = _mm256_add_pd(x1, y1);
+			x2 = _mm256_add_pd(x2, y2);
+			_mm256_storeu_pd(inout, x1);
+			_mm256_storeu_pd(inout + 4, x2);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
-		__m128d x1 = _mm_loadu_pd(inout);
-		__m128d x2 = _mm_loadu_pd(inout + 2);
-		__m128d x3 = _mm_loadu_pd(inout + 4);
-		__m128d x4 = _mm_loadu_pd(inout + 6);
-		const __m128d y1 = _mm_loadu_pd(in);
-		const __m128d y2 = _mm_loadu_pd(in + 2);
-		const __m128d y3 = _mm_loadu_pd(in + 4);
-		const __m128d y4 = _mm_loadu_pd(in + 6);
-		x1 = _mm_add_pd(x1, y1);
-		x2 = _mm_add_pd(x2, y2);
-		x3 = _mm_add_pd(x3, y3);
-		x4 = _mm_add_pd(x4, y4);
-		_mm_storeu_pd(inout, x1);
-		_mm_storeu_pd(inout + 2, x2);
-		_mm_storeu_pd(inout + 4, x3);
-		_mm_storeu_pd(inout + 6, x4);
+			__m128d x1 = _mm_loadu_pd(inout);
+			__m128d x2 = _mm_loadu_pd(inout + 2);
+			__m128d x3 = _mm_loadu_pd(inout + 4);
+			__m128d x4 = _mm_loadu_pd(inout + 6);
+			const __m128d y1 = _mm_loadu_pd(in);
+			const __m128d y2 = _mm_loadu_pd(in + 2);
+			const __m128d y3 = _mm_loadu_pd(in + 4);
+			const __m128d y4 = _mm_loadu_pd(in + 6);
+			x1 = _mm_add_pd(x1, y1);
+			x2 = _mm_add_pd(x2, y2);
+			x3 = _mm_add_pd(x3, y3);
+			x4 = _mm_add_pd(x4, y4);
+			_mm_storeu_pd(inout, x1);
+			_mm_storeu_pd(inout + 2, x2);
+			_mm_storeu_pd(inout + 4, x3);
+			_mm_storeu_pd(inout + 6, x4);
+
 		#else
 
-		inout[0] += in[0];
-		inout[1] += in[1];
-		inout[2] += in[2];
-		inout[3] += in[3];
-		inout[4] += in[4];
-		inout[5] += in[5];
-		inout[6] += in[6];
-		inout[7] += in[7];
+			inout[0] += in[0];
+			inout[1] += in[1];
+			inout[2] += in[2];
+			inout[3] += in[3];
+			inout[4] += in[4];
+			inout[5] += in[5];
+			inout[6] += in[6];
+			inout[7] += in[7];
 
 		#endif
 	}
@@ -2860,50 +2883,51 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
-		__m512d x = _mm512_loadu_pd(inout);
-		const __m512d y = _mm512_loadu_pd(in);
-		x = _mm512_sub_pd(x, y);
-		_mm512_storeu_pd(inout, x);
+			__m512d x = _mm512_loadu_pd(inout);
+			const __m512d y = _mm512_loadu_pd(in);
+			x = _mm512_sub_pd(x, y);
+			_mm512_storeu_pd(inout, x);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
-		__m256d x1 = _mm256_loadu_pd(inout);
-		__m256d x2 = _mm256_loadu_pd(inout + 4);
-		const __m256d y1 = _mm256_loadu_pd(in);
-		const __m256d y2 = _mm256_loadu_pd(in + 4);
-		x1 = _mm256_sub_pd(x1, y1);
-		x2 = _mm256_sub_pd(x2, y2);
-		_mm256_storeu_pd(inout, x1);
-		_mm256_storeu_pd(inout + 4, x2);
+			__m256d x1 = _mm256_loadu_pd(inout);
+			__m256d x2 = _mm256_loadu_pd(inout + 4);
+			const __m256d y1 = _mm256_loadu_pd(in);
+			const __m256d y2 = _mm256_loadu_pd(in + 4);
+			x1 = _mm256_sub_pd(x1, y1);
+			x2 = _mm256_sub_pd(x2, y2);
+			_mm256_storeu_pd(inout, x1);
+			_mm256_storeu_pd(inout + 4, x2);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
-		__m128d x1 = _mm_loadu_pd(inout);
-		__m128d x2 = _mm_loadu_pd(inout + 2);
-		__m128d x3 = _mm_loadu_pd(inout + 4);
-		__m128d x4 = _mm_loadu_pd(inout + 6);
-		const __m128d y1 = _mm_loadu_pd(in);
-		const __m128d y2 = _mm_loadu_pd(in + 2);
-		const __m128d y3 = _mm_loadu_pd(in + 4);
-		const __m128d y4 = _mm_loadu_pd(in + 6);
-		x1 = _mm_sub_pd(x1, y1);
-		x2 = _mm_sub_pd(x2, y2);
-		x3 = _mm_sub_pd(x3, y3);
-		x4 = _mm_sub_pd(x4, y4);
-		_mm_storeu_pd(inout, x1);
-		_mm_storeu_pd(inout + 2, x2);
-		_mm_storeu_pd(inout + 4, x3);
-		_mm_storeu_pd(inout + 6, x4);
+			__m128d x1 = _mm_loadu_pd(inout);
+			__m128d x2 = _mm_loadu_pd(inout + 2);
+			__m128d x3 = _mm_loadu_pd(inout + 4);
+			__m128d x4 = _mm_loadu_pd(inout + 6);
+			const __m128d y1 = _mm_loadu_pd(in);
+			const __m128d y2 = _mm_loadu_pd(in + 2);
+			const __m128d y3 = _mm_loadu_pd(in + 4);
+			const __m128d y4 = _mm_loadu_pd(in + 6);
+			x1 = _mm_sub_pd(x1, y1);
+			x2 = _mm_sub_pd(x2, y2);
+			x3 = _mm_sub_pd(x3, y3);
+			x4 = _mm_sub_pd(x4, y4);
+			_mm_storeu_pd(inout, x1);
+			_mm_storeu_pd(inout + 2, x2);
+			_mm_storeu_pd(inout + 4, x3);
+			_mm_storeu_pd(inout + 6, x4);
+
 		#else
 
-		inout[0] -= in[0];
-		inout[1] -= in[1];
-		inout[2] -= in[2];
-		inout[3] -= in[3];
-		inout[4] -= in[4];
-		inout[5] -= in[5];
-		inout[6] -= in[6];
-		inout[7] -= in[7];
+			inout[0] -= in[0];
+			inout[1] -= in[1];
+			inout[2] -= in[2];
+			inout[3] -= in[3];
+			inout[4] -= in[4];
+			inout[5] -= in[5];
+			inout[6] -= in[6];
+			inout[7] -= in[7];
 
 		#endif
 	}
@@ -2918,50 +2942,51 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
-		__m512d x = _mm512_loadu_pd(inout);
-		const __m512d y = _mm512_loadu_pd(in);
-		x = _mm512_mul_pd(x, y);
-		_mm512_storeu_pd(inout, x);
+			__m512d x = _mm512_loadu_pd(inout);
+			const __m512d y = _mm512_loadu_pd(in);
+			x = _mm512_mul_pd(x, y);
+			_mm512_storeu_pd(inout, x);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
-		__m256d x1 = _mm256_loadu_pd(inout);
-		__m256d x2 = _mm256_loadu_pd(inout + 4);
-		const __m256d y1 = _mm256_loadu_pd(in);
-		const __m256d y2 = _mm256_loadu_pd(in + 4);
-		x1 = _mm256_mul_pd(x1, y1);
-		x2 = _mm256_mul_pd(x2, y2);
-		_mm256_storeu_pd(inout, x1);
-		_mm256_storeu_pd(inout + 4, x2);
+			__m256d x1 = _mm256_loadu_pd(inout);
+			__m256d x2 = _mm256_loadu_pd(inout + 4);
+			const __m256d y1 = _mm256_loadu_pd(in);
+			const __m256d y2 = _mm256_loadu_pd(in + 4);
+			x1 = _mm256_mul_pd(x1, y1);
+			x2 = _mm256_mul_pd(x2, y2);
+			_mm256_storeu_pd(inout, x1);
+			_mm256_storeu_pd(inout + 4, x2);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
-		__m128d x1 = _mm_loadu_pd(inout);
-		__m128d x2 = _mm_loadu_pd(inout + 2);
-		__m128d x3 = _mm_loadu_pd(inout + 4);
-		__m128d x4 = _mm_loadu_pd(inout + 6);
-		const __m128d y1 = _mm_loadu_pd(in);
-		const __m128d y2 = _mm_loadu_pd(in + 2);
-		const __m128d y3 = _mm_loadu_pd(in + 4);
-		const __m128d y4 = _mm_loadu_pd(in + 6);
-		x1 = _mm_mul_pd(x1, y1);
-		x2 = _mm_mul_pd(x2, y2);
-		x3 = _mm_mul_pd(x3, y3);
-		x4 = _mm_mul_pd(x4, y4);
-		_mm_storeu_pd(inout, x1);
-		_mm_storeu_pd(inout + 2, x2);
-		_mm_storeu_pd(inout + 4, x3);
-		_mm_storeu_pd(inout + 6, x4);
+			__m128d x1 = _mm_loadu_pd(inout);
+			__m128d x2 = _mm_loadu_pd(inout + 2);
+			__m128d x3 = _mm_loadu_pd(inout + 4);
+			__m128d x4 = _mm_loadu_pd(inout + 6);
+			const __m128d y1 = _mm_loadu_pd(in);
+			const __m128d y2 = _mm_loadu_pd(in + 2);
+			const __m128d y3 = _mm_loadu_pd(in + 4);
+			const __m128d y4 = _mm_loadu_pd(in + 6);
+			x1 = _mm_mul_pd(x1, y1);
+			x2 = _mm_mul_pd(x2, y2);
+			x3 = _mm_mul_pd(x3, y3);
+			x4 = _mm_mul_pd(x4, y4);
+			_mm_storeu_pd(inout, x1);
+			_mm_storeu_pd(inout + 2, x2);
+			_mm_storeu_pd(inout + 4, x3);
+			_mm_storeu_pd(inout + 6, x4);
+
 		#else
 
-		inout[0] *= in[0];
-		inout[1] *= in[1];
-		inout[2] *= in[2];
-		inout[3] *= in[3];
-		inout[4] *= in[4];
-		inout[5] *= in[5];
-		inout[6] *= in[6];
-		inout[7] *= in[7];
+			inout[0] *= in[0];
+			inout[1] *= in[1];
+			inout[2] *= in[2];
+			inout[3] *= in[3];
+			inout[4] *= in[4];
+			inout[5] *= in[5];
+			inout[6] *= in[6];
+			inout[7] *= in[7];
 
 		#endif
 	}
@@ -2976,50 +3001,51 @@ namespace Nominax::Foundation::VectorLib
 	{
 		#if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX512F__)
 
-		__m512d x = _mm512_loadu_pd(inout);
-		const __m512d y = _mm512_loadu_pd(in);
-		x = _mm512_div_pd(x, y);
-		_mm512_storeu_pd(inout, x);
+			__m512d x = _mm512_loadu_pd(inout);
+			const __m512d y = _mm512_loadu_pd(in);
+			x = _mm512_div_pd(x, y);
+			_mm512_storeu_pd(inout, x);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__AVX__)
 
-		__m256d x1 = _mm256_loadu_pd(inout);
-		__m256d x2 = _mm256_loadu_pd(inout + 4);
-		const __m256d y1 = _mm256_loadu_pd(in);
-		const __m256d y2 = _mm256_loadu_pd(in + 4);
-		x1 = _mm256_div_pd(x1, y1);
-		x2 = _mm256_div_pd(x2, y2);
-		_mm256_storeu_pd(inout, x1);
-		_mm256_storeu_pd(inout + 4, x2);
+			__m256d x1 = _mm256_loadu_pd(inout);
+			__m256d x2 = _mm256_loadu_pd(inout + 4);
+			const __m256d y1 = _mm256_loadu_pd(in);
+			const __m256d y2 = _mm256_loadu_pd(in + 4);
+			x1 = _mm256_div_pd(x1, y1);
+			x2 = _mm256_div_pd(x2, y2);
+			_mm256_storeu_pd(inout, x1);
+			_mm256_storeu_pd(inout + 4, x2);
 
 		#elif NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT && defined(__SSE2__)
 
-		__m128d x1 = _mm_loadu_pd(inout);
-		__m128d x2 = _mm_loadu_pd(inout + 2);
-		__m128d x3 = _mm_loadu_pd(inout + 4);
-		__m128d x4 = _mm_loadu_pd(inout + 6);
-		const __m128d y1 = _mm_loadu_pd(in);
-		const __m128d y2 = _mm_loadu_pd(in + 2);
-		const __m128d y3 = _mm_loadu_pd(in + 4);
-		const __m128d y4 = _mm_loadu_pd(in + 6);
-		x1 = _mm_div_pd(x1, y1);
-		x2 = _mm_div_pd(x2, y2);
-		x3 = _mm_div_pd(x3, y3);
-		x4 = _mm_div_pd(x4, y4);
-		_mm_storeu_pd(inout, x1);
-		_mm_storeu_pd(inout + 2, x2);
-		_mm_storeu_pd(inout + 4, x3);
-		_mm_storeu_pd(inout + 6, x4);
+			__m128d x1 = _mm_loadu_pd(inout);
+			__m128d x2 = _mm_loadu_pd(inout + 2);
+			__m128d x3 = _mm_loadu_pd(inout + 4);
+			__m128d x4 = _mm_loadu_pd(inout + 6);
+			const __m128d y1 = _mm_loadu_pd(in);
+			const __m128d y2 = _mm_loadu_pd(in + 2);
+			const __m128d y3 = _mm_loadu_pd(in + 4);
+			const __m128d y4 = _mm_loadu_pd(in + 6);
+			x1 = _mm_div_pd(x1, y1);
+			x2 = _mm_div_pd(x2, y2);
+			x3 = _mm_div_pd(x3, y3);
+			x4 = _mm_div_pd(x4, y4);
+			_mm_storeu_pd(inout, x1);
+			_mm_storeu_pd(inout + 2, x2);
+			_mm_storeu_pd(inout + 4, x3);
+			_mm_storeu_pd(inout + 6, x4);
+
 		#else
 
-		inout[0] /= in[0];
-		inout[1] /= in[1];
-		inout[2] /= in[2];
-		inout[3] /= in[3];
-		inout[4] /= in[4];
-		inout[5] /= in[5];
-		inout[6] /= in[6];
-		inout[7] /= in[7];
+			inout[0] /= in[0];
+			inout[1] /= in[1];
+			inout[2] /= in[2];
+			inout[3] /= in[3];
+			inout[4] /= in[4];
+			inout[5] /= in[5];
+			inout[6] /= in[6];
+			inout[7] /= in[7];
 
 		#endif
 	}

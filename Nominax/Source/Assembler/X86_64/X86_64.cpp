@@ -1,7 +1,5 @@
-// File: X86_64.cpp
 // Author: Mario
-// Created: 20.08.2021 2:41 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -401,49 +399,5 @@ namespace Nominax::Assembler::X86_64
 		*++n = 0x00;
 		*++n = 0x00;
 		return;
-	}
-
-	auto GetVariationTable(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void
-	{
-		out.reserve(ToUnderlying(Instruction::Count_));
-		GetVariationTable_0(allocator, out);
-		GetVariationTable_1(allocator, out);
-		GetVariationTable_2(allocator, out);
-		GetVariationTable_3(allocator, out);
-		GetVariationTable_4(allocator, out);
-		GetVariationTable_5(allocator, out);
-		GetVariationTable_6(allocator, out);
-		GetVariationTable_7(allocator, out);
-		GetVariationTable_8(allocator, out);
-		GetVariationTable_9(allocator, out);
-		GetVariationTable_10(allocator, out);
-		GetVariationTable_11(allocator, out);
-		GetVariationTable_12(allocator, out);
-		GetVariationTable_13(allocator, out);
-		GetVariationTable_14(allocator, out);
-		GetVariationTable_15(allocator, out);
-		GetVariationTable_16(allocator, out);
-		GetVariationTable_17(allocator, out);
-		GetVariationTable_18(allocator, out);
-		GetVariationTable_19(allocator, out);
-		GetVariationTable_20(allocator, out);
-		GetVariationTable_21(allocator, out);
-		GetVariationTable_22(allocator, out);
-		GetVariationTable_23(allocator, out);
-		GetVariationTable_24(allocator, out);
-		GetVariationTable_25(allocator, out);
-		GetVariationTable_26(allocator, out);
-		GetVariationTable_27(allocator, out);
-		GetVariationTable_28(allocator, out);
-		GetVariationTable_29(allocator, out);
-		GetVariationTable_30(allocator, out);
-		GetVariationTable_31(allocator, out);
-		GetVariationTable_32(allocator, out);
-		GetVariationTable_33(allocator, out);
-		GetVariationTable_34(allocator, out);
-		GetVariationTable_35(allocator, out);
-		GetVariationTable_36(allocator, out);
-		GetVariationTable_37(allocator, out);
-		GetVariationTable_38(allocator, out);
 	}
 }

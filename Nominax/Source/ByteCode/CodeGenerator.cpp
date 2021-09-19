@@ -1,7 +1,5 @@
-// File: CodeGenerator.cpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -213,15 +211,15 @@ namespace Nominax::ByteCode
 	{
 		if (this->EnablePeepholeOptimizations && value == 0)
 		{
-			this->Emitter << Instruction::PushZ;
+			this->Emitter << Instruction::PUSHZ;
 		}
 		else if (this->EnablePeepholeOptimizations && value == 1)
 		{
-			this->Emitter << Instruction::IPushO;
+			this->Emitter << Instruction::IPUSHO;
 		}
 		else
 		{
-			this->Emitter << Instruction::Push << value;
+			this->Emitter << Instruction::PUSH << value;
 		}
 		return *this;
 	}
@@ -230,15 +228,15 @@ namespace Nominax::ByteCode
 	{
 		if (this->EnablePeepholeOptimizations && value == 0.0)
 		{
-			this->Emitter << Instruction::PushZ;
+			this->Emitter << Instruction::PUSHZ;
 		}
 		else if (this->EnablePeepholeOptimizations && value == 1.0)
 		{
-			this->Emitter << Instruction::FPushO;
+			this->Emitter << Instruction::FPUSHO;
 		}
 		else
 		{
-			this->Emitter << Instruction::Push << value;
+			this->Emitter << Instruction::PUSH << value;
 		}
 		return *this;
 	}
@@ -253,19 +251,19 @@ namespace Nominax::ByteCode
 					return *this;
 
 				case 1:
-					this->Emitter << Instruction::Pop;
+					this->Emitter << Instruction::POP;
 					return *this;
 
 				case 2:
-					this->Emitter << Instruction::Pop2;
+					this->Emitter << Instruction::POP2;
 					return *this;
 
 				case 4:
-					this->Emitter << Instruction::VecPop;
+					this->Emitter << Instruction::VPOP;
 					return *this;
 
 				case 16:
-					this->Emitter << Instruction::MatPop;
+					this->Emitter << Instruction::MPOP;
 					return *this;
 
 				default:
@@ -273,28 +271,28 @@ namespace Nominax::ByteCode
 					{
 						for (std::uint8_t i { 0 }; i < popCount / 2; ++i)
 						{
-							this->Emitter << Instruction::Pop2;
+							this->Emitter << Instruction::POP2;
 						}
 					}
 					else if (popCount % 4 == 0)
 					{
 						for (std::uint8_t i { 0 }; i < popCount / 4; ++i)
 						{
-							this->Emitter << Instruction::VecPop;
+							this->Emitter << Instruction::VPOP;
 						}
 					}
 					else if (popCount % 16 == 0)
 					{
 						for (std::uint8_t i { 0 }; i < popCount / 16; ++i)
 						{
-							this->Emitter << Instruction::MatPop;
+							this->Emitter << Instruction::MPOP;
 						}
 					}
 					else
 					{
 						for (std::uint8_t i { 0 }; i < popCount; ++i)
 						{
-							this->Emitter << Instruction::Pop;
+							this->Emitter << Instruction::POP;
 						}
 					}
 					return *this;
@@ -302,7 +300,7 @@ namespace Nominax::ByteCode
 		}
 		for (std::uint8_t i { 0 }; i < popCount; ++i)
 		{
-			this->Emitter << Instruction::Pop;
+			this->Emitter << Instruction::POP;
 		}
 		return *this;
 	}

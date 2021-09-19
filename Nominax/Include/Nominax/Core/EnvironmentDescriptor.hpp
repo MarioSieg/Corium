@@ -1,7 +1,5 @@
-// File: EnvironmentDescriptor.hpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -208,11 +206,13 @@
 #pragma once
 
 #include <string_view>
-
 #include <cstdint>
+
 #include "../Foundation/MemoryUnits.hpp"
+#include "../Foundation/ISerializable.hpp"
 
 #include "ReactorCreationDescriptor.hpp"
+#include "ReactorPool.hpp"
 
 namespace Nominax::Core
 {
@@ -224,55 +224,69 @@ namespace Nominax::Core
 	/// <summary>
 	/// Config descriptor for an environment.
 	/// </summary>
-	struct EnvironmentDescriptor final
+    struct EnvironmentDescriptor final : public Foundation::ISerializable
 	{
-		/// <summary>
-		/// Argument count.
-		/// </summary>
-		std::int32_t ArgC { 0 };
-
-		/// <summary>
-		/// Argument vector.
-		/// </summary>
-		const char* const* ArgV { nullptr };
-
 		/// <summary>
 		/// The name of the app.
 		/// </summary>
-		std::string_view AppName { "Untitled App" };
+		std::string AppName { "Untitled App" };
+
+        /// <summary>
+        /// Enables system protocol logging.
+        /// </summary>
+        bool EnableProtocol { false };
+
+        /// <summary>
+        /// If true the debug sandbox VM will be used.
+        /// </summary>
+        bool ForceSandboxVM { false };
 
 		/// <summary>
 		/// If true, the fallback reactor implementation
 		/// will be used for all reactors, not the
 		/// runtime selected one (based on CPU features).
 		/// </summary>
-		bool ForceFallback { false };
-
-		/// <summary>
-		/// The size of the boot pool
-		/// </summary>
-		std::uint64_t BootPoolSize { 128_kB };
+		bool ForceFallbackVM { false };
 
 		/// <summary>
 		/// The size of the system memory pool size.
 		/// </summary>
-		std::uint64_t SystemPoolSize { 512_kB };
+		std::uint64_t SystemPoolSize { 512_KB };
+
+        /// <summary>
+        /// The boot mode of the reactor pool
+        /// </summary>
+        ReactorPoolBootMode ReactorPoolMode { ReactorPoolBootMode::Deferred };
 
 		/// <summary>
 		/// The count of reactors.
 		/// If 0, the system will use the number of CPU threads.
 		/// </summary>
-		std::uint64_t ReactorCount { 0 };
+		std::uint64_t ReactorCount { 1 };
 
 		/// <summary>
 		/// The reactor stack size in bytes.
 		/// Must be divisible by 8!
 		/// </summary>
-		std::uint64_t StackSize { 8_mB };
+		std::uint64_t StackSize { 8_MB };
 
 		/// <summary>
 		/// Power preference of the system.
 		/// </summary>
 		PowerPreference PowerPref { PowerPreference::HighPerformance };
+
+        /// <summary>
+        /// Serialize to file stream.
+        /// </summary>
+        /// <returns>True on success, else false.</returns>
+        [[nodiscard]]
+        virtual auto Serialize(std::ofstream& out) const -> bool override;
+
+        /// <summary>
+        /// Deserialize from file stream.
+        /// </summary>
+        /// <returns>True on success, else false.</returns>
+        [[nodiscard]]
+        virtual auto Deserialize(std::ifstream& in) -> bool override;
 	};
 }

@@ -1,7 +1,5 @@
-// File: MemoryUnits.hpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -323,7 +321,7 @@ namespace Nominax
 	/// </summary>
 	/// <param name="value"></param>
 	/// <returns></returns>
-	constexpr auto operator ""_kB(const unsigned long long value) -> std::uint64_t
+	constexpr auto operator ""_KB(const unsigned long long value) -> std::uint64_t
 	{
 		return Kilobytes2Bytes<decltype(value)>(value);
 	}
@@ -333,7 +331,7 @@ namespace Nominax
 	/// </summary>
 	/// <param name="value"></param>
 	/// <returns></returns>
-	constexpr auto operator ""_mB(const unsigned long long value) -> std::uint64_t
+	constexpr auto operator ""_MB(const unsigned long long value) -> std::uint64_t
 	{
 		return Megabytes2Bytes<decltype(value)>(value);
 	}
@@ -343,7 +341,7 @@ namespace Nominax
 	/// </summary>
 	/// <param name="value"></param>
 	/// <returns></returns>
-	constexpr auto operator ""_gB(const unsigned long long value) -> std::uint64_t
+	constexpr auto operator ""_GB(const unsigned long long value) -> std::uint64_t
 	{
 		return Gigabytes2Bytes<decltype(value)>(value);
 	}

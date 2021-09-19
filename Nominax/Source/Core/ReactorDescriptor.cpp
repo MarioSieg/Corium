@@ -1,7 +1,5 @@
-// File: ReactorDescriptor.cpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -232,14 +230,14 @@ namespace Nominax::Core
 		#if !NOX_OPT_EXECUTION_ADDRESS_MAPPING
 
         // first instruction will be skipped and must be NOP:
-		if (CodeChunk->Instr != ByteCode::Instruction::NOp)
+		if (CodeChunk->Instr != ByteCode::Instruction::NOP)
 		{
 			[[unlikely]]
 			return ReactorValidationResult::MissingCodePrologue;
 		}
 
 		// last instruction must be interrupt:
-		if (CodeChunkSize < 2 || (CodeChunk + CodeChunkSize - 2)->Instr != ByteCode::Instruction::Int)
+		if (CodeChunkSize < 2 || (CodeChunk + CodeChunkSize - 2)->Instr != ByteCode::Instruction::INT)
 		{
 			[[unlikely]]
 			return ReactorValidationResult::MissingCodeEpilogue;

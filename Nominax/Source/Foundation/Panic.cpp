@@ -1,7 +1,5 @@
-// File: Panic.cpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -212,69 +210,33 @@
 
 namespace Nominax
 {
-	auto PanicTerminationImpl(const PanicDescriptor& panicDescriptor) -> void
+    static auto PrintPanicMessage(std::string_view message, const Foundation::SourceLocation& srcLoc) -> void;
+
+    NOX_COLD auto Panic(const std::string_view message, const Foundation::SourceLocation& srcLoc) -> void
 	{
-		using namespace Foundation;
-
-		#if NOX_ARCH_X86_64
-		std::uint64_t  gpr[16] { };
-		std::uint64_t  sse[32] { };
-		std::uintptr_t rip { };
-		if (panicDescriptor.DumpRegisters)
-		{
-			using namespace Assembler::X86_64::Routines;
-			QueryRegSet(gpr, sse);
-			rip = reinterpret_cast<std::uint64_t>(QueryRip());
-		}
-		#endif
-
-		Print(TextColor::Red, "\n! NOMINAX RUNTIME PANIC !\n");
-		Print
-		(
-			"File: {}\nLine: {}\nSubroutine: {}\n",
-			panicDescriptor.FileName,
-			panicDescriptor.Line,
-			panicDescriptor.RoutineName
-		);
-		Print("{}\n", panicDescriptor.Message);
-
-		#if NOX_ARCH_X86_64
-		if (panicDescriptor.DumpRegisters)
-		{
-			Print("%rip = {:016X}\n", rip);
-			static constexpr std::array<std::string_view, 16> GPR_LUT
-			{
-				"%rax",
-				"%rbx",
-				"%rcx",
-				"%rdx",
-				"%rsi",
-				"%rdi",
-				"%rsp",
-				"%rbp",
-				"%r8 ",
-				"%r9 ",
-				"%r10",
-				"%r11",
-				"%r12",
-				"%r13",
-				"%r14",
-				"%r15"
-			};
-			for (std::uint64_t i { 0 }; i < sizeof gpr / sizeof *gpr; ++i)
-			{
-				Print("{} = {:016X}\n", GPR_LUT[i], gpr[i]);
-			}
-			for (std::uint64_t i { 0 }; i < sizeof sse / sizeof *sse >> 1; ++i)
-			{
-				Print("%xmm{}{} = ", i, i < 10 ? " " : "");
-				Print("{:016X}", sse[i]);
-				Print("{:016X}\n", sse[i + 1]);
-			}
-		}
-		#endif
-
-		std::cout.flush();
+        const Assembler::X86_64::RegisterCache regCache { };
+        PrintPanicMessage(message, srcLoc);
+        regCache.DumpSmart();
+        std::fflush(stdout);
+        std::fflush(stderr);
+		std::flush(std::cout);
+        std::flush(std::cerr);
 		std::abort();
 	}
+
+    using Foundation::Print;
+
+    NOX_COLD static auto PrintPanicMessage(const std::string_view message, const Foundation::SourceLocation& srcLoc) -> void
+    {
+
+        Print("\n! NOMINAX RUNTIME Panic !\n");
+        Print
+        (
+            "{}({})\n-> {}\n",
+            srcLoc.GetFileName(),
+            srcLoc.GetLine(),
+            srcLoc.GetFunctionName()
+        );
+        Print("{}\n", message);
+    }
 }

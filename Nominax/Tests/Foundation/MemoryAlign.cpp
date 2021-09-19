@@ -1,7 +1,5 @@
-// File: MemoryAlign.cpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -230,9 +228,9 @@ TEST(Common, IsAlignedTo)
 {
 	void* ptr {nullptr};
 	#if NOX_32_BIT
-	ASSERT_TRUE(IsAlignedTo(ptr, 4));
+		ASSERT_TRUE(IsAlignedTo(ptr, 4));
 	#else
-	ASSERT_TRUE(IsAlignedTo(ptr, 8));
+		ASSERT_TRUE(IsAlignedTo(ptr, 8));
 	#endif
 
 	alignas(16) void* a {nullptr};

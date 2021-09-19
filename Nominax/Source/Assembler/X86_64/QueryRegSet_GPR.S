@@ -1,0 +1,2 @@
+.globl QueryRegSet_GPR
+

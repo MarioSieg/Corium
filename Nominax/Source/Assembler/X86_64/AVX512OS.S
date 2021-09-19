@@ -1,7 +1,5 @@
-# File: Nominax.hpp
 # Author: Mario
-# Created: 17.04.2021 7:40 PM
-# Project: NominaxRuntime
+# Project: Nominax
 # 
 #                                  Apache License
 #                            Version 2.0, January 2004
@@ -205,10 +203,10 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-.globl IsAvx512SupportedByOs
+.globl IsAVX512SupportedByOS
 
 # Header: Arch/X86_64/CpuId.hpp
-IsAvx512SupportedByOs:
+IsAVX512SupportedByOS:
     xorl    %ecx, %ecx          # clear ecx
     xgetbv                      # read value from extended control register into %edx:%eax
     andb    $0b11100000, %al    # mask out avx512 bit

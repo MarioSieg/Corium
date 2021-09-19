@@ -1,7 +1,5 @@
-// File: BenchTemplates.cpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -219,19 +217,19 @@ auto LoopBenchmark
 	Print('\n');
 
 	Stream stream { };
-	stream << Instruction::NOp;
-	stream << Instruction::PushZ;
-	stream << Instruction::IInc;
-	stream << Instruction::Dupl;
-	stream << Instruction::Push;
+	stream << Instruction::NOP;
+	stream << Instruction::PUSHZ;
+	stream << Instruction::IINC;
+	stream << Instruction::DUPL;
+	stream << Instruction::PUSH;
 	stream << count;
 
 	loopBody(stream);
 
-	stream << Instruction::JlCmpi;
+	stream << Instruction::JLCMPI;
 	stream << JumpAddress {2};
-	stream << Instruction::Pop;
-	stream << Instruction::Int;
+	stream << Instruction::POP;
+	stream << Instruction::INT;
 	stream << 0;
 
 	Image bundle { };

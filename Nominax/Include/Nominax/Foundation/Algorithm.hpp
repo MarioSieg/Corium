@@ -1,7 +1,5 @@
-// File: Algorithm.hpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -536,8 +534,8 @@ namespace Nominax::Foundation
 	inline auto ILog2(std::uint64_t x) -> std::uint64_t
 	{
 		#if NOX_USE_ARCH_OPT
-		--x;
-		return sizeof x * CHAR_BIT - __builtin_clzll(x);
+		    --x;
+		    return sizeof x * CHAR_BIT - __builtin_clzll(x);
 		#else
 			return ILog2DeBruijn(x);
 		#endif
@@ -663,7 +661,6 @@ namespace Nominax::Foundation
 	/// <summary>
 	/// Sign EXtend the integer.
 	/// </summary>
-	/// <typeparam name="T"></typeparam>
 	/// <param name="x"></param>
 	/// <returns></returns>
 	[[nodiscard]]
@@ -675,7 +672,6 @@ namespace Nominax::Foundation
 	/// <summary>
 	/// Sign EXtend the integer.
 	/// </summary>
-	/// <typeparam name="T"></typeparam>
 	/// <param name="x"></param>
 	/// <returns></returns>
 	[[nodiscard]]
@@ -687,7 +683,6 @@ namespace Nominax::Foundation
 	/// <summary>
 	/// Sign EXtend the integer.
 	/// </summary>
-	/// <typeparam name="T"></typeparam>
 	/// <param name="x"></param>
 	/// <returns></returns>
 	[[nodiscard]]
@@ -699,7 +694,6 @@ namespace Nominax::Foundation
 	/// <summary>
 	/// Sign EXtend the integer.
 	/// </summary>
-	/// <typeparam name="T"></typeparam>
 	/// <param name="x"></param>
 	/// <returns></returns>
 	[[nodiscard]]

@@ -1,7 +1,5 @@
-// File: OSIImpl_Windows.cpp
 // Author: Mario
-// Created: 20.08.2021 2:41 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004

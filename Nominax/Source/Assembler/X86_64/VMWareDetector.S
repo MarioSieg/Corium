@@ -1,7 +1,5 @@
-# File: Nominax.hpp
 # Author: Mario
-# Created: 17.04.2021 7:40 PM
-# Project: NominaxRuntime
+# Project: Nominax
 # 
 #                                  Apache License
 #                            Version 2.0, January 2004
@@ -205,12 +203,12 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-.globl VmWareDetector
+.globl VMWareDetector
 
 .equ HYPERVISOR, 0x564D5868     # "VMXh"
 .equ PORT, 0x5658               # "VX"  
 
-VmWareDetector:
+VMWareDetector:
     pushq   %rbp
     movq    %rsp, %rbp
     pushq   %rbx

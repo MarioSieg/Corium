@@ -1,7 +1,5 @@
-// File: AsmCalls.cpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -209,10 +207,13 @@
 #include <iostream>
 
 #include "../../TestBase.hpp"
+#include "../../../Include/Nominax/Assembler/X86_64/RegisterSet.hpp"
+#include "../../../Include/Nominax/Assembler/X86_64/_X86_64.hpp"
 
 #if NOX_ARCH_X86_64
 
-using namespace X86_64::Routines;
+using namespace X86_64;
+using namespace Routines;
 
 TEST(AssemblyCalls, IsCpudIdSupported)
 {
@@ -220,7 +221,7 @@ TEST(AssemblyCalls, IsCpudIdSupported)
 	{
 		[&]
 		{
-			const auto supported {IsCpuIdSupported()};
+			const auto supported {IsCPUIDSupported()};
 			ASSERT_TRUE(supported);
 		}
 	};
@@ -233,7 +234,7 @@ TEST(AssemblyCalls, QueryRip)
 	{
 		[&]
 		{
-			const void* const rip {QueryRip()};
+			const void* const rip {QueryRIP()};
 			ASSERT_NE(rip, nullptr);
 		}
 	};
@@ -264,7 +265,7 @@ TEST(AssemblyCalls, CpudIdSupport)
 	{
 		[&]
 		{
-			ASSERT_TRUE(IsCpuIdSupported());
+			ASSERT_TRUE(IsCPUIDSupported());
 		}
 	};
 	ASSERT_NO_FATAL_FAILURE(exec());
@@ -279,7 +280,7 @@ TEST(AssemblyCalls, AvxOsSupport)
 		{
 			[&]
 			{
-				ASSERT_TRUE(IsAvxSupportedByOs() == false || IsAvxSupportedByOs() == true);
+				ASSERT_TRUE(IsAVXSupportedByOS() == false || IsAVXSupportedByOS() == true);
 			}
 		};
 		ASSERT_NO_FATAL_FAILURE(exec());
@@ -295,7 +296,7 @@ TEST(AssemblyCalls, Avx512OsSupport)
 		{
 			[&]
 			{
-				ASSERT_TRUE(IsAvx512SupportedByOs() == false || IsAvx512SupportedByOs() == true);
+				ASSERT_TRUE(IsAVX512SupportedByOS() == false || IsAVX512SupportedByOS() == true);
 			}
 		};
 		ASSERT_NO_FATAL_FAILURE(exec());
@@ -304,7 +305,7 @@ TEST(AssemblyCalls, Avx512OsSupport)
 
 TEST(AssemblyCalls, CpuIdInvocation)
 {
-	if (IsCpuIdSupported())
+	if (IsCPUIDSupported())
 	{
 		const auto exec
 		{
@@ -313,25 +314,37 @@ TEST(AssemblyCalls, CpuIdInvocation)
 				[[maybe_unused]]
 					std::uint64_t a, b, c;
 				[[maybe_unused]]
-					const std::uint32_t d {CpuId(&a, &b, &c)};
+					const std::uint32_t d {CPUID(&a, &b, &c)};
 			}
 		};
 		ASSERT_NO_FATAL_FAILURE(exec());
 	}
 }
 
-TEST(AssemblyCalls, QueryReg)
+TEST(AssemblyCalls, QueryRegGPR)
 {
 	const auto exec
 	{
 		[&]
 		{
-			std::uint64_t gpr[16];
-			std::uint64_t sse[32];
-			QueryRegSet(gpr, sse);
+			GPRRegisterSet set { };
+			QueryRegSet_GPR(std::data(set));
 		}
 	};
 	ASSERT_NO_FATAL_FAILURE(exec());
+}
+
+TEST(AssemblyCalls, QueryRegSSE)
+{
+    const auto exec
+    {
+        [&]
+        {
+            SSERegisterSet set { };
+            QueryRegSet_SSE(std::data(set));
+        }
+    };
+    ASSERT_NO_FATAL_FAILURE(exec());
 }
 
 TEST(AssemblyCalls, MockCall)
@@ -341,7 +354,7 @@ TEST(AssemblyCalls, MockCall)
 		[&]
 		{
 			#if NOX_OS_WINDOWS
-			ASSERT_EQ(MockCall(), 0xFF);
+				ASSERT_EQ(MockCall(), 0xFF);
 			#else
 				ASSERT_EQ(MockCall(), 1234);
 			#endif

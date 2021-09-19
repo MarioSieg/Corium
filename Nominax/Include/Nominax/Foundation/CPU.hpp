@@ -1,7 +1,5 @@
-// File: CPU.hpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -219,15 +217,15 @@ namespace Nominax::Foundation
 	NOX_FORCE_INLINE NOX_COLD inline auto BreakpointInterrupt() -> void
 	{
 		#if NOX_ARCH_X86_64
-		asm("int3");
+			asm("int3");
 		#elif NOX_ARCH_ARM_64
-		#if NOX_OS_MAC || NOX_OS_IOS
-		asm("trap");
+			#if NOX_OS_MAC || NOX_OS_IOS
+				asm("trap");
+			#else
+				asm("bkpt 0");
+			#endif
 		#else
-		asm("bkpt 0");
-		#endif
-		#else
-		* reinterpret_cast<volatile std::int32_t*>(3) = 3;
+			*reinterpret_cast<volatile std::int32_t*>(3) = 3;
 		#endif
 	}
 
@@ -241,9 +239,9 @@ namespace Nominax::Foundation
 	inline auto DisOpt(T& x) -> void
 	{
 		#if NOX_COM_CLANG
-		asm volatile("" : "+r,m"(x) : : "memory");
+			asm volatile("" : "+r,m"(x) : : "memory");
 		#else
-		asm volatile("" : "+m,r"(x) :: "memory");
+			asm volatile("" : "+m,r"(x) :: "memory");
 		#endif
 	}
 

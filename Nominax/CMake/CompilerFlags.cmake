@@ -57,6 +57,7 @@ ELSE()
 	TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-static")
 	TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-static-libgcc")
 	TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-static-libstdc++")
+	TARGET_COMPILE_OPTIONS("NominaxRuntime" PRIVATE "-Wno-attributes")
 
 ENDIF()
 

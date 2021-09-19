@@ -1,7 +1,5 @@
-// File: BenchTemplates.hpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -221,9 +219,9 @@ using namespace Core;
 
 inline std::unique_ptr Env
 {
-	[]() -> auto
+	[]
 	{
-		auto env {std::make_unique<Environment>()};
+		auto env { std::make_unique<Environment>() };
 		EnvironmentDescriptor descriptor { };
 		descriptor.AppName = "NominaxBenchmark";
 		env->Boot(descriptor);

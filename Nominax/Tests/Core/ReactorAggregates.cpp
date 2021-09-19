@@ -1,7 +1,5 @@
-// File: ReactorAggregates.cpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -227,9 +225,9 @@ TEST(ReactorAggregates, UnionReinterpretation)
 	ASSERT_EQ(rec.AsPtr, &rec);
 
 	constexpr Signal sig {
-		Instruction::Mov
+		Instruction::MOV
 	};
-	ASSERT_EQ(sig.Instr, Instruction::Mov);
-	ASSERT_EQ(sig.OpCode, static_cast<std::uint64_t>(Instruction::Mov));
-	ASSERT_EQ(sig.R64.AsU64, static_cast<std::uint64_t>(Instruction::Mov));
+	ASSERT_EQ(sig.Instr, Instruction::MOV);
+	ASSERT_EQ(sig.OpCode, static_cast<std::uint64_t>(Instruction::MOV));
+	ASSERT_EQ(sig.R64.AsU64, static_cast<std::uint64_t>(Instruction::MOV));
 }

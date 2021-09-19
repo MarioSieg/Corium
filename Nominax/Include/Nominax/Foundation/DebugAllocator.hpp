@@ -1,7 +1,5 @@
-// File: DebugAllocator.hpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -264,7 +262,7 @@ namespace Nominax::Foundation
 		virtual ~DebugAllocator() override = default;
 
 		/// <summary>
-		/// Call the equivalent RuntimeAllocator (superclass) method and print debug info.
+		/// CALL the equivalent RuntimeAllocator (superclass) method and print debug info.
 		/// </summary>
 		/// <param name="out"></param>
 		/// <param name="size"></param>
@@ -272,7 +270,7 @@ namespace Nominax::Foundation
 		virtual auto Allocate(void*& out, std::uint64_t size) const -> void override;
 
 		/// <summary>
-		/// Call the equivalent RuntimeAllocator (superclass) method and print debug info.
+		/// CALL the equivalent RuntimeAllocator (superclass) method and print debug info.
 		/// </summary>
 		/// <param name="out"></param>
 		/// <param name="size"></param>
@@ -280,14 +278,14 @@ namespace Nominax::Foundation
 		virtual auto Reallocate(void*& out, std::uint64_t size) const -> void override;
 
 		/// <summary>
-		/// Call the equivalent RuntimeAllocator (superclass) method and print debug info.
+		/// CALL the equivalent RuntimeAllocator (superclass) method and print debug info.
 		/// </summary>
 		/// <param name="out"></param>
 		/// <returns></returns>
 		virtual auto Deallocate(void*& out) const -> void override;
 
 		/// <summary>
-		/// Call the equivalent RuntimeAllocator (superclass) method and print debug info.
+		/// CALL the equivalent RuntimeAllocator (superclass) method and print debug info.
 		/// </summary>
 		/// <param name="out"></param>
 		/// <param name="size"></param>
@@ -296,7 +294,7 @@ namespace Nominax::Foundation
 		virtual auto AllocateAligned(void*& out, std::uint64_t size, std::uint64_t alignment) const -> void override;
 
 		/// <summary>
-		/// Call the equivalent RuntimeAllocator (superclass) method and print debug info.
+		/// CALL the equivalent RuntimeAllocator (superclass) method and print debug info.
 		/// </summary>
 		/// <param name="out"></param>
 		/// <param name="size"></param>
@@ -305,7 +303,7 @@ namespace Nominax::Foundation
 		virtual auto ReallocateAligned(void*& out, std::uint64_t size, std::uint64_t alignment) const -> void override;
 
 		/// <summary>
-		/// Call the equivalent RuntimeAllocator (superclass) method and print debug info.
+		/// CALL the equivalent RuntimeAllocator (superclass) method and print debug info.
 		/// </summary>
 		/// <param name="out"></param>
 		/// <returns></returns>

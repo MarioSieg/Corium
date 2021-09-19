@@ -1,7 +1,5 @@
-// File: Optimization.hpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -227,11 +225,14 @@ namespace Nominax::ByteCode
 
 	consteval auto DefaultOptimizationLevel() -> OptimizationLevel
 	{
-		#if NOX_DEBUG
-		return OptimizationLevel::O2;
-		#else
-		return OptimizationLevel::O3;
-		#endif
+		if constexpr (NOX_DEBUG)
+		{
+			return OptimizationLevel::Off;
+		}
+		else
+		{
+			return OptimizationLevel::O3;
+		}
 	}
 
 	/// <summary>

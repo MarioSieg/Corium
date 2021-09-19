@@ -1,7 +1,5 @@
-// File: ReactorExecution.cpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -209,15 +207,16 @@
 
 TEST(ReactorExecution, Instruction_Int)
 {
-	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Int},
-		Signal {INT64_C(5)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-12345)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(5) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-12345) },
 	};
 
-	auto input {MOCK_REACTOR_INPUT};
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 
 	static constinit InterruptStatus status;
 	static constinit int calls;
@@ -228,2100 +227,2255 @@ TEST(ReactorExecution, Instruction_Int)
 		++calls;
 	};
 
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
+	const ReactorState output { SingletonExecutionProxy(input) };
 	ASSERT_EQ(calls, 1);
 	ASSERT_EQ(status, 5);
-	ASSERT_EQ(o.Status, 5);
-	ASSERT_EQ(o.IpDiff, 2);
+	ASSERT_EQ(output.Status, 5);
+	ASSERT_EQ(output.IpDiff, 2);
 }
 
 TEST(ReactorExecution, Instruction_Mov)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Sto},
-		Signal {UINT64_C(3)},
-		Signal {3.1415},
-		Signal {Instruction::Mov},
-		Signal {UINT64_C(8)},
-		Signal {UINT64_C(3)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::STO },
+		Signal { static_cast<std::uint64_t>(3) },
+		Signal { 3.1415 },
+		Signal { Instruction::MOV },
+		Signal { static_cast<std::uint64_t>(8) },
+		Signal { static_cast<std::uint64_t>(3) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[3].AsF64, 3.1415);
-	ASSERT_EQ(o.Input->Stack[8].AsF64, 3.1415);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[3].AsF64, 3.1415);
+	ASSERT_EQ(output.Input->Stack[8].AsF64, 3.1415);
 }
 
 TEST(ReactorExecution, Instruction_Sto)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Sto},
-		Signal {UINT64_C(1)},
-		Signal {INT64_C(5657334)},
-		Signal {Instruction::Sto},
-		Signal {UINT64_C(31)},
-		Signal {3.1415},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::STO },
+		Signal { static_cast<std::uint64_t>(1) },
+		Signal { static_cast<std::int64_t>(5657334) },
+		Signal { Instruction::STO },
+		Signal { static_cast<std::uint64_t>(31) },
+		Signal { 3.1415 },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsI64, 5657334);
-	ASSERT_EQ(o.Input->Stack[31].AsF64, 3.1415);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsI64, 5657334);
+	ASSERT_EQ(output.Input->Stack[31].AsF64, 3.1415);
 }
 
 TEST(ReactorExecution, Instruction_Push)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(1224)},
-		Signal {Instruction::Push},
-		Signal {-0.6666},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-3)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(1224) },
+		Signal { Instruction::PUSH },
+		Signal { -0.6666 },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-3) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsI64, 1224);
-	ASSERT_EQ(o.Input->Stack[2].AsF64, -0.6666);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsI64, 1224);
+	ASSERT_EQ(output.Input->Stack[2].AsF64, -0.6666);
 }
 
 TEST(ReactorExecution, Instruction_Pop)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(1224)},
-		Signal {Instruction::Push},
-		Signal {-0.6666},
-		Signal {Instruction::Pop},
-		Signal {Instruction::Pop},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+	std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(1224) },
+		Signal { Instruction::PUSH },
+		Signal { -0.6666 },
+		Signal { Instruction::POP },
+		Signal { Instruction::POP },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsI64, 1224);
-	ASSERT_EQ(o.Input->Stack[2].AsF64, -0.6666);
-	ASSERT_EQ(o.SpDiff, 0);
+	auto output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsI64, 1224);
+	ASSERT_EQ(output.Input->Stack[2].AsF64, -0.6666);
+	ASSERT_EQ(output.SpDiff, 0);
 
-	code[6].Instr = Instruction::NOp;
-	o             = SingletonExecutionProxy(input);
-	ASSERT_EQ(o.Input->Stack[1].AsI64, 1224);
-	ASSERT_EQ(o.Input->Stack[2].AsF64, -0.6666);
-	ASSERT_EQ(o.SpDiff, 1);
+	code[6].Instr = Instruction::NOP;
+	output             = SingletonExecutionProxy(input);
+	ASSERT_EQ(output.Input->Stack[1].AsI64, 1224);
+	ASSERT_EQ(output.Input->Stack[2].AsF64, -0.6666);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_Pop2)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {UINT64_C(1224)},
-		Signal {Instruction::Push},
-		Signal {-0.6666},
-		Signal {Instruction::Pop2},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::uint64_t>(1224) },
+		Signal { Instruction::PUSH },
+		Signal { -0.6666 },
+		Signal { Instruction::POP2 },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsI64, 1224);
-	ASSERT_EQ(o.Input->Stack[2].AsF64, -0.6666);
-	ASSERT_EQ(o.SpDiff, 0);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsI64, 1224);
+	ASSERT_EQ(output.Input->Stack[2].AsF64, -0.6666);
+	ASSERT_EQ(output.SpDiff, 0);
 }
 
 TEST(ReactorExecution, Instruction_Dupl)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(5)},
-		Signal {Instruction::Dupl},
-		Signal {Instruction::Push},
-		Signal {INT64_C(-2)},
-		Signal {Instruction::Dupl},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(5) },
+		Signal { Instruction::DUPL },
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(-2) },
+		Signal { Instruction::DUPL },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsI64, 5);
-	ASSERT_EQ(o.Input->Stack[2].AsI64, 5);
-	ASSERT_EQ(o.Input->Stack[3].AsI64, -2);
-	ASSERT_EQ(o.Input->Stack[4].AsI64, -2);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsI64, 5);
+	ASSERT_EQ(output.Input->Stack[2].AsI64, 5);
+	ASSERT_EQ(output.Input->Stack[3].AsI64, -2);
+	ASSERT_EQ(output.Input->Stack[4].AsI64, -2);
 }
 
 TEST(ReactorExecution, Instruction_Swap)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(3)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(-666)},
-		Signal {Instruction::Swap},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(3) },
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(-666) },
+		Signal { Instruction::SWAP },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsI64, -666);
-	ASSERT_EQ(o.Input->Stack[2].AsI64, 3);
-	ASSERT_EQ(o.SpDiff, 2);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsI64, -666);
+	ASSERT_EQ(output.Input->Stack[2].AsI64, 3);
+	ASSERT_EQ(output.SpDiff, 2);
 }
 
 TEST(ReactorExecution, Instruction_Dupl2)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(5)},
-		Signal {Instruction::Dupl2},
-		Signal {Instruction::Push},
-		Signal {INT64_C(0xFF)},
-		Signal {Instruction::Dupl2},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(5) },
+		Signal { Instruction::DUPL2 },
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(0xFF) },
+		Signal { Instruction::DUPL2 },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsI64, 5);
-	ASSERT_EQ(o.Input->Stack[2].AsI64, 5);
-	ASSERT_EQ(o.Input->Stack[3].AsI64, 5);
-	ASSERT_EQ(o.Input->Stack[4].AsI64, 0xFF);
-	ASSERT_EQ(o.Input->Stack[5].AsI64, 0xFF);
-	ASSERT_EQ(o.Input->Stack[6].AsI64, 0xFF);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsI64, 5);
+	ASSERT_EQ(output.Input->Stack[2].AsI64, 5);
+	ASSERT_EQ(output.Input->Stack[3].AsI64, 5);
+	ASSERT_EQ(output.Input->Stack[4].AsI64, 0xFF);
+	ASSERT_EQ(output.Input->Stack[5].AsI64, 0xFF);
+	ASSERT_EQ(output.Input->Stack[6].AsI64, 0xFF);
 }
 
 TEST(ReactorExecution, Instruction_IInc)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(0)},
-		Signal {Instruction::IInc},
-		Signal {Instruction::IInc},
-		Signal {Instruction::IInc},
-		Signal {Instruction::IInc},
-		Signal {Instruction::IInc},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(0) },
+		Signal { Instruction::IINC },
+		Signal { Instruction::IINC },
+		Signal { Instruction::IINC },
+		Signal { Instruction::IINC },
+		Signal { Instruction::IINC },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[0], Record::Padding());
-	ASSERT_EQ(o.Input->Stack[1].AsI64, 5);
-	ASSERT_EQ(o.SpDiff, 1);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[0], Record::Padding());
+	ASSERT_EQ(output.Input->Stack[1].AsI64, 5);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_IDec)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(2)},
-		Signal {Instruction::IDec},
-		Signal {Instruction::IDec},
-		Signal {Instruction::IDec},
-		Signal {Instruction::IDec},
-		Signal {Instruction::IDec},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(2) },
+		Signal { Instruction::IDEC },
+		Signal { Instruction::IDEC },
+		Signal { Instruction::IDEC },
+		Signal { Instruction::IDEC },
+		Signal { Instruction::IDEC },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[0], Record::Padding());
-	ASSERT_EQ(o.Input->Stack[1].AsI64, -3);
-	ASSERT_EQ(o.SpDiff, 1);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[0], Record::Padding());
+	ASSERT_EQ(output.Input->Stack[1].AsI64, -3);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_PushZ)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::PushZ},
-		Signal {Instruction::PushZ},
-		Signal {Instruction::PushZ},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSHZ },
+		Signal { Instruction::PUSHZ },
+		Signal { Instruction::PUSHZ },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsI64, 0);
-	ASSERT_EQ(o.Input->Stack[2].AsU64, 0);
-	ASSERT_EQ(o.Input->Stack[3].AsF64, 0.0F);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsI64, 0);
+	ASSERT_EQ(output.Input->Stack[2].AsU64, 0);
+	ASSERT_EQ(output.Input->Stack[3].AsF64, 0.0F);
 }
 
 TEST(ReactorExecution, Instruction_IPushO)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::IPushO},
-		Signal {Instruction::PushZ},
-		Signal {Instruction::IPushO},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::IPUSHO },
+		Signal { Instruction::PUSHZ },
+		Signal { Instruction::IPUSHO },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsI64, 1);
-	ASSERT_EQ(o.Input->Stack[2].AsU64, 0);
-	ASSERT_EQ(o.Input->Stack[3].AsU64, 1);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsI64, 1);
+	ASSERT_EQ(output.Input->Stack[2].AsU64, 0);
+	ASSERT_EQ(output.Input->Stack[3].AsU64, 1);
 }
 
 TEST(ReactorExecution, Instruction_IAdd)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(2)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(5)},
-		Signal {Instruction::IAdd},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(2) },
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(5) },
+		Signal { Instruction::IADD },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsI64, 2 + 5);
-	ASSERT_EQ(o.Input->Stack[2].AsU64, 5);
-	ASSERT_EQ(o.SpDiff, 1);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsI64, 2 + 5);
+	ASSERT_EQ(output.Input->Stack[2].AsU64, 5);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_ISub)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(2)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(5)},
-		Signal {Instruction::ISub},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(2) },
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(5) },
+		Signal { Instruction::ISUB },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsI64, 2 - 5);
-	ASSERT_EQ(o.Input->Stack[2].AsU64, 5);
-	ASSERT_EQ(o.SpDiff, 1);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsI64, 2 - 5);
+	ASSERT_EQ(output.Input->Stack[2].AsU64, 5);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_IMul)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(2)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(5)},
-		Signal {Instruction::IMul},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(2) },
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(5) },
+		Signal { Instruction::IMUL },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsI64, 2 * 5);
-	ASSERT_EQ(o.Input->Stack[2].AsU64, 5);
-	ASSERT_EQ(o.SpDiff, 1);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsI64, 2 * 5);
+	ASSERT_EQ(output.Input->Stack[2].AsU64, 5);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_IDiv)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(10)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(5)},
-		Signal {Instruction::IDiv},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(10) },
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(5) },
+		Signal { Instruction::IDIV },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsI64, 10 / 5);
-	ASSERT_EQ(o.Input->Stack[2].AsU64, 5);
-	ASSERT_EQ(o.SpDiff, 1);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsI64, 10 / 5);
+	ASSERT_EQ(output.Input->Stack[2].AsU64, 5);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_IMod)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(10)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(5)},
-		Signal {Instruction::IMod},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(10) },
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(5) },
+		Signal { Instruction::IMOD },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsI64, 10 % 5);
-	ASSERT_EQ(o.Input->Stack[2].AsU64, 5);
-	ASSERT_EQ(o.SpDiff, 1);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsI64, 10 % 5);
+	ASSERT_EQ(output.Input->Stack[2].AsU64, 5);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_IAnd)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(0b1101'1101)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(0b0111'0111)},
-		Signal {Instruction::IAnd},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(0b1101'1101) },
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(0b0111'0111) },
+		Signal { Instruction::IAND },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsI64, 0b1101'1101 & 0b0111'0111);
-	ASSERT_EQ(o.Input->Stack[2].AsU64, 0b0111'0111);
-	ASSERT_EQ(o.SpDiff, 1);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsI64, 0b1101'1101 & 0b0111'0111);
+	ASSERT_EQ(output.Input->Stack[2].AsU64, 0b0111'0111);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_IOr)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(0b1101'1101)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(0b0111'0111)},
-		Signal {Instruction::IOr},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(0b1101'1101) },
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(0b0111'0111) },
+		Signal { Instruction::IOR },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsI64, 0b1101'1101 | 0b0111'0111);
-	ASSERT_EQ(o.Input->Stack[2].AsU64, 0b0111'0111);
-	ASSERT_EQ(o.SpDiff, 1);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsI64, 0b1101'1101 | 0b0111'0111);
+	ASSERT_EQ(output.Input->Stack[2].AsU64, 0b0111'0111);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_IXor)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(0b1101'1101)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(0b0111'0111)},
-		Signal {Instruction::IXor},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(0b1101'1101) },
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(0b0111'0111) },
+		Signal { Instruction::IXOR },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsI64, 0b1101'1101 ^ 0b0111'0111);
-	ASSERT_EQ(o.Input->Stack[2].AsU64, 0b0111'0111);
-	ASSERT_EQ(o.SpDiff, 1);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsI64, 0b1101'1101 ^ 0b0111'0111);
+	ASSERT_EQ(output.Input->Stack[2].AsU64, 0b0111'0111);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_ICom)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(0b1101'1101)},
-		Signal {Instruction::ICom},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(0b1101'1101) },
+		Signal { Instruction::ICOM },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsI64, ~0b1101'1101);
-	ASSERT_EQ(o.SpDiff, 1);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsI64, ~0b1101'1101);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_ISal)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(1)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(2)},
-		Signal {Instruction::ISal},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(1) },
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(2) },
+		Signal { Instruction::ISAL },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsI64, 1 << 2);
-	ASSERT_EQ(o.Input->Stack[2].AsU64, 2);
-	ASSERT_EQ(o.SpDiff, 1);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsI64, 1 << 2);
+	ASSERT_EQ(output.Input->Stack[2].AsU64, 2);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_ISar)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(1)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(2)},
-		Signal {Instruction::ISar},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(1) },
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(2) },
+		Signal { Instruction::ISAR },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsI64, 1 >> 2);
-	ASSERT_EQ(o.Input->Stack[2].AsU64, 2);
-	ASSERT_EQ(o.SpDiff, 1);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsI64, 1 >> 2);
+	ASSERT_EQ(output.Input->Stack[2].AsU64, 2);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_IRol)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(1)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(2)},
-		Signal {Instruction::IRol},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(1) },
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(2) },
+		Signal { Instruction::IROL },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsU64, std::rotl<std::uint64_t>(1, 2));
-	ASSERT_EQ(o.Input->Stack[2].AsU64, 2);
-	ASSERT_EQ(o.SpDiff, 1);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsU64, std::rotl<std::uint64_t>(1, 2));
+	ASSERT_EQ(output.Input->Stack[2].AsU64, 2);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_IRor)
 {
-	std::array code = {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(1)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(2)},
-		Signal {Instruction::IRor},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+	constexpr std::array code = {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(1) },
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(2) },
+		Signal { Instruction::IROR },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsU64, std::rotr<std::uint64_t>(1, 2));
-	ASSERT_EQ(o.Input->Stack[2].AsU64, 2);
-	ASSERT_EQ(o.SpDiff, 1);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsU64, std::rotr<std::uint64_t>(1, 2));
+	ASSERT_EQ(output.Input->Stack[2].AsU64, 2);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_INeg)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(10)},
-		Signal {Instruction::INeg},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(10) },
+		Signal { Instruction::INEG },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsI64, -10);
-	ASSERT_EQ(o.SpDiff, 1);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsI64, -10);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_FAdd)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {4.25},
-		Signal {Instruction::Push},
-		Signal {2.50},
-		Signal {Instruction::FAdd},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSH },
+		Signal { 4.25 },
+		Signal { Instruction::PUSH },
+		Signal { 2.50 },
+		Signal { Instruction::FADD },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 6.75);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 2.50);
-	ASSERT_EQ(o.SpDiff, 1);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, 6.75);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[2].AsF64, 2.50);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_FMod)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {4.25},
-		Signal {Instruction::Push},
-		Signal {2.50},
-		Signal {Instruction::FMod},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSH },
+		Signal { 4.25 },
+		Signal { Instruction::PUSH },
+		Signal { 2.50 },
+		Signal { Instruction::FMOD },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::fmod(4.25, 2.50));
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 2.50);
-	ASSERT_EQ(o.SpDiff, 1);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, std::fmod(4.25, 2.50));
+	ASSERT_DOUBLE_EQ(output.Input->Stack[2].AsF64, 2.50);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_FSub)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {4.25},
-		Signal {Instruction::Push},
-		Signal {2.50},
-		Signal {Instruction::FSub},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSH },
+		Signal { 4.25 },
+		Signal { Instruction::PUSH },
+		Signal { 2.50 },
+		Signal { Instruction::FSUB },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 1.75);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 2.50);
-	ASSERT_EQ(o.SpDiff, 1);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, 1.75);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[2].AsF64, 2.50);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_FMul)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {4.25},
-		Signal {Instruction::Push},
-		Signal {2.50},
-		Signal {Instruction::FMul},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSH },
+		Signal { 4.25 },
+		Signal { Instruction::PUSH },
+		Signal { 2.50 },
+		Signal { Instruction::FMUL },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 10.625);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 2.50);
-	ASSERT_EQ(o.SpDiff, 1);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, 10.625);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[2].AsF64, 2.50);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_FDiv)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {4.25},
-		Signal {Instruction::Push},
-		Signal {2.50},
-		Signal {Instruction::FDiv},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSH },
+		Signal { 4.25 },
+		Signal { Instruction::PUSH },
+		Signal { 2.50 },
+		Signal { Instruction::FDIV },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 1.7);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 2.50);
-	ASSERT_EQ(o.SpDiff, 1);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, 1.7);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[2].AsF64, 2.50);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_FNeg)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {2.25},
-		Signal {Instruction::FNeg},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSH },
+		Signal { 2.25 },
+		Signal { Instruction::FNEG },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, -2.25);
-	ASSERT_EQ(o.SpDiff, 1);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, -2.25);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_FInc)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {.0},
-		Signal {Instruction::FInc},
-		Signal {Instruction::FInc},
-		Signal {Instruction::FInc},
-		Signal {Instruction::FInc},
-		Signal {Instruction::FInc},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSH },
+		Signal { .0 },
+		Signal { Instruction::FINC },
+		Signal { Instruction::FINC },
+		Signal { Instruction::FINC },
+		Signal { Instruction::FINC },
+		Signal { Instruction::FINC },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[0], Record::Padding());
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 5.);
-	ASSERT_EQ(o.SpDiff, 1);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[0], Record::Padding());
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, 5.);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_FDec)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {2.},
-		Signal {Instruction::FDec},
-		Signal {Instruction::FDec},
-		Signal {Instruction::FDec},
-		Signal {Instruction::FDec},
-		Signal {Instruction::FDec},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSH },
+		Signal { 2. },
+		Signal { Instruction::FDEC },
+		Signal { Instruction::FDEC },
+		Signal { Instruction::FDEC },
+		Signal { Instruction::FDEC },
+		Signal { Instruction::FDEC },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[0], Record::Padding());
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, -3.);
-	ASSERT_EQ(o.SpDiff, 1);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[0], Record::Padding());
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, -3.);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, Instruction_FPushO)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::FPushO},
-		Signal {Instruction::PushZ},
-		Signal {Instruction::FPushO},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::FPUSHO },
+		Signal { Instruction::PUSHZ },
+		Signal { Instruction::FPUSHO },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsF64, 1.);
-	ASSERT_EQ(o.Input->Stack[2].AsU64, 0);
-	ASSERT_EQ(o.Input->Stack[3].AsF64, 1.);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsF64, 1.);
+	ASSERT_EQ(output.Input->Stack[2].AsU64, 0);
+	ASSERT_EQ(output.Input->Stack[3].AsF64, 1.);
 }
 
 TEST(ReactorExecution, Instruction_Call)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Call},
-		Signal {UINT64_C(5)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(10)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::CALL },
+		Signal { static_cast<std::uint64_t>(5) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(10) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-0xFF) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsI64, 10);
-	ASSERT_EQ(o.IpDiff, 8);
-	ASSERT_EQ(o.Status, -0xFF);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsI64, 10);
+	ASSERT_EQ(output.IpDiff, 8);
+	ASSERT_EQ(output.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_Ret)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Call},
-		Signal {UINT64_C(5)},
-		Signal {Instruction::Call},
-		Signal {UINT64_C(5)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xABCDEF)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(10)},
-		Signal {Instruction::Ret},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::CALL },
+		Signal { static_cast<std::uint64_t>(5) },
+		Signal { Instruction::CALL },
+		Signal { static_cast<std::uint64_t>(5) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-0xABCDEF) },
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(10) },
+		Signal { Instruction::RET },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-0xFF) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsI64, 10);
-	ASSERT_EQ(o.Input->Stack[1].AsI64, 10);
-	ASSERT_EQ(o.IpDiff, 6);
-	ASSERT_EQ(o.BpDiff, 3);
-	ASSERT_EQ(o.Status, -0xABCDEF);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsI64, 10);
+	ASSERT_EQ(output.Input->Stack[1].AsI64, 10);
+	ASSERT_EQ(output.IpDiff, 6);
+	ASSERT_EQ(output.BpDiff, 3);
+	ASSERT_EQ(output.Status, -0xABCDEF);
 }
 
 TEST(ReactorExecution, Instruction_Jmp)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Jmp},
-		Signal {UINT64_C(5)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(10)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::JMP },
+		Signal { static_cast<std::uint64_t>(5) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(10) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-0xFF) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsI64, 10);
-	ASSERT_EQ(o.IpDiff, 8);
-	ASSERT_EQ(o.Status, -0xFF);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsI64, 10);
+	ASSERT_EQ(output.IpDiff, 8);
+	ASSERT_EQ(output.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_JmpRel)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::JmpRel},
-		Signal {UINT64_C(3)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(10)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::JMPR },
+		Signal { static_cast<std::uint64_t>(3) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(10) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-0xFF) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsI64, 10);
-	ASSERT_EQ(o.IpDiff, 8);
-	ASSERT_EQ(o.Status, -0xFF);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsI64, 10);
+	ASSERT_EQ(output.IpDiff, 8);
+	ASSERT_EQ(output.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_JZ)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::PushZ},
-		Signal {Instruction::Jz},
-		Signal {UINT64_C(6)}, // first padding does not count
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
-		Signal {Instruction::IPushO},
-		Signal {Instruction::Jz},
-		Signal {UINT64_C(0)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSHZ },
+		Signal { Instruction::JZ },
+		Signal { static_cast<std::uint64_t>(6) }, // first padding does not count
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
+		Signal { Instruction::IPUSHO },
+		Signal { Instruction::JZ },
+		Signal { static_cast<std::uint64_t>(0) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-0xFF) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsU64, 1);
-	ASSERT_EQ(o.SpDiff, 0);
-	ASSERT_EQ(o.IpDiff, 10);
-	ASSERT_EQ(o.Status, -0xFF);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsU64, 1);
+	ASSERT_EQ(output.SpDiff, 0);
+	ASSERT_EQ(output.IpDiff, 10);
+	ASSERT_EQ(output.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_JnZ)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::IPushO},
-		Signal {Instruction::Jnz},
-		Signal {UINT64_C(6)}, // first padding does not count
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
-		Signal {Instruction::PushZ},
-		Signal {Instruction::Jnz},
-		Signal {UINT64_C(1)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::IPUSHO },
+		Signal { Instruction::JNZ },
+		Signal { static_cast<std::uint64_t>(6) }, // first padding does not count
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
+		Signal { Instruction::PUSHZ },
+		Signal { Instruction::JNZ },
+		Signal { static_cast<std::uint64_t>(1) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-0xFF) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsU64, 0);
-	ASSERT_EQ(o.SpDiff, 0);
-	ASSERT_EQ(o.IpDiff, 10);
-	ASSERT_EQ(o.Status, -0xFF);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsU64, 0);
+	ASSERT_EQ(output.SpDiff, 0);
+	ASSERT_EQ(output.IpDiff, 10);
+	ASSERT_EQ(output.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_JoCmpI)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::IPushO},
-		Signal {Instruction::JoCmpi},
-		Signal {UINT64_C(6)}, // first padding does not count
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
-		Signal {Instruction::PushZ},
-		Signal {Instruction::JoCmpi},
-		Signal {UINT64_C(0)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::IPUSHO },
+		Signal { Instruction::JOCMPI },
+		Signal { static_cast<std::uint64_t>(6) }, // first padding does not count
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
+		Signal { Instruction::PUSHZ },
+		Signal { Instruction::JOCMPI },
+		Signal { static_cast<std::uint64_t>(0) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-0xFF) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsU64, 0);
-	ASSERT_EQ(o.SpDiff, 0);
-	ASSERT_EQ(o.IpDiff, 10);
-	ASSERT_EQ(o.Status, -0xFF);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsU64, 0);
+	ASSERT_EQ(output.SpDiff, 0);
+	ASSERT_EQ(output.IpDiff, 10);
+	ASSERT_EQ(output.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_JnoCmpI)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::PushZ},
-		Signal {Instruction::JnoCmpi},
-		Signal {UINT64_C(6)}, // first padding does not count
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
-		Signal {Instruction::IPushO},
-		Signal {Instruction::JnoCmpi},
-		Signal {UINT64_C(0)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSHZ },
+		Signal { Instruction::JNOCMPI },
+		Signal { static_cast<std::uint64_t>(6) }, // first padding does not count
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
+		Signal { Instruction::IPUSHO },
+		Signal { Instruction::JNOCMPI },
+		Signal { static_cast<std::uint64_t>(0) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-0xFF) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsU64, 1);
-	ASSERT_EQ(o.SpDiff, 0);
-	ASSERT_EQ(o.IpDiff, 10);
-	ASSERT_EQ(o.Status, -0xFF);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsU64, 1);
+	ASSERT_EQ(output.SpDiff, 0);
+	ASSERT_EQ(output.IpDiff, 10);
+	ASSERT_EQ(output.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_JoCmpF)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::FPushO},
-		Signal {Instruction::JoCmpf},
-		Signal {UINT64_C(6)}, // first padding does not count
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
-		Signal {Instruction::PushZ},
-		Signal {Instruction::JoCmpf},
-		Signal {UINT64_C(0)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::FPUSHO },
+		Signal { Instruction::JOCMPF },
+		Signal { static_cast<std::uint64_t>(6) }, // first padding does not count
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
+		Signal { Instruction::PUSHZ },
+		Signal { Instruction::JOCMPF },
+		Signal { static_cast<std::uint64_t>(0) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-0xFF) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsF64, 0.F);
-	ASSERT_EQ(o.SpDiff, 0);
-	ASSERT_EQ(o.IpDiff, 10);
-	ASSERT_EQ(o.Status, -0xFF);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsF64, 0.F);
+	ASSERT_EQ(output.SpDiff, 0);
+	ASSERT_EQ(output.IpDiff, 10);
+	ASSERT_EQ(output.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_JnoCmpF)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::PushZ},
-		Signal {Instruction::JnoCmpf},
-		Signal {UINT64_C(6)}, // first padding does not count
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
-		Signal {Instruction::FPushO},
-		Signal {Instruction::JnoCmpf},
-		Signal {UINT64_C(0)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSHZ },
+		Signal { Instruction::JNOCMPF },
+		Signal { static_cast<std::uint64_t>(6) }, // first padding does not count
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
+		Signal { Instruction::FPUSHO },
+		Signal { Instruction::JNOCMPF },
+		Signal { static_cast<std::uint64_t>(0) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-0xFF) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsF64, 1.0);
-	ASSERT_EQ(o.SpDiff, 0);
-	ASSERT_EQ(o.IpDiff, 10);
-	ASSERT_EQ(o.Status, -0xFF);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsF64, 1.0);
+	ASSERT_EQ(output.SpDiff, 0);
+	ASSERT_EQ(output.IpDiff, 10);
+	ASSERT_EQ(output.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_JeCmpI)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(12345679)},
-		Signal {Instruction::Dupl},
-		Signal {Instruction::JeCmpi},
-		Signal {UINT64_C(8)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(123424224)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(0xFF'FF)},
-		Signal {Instruction::JeCmpi},
-		Signal {UINT64_C(0)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(12345679) },
+		Signal { Instruction::DUPL },
+		Signal { Instruction::JECMPI },
+		Signal { static_cast<std::uint64_t>(8) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(123424224) },
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(0xFF'FF) },
+		Signal { Instruction::JECMPI },
+		Signal { static_cast<std::uint64_t>(0) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-0xFF) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsI64, 123424224);
-	ASSERT_EQ(o.Input->Stack[2].AsI64, 0xFF'FF);
-	ASSERT_EQ(o.SpDiff, 0);
-	ASSERT_EQ(o.IpDiff, 15);
-	ASSERT_EQ(o.Status, -0xFF);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsI64, 123424224);
+	ASSERT_EQ(output.Input->Stack[2].AsI64, 0xFF'FF);
+	ASSERT_EQ(output.SpDiff, 0);
+	ASSERT_EQ(output.IpDiff, 15);
+	ASSERT_EQ(output.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_JeCmpF)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {1234567.0},
-		Signal {Instruction::Dupl},
-		Signal {Instruction::JeCmpf},
-		Signal {UINT64_C(8)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
-		Signal {Instruction::Push},
-		Signal {123424224.0},
-		Signal {Instruction::Push},
-		Signal {0.22233},
-		Signal {Instruction::JeCmpf},
-		Signal {UINT64_C(0)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSH },
+		Signal { 1234567.0 },
+		Signal { Instruction::DUPL },
+		Signal { Instruction::JECMPF },
+		Signal { static_cast<std::uint64_t>(8) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
+		Signal { Instruction::PUSH },
+		Signal { 123424224.0 },
+		Signal { Instruction::PUSH },
+		Signal { 0.22233 },
+		Signal { Instruction::JECMPF },
+		Signal { static_cast<std::uint64_t>(0) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-0xFF) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsF64, 123424224.0);
-	ASSERT_EQ(o.Input->Stack[2].AsF64, 0.22233);
-	ASSERT_EQ(o.SpDiff, 0);
-	ASSERT_EQ(o.IpDiff, 15);
-	ASSERT_EQ(o.Status, -0xFF);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsF64, 123424224.0);
+	ASSERT_EQ(output.Input->Stack[2].AsF64, 0.22233);
+	ASSERT_EQ(output.SpDiff, 0);
+	ASSERT_EQ(output.IpDiff, 15);
+	ASSERT_EQ(output.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_JneCmpI)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(1234567)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(213131232)},
-		Signal {Instruction::JneCmpi},
-		Signal {UINT64_C(9)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(0xFF'FF)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(0xFF'FF)},
-		Signal {Instruction::JneCmpi},
-		Signal {UINT64_C(0)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(1234567) },
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(213131232) },
+		Signal { Instruction::JNECMPI },
+		Signal { static_cast<std::uint64_t>(9) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(0xFF'FF) },
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(0xFF'FF) },
+		Signal { Instruction::JNECMPI },
+		Signal { static_cast<std::uint64_t>(0) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-0xFF) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsI64, 0xFF'FF);
-	ASSERT_EQ(o.Input->Stack[2].AsI64, 0xFF'FF);
-	ASSERT_EQ(o.SpDiff, 0);
-	ASSERT_EQ(o.IpDiff, 16);
-	ASSERT_EQ(o.Status, -0xFF);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsI64, 0xFF'FF);
+	ASSERT_EQ(output.Input->Stack[2].AsI64, 0xFF'FF);
+	ASSERT_EQ(output.SpDiff, 0);
+	ASSERT_EQ(output.IpDiff, 16);
+	ASSERT_EQ(output.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_JneCmpF)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {1234567.},
-		Signal {Instruction::Push},
-		Signal {213131232.},
-		Signal {Instruction::JneCmpf},
-		Signal {UINT64_C(9)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-1)},
-		Signal {Instruction::Push},
-		Signal {3.1415},
-		Signal {Instruction::Push},
-		Signal {3.1415},
-		Signal {Instruction::JneCmpf},
-		Signal {UINT64_C(0)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSH },
+		Signal { 1234567. },
+		Signal { Instruction::PUSH },
+		Signal { 213131232. },
+		Signal { Instruction::JNECMPF },
+		Signal { static_cast<std::uint64_t>(9) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-1) },
+		Signal { Instruction::PUSH },
+		Signal { 3.1415 },
+		Signal { Instruction::PUSH },
+		Signal { 3.1415 },
+		Signal { Instruction::JNECMPF },
+		Signal { static_cast<std::uint64_t>(0) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-0xFF) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsF64, 3.1415);
-	ASSERT_EQ(o.Input->Stack[2].AsF64, 3.1415);
-	ASSERT_EQ(o.SpDiff, 0);
-	ASSERT_EQ(o.IpDiff, 16);
-	ASSERT_EQ(o.Status, -0xFF);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsF64, 3.1415);
+	ASSERT_EQ(output.Input->Stack[2].AsF64, 3.1415);
+	ASSERT_EQ(output.SpDiff, 0);
+	ASSERT_EQ(output.IpDiff, 16);
+	ASSERT_EQ(output.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_JaCmpI)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(5)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(2)},
-		Signal {Instruction::JaCmpi},
-		Signal {UINT64_C(9)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(0)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(3)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(53)},
-		Signal {Instruction::JaCmpi},
-		Signal {UINT64_C(0)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(5) },
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(2) },
+		Signal { Instruction::JACMPI },
+		Signal { static_cast<std::uint64_t>(9) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(0) },
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(3) },
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(53) },
+		Signal { Instruction::JACMPI },
+		Signal { static_cast<std::uint64_t>(0) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-0xFF) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsI64, 3);
-	ASSERT_EQ(o.Input->Stack[2].AsI64, 53);
-	ASSERT_EQ(o.SpDiff, 0);
-	ASSERT_EQ(o.IpDiff, 16);
-	ASSERT_EQ(o.Status, -0xFF);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsI64, 3);
+	ASSERT_EQ(output.Input->Stack[2].AsI64, 53);
+	ASSERT_EQ(output.SpDiff, 0);
+	ASSERT_EQ(output.IpDiff, 16);
+	ASSERT_EQ(output.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_JaCmpF)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {5.0},
-		Signal {Instruction::Push},
-		Signal {2.0},
-		Signal {Instruction::JaCmpf},
-		Signal {UINT64_C(9)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(0)},
-		Signal {Instruction::Push},
-		Signal {3.0},
-		Signal {Instruction::Push},
-		Signal {53.0},
-		Signal {Instruction::JaCmpf},
-		Signal {UINT64_C(0)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSH },
+		Signal { 5.0 },
+		Signal { Instruction::PUSH },
+		Signal { 2.0 },
+		Signal { Instruction::JACMPF },
+		Signal { static_cast<std::uint64_t>(9) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(0) },
+		Signal { Instruction::PUSH },
+		Signal { 3.0 },
+		Signal { Instruction::PUSH },
+		Signal { 53.0 },
+		Signal { Instruction::JACMPF },
+		Signal { static_cast<std::uint64_t>(0) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-0xFF) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsF64, 3.0);
-	ASSERT_EQ(o.Input->Stack[2].AsF64, 53.0);
-	ASSERT_EQ(o.SpDiff, 0);
-	ASSERT_EQ(o.IpDiff, 16);
-	ASSERT_EQ(o.Status, -0xFF);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsF64, 3.0);
+	ASSERT_EQ(output.Input->Stack[2].AsF64, 53.0);
+	ASSERT_EQ(output.SpDiff, 0);
+	ASSERT_EQ(output.IpDiff, 16);
+	ASSERT_EQ(output.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_JlCmpI)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(2)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(5)},
-		Signal {Instruction::JlCmpi},
-		Signal {UINT64_C(9)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(0)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(53)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(3)},
-		Signal {Instruction::JlCmpi},
-		Signal {UINT64_C(0)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(2) },
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(5) },
+		Signal { Instruction::JLCMPI },
+		Signal { static_cast<std::uint64_t>(9) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(0) },
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(53) },
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(3) },
+		Signal { Instruction::JLCMPI },
+		Signal { static_cast<std::uint64_t>(0) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-0xFF) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsI64, 53);
-	ASSERT_EQ(o.Input->Stack[2].AsI64, 3);
-	ASSERT_EQ(o.SpDiff, 0);
-	ASSERT_EQ(o.IpDiff, 16);
-	ASSERT_EQ(o.Status, -0xFF);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsI64, 53);
+	ASSERT_EQ(output.Input->Stack[2].AsI64, 3);
+	ASSERT_EQ(output.SpDiff, 0);
+	ASSERT_EQ(output.IpDiff, 16);
+	ASSERT_EQ(output.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_JlCmpF)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {2.0},
-		Signal {Instruction::Push},
-		Signal {5.0},
-		Signal {Instruction::JlCmpf},
-		Signal {UINT64_C(9)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(0)},
-		Signal {Instruction::Push},
-		Signal {53.0},
-		Signal {Instruction::Push},
-		Signal {3.0},
-		Signal {Instruction::JlCmpf},
-		Signal {UINT64_C(0)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSH },
+		Signal { 2.0 },
+		Signal { Instruction::PUSH },
+		Signal { 5.0 },
+		Signal { Instruction::JLCMPF },
+		Signal { static_cast<std::uint64_t>(9) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(0) },
+		Signal { Instruction::PUSH },
+		Signal { 53.0 },
+		Signal { Instruction::PUSH },
+		Signal { 3.0 },
+		Signal { Instruction::JLCMPF },
+		Signal { static_cast<std::uint64_t>(0) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-0xFF) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsF64, 53.0);
-	ASSERT_EQ(o.Input->Stack[2].AsF64, 3.0);
-	ASSERT_EQ(o.SpDiff, 0);
-	ASSERT_EQ(o.IpDiff, 16);
-	ASSERT_EQ(o.Status, -0xFF);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsF64, 53.0);
+	ASSERT_EQ(output.Input->Stack[2].AsF64, 3.0);
+	ASSERT_EQ(output.SpDiff, 0);
+	ASSERT_EQ(output.IpDiff, 16);
+	ASSERT_EQ(output.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_JaeCmpI)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(5)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(2)},
-		Signal {Instruction::JaeCmpi},
-		Signal {UINT64_C(9)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-3)},
-		Signal {Instruction::IPushO},
-		Signal {Instruction::IPushO},
-		Signal {Instruction::JaeCmpi},
-		Signal {UINT64_C(15)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-5)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(3)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(53)},
-		Signal {Instruction::JaeCmpi},
-		Signal {UINT64_C(0)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(5) },
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(2) },
+		Signal { Instruction::JAECMPI },
+		Signal { static_cast<std::uint64_t>(9) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-3) },
+		Signal { Instruction::IPUSHO },
+		Signal { Instruction::IPUSHO },
+		Signal { Instruction::JAECMPI },
+		Signal { static_cast<std::uint64_t>(15) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-5) },
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(3) },
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(53) },
+		Signal { Instruction::JAECMPI },
+		Signal { static_cast<std::uint64_t>(0) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-0xFF) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsI64, 3);
-	ASSERT_EQ(o.Input->Stack[2].AsI64, 53);
-	ASSERT_EQ(o.SpDiff, 0);
-	ASSERT_EQ(o.IpDiff, 22);
-	ASSERT_EQ(o.Status, -0xFF);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsI64, 3);
+	ASSERT_EQ(output.Input->Stack[2].AsI64, 53);
+	ASSERT_EQ(output.SpDiff, 0);
+	ASSERT_EQ(output.IpDiff, 22);
+	ASSERT_EQ(output.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_JaeCmpF)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {5.0},
-		Signal {Instruction::Push},
-		Signal {2.0},
-		Signal {Instruction::JaeCmpf},
-		Signal {UINT64_C(9)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-3)},
-		Signal {Instruction::IPushO},
-		Signal {Instruction::IPushO},
-		Signal {Instruction::JaeCmpf},
-		Signal {UINT64_C(15)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-5)},
-		Signal {Instruction::Push},
-		Signal {3.0},
-		Signal {Instruction::Push},
-		Signal {53.0},
-		Signal {Instruction::JaeCmpf},
-		Signal {UINT64_C(0)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSH },
+		Signal { 5.0 },
+		Signal { Instruction::PUSH },
+		Signal { 2.0 },
+		Signal { Instruction::JAECMPF },
+		Signal { static_cast<std::uint64_t>(9) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-3) },
+		Signal { Instruction::IPUSHO },
+		Signal { Instruction::IPUSHO },
+		Signal { Instruction::JAECMPF },
+		Signal { static_cast<std::uint64_t>(15) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-5) },
+		Signal { Instruction::PUSH },
+		Signal { 3.0 },
+		Signal { Instruction::PUSH },
+		Signal { 53.0 },
+		Signal { Instruction::JAECMPF },
+		Signal { static_cast<std::uint64_t>(0) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-0xFF) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsF64, 3.0);
-	ASSERT_EQ(o.Input->Stack[2].AsF64, 53.0);
-	ASSERT_EQ(o.SpDiff, 0);
-	ASSERT_EQ(o.IpDiff, 22);
-	ASSERT_EQ(o.Status, -0xFF);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsF64, 3.0);
+	ASSERT_EQ(output.Input->Stack[2].AsF64, 53.0);
+	ASSERT_EQ(output.SpDiff, 0);
+	ASSERT_EQ(output.IpDiff, 22);
+	ASSERT_EQ(output.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_JleCmpI)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {INT64_C(2)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(5)},
-		Signal {Instruction::JleCmpi},
-		Signal {UINT64_C(9)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-3)},
-		Signal {Instruction::IPushO},
-		Signal {Instruction::IPushO},
-		Signal {Instruction::JleCmpi},
-		Signal {UINT64_C(15)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-5)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(53)},
-		Signal {Instruction::Push},
-		Signal {INT64_C(3)},
-		Signal {Instruction::JleCmpi},
-		Signal {UINT64_C(0)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(2) },
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(5) },
+		Signal { Instruction::JLECMPI },
+		Signal { static_cast<std::uint64_t>(9) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-3) },
+		Signal { Instruction::IPUSHO },
+		Signal { Instruction::IPUSHO },
+		Signal { Instruction::JLECMPI },
+		Signal { static_cast<std::uint64_t>(15) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-5) },
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(53) },
+		Signal { Instruction::PUSH },
+		Signal { static_cast<std::int64_t>(3) },
+		Signal { Instruction::JLECMPI },
+		Signal { static_cast<std::uint64_t>(0) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-0xFF) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsI64, 53);
-	ASSERT_EQ(o.Input->Stack[2].AsI64, 3);
-	ASSERT_EQ(o.SpDiff, 0);
-	ASSERT_EQ(o.IpDiff, 22);
-	ASSERT_EQ(o.Status, -0xFF);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsI64, 53);
+	ASSERT_EQ(output.Input->Stack[2].AsI64, 3);
+	ASSERT_EQ(output.SpDiff, 0);
+	ASSERT_EQ(output.IpDiff, 22);
+	ASSERT_EQ(output.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_JleCmpF)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::Push},
-		Signal {2.0},
-		Signal {Instruction::Push},
-		Signal {5.0},
-		Signal {Instruction::JleCmpf},
-		Signal {UINT64_C(9)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-3)},
-		Signal {Instruction::IPushO},
-		Signal {Instruction::IPushO},
-		Signal {Instruction::JleCmpf},
-		Signal {UINT64_C(15)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-5)},
-		Signal {Instruction::Push},
-		Signal {53.0},
-		Signal {Instruction::Push},
-		Signal {3.0},
-		Signal {Instruction::JleCmpf},
-		Signal {UINT64_C(0)},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::PUSH },
+		Signal { 2.0 },
+		Signal { Instruction::PUSH },
+		Signal { 5.0 },
+		Signal { Instruction::JLECMPF },
+		Signal { static_cast<std::uint64_t>(9) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-3) },
+		Signal { Instruction::IPUSHO },
+		Signal { Instruction::IPUSHO },
+		Signal { Instruction::JLECMPF },
+		Signal { static_cast<std::uint64_t>(15) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-5) },
+		Signal { Instruction::PUSH },
+		Signal { 53.0 },
+		Signal { Instruction::PUSH },
+		Signal { 3.0 },
+		Signal { Instruction::JLECMPF },
+		Signal { static_cast<std::uint64_t>(0) },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-0xFF) },
 	};
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsF64, 53.0);
-	ASSERT_EQ(o.Input->Stack[2].AsF64, 3.0);
-	ASSERT_EQ(o.SpDiff, 0);
-	ASSERT_EQ(o.IpDiff, 22);
-	ASSERT_EQ(o.Status, -0xFF);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_EQ(output.Input->Stack[1].AsF64, 53.0);
+	ASSERT_EQ(output.Input->Stack[2].AsF64, 3.0);
+	ASSERT_EQ(output.SpDiff, 0);
+	ASSERT_EQ(output.IpDiff, 22);
+	ASSERT_EQ(output.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_VecPush)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::VecPush},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::VPUSH },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 4.0 },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-0xFF) },
 	};
 
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[3].AsF64, 3.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[4].AsF64, 4.0);
-	ASSERT_EQ(o.SpDiff, 4);
-	ASSERT_EQ(o.IpDiff, 7);
-	ASSERT_EQ(o.Status, -0xFF);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[2].AsF64, 2.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[3].AsF64, 3.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[4].AsF64, 4.0);
+	ASSERT_EQ(output.SpDiff, 4);
+	ASSERT_EQ(output.IpDiff, 7);
+	ASSERT_EQ(output.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_VecPop)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::VecPush},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {Instruction::VecPop},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::VPUSH },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 4.0 },
+		Signal { Instruction::VPOP },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-0xFF) },
 	};
 
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[3].AsF64, 3.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[4].AsF64, 4.0);
-	ASSERT_EQ(o.SpDiff, 0);
-	ASSERT_EQ(o.IpDiff, 8);
-	ASSERT_EQ(o.Status, -0xFF);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[2].AsF64, 2.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[3].AsF64, 3.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[4].AsF64, 4.0);
+	ASSERT_EQ(output.SpDiff, 0);
+	ASSERT_EQ(output.IpDiff, 8);
+	ASSERT_EQ(output.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_VecAdd)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::VecPush},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {Instruction::VecPush},
-		Signal {6.0},
-		Signal {8.0},
-		Signal {10.0},
-		Signal {12.0},
-		Signal {Instruction::VecAdd},
-		Signal {Instruction::VecPop},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::VPUSH },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 4.0 },
+		Signal { Instruction::VPUSH },
+		Signal { 6.0 },
+		Signal { 8.0 },
+		Signal { 10.0 },
+		Signal { 12.0 },
+		Signal { Instruction::VADD },
+		Signal { Instruction::VPOP },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-0xFF) },
 	};
 
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 7.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 10.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[3].AsF64, 13.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[4].AsF64, 16.0);
-	ASSERT_EQ(o.SpDiff, 0);
-	ASSERT_EQ(o.IpDiff, 14);
-	ASSERT_EQ(o.Status, -0xFF);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, 7.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[2].AsF64, 10.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[3].AsF64, 13.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[4].AsF64, 16.0);
+	ASSERT_EQ(output.SpDiff, 0);
+	ASSERT_EQ(output.IpDiff, 14);
+	ASSERT_EQ(output.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_VecSub)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::VecPush},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {Instruction::VecPush},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {1.0},
-		Signal {4.0},
-		Signal {Instruction::VecSub},
-		Signal {Instruction::VecPop},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::VPUSH },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 4.0 },
+		Signal { Instruction::VPUSH },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 1.0 },
+		Signal { 4.0 },
+		Signal { Instruction::VSUB },
+		Signal { Instruction::VPOP },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-0xFF) },
 	};
 
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, -1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, -1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[3].AsF64, 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[4].AsF64, 0.0);
-	ASSERT_EQ(o.SpDiff, 0);
-	ASSERT_EQ(o.IpDiff, 14);
-	ASSERT_EQ(o.Status, -0xFF);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, -1.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[2].AsF64, -1.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[3].AsF64, 2.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[4].AsF64, 0.0);
+	ASSERT_EQ(output.SpDiff, 0);
+	ASSERT_EQ(output.IpDiff, 14);
+	ASSERT_EQ(output.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_VecMul)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::VecPush},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {Instruction::VecPush},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {Instruction::VecMul},
-		Signal {Instruction::VecPop},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::VPUSH },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 4.0 },
+		Signal { Instruction::VPUSH },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 4.0 },
+		Signal { Instruction::VMUL },
+		Signal { Instruction::VPOP },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-0xFF) },
 	};
 
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 4.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[3].AsF64, 9.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[4].AsF64, 16.0);
-	ASSERT_EQ(o.SpDiff, 0);
-	ASSERT_EQ(o.IpDiff, 14);
-	ASSERT_EQ(o.Status, -0xFF);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[2].AsF64, 4.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[3].AsF64, 9.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[4].AsF64, 16.0);
+	ASSERT_EQ(output.SpDiff, 0);
+	ASSERT_EQ(output.IpDiff, 14);
+	ASSERT_EQ(output.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_VecDiv)
 {
-	std::array code {
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::VecPush},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {8.0},
-		Signal {Instruction::VecPush},
-		Signal {4.0},
-		Signal {2.0},
-		Signal {0.5},
-		Signal {4.0},
-		Signal {Instruction::VecDiv},
-		Signal {Instruction::VecPop},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+	constexpr std::array code
+    {
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::VPUSH },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 8.0 },
+		Signal { Instruction::VPUSH },
+		Signal { 4.0 },
+		Signal { 2.0 },
+		Signal { 0.5 },
+		Signal { 4.0 },
+		Signal { Instruction::VDIV },
+		Signal { Instruction::VPOP },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-0xFF) },
 	};
 
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 0.25);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[3].AsF64, 6.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[4].AsF64, 2.0);
-	ASSERT_EQ(o.SpDiff, 0);
-	ASSERT_EQ(o.IpDiff, 14);
-	ASSERT_EQ(o.Status, -0xFF);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, 0.25);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[2].AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[3].AsF64, 6.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[4].AsF64, 2.0);
+	ASSERT_EQ(output.SpDiff, 0);
+	ASSERT_EQ(output.IpDiff, 14);
+	ASSERT_EQ(output.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_MatPush)
 {
-	std::array code
+	constexpr std::array code
 	{
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::MatPush},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::MPUSH },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 4.0 },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 4.0 },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 4.0 },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 4.0 },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-0xFF) },
 	};
 
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[3].AsF64, 3.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[4].AsF64, 4.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[5].AsF64, 1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[6].AsF64, 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[7].AsF64, 3.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[8].AsF64, 4.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[9].AsF64, 1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[10].AsF64, 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[11].AsF64, 3.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[12].AsF64, 4.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[13].AsF64, 1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[14].AsF64, 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[15].AsF64, 3.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[16].AsF64, 4.0);
-	ASSERT_EQ(o.SpDiff, 16);
-	ASSERT_EQ(o.Status, -0xFF);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[2].AsF64, 2.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[3].AsF64, 3.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[4].AsF64, 4.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[5].AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[6].AsF64, 2.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[7].AsF64, 3.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[8].AsF64, 4.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[9].AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[10].AsF64, 2.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[11].AsF64, 3.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[12].AsF64, 4.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[13].AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[14].AsF64, 2.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[15].AsF64, 3.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[16].AsF64, 4.0);
+	ASSERT_EQ(output.SpDiff, 16);
+	ASSERT_EQ(output.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_MatPop)
 {
-	std::array code
+	constexpr std::array code
 	{
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::MatPush},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {Instruction::MatPop},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::MPUSH },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 4.0 },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 4.0 },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 4.0 },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 4.0 },
+		Signal { Instruction::MPOP },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-0xFF) },
 	};
 
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[3].AsF64, 3.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[4].AsF64, 4.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[5].AsF64, 1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[6].AsF64, 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[7].AsF64, 3.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[8].AsF64, 4.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[9].AsF64, 1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[10].AsF64, 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[11].AsF64, 3.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[12].AsF64, 4.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[13].AsF64, 1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[14].AsF64, 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[15].AsF64, 3.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[16].AsF64, 4.0);
-	ASSERT_EQ(o.SpDiff, 0);
-	ASSERT_EQ(o.Status, -0xFF);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[2].AsF64, 2.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[3].AsF64, 3.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[4].AsF64, 4.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[5].AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[6].AsF64, 2.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[7].AsF64, 3.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[8].AsF64, 4.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[9].AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[10].AsF64, 2.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[11].AsF64, 3.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[12].AsF64, 4.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[13].AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[14].AsF64, 2.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[15].AsF64, 3.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[16].AsF64, 4.0);
+	ASSERT_EQ(output.SpDiff, 0);
+	ASSERT_EQ(output.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_MatAdd)
 {
-	std::array code
+	constexpr std::array code
 	{
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::MatPush},
-		Signal {1.0},
-		Signal {4.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {2.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {6.0},
-		Signal {Instruction::MatPush},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {2.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {6.0},
-		Signal {Instruction::MatAdd},
-		Signal {Instruction::MatPop},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::MPUSH },
+		Signal { 1.0 },
+		Signal { 4.0 },
+		Signal { 3.0 },
+		Signal { 4.0 },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 2.0 },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 4.0 },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 6.0 },
+		Signal { Instruction::MPUSH },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 4.0 },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 2.0 },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 4.0 },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 6.0 },
+		Signal { Instruction::MADD },
+		Signal { Instruction::MPOP },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-0xFF) },
 	};
 
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 1.0 + 1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 4.0 + 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[3].AsF64, 3.0 + 3.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[4].AsF64, 4.0 + 4.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[5].AsF64, 1.0 + 1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[6].AsF64, 2.0 + 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[7].AsF64, 3.0 + 3.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[8].AsF64, 2.0 + 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[9].AsF64, 1.0 + 1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[10].AsF64, 2.0 + 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[11].AsF64, 3.0 + 3.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[12].AsF64, 4.0 + 4.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[13].AsF64, 1.0 + 1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[14].AsF64, 2.0 + 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[15].AsF64, 3.0 + 3.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[16].AsF64, 6.0 + 6.0);
-	ASSERT_EQ(o.SpDiff, 0);
-	ASSERT_EQ(o.Status, -0xFF);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, 1.0 + 1.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[2].AsF64, 4.0 + 2.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[3].AsF64, 3.0 + 3.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[4].AsF64, 4.0 + 4.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[5].AsF64, 1.0 + 1.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[6].AsF64, 2.0 + 2.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[7].AsF64, 3.0 + 3.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[8].AsF64, 2.0 + 2.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[9].AsF64, 1.0 + 1.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[10].AsF64, 2.0 + 2.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[11].AsF64, 3.0 + 3.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[12].AsF64, 4.0 + 4.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[13].AsF64, 1.0 + 1.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[14].AsF64, 2.0 + 2.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[15].AsF64, 3.0 + 3.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[16].AsF64, 6.0 + 6.0);
+	ASSERT_EQ(output.SpDiff, 0);
+	ASSERT_EQ(output.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_MatSub)
 {
-	std::array code
+	constexpr std::array code
 	{
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::MatPush},
-		Signal {1.0},
-		Signal {4.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {2.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {6.0},
-		Signal {Instruction::MatPush},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {2.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {6.0},
-		Signal {Instruction::MatSub},
-		Signal {Instruction::MatPop},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::MPUSH },
+		Signal { 1.0 },
+		Signal { 4.0 },
+		Signal { 3.0 },
+		Signal { 4.0 },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 2.0 },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 4.0 },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 6.0 },
+		Signal { Instruction::MPUSH },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 4.0 },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 2.0 },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 4.0 },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 6.0 },
+		Signal { Instruction::MSUB },
+		Signal { Instruction::MPOP },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-0xFF) },
 	};
 
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 1.0 - 1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 4.0 - 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[3].AsF64, 3.0 - 3.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[4].AsF64, 4.0 - 4.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[5].AsF64, 1.0 - 1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[6].AsF64, 2.0 - 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[7].AsF64, 3.0 - 3.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[8].AsF64, 2.0 - 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[9].AsF64, 1.0 - 1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[10].AsF64, 2.0 - 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[11].AsF64, 3.0 - 3.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[12].AsF64, 4.0 - 4.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[13].AsF64, 1.0 - 1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[14].AsF64, 2.0 - 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[15].AsF64, 3.0 - 3.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[16].AsF64, 6.0 - 6.0);
-	ASSERT_EQ(o.SpDiff, 0);
-	ASSERT_EQ(o.Status, -0xFF);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, 1.0 - 1.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[2].AsF64, 4.0 - 2.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[3].AsF64, 3.0 - 3.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[4].AsF64, 4.0 - 4.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[5].AsF64, 1.0 - 1.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[6].AsF64, 2.0 - 2.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[7].AsF64, 3.0 - 3.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[8].AsF64, 2.0 - 2.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[9].AsF64, 1.0 - 1.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[10].AsF64, 2.0 - 2.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[11].AsF64, 3.0 - 3.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[12].AsF64, 4.0 - 4.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[13].AsF64, 1.0 - 1.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[14].AsF64, 2.0 - 2.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[15].AsF64, 3.0 - 3.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[16].AsF64, 6.0 - 6.0);
+	ASSERT_EQ(output.SpDiff, 0);
+	ASSERT_EQ(output.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_MatMul)
 {
-	std::array code
+	constexpr std::array code
 	{
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::MatPush},
-		Signal {1.0},
-		Signal {4.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {2.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {6.0},
-		Signal {Instruction::MatPush},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {2.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {6.0},
-		Signal {Instruction::MatMul},
-		Signal {Instruction::MatPop},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::MPUSH },
+		Signal { 1.0 },
+		Signal { 4.0 },
+		Signal { 3.0 },
+		Signal { 4.0 },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 2.0 },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 4.0 },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 6.0 },
+		Signal { Instruction::MPUSH },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 4.0 },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 2.0 },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 4.0 },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 6.0 },
+		Signal { Instruction::MMUL },
+		Signal { Instruction::MPOP },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-0xFF) },
 	};
 
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 1.0 * 1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 4.0 * 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[3].AsF64, 3.0 * 3.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[4].AsF64, 4.0 * 4.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[5].AsF64, 1.0 * 1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[6].AsF64, 2.0 * 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[7].AsF64, 3.0 * 3.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[8].AsF64, 2.0 * 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[9].AsF64, 1.0 * 1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[10].AsF64, 2.0 * 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[11].AsF64, 3.0 * 3.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[12].AsF64, 4.0 * 4.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[13].AsF64, 1.0 * 1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[14].AsF64, 2.0 * 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[15].AsF64, 3.0 * 3.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[16].AsF64, 6.0 * 6.0);
-	ASSERT_EQ(o.SpDiff, 0);
-	ASSERT_EQ(o.Status, -0xFF);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, 1.0 * 1.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[2].AsF64, 4.0 * 2.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[3].AsF64, 3.0 * 3.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[4].AsF64, 4.0 * 4.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[5].AsF64, 1.0 * 1.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[6].AsF64, 2.0 * 2.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[7].AsF64, 3.0 * 3.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[8].AsF64, 2.0 * 2.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[9].AsF64, 1.0 * 1.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[10].AsF64, 2.0 * 2.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[11].AsF64, 3.0 * 3.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[12].AsF64, 4.0 * 4.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[13].AsF64, 1.0 * 1.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[14].AsF64, 2.0 * 2.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[15].AsF64, 3.0 * 3.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[16].AsF64, 6.0 * 6.0);
+	ASSERT_EQ(output.SpDiff, 0);
+	ASSERT_EQ(output.Status, -0xFF);
 }
 
 TEST(ReactorExecution, Instruction_MatDiv)
 {
-	std::array code
+	constexpr std::array code
 	{
-		Signal {Instruction::NOp}, // first padding
-		Signal {Instruction::MatPush},
-		Signal {1.0},
-		Signal {4.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {2.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {6.0},
-		Signal {Instruction::MatPush},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {2.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {4.0},
-		Signal {1.0},
-		Signal {2.0},
-		Signal {3.0},
-		Signal {6.0},
-		Signal {Instruction::MatDiv},
-		Signal {Instruction::MatPop},
-		Signal {Instruction::Int},
-		Signal {INT64_C(-0xFF)},
+		Signal { Instruction::NOP }, // first padding
+		Signal { Instruction::MPUSH },
+		Signal { 1.0 },
+		Signal { 4.0 },
+		Signal { 3.0 },
+		Signal { 4.0 },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 2.0 },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 4.0 },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 6.0 },
+		Signal { Instruction::MPUSH },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 4.0 },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 2.0 },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 4.0 },
+		Signal { 1.0 },
+		Signal { 2.0 },
+		Signal { 3.0 },
+		Signal { 6.0 },
+		Signal { Instruction::MDIV },
+		Signal { Instruction::MPOP },
+		Signal { Instruction::INT },
+		Signal { static_cast<std::int64_t>(-0xFF) },
 	};
 
-	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, 1.0 / 1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 4.0 / 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[3].AsF64, 3.0 / 3.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[4].AsF64, 4.0 / 4.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[5].AsF64, 1.0 / 1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[6].AsF64, 2.0 / 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[7].AsF64, 3.0 / 3.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[8].AsF64, 2.0 / 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[9].AsF64, 1.0 / 1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[10].AsF64, 2.0 / 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[11].AsF64, 3.0 / 3.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[12].AsF64, 4.0 / 4.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[13].AsF64, 1.0 / 1.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[14].AsF64, 2.0 / 2.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[15].AsF64, 3.0 / 3.0);
-	ASSERT_DOUBLE_EQ(o.Input->Stack[16].AsF64, 6.0 / 6.0);
-	ASSERT_EQ(o.SpDiff, 0);
-	ASSERT_EQ(o.Status, -0xFF);
+	const ReactorState output { SingletonExecutionProxy(input) };
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, 1.0 / 1.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[2].AsF64, 4.0 / 2.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[3].AsF64, 3.0 / 3.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[4].AsF64, 4.0 / 4.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[5].AsF64, 1.0 / 1.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[6].AsF64, 2.0 / 2.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[7].AsF64, 3.0 / 3.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[8].AsF64, 2.0 / 2.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[9].AsF64, 1.0 / 1.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[10].AsF64, 2.0 / 2.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[11].AsF64, 3.0 / 3.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[12].AsF64, 4.0 / 4.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[13].AsF64, 1.0 / 1.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[14].AsF64, 2.0 / 2.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[15].AsF64, 3.0 / 3.0);
+	ASSERT_DOUBLE_EQ(output.Input->Stack[16].AsF64, 6.0 / 6.0);
+	ASSERT_EQ(output.SpDiff, 0);
+	ASSERT_EQ(output.Status, -0xFF);
+}
+
+TEST(ReactorExecution, Instruction_CVTI2F)
+{
+    constexpr std::array code
+    {
+            Signal { Instruction::NOP }, // first padding
+            Signal { Instruction::PUSH },
+            Signal { static_cast<std::int64_t>(10) },
+            Signal { Instruction::CVTI2F },
+            Signal { Instruction::POP },
+            Signal { Instruction::INT },
+            Signal { static_cast<std::int64_t>(-1) },
+    };
+    VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+    input.CodeChunk     = std::data(code);
+    input.CodeChunkSize = std::size(code);
+    ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
+
+    const ReactorState output { SingletonExecutionProxy(input) };
+    ASSERT_DOUBLE_EQ(output.GetEvaluationResult().AsF64, 10.0);
+}
+
+TEST(ReactorExecution, Instruction_CVTF2I)
+{
+    constexpr std::array code
+    {
+            Signal { Instruction::NOP }, // first padding
+            Signal { Instruction::PUSH },
+            Signal { 10.0 },
+            Signal { Instruction::CVTF2I },
+            Signal { Instruction::POP },
+            Signal { Instruction::INT },
+            Signal { static_cast<std::int64_t>(-1) },
+    };
+    VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+    input.CodeChunk     = std::data(code);
+    input.CodeChunkSize = std::size(code);
+    ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
+
+    const ReactorState output { SingletonExecutionProxy(input) };
+    ASSERT_EQ(output.GetEvaluationResult().AsI64, 10);
+}
+
+TEST(ReactorExecution, Instruction_CVTI2C)
+{
+    constexpr std::array code
+    {
+            Signal { Instruction::NOP }, // first padding
+            Signal { Instruction::PUSH },
+            Signal { static_cast<std::int64_t>(10) },
+            Signal { Instruction::CVTI2C },
+            Signal { Instruction::POP },
+            Signal { Instruction::INT },
+            Signal { static_cast<std::int64_t>(-1) },
+    };
+    VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+    input.CodeChunk     = std::data(code);
+    input.CodeChunkSize = std::size(code);
+    ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
+
+    const ReactorState output { SingletonExecutionProxy(input) };
+    ASSERT_EQ(output.GetEvaluationResult().AsChar32, 10);
+}
+
+TEST(ReactorExecution, Instruction_CVTI2B)
+{
+    constexpr std::array code
+    {
+            Signal { Instruction::NOP }, // first padding
+            Signal { Instruction::PUSH },
+            Signal { static_cast<std::int64_t>(1) },
+            Signal { Instruction::CVTI2B },
+            Signal { Instruction::PUSH },
+            Signal { static_cast<std::int64_t>(0) },
+            Signal { Instruction::CVTI2B },
+            Signal { Instruction::PUSH },
+            Signal { static_cast<std::int64_t>(5) },
+            Signal { Instruction::CVTI2B },
+            Signal { Instruction::POP2 },
+            Signal { Instruction::POP },
+            Signal { Instruction::INT },
+            Signal { static_cast<std::int64_t>(-1) },
+    };
+    VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
+    input.CodeChunk     = std::data(code);
+    input.CodeChunkSize = std::size(code);
+    ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
+
+    const ReactorState output { SingletonExecutionProxy(input) };
+    ASSERT_EQ(output.Input->Stack[1].AsU64, true);
+    ASSERT_EQ(output.Input->Stack[2].AsU64, false);
+    ASSERT_EQ(output.Input->Stack[3].AsU64, true);
 }

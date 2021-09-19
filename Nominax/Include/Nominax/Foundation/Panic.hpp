@@ -1,7 +1,5 @@
-// File: Panic.hpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -207,93 +205,18 @@
 
 #pragma once
 
-#include <string_view>
-
 #include "Platform.hpp"
-#include <cstdint>
-#include "Print.hpp"
+#include "SourceLocation.hpp"
 
 namespace Nominax
 {
 	/// <summary>
-	/// Contains info for the panic handler.
+	/// Aborts the runtime showing a message and some information.
 	/// </summary>
-	struct PanicDescriptor final
-	{
-		/// <summary>
-		/// The source code line - if any.
-		/// </summary>
-		std::uint32_t Line { };
-
-		/// <summary>
-		/// The source file name  - if any.
-		/// </summary>
-		std::string_view FileName { };
-
-		/// <summary>
-		/// The name of the subroutine - if any.
-		/// </summary>
-		std::string_view RoutineName { };
-
-		/// <summary>
-		/// The callsite message - if any.
-		/// </summary>
-		std::string_view Message { };
-
-		/// <summary>
-		/// If true, the content of the registers is dumped, else false.
-		/// </summary>
-		bool DumpRegisters { true };
-	};
-
-	/// <summary>
-	/// Implementation of the panic routine.
-	/// </summary>
-	/// <param name="panicDescriptor"></param>
+	/// <param name="message"></param>
+	/// <param name="srcLoc"></param>
 	/// <returns></returns>
 	[[noreturn]]
 	NOX_COLD NOX_NEVER_INLINE
-	extern auto PanicTerminationImpl(const PanicDescriptor& panicDescriptor) -> void;
-
-	/// <summary>
-	/// Merges information about the current source file and the line.
-	/// This will be replaced by C++ 20 std::source_location,
-	/// but currently it's not yet implemented :(
-	/// </summary>
-	#define NOX_PANIC_INFO() __LINE__, __FILE__, __FUNCTION__
-
-	/// <summary>
-	/// Terminates the process with an error messages in the terminal.
-	/// </summary>
-	/// <typeparam name="Str"></typeparam>
-	/// <typeparam name="...Args"></typeparam>
-	/// <param name="line"></param>
-	/// <param name="file"></param>
-	/// <param name="routine"></param>
-	/// <param name="formatString"></param>
-	/// <param name="args"></param>
-	/// <returns></returns>
-	template <typename Str, typename... Args>
-	[[noreturn]]
-	NOX_COLD NOX_NEVER_INLINE
-	auto Panic
-	(
-		const std::uint32_t    line,
-		const std::string_view file,
-		const std::string_view routine,
-		Str&&                  formatString,
-		Args&&...              args
-	) -> void
-	{
-		const auto            message { Foundation::Format(formatString, std::forward<Args>(args)...) };
-		const PanicDescriptor desc
-		{
-			.Line = line,
-			.FileName = file,
-			.RoutineName = routine,
-			.Message = message,
-			.DumpRegisters = true
-		};
-		PanicTerminationImpl(desc);
-	}
+	extern auto Panic(std::string_view message, const Foundation::SourceLocation& srcLoc = Foundation::SourceLocation::Current()) -> void;
 }

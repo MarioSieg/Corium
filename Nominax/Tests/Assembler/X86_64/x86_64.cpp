@@ -1,7 +1,5 @@
-// File: x86_64.cpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -473,27 +471,6 @@ TEST(Assembler_x86_64, InjectNopChain_15)
 	}
 }
 
-TEST(Assembler_x86_64, VariationTableEntries)
-{
-	std::uint64_t             i {0};
-	std::vector<std::uint8_t> buf { };
-	buf.resize(1024 * 1024 * 32);
-	std::pmr::monotonic_buffer_resource        alloc {std::data(buf), std::size(buf)};
-	std::pmr::vector<InstructionVariationPool> pool {&alloc};
-	GetVariationTable(alloc, pool);
-	for (const auto& variationPool : pool)
-	{
-		++i;
-		for (const auto& variation : variationPool)
-		{
-			ASSERT_FALSE(std::empty(variation.Description));
-			ASSERT_FALSE(std::empty(variation.GasMnemonic));
-			ASSERT_FALSE(std::empty(variation.IntelMnemonic));
-		}
-	}
-	ASSERT_EQ(i, std::size(pool));
-}
-
 TEST(Assembler_x86_64, InjectNopChain_Null_Error)
 {
 	ASSERT_DEATH(InjectNopChain(nullptr, 0), "");
@@ -515,6 +492,6 @@ TEST(Assembler_x86_64, VirtualRegisterIds)
 {
 	for (std::uint64_t i {0}; i < std::size(ALL_GPR_REGISTERS); ++i)
 	{
-		ASSERT_EQ(ALL_GPR_REGISTERS[i].get().VirtualId, i);
+		ASSERT_EQ(ALL_GPR_REGISTERS[i].get().VirtualID, i);
 	}
 }

@@ -1,7 +1,5 @@
-// File: OSInterface.hpp
 // Author: Mario
-// Created: 25.08.2021 6:00 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -257,28 +255,28 @@ namespace Nominax::Foundation
 		~OSI() = delete;
 
 		/// <summary>
-		/// Query system info.
+		/// Fetch system info.
 		/// </summary>
 		/// <returns>The total system memory in bytes.</returns>
 		[[nodiscard]]
 		static auto QuerySystemMemoryTotal() -> std::uint64_t;
 
 		/// <summary>
-		/// Query system info.
+		/// Fetch system info.
 		/// </summary>
 		/// <returns>The amount of memory used by the current process in bytes.</returns>
 		[[nodiscard]]
 		static auto QueryProcessMemoryUsed() -> std::uint64_t;
 
 		/// <summary>
-		/// Query system info.
+		/// Fetch system info.
 		/// </summary>
 		/// <returns>The name of the CPU.</returns>
 		[[nodiscard]]
 		static auto QueryCpuName() -> const std::string&;
 
 		/// <summary>
-		/// Query system info.
+		/// Fetch system info.
 		/// </summary>
 		/// <returns>The size of a page in bytes.</returns>
 		[[nodiscard]]

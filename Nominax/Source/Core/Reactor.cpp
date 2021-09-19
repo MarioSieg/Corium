@@ -1,7 +1,5 @@
-// File: Reactor.cpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -219,7 +217,7 @@ namespace Nominax::Core
 		InterruptRoutineProxy&                  interruptHandler
 	) -> VerboseReactorDescriptor
 	{
-		const auto simpleDescriptor = BasicReactorDescriptor
+		const BasicReactorDescriptor simpleDescriptor
 		{
 			.CodeChunk = image.GetReactorView(),
 			.IntrinsicTable = intrinsicTable,
@@ -252,7 +250,7 @@ namespace Nominax::Core
 			"Reactor {:08X}: "
 			"Stack: {} MB, "
 			"{} KRec, "
-			"Intrin: {}, "
+			"INTRIN: {}, "
 			"InterruptStatus: {}, "
 			"Power: {}, "
 			"Pool: {:02}\n",
@@ -279,7 +277,7 @@ namespace Nominax::Core
 		if (validationResult != ReactorValidationResult::Ok) [[unlikely]]
 		{
 			const std::string_view message { REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[ToUnderlying(validationResult)] };
-			Panic(NOX_PANIC_INFO(), "Reactor {:#X} validation failed with the following reason: {}", this->Id_, message);
+			Panic(Foundation::Format("Reactor {:#X} validation failed with the following reason: {}", this->Id_, message));
 		}
 		ReactorCoreExecutionRoutine* const routine { this->RoutineLink_.ExecutionRoutine };
 		NOX_PAS_NOT_NULL(routine, "Reactor execution routine is null!");

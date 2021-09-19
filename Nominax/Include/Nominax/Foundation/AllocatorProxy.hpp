@@ -1,7 +1,5 @@
-// File: AllocatorProxy.hpp
 // Author: Mario
-// Created: 20.08.2021 2:40 PM
-// Project: Corium
+// Project: Nominax
 // 
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -209,6 +207,7 @@
 
 #include "Platform.hpp"
 #include "IAllocator.hpp"
+#include "DebugAllocator.hpp"
 
 namespace Nominax::Foundation
 {
@@ -217,10 +216,16 @@ namespace Nominax::Foundation
 	/// </summary>
 	inline constinit const IAllocator* GlobalAllocatorProxy
 	{
-		#if NOX_DEBUG && NOX_VERBOSE_ALLOCATOR
-			&GlobalDebugAllocator
-		#else
-		&GlobalRuntimeAllocator
-		#endif
+		[]
+		{
+			if constexpr (NOX_DEBUG || NOX_VERBOSE_ALLOCATOR)
+			{
+				return &GlobalDebugAllocator;
+			}
+			else
+			{
+				return &GlobalRuntimeAllocator;
+			}
+		}()
 	};
 }
