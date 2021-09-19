@@ -221,7 +221,7 @@ pub type RuleIterator<'a> = Pair<'a, Rule>;
 pub struct CoriumParser;
 
 pub fn parse_source(src: &str) -> Result<RootList, Error> {
-    let content = CoriumParser::parse(Rule::compilation_unit, src);
+    let content = CoriumParser::parse(Rule::CompilationUnit, src);
     match handle_parser_error(src, content) {
         Ok(rules) => {
             let mut result = RootList::new();
@@ -239,8 +239,349 @@ pub fn parse_source(src: &str) -> Result<RootList, Error> {
 fn parse_rule_tree(rule: Pair<Rule>) -> Option<Node> {
     let ty = rule.as_rule();
     match ty {
-        Rule::module_def => Some(Node::Module(ModuleName::parse(rule))),
-        Rule::function_def => Some(Node::Function(Function::parse(rule))),
+        Rule::ModuleDef => Some(Node::Module(ModuleName::parse(rule))),
+        Rule::FunctionDef => Some(Node::Function(Function::parse(rule))),
         _ => None,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    mod rules {
+        use super::*;
+
+        mod char {
+            use super::*;
+
+            mod valid {
+                use super::*;
+
+                #[test]
+                fn letter() {
+                    let result = CoriumParser::parse(Rule::Char, "A").unwrap().as_str();
+                    assert_eq!(result, "A");
+                }
+
+                #[test]
+                fn number() {
+                    let result = CoriumParser::parse(Rule::Char, "3").unwrap().as_str();
+                    assert_eq!(result, "3");
+                }
+
+                #[test]
+                fn special() {
+                    let result = CoriumParser::parse(Rule::Char, "$").unwrap().as_str();
+                    assert_eq!(result, "$");
+                }
+
+                #[test]
+                fn unicode() {
+                    let result = CoriumParser::parse(Rule::Char, "ö").unwrap().as_str();
+                    assert_eq!(result, "ö");
+                }
+
+                #[test]
+                fn unicode_2() {
+                    let result = CoriumParser::parse(Rule::Char, "글").unwrap().as_str();
+                    assert_eq!(result, "글");
+                }
+
+                #[test]
+                fn unicode_3() {
+                    let result = CoriumParser::parse(Rule::Char, "中").unwrap().as_str();
+                    assert_eq!(result, "中");
+                }
+
+                #[test]
+                fn quotation_mark() {
+                    let result = CoriumParser::parse(Rule::Char, "\\\"").unwrap().as_str();
+                    assert_eq!(result, "\\\"");
+                }
+
+                #[test]
+                fn escaped_backslash() {
+                    let result = CoriumParser::parse(Rule::Char, "\\\\").unwrap().as_str();
+                    assert_eq!(result, "\\\\");
+                }
+
+                #[test]
+                fn slash() {
+                    let result = CoriumParser::parse(Rule::Char, "/").unwrap().as_str();
+                    assert_eq!(result, "/");
+                }
+
+                #[test]
+                fn backspace() {
+                    let result = CoriumParser::parse(Rule::Char, "\\b").unwrap().as_str();
+                    assert_eq!(result, "\\b");
+                }
+
+                #[test]
+                fn formfeed_page_break() {
+                    let result = CoriumParser::parse(Rule::Char, "\\f").unwrap().as_str();
+                    assert_eq!(result, "\\f");
+                }
+
+                #[test]
+                fn newline() {
+                    let result = CoriumParser::parse(Rule::Char, "\\n").unwrap().as_str();
+                    assert_eq!(result, "\\n");
+                }
+
+                #[test]
+                fn carriage_return() {
+                    let result = CoriumParser::parse(Rule::Char, "\\r").unwrap().as_str();
+                    assert_eq!(result, "\\r");
+                }
+
+                #[test]
+                fn horizontal_tab() {
+                    let result = CoriumParser::parse(Rule::Char, "\\t").unwrap().as_str();
+                    assert_eq!(result, "\\t");
+                }
+
+                #[test]
+                fn vertical_tab() {
+                    let result = CoriumParser::parse(Rule::Char, "\\v").unwrap().as_str();
+                    assert_eq!(result, "\\v");
+                }
+
+                #[test]
+                fn unicode_scalar() {
+                    let result = CoriumParser::parse(Rule::Char, "\\u00000000")
+                        .unwrap()
+                        .as_str();
+                    assert_eq!(result, "\\u00000000");
+                }
+
+                #[test]
+                fn unicode_scalar2() {
+                    let result = CoriumParser::parse(Rule::Char, "\\uFFFFFFFF")
+                        .unwrap()
+                        .as_str();
+                    assert_eq!(result, "\\uFFFFFFFF");
+                }
+
+                #[test]
+                fn unicode_scalar3() {
+                    let result = CoriumParser::parse(Rule::Char, "\\uABABABAB")
+                        .unwrap()
+                        .as_str();
+                    assert_eq!(result, "\\uABABABAB");
+                }
+
+                #[test]
+                fn unicode_scalar4() {
+                    let result = CoriumParser::parse(Rule::Char, "\\u123456AB")
+                        .unwrap()
+                        .as_str();
+                    assert_eq!(result, "\\u123456AB");
+                }
+            }
+
+            mod invalid {
+                use super::*;
+
+                #[test]
+                fn escape() {
+                    let result = CoriumParser::parse(Rule::Char, "\\A");
+                    assert!(result.is_err());
+                }
+
+                #[test]
+                fn escape2() {
+                    let result = CoriumParser::parse(Rule::Char, "\"A");
+                    assert!(result.is_err());
+                }
+            }
+        }
+
+        mod ident {
+            use super::*;
+
+            mod valid {
+                use super::*;
+
+                #[test]
+                fn alphanumeric() {
+                    let result = CoriumParser::parse(Rule::Ident, "MyClass")
+                        .unwrap()
+                        .as_str();
+                    assert_eq!(result, "MyClass");
+                }
+
+                #[test]
+                fn mixed() {
+                    let result = CoriumParser::parse(Rule::Ident, "My2Class32LOl")
+                        .unwrap()
+                        .as_str();
+                    assert_eq!(result, "My2Class32LOl");
+                }
+
+                #[test]
+                fn numberic() {
+                    let result = CoriumParser::parse(Rule::Ident, "X278247842877284")
+                        .unwrap()
+                        .as_str();
+                    assert_eq!(result, "X278247842877284");
+                }
+            }
+
+            mod invalid {
+                use super::*;
+
+                #[test]
+                fn numeric() {
+                    let result = CoriumParser::parse(Rule::Ident, "1");
+                    assert!(result.is_err());
+                }
+
+                #[test]
+                fn numeric2() {
+                    let result = CoriumParser::parse(Rule::Ident, "3MyClass");
+                    assert!(result.is_err());
+                }
+
+                #[test]
+                fn numeric3() {
+                    let result = CoriumParser::parse(Rule::Ident, "0MyClass");
+                    assert!(result.is_err());
+                }
+
+                #[test]
+                fn numeric4() {
+                    let result = CoriumParser::parse(Rule::Ident, "-10MyClass");
+                    assert!(result.is_err());
+                }
+
+                #[test]
+                fn symbol() {
+                    let result = CoriumParser::parse(Rule::Ident, "&MyClass");
+                    assert!(result.is_err());
+                }
+
+                #[test]
+                fn symbol2() {
+                    let result = CoriumParser::parse(Rule::Ident, "+MyClass");
+                    assert!(result.is_err());
+                }
+
+                #[test]
+                fn symbol3() {
+                    let result = CoriumParser::parse(Rule::Ident, "*MyClass");
+                    assert!(result.is_err());
+                }
+
+                #[test]
+                fn symbol4() {
+                    let result = CoriumParser::parse(Rule::Ident, "#MyClass");
+                    assert!(result.is_err());
+                }
+
+                #[test]
+                fn symbol5() {
+                    let result = CoriumParser::parse(Rule::Ident, "\"MyClass");
+                    assert!(result.is_err());
+                }
+            }
+        }
+
+        mod qualified_name {
+            use super::*;
+
+            mod valid {
+                use super::*;
+
+                #[test]
+                fn simple() {
+                    let result = CoriumParser::parse(Rule::QualifiedName, "MyPackage")
+                        .unwrap()
+                        .as_str();
+                    assert_eq!(result, "MyPackage");
+                }
+
+                #[test]
+                fn nested() {
+                    let result = CoriumParser::parse(Rule::QualifiedName, "MyPackage.Class")
+                        .unwrap()
+                        .as_str();
+                    assert_eq!(result, "MyPackage.Class");
+                }
+
+                #[test]
+                fn nested2() {
+                    let result =
+                        CoriumParser::parse(Rule::QualifiedName, "MyPackage.Class.StaticMember")
+                            .unwrap()
+                            .as_str();
+                    assert_eq!(result, "MyPackage.Class.StaticMember");
+                }
+
+                #[test]
+                fn nested3() {
+                    let result = CoriumParser::parse(
+                        Rule::QualifiedName,
+                        "MyPackage.Class.StaticMember.Field",
+                    )
+                    .unwrap()
+                    .as_str();
+                    assert_eq!(result, "MyPackage.Class.StaticMember.Field");
+                }
+            }
+
+            mod invalid {
+                use super::*;
+
+                #[test]
+                fn numeric() {
+                    let result = CoriumParser::parse(Rule::QualifiedName, "+MyPackage");
+                    assert!(result.is_err());
+                }
+
+                #[test]
+                fn missing_subpackage() {
+                    let result = CoriumParser::parse(Rule::QualifiedName, "MyPackage.");
+                    assert!(result.is_err());
+                }
+
+                #[test]
+                fn nested_numeric() {
+                    let result = CoriumParser::parse(Rule::QualifiedName, "MyPackage.10Class");
+                    assert!(result.is_err());
+                }
+
+                #[test]
+                fn no_names() {
+                    let result = CoriumParser::parse(Rule::QualifiedName, ".");
+                    assert!(result.is_err());
+                }
+
+                #[test]
+                fn missing_super_package() {
+                    let result = CoriumParser::parse(Rule::QualifiedName, ".MyPackage");
+                    assert!(result.is_err());
+                }
+
+                #[test]
+                fn numeric_subpackage() {
+                    let result = CoriumParser::parse(Rule::QualifiedName, "MyPackage.0");
+                    assert!(result.is_err());
+                }
+
+                #[test]
+                fn dots() {
+                    let result = CoriumParser::parse(Rule::QualifiedName, "MyPackage.X..y");
+                    assert!(result.is_err());
+                }
+
+                #[test]
+                fn missing_subpackage_nested() {
+                    let result = CoriumParser::parse(Rule::QualifiedName, "MyPackage.Class.");
+                    assert!(result.is_err());
+                }
+            }
+        }
     }
 }
