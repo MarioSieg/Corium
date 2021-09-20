@@ -588,27 +588,6 @@ namespace Nominax::ByteCode
 		/// <returns></returns>
 		auto operator <<(double value) -> Stream&;
 
-		/// <summary>
-		/// PUSH stream entry.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		auto operator <<(CharClusterUtf8 value) -> Stream&;
-
-		/// <summary>
-		/// PUSH stream entry.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		auto operator <<(CharClusterUtf16 value) -> Stream&;
-
-		/// <summary>
-		/// PUSH stream entry.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		auto operator <<(CharClusterUtf32 value) -> Stream&;
-
         /// <summary>
         /// Prints this object into the file stream.
         /// </summary>
@@ -895,29 +874,5 @@ namespace Nominax::ByteCode
 	inline auto Stream::operator<<(const signed value) -> Stream&
 	{
 		return *this << static_cast<std::int64_t>(value);
-	}
-
-	inline auto Stream::operator <<(const CharClusterUtf8 value) -> Stream&
-	{
-		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
-		this->CodeBuffer_.emplace_back(Signal { value });
-		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::CharClusterUtf8);
-		return *this;
-	}
-
-	inline auto Stream::operator<<(const CharClusterUtf16 value) -> Stream&
-	{
-		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
-		this->CodeBuffer_.emplace_back(Signal { value });
-		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::CharClusterUtf16);
-		return *this;
-	}
-
-	inline auto Stream::operator<<(const CharClusterUtf32 value) -> Stream&
-	{
-		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
-		this->CodeBuffer_.emplace_back(Signal { value });
-		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::CharClusterUtf32);
-		return *this;
 	}
 }

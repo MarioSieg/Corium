@@ -248,46 +248,6 @@ auto formatter<JumpAddress, char, void>::format(const JumpAddress& value, format
 {
 	return format_to(ctx.out(), "{:#X}", ToUnderlying(value));
 }
-
-auto formatter<CharClusterUtf8, char, void>::format
-(
-	const CharClusterUtf8& value,
-	format_context&        ctx
-) const -> FormatOutput
-{
-	static_assert(sizeof(char8_t) == sizeof(std::uint8_t));
-	return format_to(ctx.out(),
-	                 R"(\{:X}\{:X}\{:X}\{:X}\{:X}\{:X}\{:X}\{:X})",
-	                 static_cast<std::uint16_t>(value.Chars[0]),
-	                 static_cast<std::uint16_t>(value.Chars[1]),
-	                 static_cast<std::uint16_t>(value.Chars[2]),
-	                 static_cast<std::uint16_t>(value.Chars[3]),
-	                 static_cast<std::uint16_t>(value.Chars[4]),
-	                 static_cast<std::uint16_t>(value.Chars[5]),
-	                 static_cast<std::uint16_t>(value.Chars[6]),
-	                 static_cast<std::uint16_t>(value.Chars[7])
-	);
-}
-
-auto formatter<CharClusterUtf16, char, void>::format(const CharClusterUtf16& value, format_context& ctx) const -> FormatOutput
-{
-	static_assert(sizeof(char16_t) == sizeof(std::uint16_t));
-	return format_to(ctx.out(),
-	                 R"(\{:X}\{:X}\{:X}\{:X})",
-	                 static_cast<std::uint16_t>(value.Chars[0]), static_cast<std::uint16_t>(value.Chars[1]),
-	                 static_cast<std::uint16_t>(value.Chars[2]), static_cast<std::uint16_t>(value.Chars[3])
-	);
-}
-
-auto formatter<CharClusterUtf32, char, void>::format(const CharClusterUtf32& value, format_context& ctx) const -> FormatOutput
-{
-	static_assert(sizeof(char32_t) == sizeof(std::uint32_t));
-	return format_to(ctx.out(),
-	                 "\\{:X}\\{:X}",
-	                 static_cast<std::uint32_t>(value.Chars[0]), static_cast<std::uint32_t>(value.Chars[1])
-	);
-}
-
 auto formatter<ValidationResultCode, char, void>::format
 (
 	const ValidationResultCode& value,
@@ -326,11 +286,6 @@ auto formatter<DiscriminatedSignal, char, void>::format
 
 		case Dis::Float:
 			return format_to(ctx.out(), "*f64 ${}", value.Value.R64.AsF64);
-
-		case Dis::CharClusterUtf8:
-		case Dis::CharClusterUtf16:
-		case Dis::CharClusterUtf32:
-			return format_to(ctx.out(), "*chc ${:X}", value.Value.R64.AsU64);
 
 		case Dis::OpCode:
 		case Dis::Instruction:

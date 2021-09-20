@@ -208,7 +208,6 @@
 #include <cstdint>
 
 #include "Instruction.hpp"
-#include "CharCluster.hpp"
 
 namespace Nominax::ByteCode
 {
@@ -236,21 +235,6 @@ namespace Nominax::ByteCode
 			/// double in record.
 			/// </summary>
 			Float,
-
-			/// <summary>
-			/// Char cluster UTF-8.
-			/// </summary>
-			CharClusterUtf8,
-
-			/// <summary>
-			/// Char cluster UTF-16.
-			/// </summary>
-			CharClusterUtf16,
-
-			/// <summary>
-			/// Char cluster UTF-32.
-			/// </summary>
-			CharClusterUtf32,
 
 			/// <summary>
 			/// Byte code instruction.
@@ -381,27 +365,6 @@ namespace Nominax::ByteCode
 		explicit constexpr Signal(double value);
 
 		/// <summary>
-		/// Construct from UTF-8 char cluster.
-		/// </summary>
-		/// <param name="cluster"></param>
-		/// <returns></returns>
-		explicit constexpr Signal(CharClusterUtf8 cluster);
-
-		/// <summary>
-		/// Construct from UTF-16 char cluster.
-		/// </summary>
-		/// <param name="cluster"></param>
-		/// <returns></returns>
-		explicit constexpr Signal(CharClusterUtf16 cluster);
-
-		/// <summary>
-		/// Construct from UTF-32 char cluster.
-		/// </summary>
-		/// <param name="cluster"></param>
-		/// <returns></returns>
-		explicit constexpr Signal(CharClusterUtf32 cluster);
-
-		/// <summary>
 		/// Construct from 32-bit UTF-32 character.
 		/// </summary>
 		/// <param name="value">The initial value.</param>
@@ -424,9 +387,6 @@ namespace Nominax::ByteCode
 	constexpr Signal::Signal(const std::int64_t value) : R64 { value } {}
 	constexpr Signal::Signal(const std::uint64_t value) : R64 { value } {}
 	constexpr Signal::Signal(const double value) : R64 { value } {}
-	constexpr Signal::Signal(const CharClusterUtf8 cluster) : R64 { cluster.Merged } {}
-	constexpr Signal::Signal(const CharClusterUtf16 cluster) : R64 { cluster.Merged } {}
-	constexpr Signal::Signal(const CharClusterUtf32 cluster) : R64 { cluster.Merged } {}
 	constexpr Signal::Signal(const char32_t value) : R64 { value } {}
 	constexpr Signal::Signal(const JumpAddress value) : JmpAddress { value } {}
 

@@ -236,7 +236,6 @@ namespace Nominax::Core
 	using ByteCode::Instruction;
 	using ByteCode::IntrinsicRoutine;
 	using ByteCode::Signal;
-	using ByteCode::CharClusterUtf8;
 
 	/*
 	 * This inserts a comment with the msg into the assembler code.
@@ -592,19 +591,12 @@ namespace Nominax::Core
 
 	__io_port_write_cluster__:
 		NOX_COLD_LABEL;
-
-		std::fwrite(sp, sizeof(char8_t), sizeof(CharClusterUtf8) / sizeof(char8_t), stdout);
-
+        // TODO
 		return;
 
 	__io_port_read_cluster__:
 		NOX_COLD_LABEL;
-		{
-			// this reads until space, but we want to read until newline (at the moment):
-			// fread(&sp->AsUtf8, sizeof(char8_t), sizeof(CharClusterUtf8) / sizeof(char8_t), stdin);
-			[[maybe_unused]] // throw runtime exception
-				auto _ { std::fgets(reinterpret_cast<char*>(sp), sizeof(CharClusterUtf8) / sizeof(char8_t), stdin) };
-		}
+        // TODO
 		return;
 
 	__io_port_flush__:

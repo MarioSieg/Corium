@@ -270,10 +270,7 @@ namespace Nominax::ByteCode
         {
             ComputeDiscriminatorBit(Signal::Discriminator::UOffset)             |
             ComputeDiscriminatorBit(Signal::Discriminator::Int)                 |
-            ComputeDiscriminatorBit(Signal::Discriminator::Float)               |
-            ComputeDiscriminatorBit(Signal::Discriminator::CharClusterUtf8)     |
-            ComputeDiscriminatorBit(Signal::Discriminator::CharClusterUtf16)    |
-            ComputeDiscriminatorBit(Signal::Discriminator::CharClusterUtf32)
+            ComputeDiscriminatorBit(Signal::Discriminator::Float)
         };
 
         /// <summary>

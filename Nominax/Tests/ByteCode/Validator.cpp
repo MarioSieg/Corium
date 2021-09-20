@@ -210,8 +210,7 @@
 // Legacy compat:
 struct DynamicSignal final
 {
-	using DataVariant = std::variant<Instruction, SystemIntrinsicInvocationID, UserIntrinsicInvocationID, JumpAddress, std::uint64_t, std::int64_t, double, CharClusterUtf8, CharClusterUtf16,
-	                                 CharClusterUtf32>;
+	using DataVariant = std::variant<Instruction, SystemIntrinsicInvocationID, UserIntrinsicInvocationID, JumpAddress, std::uint64_t, std::int64_t, double>;
 
 	DataVariant Data {0ULL};
 
@@ -233,12 +232,6 @@ struct DynamicSignal final
 				return Signal::Discriminator::Int;
 			case 6:
 				return Signal::Discriminator::Float;
-			case 7:
-				return Signal::Discriminator::CharClusterUtf8;
-			case 8:
-				return Signal::Discriminator::CharClusterUtf16;
-			case 9:
-				return Signal::Discriminator::CharClusterUtf32;
 			default:
 				return Signal::Discriminator::Ptr;
 		}

@@ -214,9 +214,6 @@ TEST(DiscriminatedSignal, MapStreamType)
 	ASSERT_EQ(MapStreamType<std::uint64_t>().value(), Signal::Discriminator::UOffset);
 	ASSERT_EQ(MapStreamType<std::int64_t>().value(), Signal::Discriminator::Int);
 	ASSERT_EQ(MapStreamType<double>().value(), Signal::Discriminator::Float);
-	ASSERT_EQ(MapStreamType<CharClusterUtf8>().value(), Signal::Discriminator::CharClusterUtf8);
-	ASSERT_EQ(MapStreamType<CharClusterUtf16>().value(), Signal::Discriminator::CharClusterUtf16);
-	ASSERT_EQ(MapStreamType<CharClusterUtf32>().value(), Signal::Discriminator::CharClusterUtf32);
 	ASSERT_FALSE(MapStreamType<short>().has_value());
 }
 

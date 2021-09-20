@@ -264,18 +264,6 @@ namespace Nominax::ByteCode
 		{
 			return { Signal::Discriminator::Float };
 		}
-		else if constexpr (std::is_same_v<CharClusterUtf8, T>)
-		{
-			return { Signal::Discriminator::CharClusterUtf8 };
-		}
-		else if constexpr (std::is_same_v<CharClusterUtf16, T>)
-		{
-			return { Signal::Discriminator::CharClusterUtf16 };
-		}
-		else if constexpr (std::is_same_v<CharClusterUtf32, T>)
-		{
-			return { Signal::Discriminator::CharClusterUtf32 };
-		}
 		else
 		{
 			return std::nullopt;
