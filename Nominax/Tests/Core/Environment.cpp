@@ -606,7 +606,15 @@ TEST(Environment, ExecutionMissingPrologue)
 
 	Environment env { };
 	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
-	ASSERT_DEATH(env.Execute(std::move(stream)), "");
+    const auto executor
+    {
+        [&]
+        {
+            const ReactorState& result { env.Execute(std::move(stream)) };
+            ASSERT_EQ(result.Status, InterruptStatus_OK);
+        }
+    };
+    ASSERT_DEATH(executor(), "");
 	ASSERT_NO_FATAL_FAILURE(env.Shutdown());
 }
 
@@ -624,7 +632,15 @@ TEST(Environment, ExecutionMissingEpilogue)
 
 	Environment env { };
 	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
-	ASSERT_DEATH(env.Execute(std::move(stream)), "");
+    const auto executor
+    {
+        [&]
+        {
+            const ReactorState& result { env.Execute(std::move(stream)) };
+            ASSERT_EQ(result.Status, InterruptStatus_OK);
+        }
+    };
+	ASSERT_DEATH(executor(), "");
 	ASSERT_NO_FATAL_FAILURE(env.Shutdown());
 }
 
@@ -707,5 +723,13 @@ TEST(Environment, ExecutionHooksBad)
 	MyEnvironment env { };
 	ASSERT_NO_FATAL_FAILURE(env.Boot(descriptor));
 	ASSERT_EQ(env.GetExecutionCount(), 0);
-	ASSERT_DEATH(env.Execute(std::move(stream)), "");
+    const auto executor
+    {
+        [&]
+        {
+            const ReactorState& result { env.Execute(std::move(stream)) };
+            ASSERT_EQ(result.Status, InterruptStatus_OK);
+        }
+    };
+    ASSERT_DEATH(executor(), "");
 }
