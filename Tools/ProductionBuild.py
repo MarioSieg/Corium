@@ -386,7 +386,7 @@ def build_corium_compiler():
         exit(-1)
     print("OK! Corium compiler binary: " + output_file)
     print("Booting Corium compiler...")
-    exec(output_file, True)
+    exec(output_file)
     os.chdir("../../")
     print(f"Switching working directory from {os.getcwd()} to {os.getcwd()}/../../") 
     print(f"OK! New working directory is: {os.getcwd()}")
@@ -414,12 +414,10 @@ def build_nominax_runtime():
             print(f"Missing link dir: {ldir2}! Make sure Windows 10 SDK is installed!")
         if not os.path.isdir(ldir3):
             print(f"Missing link dir: {ldir3}! Make sure Windows 10 SDK is installed!")
-        lflags1 = f"/LIBPATH:\"{ldir1}\""
-        lflags2 = f"/LIBPATH:\"{ldir2}\""
-        lflags3 = f"/LIBPATH:\"{ldir3}\""
-        cmd = f"cmake -E Tools/Env.bat LD_FLAGS=\"{lflags1} {lflags2} {lflags3}\""
-        exec(cmd)
-        cmd = f"cmake -DCMAKE_MAKE_PROGRAM=\"{make}\" -G Ninja -DCMAKE_C_COMPILER=\"{cc}\" -DCMAKE_CXX_COMPILER=\"{cxx}\" -B ../{nominax_build_dir} -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=20 -DRUN_HAVE_STD_REGEX=0 -DRUN_HAVE_POSIX_REGEX=0"
+        lflags1 = f"/LIBPATH:\\\"{ldir1}\\\""
+        lflags2 = f"/LIBPATH:\\\"{ldir2}\\\""
+        lflags3 = f"/LIBPATH:\\\"{ldir3}\\\""
+        cmd = f"cmake -DCMAKE_MAKE_PROGRAM=\"{make}\" -G Ninja -DCMAKE_C_COMPILER=\"{cc}\" -DCMAKE_CXX_COMPILER=\"{cxx}\" -B ../{nominax_build_dir} -DCMAKE_EXE_LINKER_FLAGS=\"{lflags1} {lflags2} {lflags3}\" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=20 -DRUN_HAVE_STD_REGEX=0 -DRUN_HAVE_POSIX_REGEX=0"
     else:
         cc = "gcc-11"
         cxx = "g++-11"

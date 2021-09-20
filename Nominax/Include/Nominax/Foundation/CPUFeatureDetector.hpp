@@ -257,7 +257,7 @@ namespace Nominax::Foundation
 		/// <summary>
 		/// Destructor.
 		/// </summary>
-		~CPUFeatureDetector() = default;
+		~CPUFeatureDetector() override = default;
 
 		/// <summary>
 		/// Access the architecture dependent feature bits directly.

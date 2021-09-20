@@ -282,7 +282,7 @@ namespace Nominax::Assembler::X86_64
         /// <summary>
         /// Destructor.
         /// </summary>
-        ~RegisterCache() = default;
+        ~RegisterCache() override = default;
 
         /// <summary>
         /// Fetches all the values from the registers into this instance.

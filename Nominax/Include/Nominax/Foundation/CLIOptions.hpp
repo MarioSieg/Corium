@@ -216,6 +216,13 @@ namespace Nominax::Foundation
     /// </summary>
     struct CLIOptions final : public IDisplay
     {
+        constexpr CLIOptions() = default;
+        constexpr CLIOptions(const CLIOptions& other) = default;
+        constexpr CLIOptions(CLIOptions&& other) = default;
+        constexpr auto operator =(const CLIOptions& other) -> CLIOptions& = default;
+        constexpr auto operator =(CLIOptions&& other) -> CLIOptions& = default;
+        ~CLIOptions() override = default;
+
         bool ForceSandboxVM { false };
         bool ForceFallbackVM { false };
         bool PowerSafeMode { false };

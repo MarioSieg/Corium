@@ -6,7 +6,7 @@ namespace Nominax::Foundation
 {
     auto OSI::QueryLogicalCPUCount() -> std::uint32_t
     {
-        static std::uint64_t THREADS { std::thread::hardware_concurrency() };
+        static std::uint32_t THREADS { std::thread::hardware_concurrency() };
         return THREADS;
     }
 }

@@ -293,7 +293,7 @@ namespace Nominax::Foundation
 		/// <summary>
 		/// Destructor.
 		/// </summary>
-		~SystemInfoSnapshot() = default;
+		~SystemInfoSnapshot() override = default;
 
 		/// <summary>
 		/// Fetch and refresh data.

@@ -269,7 +269,7 @@ namespace Nominax::Foundation
         NativeTypeRegistry(NativeTypeRegistry&& other) = delete;
         auto operator =(const NativeTypeRegistry& other) -> NativeTypeRegistry& = delete;
         auto operator =(NativeTypeRegistry&& other) -> NativeTypeRegistry& = delete;
-        ~NativeTypeRegistry() = default;
+        ~NativeTypeRegistry() override = default;
 
         /// <summary>
         /// Prints this object into the file stream.

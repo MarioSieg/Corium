@@ -247,7 +247,7 @@ namespace Nominax::Foundation
         /// <summary>
         /// Destructor.
         /// </summary>
-        ~IDisplay() = default;
+        virtual ~IDisplay() = default;
 
         /// <summary>
         /// Prints this object into the file stream.

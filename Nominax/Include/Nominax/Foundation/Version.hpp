@@ -293,7 +293,7 @@ namespace Nominax::Foundation
         /// <summary>
         /// Destructor.
         /// </summary>
-        ~Version() = default;
+        ~Version() override = default;
 
         /// <summary>
         /// Prints this object into the file stream.

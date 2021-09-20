@@ -268,7 +268,7 @@ namespace Nominax::Foundation
 		/// <summary>
 		/// Destructor.
 		/// </summary>
-		~CLIParser() = default;
+		~CLIParser() override = default;
 
 		/// <summary>
 		/// Returns true if the command line flag is set,
