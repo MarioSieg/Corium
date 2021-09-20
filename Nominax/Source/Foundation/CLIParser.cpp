@@ -247,16 +247,11 @@ namespace Nominax::Foundation
         return found(option.Short) || found(option.Long);
 	}
 
-    auto CLIParser::PrintAllOptions() const -> void
+    auto CLIParser::Display(std::FILE& stream) const -> void
     {
         for (const auto& option : this->Options_)
         {
-            Print("{} {} {}\n", option.Short, option.Long, option.Description);
+            Print(stream, "{} {} {}\n", option.Short, option.Long, option.Description);
         }
-    }
-
-    auto CLIParser::PrintUsage() const -> void
-    {
-
     }
 }

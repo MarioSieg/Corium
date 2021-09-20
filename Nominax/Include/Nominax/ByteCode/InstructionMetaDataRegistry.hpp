@@ -279,7 +279,7 @@ namespace Nominax::ByteCode
         /// <summary>
         /// Contains all immediate argument types for each instruction.
         /// </summary>
-        static constexpr std::array<InstructionOperandTable, ToUnderlying(Instruction::Count_)> OPERAND_TYPE_TABLE
+        static constexpr std::array<const InstructionOperandTable, ToUnderlying(Instruction::Count_)> OPERAND_TYPE_TABLE
         {
             /* int      */  InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::Int) },
             /* intrin   */  InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::SystemIntrinsicInvocationID) },
@@ -560,7 +560,7 @@ namespace Nominax::ByteCode
         /// Contains the amount of stack pushes each instruction will perform.
         /// </summary>
         [[maybe_unused]]
-        static constexpr std::array<std::uint8_t, ToUnderlying(Instruction::Count_)> PUSH_RECORD_TABLE
+        static constexpr std::array<const std::uint8_t, ToUnderlying(Instruction::Count_)> PUSH_RECORD_TABLE
         {
             0,
             0,
@@ -645,7 +645,7 @@ namespace Nominax::ByteCode
         /// Contains the amount of stack pops each instruction will perform.
         /// </summary>
         [[maybe_unused]]
-        static constexpr std::array<std::uint8_t, ToUnderlying(Instruction::Count_)> POP_RECORD_TABLE
+        static constexpr std::array<const std::uint8_t, ToUnderlying(Instruction::Count_)> POP_RECORD_TABLE
         {
             0,
             0,
@@ -868,7 +868,7 @@ namespace Nominax::ByteCode
         /// Contains the amount of stack pops each instruction will perform.
         /// </summary>
         [[maybe_unused]]
-        static constexpr std::array<std::uint8_t, ToUnderlying(Instruction::Count_)> IMMEDIATE_ARGUMENT_COUNT_TABLE
+        static constexpr std::array<const std::uint8_t, ToUnderlying(Instruction::Count_)> IMMEDIATE_ARGUMENT_COUNT_TABLE
         {
             /* int      */  1,
             /* intrin   */  1,

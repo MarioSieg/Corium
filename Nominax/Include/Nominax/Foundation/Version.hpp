@@ -205,41 +205,136 @@
 
 #pragma once
 
-#include <ostream>
-
 #include <cstdint>
+#include <string_view>
+
+#include "IDisplay.hpp"
 
 namespace Nominax::Foundation
 {
 	/// <summary>
 	/// Represents a version.
 	/// </summary>
-	struct Version final
+	struct Version final : public IDisplay
 	{
+        /// <summary>
+        /// Major version.
+        /// </summary>
 		std::uint8_t Major { };
+
+        /// <summary>
+        /// Minor version.
+        /// </summary>
 		std::uint8_t Minor { };
+
+        /// <summary>
+        /// Build version.
+        /// </summary>
 		std::uint8_t Build { };
+
+        /// <summary>
+        /// Revision count.
+        /// </summary>
 		std::uint8_t Revision { };
+
+        /// <summary>
+        /// Construct empty version v.(0.0.0.0).
+        /// </summary>
+        constexpr Version();
+
+        /// <summary>
+        /// Construct version with major and minor:
+        /// v.(Major.Minor.0.0)
+        /// </summary>
+        constexpr Version(std::uint8_t major, std::uint8_t minor);
+
+        /// <summary>
+        /// Construct full version:
+        /// v.(Major.Minor.Build.Revision)
+        /// </summary>
+        constexpr Version
+        (
+            std::uint8_t major,
+            std::uint8_t minor,
+            std::uint8_t build,
+            std::uint8_t revision
+        );
+
+        /// <summary>
+        /// Construct full version from scalar:
+        /// v.(Scalar.Scalar.Scalar.Scalar)
+        /// </summary>
+        explicit constexpr Version(std::uint8_t scalar);
+
+        /// <summary>
+        /// Copy constructor.
+        /// </summary>
+        /// <param name="other"></param>
+        constexpr Version(const Version& other) = default;
+
+        /// <summary>
+        /// Move constructor.
+        /// </summary>
+        /// <param name="other"></param>
+        constexpr Version(Version&& other) = default;
+
+        /// <summary>
+        /// Copy assignment operator.
+        /// </summary>
+        /// <param name="other"></param>
+        constexpr auto operator =(const Version& other) -> Version& = default;
+
+        /// <summary>
+        /// Move assignment operator.
+        /// </summary>
+        /// <param name="other"></param>
+        constexpr auto operator =(Version&& other) -> Version& = default;
+
+        /// <summary>
+        /// Destructor.
+        /// </summary>
+        ~Version() = default;
+
+        /// <summary>
+        /// Prints this object into the file stream.
+        /// </summary>
+        virtual auto Display(std::FILE& stream) const -> void override;
 	};
+
+    constexpr Version::Version() :
+        Major { 0 },
+        Minor { 0 },
+        Build { 0 },
+        Revision { 0 } { }
+
+    constexpr Version::Version(const std::uint8_t major, const std::uint8_t minor) :
+        Major { major },
+        Minor { minor },
+        Build { 0 },
+        Revision { 0 } { }
+
+    constexpr Version::Version
+    (
+        const std::uint8_t major,
+        const std::uint8_t minor,
+        const std::uint8_t build,
+        const std::uint8_t revision
+    ) :
+        Major { major },
+        Minor { minor },
+        Build { build },
+        Revision { revision } { }
+
+    constexpr Version::Version(const std::uint8_t scalar) :
+        Major { scalar },
+        Minor { scalar },
+        Build { scalar },
+        Revision { scalar } { }
 
 	/// <summary>
 	/// The current nominax runtime version.
 	/// </summary>
-	constexpr Version SYSTEM_VERSION
-	{
-		.Major = 0,
-		.Minor = 9,
-		.Build = 0,
-		.Revision = 1,
-	};
-
-	inline auto operator <<(std::ostream& out, const Version version) -> std::ostream&
-	{
-		return out << static_cast<std::uint16_t>(version.Major) << '.' << static_cast<std::uint16_t>(version.Minor) <<
-			'.' << static_cast<std::uint16_t>(version.Build) << '.' << static_cast<std::uint16_t>(version.Revision);
-	}
-
-	extern auto PrintSystemInfo() -> void;
+	constexpr Version SYSTEM_VERSION { 0, 9, 2, 0 };
 
     constexpr std::string_view SYSTEM_COPYRIGHT_TEXT =
             "(c) Copyright Mario Sieg <pinsrq> mt3000@gmx.de 2019-2021! All rights reserved!\n"

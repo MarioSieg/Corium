@@ -386,7 +386,7 @@ def build_corium_compiler():
         exit(-1)
     print("OK! Corium compiler binary: " + output_file)
     print("Booting Corium compiler...")
-    exec(output_file)
+    exec(output_file, True)
     os.chdir("../../")
     print(f"Switching working directory from {os.getcwd()} to {os.getcwd()}/../../") 
     print(f"OK! New working directory is: {os.getcwd()}")

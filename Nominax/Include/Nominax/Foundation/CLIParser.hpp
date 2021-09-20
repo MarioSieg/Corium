@@ -209,6 +209,8 @@
 #include <unordered_set>
 #include <vector>
 
+#include "IDisplay.hpp"
+
 namespace Nominax::Foundation
 {
     struct CLIOption final
@@ -221,7 +223,7 @@ namespace Nominax::Foundation
 	/// <summary>
 	/// Helper to parse command line interface arguments.
 	/// </summary>
-	class CLIParser final
+	class CLIParser final : public IDisplay
 	{
 		std::unordered_set<std::string_view> Args_ { };
 		std::vector<CLIOption> Options_ { };
@@ -283,15 +285,10 @@ namespace Nominax::Foundation
 		/// <param name="option">The new option.</param>
 		auto AddOption(const CLIOption& option) -> void;
 
-		/// <summary>
-		/// Prints all the added options with description.
-		/// </summary>
-		auto PrintAllOptions() const -> void;
-
         /// <summary>
-        /// Prints the
+        /// Prints this object into the file stream.
         /// </summary>
-        auto PrintUsage() const -> void;
+        virtual auto Display(std::FILE& stream) const -> void override;
 
 		/// <summary>
 		/// Returns true if the argument count is less or equal to one,

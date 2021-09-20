@@ -230,13 +230,12 @@ namespace Nominax::Foundation
 
         if (parser.HasFlag(help))
         {
-            parser.PrintUsage();
-            parser.PrintAllOptions();
+            parser.DisplayToConsole();
             return false;
         }
         else if (parser.HasFlag(version))
         {
-            PrintSystemInfo();
+            SYSTEM_VERSION.DisplayToConsole();
             return false;
         }
 

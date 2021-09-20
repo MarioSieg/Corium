@@ -214,59 +214,6 @@ namespace Nominax::Core
 {
 	using namespace Foundation;
 
-	/// <summary>
-	/// Fetch and print machine info.
-	/// </summary>
-	/// <returns></returns>
-	static auto InitSysInfo() -> SystemInfoSnapshot
-	{
-		SystemInfoSnapshot snapshot { };
-		snapshot.DisplayToConsole();
-		return snapshot;
-	}
-
-	/// <summary>
-	/// Fetch and print cpu features.
-	/// </summary>
-	/// <returns></returns>Common::
-	static auto InitCpuFeatures() -> CPUFeatureDetector
-	{
-		CPUFeatureDetector cpuFeatureDetector { };
-		cpuFeatureDetector.DisplayToConsole();
-		return cpuFeatureDetector;
-	}
-
-	/// <summary>
-	/// Prints the info of one type.
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="name"></param>
-	/// <returns></returns>
-	template <typename T>
-	static inline auto PrintTypeInfo(const std::string_view name) -> void
-	{
-		Print("{0: <14} | {1: <14} | {2: <14}\n", name, sizeof(T), alignof(T));
-	}
-
-	/// <summary>
-	/// Print size and alignment of common types.
-	/// </summary>
-	/// <returns></returns>
-	static auto PrintTypeInfoTable() -> void
-	{
-		Print("{0: <14} | {1: <14} | {2: <14}\n\n", "Type", "Byte WordSize", "Alignment");
-		PrintTypeInfo<Record>("Record");
-		PrintTypeInfo<ByteCode::Signal>("Signal");
-		PrintTypeInfo<ByteCode::Signal::Discriminator>("SignalDisc");
-		PrintTypeInfo<Object>("Object");
-		PrintTypeInfo<ObjectHeader>("ObjectHeader");
-		PrintTypeInfo<std::int64_t>("int");
-		PrintTypeInfo<double>("float");
-		PrintTypeInfo<char32_t>("char");
-		PrintTypeInfo<bool>("bool");
-		PrintTypeInfo<void*>("void*");
-	}
-
 	#define DISPATCH_HOOK(method, ...)							    \
         do															\
         {															\
@@ -398,7 +345,29 @@ namespace Nominax::Core
 	{
 		return fallback ? HyperVisor::GetFallbackRoutineLink() : HyperVisor::GetOptimalReactorRoutine(cpu);
 	}
-	
+
+    /// <summary>
+    /// Fetch and print machine info.
+    /// </summary>
+    /// <returns></returns>
+    static auto InitSysInfo() -> SystemInfoSnapshot
+    {
+        SystemInfoSnapshot snapshot { };
+        snapshot.DisplayToConsole();
+        return snapshot;
+    }
+
+    /// <summary>
+    /// Fetch and print cpu features.
+    /// </summary>
+    /// <returns></returns>Common::
+    static auto InitCpuFeatures() -> CPUFeatureDetector
+    {
+        CPUFeatureDetector cpuFeatureDetector { };
+        cpuFeatureDetector.DisplayToConsole();
+        return cpuFeatureDetector;
+    }
+
 	/// <summary>
 	/// Contains all the runtime variables required for the runtime system.
 	/// </summary>
@@ -522,8 +491,8 @@ namespace Nominax::Core
 
 		// Basic setup:
 		std::ios_base::sync_with_stdio(false);
-		PrintSystemInfo();
-        PrintTypeInfoTable();
+		SYSTEM_VERSION.DisplayToConsole();
+        NATIVE_TYPE_REGISTRY.DisplayToConsole();
 		Print("\nBooting runtime environment...\nApp: \"{}\"\n", descriptor.AppName);
 		const auto tik { std::chrono::high_resolution_clock::now() };
 
