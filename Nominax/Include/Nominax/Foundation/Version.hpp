@@ -334,7 +334,7 @@ namespace Nominax::Foundation
 	/// <summary>
 	/// The current nominax runtime version.
 	/// </summary>
-	constexpr Version SYSTEM_VERSION { 0, 9, 2, 0 };
+	inline const constinit Version SYSTEM_VERSION { 0, 9, 2, 0 };
 
     constexpr std::string_view SYSTEM_COPYRIGHT_TEXT =
             "(c) Copyright Mario Sieg <pinsrq> mt3000@gmx.de 2019-2021! All rights reserved!\n"
