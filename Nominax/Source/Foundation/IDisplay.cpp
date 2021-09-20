@@ -204,12 +204,16 @@
 //    limitations under the License.
 
 #include "../../Include/Nominax/Foundation/IDisplay.hpp"
+#include "../../Include/Nominax/Foundation/Print.hpp"
 
 namespace Nominax::Foundation
 {
     auto IDisplay::DisplayToConsole() const -> void
     {
-        std::FILE& console { *stdout };
-        this->Display(console);
+        if (ProtocolController::IsProtocolEnabled) [[unlikely]]
+        {
+            std::FILE& console { *ProtocolController::ProtocolStream };
+            this->Display(console);
+        }
     }
 }

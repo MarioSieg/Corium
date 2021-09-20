@@ -216,7 +216,6 @@ namespace Nominax::Foundation
     /// </summary>
     struct CLIOptions final : public IDisplay
     {
-        bool EnableProtocol { false };
         bool ForceSandboxVM { false };
         bool ForceFallbackVM { false };
         bool PowerSafeMode { false };

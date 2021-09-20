@@ -207,43 +207,53 @@
 #include "../../Include/Nominax/Foundation/Version.hpp"
 #include "../../Include/Nominax/Foundation/Print.hpp"
 
-#define MAKE_FLAG(name, short, long, desc)  \
-        constexpr CLIOption name            \
-        {                                   \
-            .Short = ( short ),             \
-            .Long = ( long ),               \
-            .Description = ( desc )         \
-        };                                  \
-        parser.AddOption(name)              \
-
 namespace Nominax::Foundation
 {
     auto CLIOptions::ParseAndProcess(CLIParser& parser) -> bool
     {
-        MAKE_FLAG(help, "-h", "--help", "Display the help message listing all options.");
-        MAKE_FLAG(version, "-v", "--version", "Display the version of the runtime system plus addition information.");
-        MAKE_FLAG(protocol, "-p", "--protocol", "Enable protocol logging of the runtime system.");
-        MAKE_FLAG(sandbox, "-s", "--sandbox", "Force sandbox VM execution.");
-        MAKE_FLAG(fallback, "-f", "--fallback", "Force fallback VM execution.");
-        MAKE_FLAG(powersafe, "-ps", "--powersafe", "Enable powersafe mode for less CPU usage.");
-        MAKE_FLAG(noconfig, "-ncfg", "--noconfig", "Disable the creation of a config file.");
+        const auto createAndCheckFlag
+        {
+             [&parser](const std::string_view $short, const std::string_view $long, const std::string_view description) -> bool
+             {
+                 const CLIOption option
+                 {
+                    .Short = $short,
+                    .Long = $long,
+                    .Description = description
+                 };
+                 parser.AddOption(option);
+                 return parser.HasFlag(option);
+             }
+        };
 
-        if (parser.HasFlag(help))
+        const bool help { createAndCheckFlag("-h", "--help", "Display this help message listing all options.") };
+        const bool version { createAndCheckFlag("-v", "--version", "Display the version of the runtime system plus addition information.") };
+        const bool sandbox { createAndCheckFlag("-s", "--sandbox", "Force sandbox VM execution.") };
+        const bool fallback { createAndCheckFlag("-f", "--fallback", "Force fallback VM execution.") };
+        const bool powersafe { createAndCheckFlag("-ps", "--powersafe", "Enable powersafe mode for less CPU usage.") };
+        const bool noconfig { createAndCheckFlag("-nc", "--noconfig", "Disable the creation of a config file.") };
+        const bool nolog { createAndCheckFlag("-nl", "--nolog", "Disable protocol logging of the runtime system.") };
+        const bool errlog { createAndCheckFlag("-el", "--errlog", "Dump protocol into error stream.") };
+
+        // check if no arguments where submitted (1 arg is always .exe dir)
+        if (std::size(parser.GetArgs()) <= 1 || help)
         {
             parser.DisplayToConsole();
             return false;
         }
-        else if (parser.HasFlag(version))
+        else if (version)
         {
             SYSTEM_VERSION.DisplayToConsole();
             return false;
         }
 
-        this->EnableProtocol = parser.HasFlag(protocol);
-        this->ForceSandboxVM = parser.HasFlag(sandbox);
-        this->ForceFallbackVM = parser.HasFlag(fallback);
-        this->PowerSafeMode = parser.HasFlag(powersafe);
-        this->NoConfig = parser.HasFlag(noconfig);
+        ProtocolController::IsProtocolEnabled = !nolog;
+        ProtocolController::ProtocolStream = errlog ? stderr : stdout;
+
+        this->ForceSandboxVM = sandbox;
+        this->ForceFallbackVM = fallback;
+        this->PowerSafeMode = powersafe;
+        this->NoConfig = noconfig;
 
         return true;
     }
@@ -252,7 +262,6 @@ namespace Nominax::Foundation
     {
         using Foundation::Print;
 
-        Print(stream, "Protocol enabled: {}\n", this->EnableProtocol);
         Print(stream, "Force sandbox VM: {}\n", this->ForceSandboxVM);
         Print(stream, "Force fallback VM: {}\n", this->ForceFallbackVM);
         Print(stream, "Power safe mode: {}\n", this->PowerSafeMode);
