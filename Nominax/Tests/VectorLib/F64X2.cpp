@@ -238,7 +238,7 @@ TEST(VectorLib, F64_X2_Add_Aligned)
 		1.3,
 	};
 
-	F64_X4_Add_Aligned(x, y);
+	F64_X2_Add_Aligned(x, y);
 	ASSERT_DOUBLE_EQ(x[0], 2.5 + 0.5);
 	ASSERT_DOUBLE_EQ(x[1], 0.3 + 1.3);
 }
@@ -276,7 +276,7 @@ TEST(VectorLib, F64_X2_Sub_Aligned)
 		1.3,
 	};
 
-	F64_X4_Sub_Aligned(x, y);
+	F64_X2_Sub_Aligned(x, y);
 	ASSERT_DOUBLE_EQ(x[0], 2.5 - 0.5);
 	ASSERT_DOUBLE_EQ(x[1], 0.3 - 1.3);
 }

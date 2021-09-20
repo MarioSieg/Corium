@@ -219,6 +219,11 @@ namespace Nominax::Foundation
         ~ProtocolController() = delete;
 
         static inline constinit bool IsProtocolEnabled { true };
-        static inline std::FILE* ProtocolStream { stdout };
+        static inline auto GetProtocolStream() -> FILE*;
     };
+
+    inline auto ProtocolController::GetProtocolStream() -> FILE*
+    {
+        return stdout;
+    }
 }

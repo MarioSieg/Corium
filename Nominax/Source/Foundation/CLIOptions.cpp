@@ -233,7 +233,6 @@ namespace Nominax::Foundation
         const bool powersafe { createAndCheckFlag("-ps", "--powersafe", "Enable powersafe mode for less CPU usage.") };
         const bool noconfig { createAndCheckFlag("-nc", "--noconfig", "Disable the creation of a config file.") };
         const bool nolog { createAndCheckFlag("-nl", "--nolog", "Disable protocol logging of the runtime system.") };
-        const bool errlog { createAndCheckFlag("-el", "--errlog", "Dump protocol into error stream.") };
 
         // check if no arguments where submitted (1 arg is always .exe dir)
         if (std::size(parser.GetArgs()) <= 1 || help)
@@ -248,7 +247,6 @@ namespace Nominax::Foundation
         }
 
         ProtocolController::IsProtocolEnabled = !nolog;
-        ProtocolController::ProtocolStream = errlog ? stderr : stdout;
 
         this->ForceSandboxVM = sandbox;
         this->ForceFallbackVM = fallback;
