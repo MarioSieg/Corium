@@ -206,6 +206,7 @@
 #pragma once
 
 #include "RegisterSet.hpp"
+#include "../../Foundation/IDisplay.hpp"
 
 namespace Nominax::Assembler::X86_64
 {
@@ -217,7 +218,7 @@ namespace Nominax::Assembler::X86_64
     /// Of course %zmm shadows %ymm and %ymm shadows %xmm so they all could be in one register set - but it's simple for now and
     /// the memory overhead is not that much.
     /// </summary>
-    struct RegisterCache final
+    struct RegisterCache final : public Foundation::IDisplay
     {
         /// <summary>
         /// Instruction pointer.
@@ -294,11 +295,6 @@ namespace Nominax::Assembler::X86_64
         /// If there are shadowing SIMD registers, it only prints the largest union.
         /// Like if the is AVX it will print all %ymm instead of %xmm and %ymm because %ymm contain %xmm (lower 128-bit).
         /// </summary>
-        auto DumpSmart() const -> void;
-
-        /// <summary>
-        /// Dumps all registers based on availability.
-        /// </summary>
-        auto DumpAll() const -> void;
+        virtual auto Display(std::FILE& stream) const -> void override;
     };
 }

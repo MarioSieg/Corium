@@ -249,14 +249,14 @@ namespace Nominax::Foundation
         return true;
     }
 
-    auto CLIOptions::Print() const -> void
+    auto CLIOptions::Display(std::FILE& stream) const -> void
     {
         using Foundation::Print;
 
-        Print("Protocol enabled: {}\n", this->EnableProtocol);
-        Print("Force sandbox VM: {}\n", this->ForceSandboxVM);
-        Print("Force fallback VM: {}\n", this->ForceFallbackVM);
-        Print("Power safe mode: {}\n", this->PowerSafeMode);
-        Print("Config disabled: {}\n", this->NoConfig);
+        Print(stream, "Protocol enabled: {}\n", this->EnableProtocol);
+        Print(stream, "Force sandbox VM: {}\n", this->ForceSandboxVM);
+        Print(stream, "Force fallback VM: {}\n", this->ForceFallbackVM);
+        Print(stream, "Power safe mode: {}\n", this->PowerSafeMode);
+        Print(stream, "Config disabled: {}\n", this->NoConfig);
     }
 }

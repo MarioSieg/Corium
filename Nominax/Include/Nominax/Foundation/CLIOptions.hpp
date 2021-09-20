@@ -207,21 +207,20 @@
 
 #include "CLIParser.hpp"
 #include "Platform.hpp"
+#include "IDisplay.hpp"
 
 namespace Nominax::Foundation
 {
     /// <summary>
     /// Contains all options available on the command line.
     /// </summary>
-    struct CLIOptions final
+    struct CLIOptions final : public IDisplay
     {
         bool EnableProtocol { false };
         bool ForceSandboxVM { false };
         bool ForceFallbackVM { false };
         bool PowerSafeMode { false };
         bool NoConfig { false };
-
-        auto Print() const -> void;
 
         /// <summary>
         /// Parses the CLI args and processes them.
@@ -232,5 +231,10 @@ namespace Nominax::Foundation
         /// True if we should boot.
         /// </returns>
         auto ParseAndProcess(CLIParser& parser) -> bool;
+
+        /// <summary>
+        /// Prints this object into the file stream.
+        /// </summary>
+        virtual auto Display(std::FILE& stream) const -> void override;
     };
 }

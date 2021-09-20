@@ -203,107 +203,48 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "../../../Nominax/Include/Nominax/Foundation/_Foundation.hpp"
+#include "../../Include/Nominax/Foundation/SystemInfoSnapshot.hpp"
 
-#include <thread>
-#include <string>
-#include <cstdint>
-
-#include "IDisplay.hpp"
-#include "Platform.hpp"
 
 namespace Nominax::Foundation
 {
-	/// <summary>
-	/// Contains information about the process, operating system and hardware.
-	/// </summary>
-	struct SystemInfoSnapshot final : public IDisplay
+	SystemInfoSnapshot::SystemInfoSnapshot()
 	{
-		/// <summary>
-		/// Name of the operating system.
-		/// </summary>
-		std::string_view OperatingSystemName { NOX_OS_NAME };
+		this->QueryAll();
+	}
 
-		/// <summary>
-		/// Architecture name.
-		/// </summary>
-		std::string_view ArchitectureName { NOX_ARCH_NAME };
+	auto SystemInfoSnapshot::QueryAll() -> void
+	{
+		this->ThreadCount       = OSI::QueryLogicalCPUCount();
+		this->CpuName           = OSI::QueryCpuName();
+		this->TotalSystemMemory = OSI::QuerySystemMemoryTotal();
+		this->ProcessMemory     = OSI::QueryProcessMemoryUsed();
+		this->PageSize          = OSI::QueryPageSize();
+	}
 
-		/// <summary>
-		/// Name of the compiler.
-		/// </summary>
-		std::string_view CompilerName { NOX_COM_NAME };
+    auto SystemInfoSnapshot::Display(std::FILE& stream) const -> void
+    {
+        using Foundation::Print;
 
-		/// <summary>
-		/// Amount of CPU supported threads.
-		/// </summary>
-		std::uint64_t ThreadCount { };
+        const auto&
+        [
+            OperatingSystemName,
+            ArchitectureName,
+            CompilerName,
+            ThreadCount,
+            CpuName,
+            TotalSystemMemory,
+            UsedSystemMemory,
+            PageSize
+        ] { *this };
 
-		/// <summary>
-		/// Name of the CPU.
-		/// </summary>
-		std::string CpuName { };
-
-		/// <summary>
-		/// The total amount of memory in bytes.
-		/// </summary>
-		std::uint64_t TotalSystemMemory { };
-
-		/// <summary>
-		/// The total amount of process memory in bytes.
-		/// </summary>
-		std::uint64_t ProcessMemory { };
-
-		/// <summary>
-		/// The size of a page in bytes.
-		/// </summary>
-		std::uint64_t PageSize { };
-
-		/// <summary>
-		/// Construct and query data.
-		/// </summary>
-		SystemInfoSnapshot();
-
-		/// <summary>
-		/// Copy constructor.
-		/// </summary>
-		/// <param name="other"></param>
-		SystemInfoSnapshot(const SystemInfoSnapshot& other) = default;
-
-		/// <summary>
-		/// Move constructor.
-		/// </summary>
-		/// <param name="other"></param>
-		SystemInfoSnapshot(SystemInfoSnapshot&& other) = default;
-
-		/// <summary>
-		/// Copy assignment operator.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		auto operator =(const SystemInfoSnapshot& other) -> SystemInfoSnapshot& = default;
-
-		/// <summary>
-		/// Move assignment operator.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		auto operator =(SystemInfoSnapshot&& other) -> SystemInfoSnapshot& = default;
-
-		/// <summary>
-		/// Destructor.
-		/// </summary>
-		~SystemInfoSnapshot() = default;
-
-		/// <summary>
-		/// Fetch and refresh data.
-		/// </summary>
-		/// <returns></returns>
-		auto QueryAll() -> void;
-
-        /// <summary>
-        /// Prints this object into the file stream.
-        /// </summary>
-        virtual auto Display(std::FILE& stream) const -> void override;
-	};
+        Print(stream, "Date: {:%A %c}\n", SafeLocalTime(std::time(nullptr)));
+        Print(stream, "CPU: {}\n", CpuName);
+        Print(stream, "CPU Hardware threads: {}\n", ThreadCount);
+        Print(stream, "CPU Machine class: {}\n", static_cast<char>(MachineRating(ThreadCount)));
+        Print(stream, "System memory: {}MB\n", Bytes2Megabytes(TotalSystemMemory));
+        Print(stream, "Process memory: {}MB\n", Bytes2Megabytes(UsedSystemMemory));
+        Print(stream, "Page size: {}B\n", PageSize);
+    }
 }

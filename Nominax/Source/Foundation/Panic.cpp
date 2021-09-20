@@ -216,7 +216,7 @@ namespace Nominax
 	{
         const Assembler::X86_64::RegisterCache regCache { };
         PrintPanicMessage(message, srcLoc);
-        regCache.DumpSmart();
+        regCache.DisplayToConsole();
         std::fflush(stdout);
         std::fflush(stderr);
 		std::flush(std::cout);

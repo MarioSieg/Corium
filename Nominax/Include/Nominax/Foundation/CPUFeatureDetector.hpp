@@ -206,13 +206,14 @@
 #pragma once
 
 #include "CPUFeatureBits.hpp"
+#include "IDisplay.hpp"
 
 namespace Nominax::Foundation
 {
 	/// <summary>
 		/// Detects architecture dependent cpu features.
 		/// </summary>
-	class CPUFeatureDetector final
+	class CPUFeatureDetector final : public IDisplay
 	{
 		/// <summary>
 		/// Architecture dependent bits.
@@ -277,20 +278,20 @@ namespace Nominax::Foundation
 		/// <returns></returns>
 		auto operator [](CPUFeatureBits bit) const -> bool;
 
-		/// <summary>
-		/// Prints all the architecture dependent features as booleans with names.
-		/// </summary>
-		auto Dump() const -> void;
+        /// <summary>
+        /// Prints this object into the file stream.
+        /// </summary>
+        virtual auto Display(std::FILE& stream) const -> void override;
 	};
 
 	inline auto CPUFeatureDetector::operator[](const CPUFeatureBits bit) -> bool&
 	{
-		return this->FeatureBits_[static_cast<std::uint64_t>(bit)];
+		return this->FeatureBits_[ToUnderlying(bit)];
 	}
 
 	inline auto CPUFeatureDetector::operator[](const CPUFeatureBits bit) const -> bool
 	{
-		return this->FeatureBits_[static_cast<std::uint64_t>(bit)];
+		return this->FeatureBits_[ToUnderlying(bit)];
 	}
 
 	inline auto CPUFeatureDetector::operator*() const -> const CpuFeatureMask&

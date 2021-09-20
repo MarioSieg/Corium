@@ -275,6 +275,13 @@ namespace Nominax::Foundation
 		[[nodiscard]]
 		static auto QueryCpuName() -> const std::string&;
 
+        /// <summary>
+        /// Fetch system info.
+        /// </summary>
+        /// <returns>The name amount of hardware thread available.</returns>
+        [[nodiscard]]
+        static auto QueryLogicalCPUCount() -> std::uint32_t;
+
 		/// <summary>
 		/// Fetch system info.
 		/// </summary>

@@ -20,6 +20,11 @@ TEST(OSI, QueryPageSize)
 	ASSERT_NE(OSI::QueryPageSize(), 0);
 }
 
+TEST(OSI, Threads)
+{
+    ASSERT_NE(OSI::QueryLogicalCPUCount(), 0);
+}
+
 TEST(OSI, MemoryMap)
 {
 	auto* const region {static_cast<int*>(OSI::MemoryMap(sizeof(int) * 2, MemoryPageProtectionFlags::ReadWrite))};

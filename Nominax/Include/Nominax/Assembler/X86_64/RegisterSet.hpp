@@ -205,6 +205,7 @@
 
 #pragma once
 
+#include <cstdio>
 #include <optional>
 #include <variant>
 
@@ -246,35 +247,35 @@ namespace Nominax::Assembler::X86_64
     /// Prints the contents of the register set with register names.
     /// <param name="regset">The register set to print.</param>
     /// </summary>
-    extern auto DumpRegisterSet(const GPRRegisterSet& regset) -> void;
+    extern auto DumpRegisterSet(std::FILE& stream, const GPRRegisterSet& regset) -> void;
 
     /// <summary>
     /// Prints the contents of the register set with register names.
     /// <param name="regset">The register set to print.</param>
     /// </summary>
-    extern auto DumpRegisterSet(const SSERegisterSet& regset) -> void;
+    extern auto DumpRegisterSet(std::FILE& stream, const SSERegisterSet& regset) -> void;
 
     /// <summary>
     /// Prints the contents of the register set with register names.
     /// <param name="regset">The register set to print.</param>
     /// </summary>
-    extern auto DumpRegisterSet(const AVXRegisterSet& regset) -> void;
+    extern auto DumpRegisterSet(std::FILE& stream, const AVXRegisterSet& regset) -> void;
 
     /// <summary>
     /// Prints the contents of the register set with register names.
     /// <param name="regset">The register set to print.</param>
     /// </summary>
-    extern auto DumpRegisterSet(const AVX512RegisterSet& regset) -> void;
+    extern auto DumpRegisterSet(std::FILE& stream, const AVX512RegisterSet& regset) -> void;
 
     /// <summary>
     /// Prints the contents of the register set with register names.
     /// <param name="regset">The register set to print.</param>
     /// </summary>
-    extern auto DumpRegisterSet(const AVX512MaskRegisterSet& regset) -> void;
+    extern auto DumpRegisterSet(std::FILE& stream, const AVX512MaskRegisterSet& regset) -> void;
 
     /// <summary>
     /// Prints the contents of the register set with register names.
     /// <param name="regset">The register set to print.</param>
     /// </summary>
-    extern auto DumpRegisterSet(const AVX512BWMaskRegisterSet& regset) -> void;
+    extern auto DumpRegisterSet(std::FILE& stream, const AVX512BWMaskRegisterSet& regset) -> void;
 }

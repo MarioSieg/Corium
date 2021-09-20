@@ -273,20 +273,20 @@ namespace Nominax::Foundation
 		#endif
 	}
 
-	auto CPUFeatureDetector::Dump() const -> void
-	{
-		Print("CPU feature detection results\n");
-		for (std::uint64_t i { 0 }, j { 0 }; i < std::size(this->FeatureBits_); ++i)
-		{
-			if (!std::empty(CPU_FEATURE_BIT_NAMES[i]) && this->FeatureBits_[i])
-			{
+    auto CPUFeatureDetector::Display(std::FILE& stream) const -> void
+    {
+        Print(stream, "CPU Features:");
+        for (std::uint64_t i { 0 }, j { 0 }; i < std::size(this->FeatureBits_); ++i)
+        {
+            if (!std::empty(CPU_FEATURE_BIT_NAMES[i]) && this->FeatureBits_[i])
+            {
                 if (j++ % 8 == 0)
                 {
-                    Print('\n');
+                    Print(stream, '\n');
                 }
-				Print("{} ", CPU_FEATURE_BIT_NAMES[i]);
-			}
-		}
-        Print('\n');
-	}
+                Print(stream, "{} ", CPU_FEATURE_BIT_NAMES[i]);
+            }
+        }
+        Print(stream, '\n');
+    }
 }

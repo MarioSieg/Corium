@@ -206,6 +206,7 @@
 #pragma once
 
 #include "IAllocator.hpp"
+#include "IDisplay.hpp"
 
 namespace Nominax::Foundation
 {
@@ -214,7 +215,7 @@ namespace Nominax::Foundation
 		/// It prints the size and address of each allocation
 		/// and counts the bytes.
 		/// </summary>
-	class DebugAllocator final : public IAllocator
+	class DebugAllocator final : public IAllocator, public IDisplay
 	{
 		mutable std::uint64_t Allocations_ { 0 };
 		mutable std::uint64_t Reallocations_ { 0 };
@@ -333,11 +334,10 @@ namespace Nominax::Foundation
 		/// <returns></returns>
 		constexpr auto GetTotalBytesAllocated() const -> std::uint64_t;
 
-		/// <summary>
-		/// Print the amount of allocations and bytes.
-		/// </summary>
-		/// <returns></returns>
-		auto DumpAllocationInfo() const -> void;
+        /// <summary>
+        /// Prints this object into the file stream.
+        /// </summary>
+        virtual auto Display(std::FILE& stream) const -> void override;
 	};
 
 	constexpr auto DebugAllocator::GetAllocationCount() const -> std::uint64_t

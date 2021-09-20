@@ -220,6 +220,7 @@
 #include "DyProc.hpp"
 #include "Formatters.hpp"
 #include "IAllocator.hpp"
+#include "IDisplay.hpp"
 #include "INIFile.hpp"
 #include "ISerializable.hpp"
 #include "MachineClass.hpp"

@@ -205,22 +205,22 @@
 
 #pragma once
 
-#include <cstdint>
-#include "../Foundation/ISerializable.hpp"
-#include "../Foundation/PanicAssertions.hpp"
-
 #include "Image.hpp"
 #include "Signal.hpp"
 #include "DiscriminatedSignal.hpp"
 #include "Optimization.hpp"
 #include "ValidationResult.hpp"
 
+#include "../Foundation/ISerializable.hpp"
+#include "../Foundation/PanicAssertions.hpp"
+#include "../Foundation/IDisplay.hpp"
+
 namespace Nominax::ByteCode
 {
 	/// <summary>
 	/// Dynamic byte code stream.
 	/// </summary>
-	class Stream final : public Foundation::ISerializable
+	class Stream final : public Foundation::ISerializable, public Foundation::IDisplay
 	{
 		/// <summary>
 		/// Code section marker.
@@ -609,17 +609,10 @@ namespace Nominax::ByteCode
 		/// <returns></returns>
 		auto operator <<(CharClusterUtf32 value) -> Stream&;
 
-		/// <summary>
-		/// Print out immediate byte code.
-		/// </summary>
-		/// <returns></returns>
-		auto DumpByteCode() const -> void;
-
-		/// <summary>
-		/// Print the size of the stream with memory info.
-		/// </summary>
-		/// <returns></returns>
-		auto PrintMemoryCompositionInfo() const -> void;
+        /// <summary>
+        /// Prints this object into the file stream.
+        /// </summary>
+        virtual auto Display(std::FILE& stream) const -> void override;
 
 		/// <summary>
 		/// Index lookup.

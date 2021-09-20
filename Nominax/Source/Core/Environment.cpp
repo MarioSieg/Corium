@@ -220,9 +220,8 @@ namespace Nominax::Core
 	/// <returns></returns>
 	static auto InitSysInfo() -> SystemInfoSnapshot
 	{
-		Print('\n');
 		SystemInfoSnapshot snapshot { };
-		snapshot.Print();
+		snapshot.DisplayToConsole();
 		return snapshot;
 	}
 
@@ -232,10 +231,8 @@ namespace Nominax::Core
 	/// <returns></returns>Common::
 	static auto InitCpuFeatures() -> CPUFeatureDetector
 	{
-		Print('\n');
 		CPUFeatureDetector cpuFeatureDetector { };
-		cpuFeatureDetector.Dump();
-		Print('\n');
+		cpuFeatureDetector.DisplayToConsole();
 		return cpuFeatureDetector;
 	}
 
@@ -264,7 +261,6 @@ namespace Nominax::Core
 		PrintTypeInfo<Object>("Object");
 		PrintTypeInfo<ObjectHeader>("ObjectHeader");
 		PrintTypeInfo<std::int64_t>("int");
-		PrintTypeInfo<std::uint64_t>("uint");
 		PrintTypeInfo<double>("float");
 		PrintTypeInfo<char32_t>("char");
 		PrintTypeInfo<bool>("bool");
@@ -293,11 +289,7 @@ namespace Nominax::Core
 	/// <returns></returns>
 	static inline auto MapStackSize(const std::uint64_t sizeInBytes) -> std::uint64_t
 	{
-		if (sizeInBytes % sizeof(Record) != 0)
-		{
-			[[unlikely]]
-            Panic(Format("Invalid stack size: {}! Must be a multiple of sizeof(Record) -> 8!", sizeInBytes));
-		}
+        NOX_PAS_EQ(sizeInBytes % sizeof(Record), 0, Format("Invalid stack size: {}! Must be a multiple of sizeof(Record) -> 8!", sizeInBytes));
 		return sizeInBytes / sizeof(Record);
 	}
 
@@ -426,9 +418,9 @@ namespace Nominax::Core
 		const ReactorRoutineLink                                    OptimalReactorRoutine;
 		ReactorPool                                                 CorePool;
         std::uint64_t                                               ExecutionCount;
-        FILE*                                                       OutputStream;
-        FILE*                                                       ErrorStream;
-        FILE*                                                       InputStream;
+        std::FILE*                                                  OutputStream;
+        std::FILE*                                                  ErrorStream;
+        std::FILE*                                                  InputStream;
 
 		explicit Context(const EnvironmentDescriptor& descriptor);
 		Context(const Context& other)                       = delete;
@@ -603,7 +595,7 @@ namespace Nominax::Core
 
         // Info
         Print("Executing...\n");
-        FILE* const outStream  { stdout };
+        std::FILE* const outStream  { stdout };
         std::fflush(outStream);
 
         // Execute on alpha reactor:
@@ -719,37 +711,37 @@ namespace Nominax::Core
 		};
 	}
 
-    auto Environment::GetOutputStream() const -> FILE&
+    auto Environment::GetOutputStream() const -> std::FILE&
     {
         VALIDATE_ONLINE_BOOT_STATE();
         return *this->Context_->OutputStream;
     }
 
-    auto Environment::GetErrorStream() const -> FILE&
+    auto Environment::GetErrorStream() const -> std::FILE&
     {
         VALIDATE_ONLINE_BOOT_STATE();
         return *this->Context_->ErrorStream;
     }
 
-    auto Environment::GetInputStream() const -> FILE&
+    auto Environment::GetInputStream() const -> std::FILE&
     {
         VALIDATE_ONLINE_BOOT_STATE();
         return *this->Context_->InputStream;
     }
 
-    auto Environment::SetOutputStream(FILE& stream) const -> void
+    auto Environment::SetOutputStream(std::FILE& stream) const -> void
     {
         VALIDATE_ONLINE_BOOT_STATE();
         this->Context_->OutputStream = &stream;
     }
 
-    auto Environment::SetErrorStream(FILE& stream) const -> void
+    auto Environment::SetErrorStream(std::FILE& stream) const -> void
     {
         VALIDATE_ONLINE_BOOT_STATE();
         this->Context_->ErrorStream = &stream;
     }
 
-    auto Environment::SetInputStream(FILE& stream) const -> void
+    auto Environment::SetInputStream(std::FILE& stream) const -> void
     {
         VALIDATE_ONLINE_BOOT_STATE();
         this->Context_->InputStream = &stream;

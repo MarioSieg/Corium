@@ -97,6 +97,7 @@ else()
     target_compile_options(NominaxRuntime PRIVATE -static)
     target_compile_options(NominaxRuntime PRIVATE -static-libgcc)
     target_compile_options(NominaxRuntime PRIVATE -static-libstdc++)
+    target_compile_options(NominaxRuntime PRIVATE -Wno-attributes)
 endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
