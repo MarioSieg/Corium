@@ -392,6 +392,9 @@ def build_corium_compiler():
     print(f"OK! New working directory is: {os.getcwd()}")
 
 def build_nominax_runtime():
+    print(f"Switching working directory from {os.getcwd()} to {os.getcwd()}/Nominax/")
+    os.chdir(os.getcwd() + "/Nominax")
+    print(f"OK! New working directory is: {os.getcwd()}")
     if not os.path.isfile("CMakeLists.txt"):
         print("Missing CMakeLists.txt in directory!")
         exit(-1)
@@ -406,32 +409,32 @@ def build_nominax_runtime():
         ldir2 = "C:/Program Files (x86)/Windows Kits/10/Lib/10.0.19041.0/ucrt/x64"
         ldir3 = "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.29.30133/lib/onecore/x64"
         if not os.path.isdir(ldir1):
-            print("Missing link dir: " + ldir1)
+            print(f"Missing link dir: {ldir1}! Make sure Windows 10 SDK is installed!")
         if not os.path.isdir(ldir2):
-            print("Missing link dir: " + ldir2)
+            print(f"Missing link dir: {ldir2}! Make sure Windows 10 SDK is installed!")
         if not os.path.isdir(ldir3):
-            print("Missing link dir: " + ldir3)
+            print(f"Missing link dir: {ldir3}! Make sure Windows 10 SDK is installed!")
         lflags1 = f"/LIBPATH:\"{ldir1}\""
         lflags2 = f"/LIBPATH:\"{ldir2}\""
         lflags3 = f"/LIBPATH:\"{ldir3}\""
         cmd = f"cmake -E Tools/Env.bat LD_FLAGS=\"{lflags1} {lflags2} {lflags3}\""
         exec(cmd)
-        cmd = f"cmake -DCMAKE_MAKE_PROGRAM=\"{make}\" -G Ninja -DCMAKE_C_COMPILER=\"{cc}\" -DCMAKE_CXX_COMPILER=\"{cxx}\" -B {nominax_build_dir} -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=20 -DRUN_HAVE_STD_REGEX=0 -DRUN_HAVE_POSIX_REGEX=0"
+        cmd = f"cmake -DCMAKE_MAKE_PROGRAM=\"{make}\" -G Ninja -DCMAKE_C_COMPILER=\"{cc}\" -DCMAKE_CXX_COMPILER=\"{cxx}\" -B ../{nominax_build_dir} -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=20 -DRUN_HAVE_STD_REGEX=0 -DRUN_HAVE_POSIX_REGEX=0"
     else:
         cc = "gcc-11"
         cxx = "g++-11"
-        cmd = f"cmake -DCMAKE_C_COMPILER={cc} -DCMAKE_CXX_COMPILER={cxx} -B {nominax_build_dir} -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=20"
+        cmd = f"cmake -DCMAKE_C_COMPILER={cc} -DCMAKE_CXX_COMPILER={cxx} -B ../{nominax_build_dir} -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=20"
     exec(cmd, osname == "Windows")
     print("Invoking compiler services...")
     print("Comiling Nominax... This might take a long time depending on your hardware")
     print(f"Using {threads} threads for C++ compilation")
-    cmd = f"cmake --build {nominax_build_dir} --config Release --target Nominax -j{threads}"
+    cmd = f"cmake --build ../{nominax_build_dir} --config Release --target Nominax -j{threads}"
     exec(cmd)
     target_file = mk_exe_name("Nominax")
     print("Target file: " + target_file)
-    target_file_path = f"{nominax_build_dir}{target_file}"
+    target_file_path = f"../{nominax_build_dir}{target_file}"
     print("Target file path: " + target_file_path)
-    output_file = mk_exe_name(f"{out_dir}/Nominax")
+    output_file = mk_exe_name(f"../{out_dir}/Nominax")
     if os.path.isfile(output_file):
         os.remove(output_file)
     print("Output file: " + output_file)
@@ -442,6 +445,9 @@ def build_nominax_runtime():
     print("OK! Nominax runtime binary: " + output_file)
     print("Booting Nominax...")
     exec(output_file)
+    print(f"Switching working directory from {os.getcwd()} to {os.getcwd()}/../")
+    os.chdir("../")
+    print(f"OK! New working directory is: {os.getcwd()}")
 
 print("Compiling might take a long time depending on your hardware")
 print(f"Compiling with {threads} threads...")

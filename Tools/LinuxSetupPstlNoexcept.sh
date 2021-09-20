@@ -1,3 +1,3 @@
 #!/bin/bash 
 
-sudo cp utils.h /usr/include/c++/11/pstl/utils.h
+sudo cp ../Nominax/Tools/utils.h /usr/include/c++/11/pstl/utils.h
