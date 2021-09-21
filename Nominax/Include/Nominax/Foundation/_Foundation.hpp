@@ -206,6 +206,7 @@
 #pragma once
 
 #include "Algorithm.hpp"
+#include "AlignedMalloc.hpp"
 #include "Alignment.hpp"
 #include "AllocatorProxy.hpp"
 #include "AtomicState.hpp"
