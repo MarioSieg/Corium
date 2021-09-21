@@ -58,7 +58,7 @@ FloatLiteral = @{
 }
 
 IntLiteral = @{
-    ("+" | "-")? ~ ("_"? ~ ASCII_DIGIT+)
+    ("+" | "-")? ~ (("_"? ~ ASCII_DIGIT)+)
 }
 
 BoolLiteral = @{
