@@ -205,6 +205,7 @@
 
 .globl IsAVXSupportedByOS
 
+# extern "C" NOX_ASM_ROUTINE auto IsAVXSupportedByOS() -> bool;
 # Header: Arch/X86_64/CpuId.hpp
 IsAVXSupportedByOS:
     xorl    %ecx, %ecx              # clear ecx

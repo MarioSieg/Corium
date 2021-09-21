@@ -216,6 +216,7 @@
 #define AR0 rdi
 #endif
 
+# extern "C" NOX_ASM_ROUTINE auto QueryRegSet_GPR(GPRRegister64Layout* out) -> void;
 # Query general purpose register set (%rip) does not count as GPR!
 QueryRegSet_GPR:
     movq    %rax,   0x00(%AR0)
@@ -236,6 +237,7 @@ QueryRegSet_GPR:
     movq    %r15,   0x78(%AR0)
     retq
 
+# extern "C" NOX_ASM_ROUTINE auto QueryRegSet_SSE(SSERegister128Layout* out) -> void;
 # Query all SSE registers (%xmm0 - %xmm15)
 QueryRegSet_SSE:
     movdqu  %xmm0,  0x00(%AR0)
@@ -256,6 +258,7 @@ QueryRegSet_SSE:
     movdqu  %xmm15, 0xF0(%AR0)
     retq
 
+# extern "C" NOX_ASM_ROUTINE auto QueryRegSet_AVX(AVXRegister256Layout* out) -> void;
 # Query all AVX registers (%ymm0 - %ymm15)
 QueryRegSet_AVX:
     vmovdqu  %ymm0,  0x0000(%AR0)
@@ -276,6 +279,7 @@ QueryRegSet_AVX:
     vmovdqu  %ymm15, 0x01E0(%AR0)
     retq
 
+# extern "C" NOX_ASM_ROUTINE auto QueryRegSet_AVX512(AVX512Register512Layout* out) -> void;
 # Query all AVX-512 registers (%zmm0 - %zmm31)
 QueryRegSet_AVX512:
     vmovdqu64  %zmm0,  0x0000(%AR0)
@@ -312,6 +316,7 @@ QueryRegSet_AVX512:
     vmovdqu64  %zmm31, 0x07C0(%AR0)
     retq
 
+# extern "C" NOX_ASM_ROUTINE auto QueryRegSet_AVX512Masks(AVX512MaskRegister16Layout* out) -> void;
 # Query all AVX-512 mask registers (%k0 - %k7)
 # By default AVX-512 mask registers are 16-bit wide.
 QueryRegSet_AVX512Masks:
@@ -333,6 +338,7 @@ QueryRegSet_AVX512Masks:
     movw    %ax,    0x0E(%AR0)
     retq
 
+# extern "C" NOX_ASM_ROUTINE auto QueryRegSet_AVX512BWMasks(AVX512BWMaskRegister64Layout* out) -> void;
 # If we have AVX-512 BW the mask registers are 64-bits wide instead of 16-bits
 # Query all AVX-512 mask registers (%k0 - %k7)
 QueryRegSet_AVX512BWMasks:

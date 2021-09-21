@@ -205,23 +205,23 @@
 
 .globl CPUID
 
-# Header: Arch/X86_64/CpuId.hpp
+# Header: Include/Assembler/X86_64/Routines.hpp
 CPUID:
     pushq   %rbp                # stack frame prologue
     movq    %rsp, %rbp          # stack frame prologue
     pushq   %rbx
-    movl    $0xFFFFFFFF, %r10d
+    movl    $0xFFFFFFFF, %r10d  # truncation mask for 32-bit word
 #ifdef __WIN__
     pushq   %rdx                # preserve clobbered rdx
     pushq   %rcx                # preserve clobbered rcx
 #else
-    pushq   %rdx
+    pushq   %rdx                # preserve clobbered rdx
 #endif
-    xorl    %eax, %eax
-    movb    $1, %al             # set eax to cpuid mode
+    xorl    %eax, %eax          # clear eax
+    incb    %al                 # set cpuid mode = 1
     cpuid                       # call cpuid
     movl    %edx, %eax          # copy result 1 to eax
-    andq    %r10, %rcx
+    andq    %r10, %rcx          # truncate result
     salq    $32, %rcx           # shift into hiword
     orq     %rcx, %rax          # merge first and second feature dwords
 #ifdef __WIN__
@@ -232,8 +232,8 @@ CPUID:
     movq    %rax, (%rdi)        # store result into output1
 #endif
     xorl    %eax, %eax          # clear eax
-    movb    $7, %al             # set cpuid mode
-    xorl    %ecx, %ecx          # set cpuid mode
+    movb    $7, %al             # set cpuid mode = 1
+    xorl    %ecx, %ecx          # set cpuid mode = 0
     cpuid                       # call cpuid
     movl    %ebx, %eax          # copy result 1 to eax
     andq    %r10, %rcx          # truncate result 1 in rcx
@@ -254,8 +254,8 @@ CPUID:
 #ifndef __WIN__
     pushq   %rdx                # preserve clobbered rdx
 #endif
-    movl    $0x80000001, %eax   # set cpuid mode
-    xorl    %ecx, %ecx          # clear ecx
+    movl    $0x80000001, %eax   # set cpuid mode = 0x80000001
+    xorl    %ecx, %ecx          # set cpuid mode = 0
     cpuid                       # call cpuid
     andq    %r10, %rcx          # truncate result
     salq    $32, %rcx           # shift into hiword
@@ -266,7 +266,7 @@ CPUID:
     orq     %rcx, (%rdx)        # store result into output3
 #endif
     movl    %edx, %eax          # copy dword return value to return reg
-    popq    %rbx
+    popq    %rbx                # restore clobbered rbx
     movq    %rbp, %rsp          # stack frame epilogue
     popq    %rbp                # stack frame epilogue
     retq                        # return

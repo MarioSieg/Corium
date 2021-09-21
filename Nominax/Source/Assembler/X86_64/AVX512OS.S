@@ -205,6 +205,7 @@
 
 .globl IsAVX512SupportedByOS
 
+# extern "C" NOX_ASM_ROUTINE auto IsAVX512SupportedByOS() -> bool;
 # Header: Arch/X86_64/CpuId.hpp
 IsAVX512SupportedByOS:
     xorl    %ecx, %ecx          # clear ecx
