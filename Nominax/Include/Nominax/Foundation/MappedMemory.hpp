@@ -331,6 +331,14 @@ namespace Nominax::Foundation
 		/// <returns></returns>
 		auto MemSet(std::uint8_t value, std::uint64_t offset = 0) const -> void;
 
+        /// <summary>
+        /// Tries to update the protection flags of the region.
+        /// </summary>
+        /// <param name="newFlags">Thew new protection flags to set.</param>
+        /// <returns></returns>
+        [[nodiscard]]
+        auto Protect(MemoryPageProtectionFlags newFlags, const bool lock) const -> bool;
+
 		/// <summary>
 		/// Queries the region as a specific type.
 		/// </summary>
@@ -391,4 +399,9 @@ namespace Nominax::Foundation
 	{
 		std::memset(static_cast<std::uint8_t*>(this->Region_) + offset, value, this->GetByteSize());
 	}
+
+    inline auto MappedMemory::Protect(const MemoryPageProtectionFlags newFlags, const bool lock) const -> bool
+    {
+        return VMM::VirtualProtectPages(this->Region_, newFlags, lock);
+    }
 }

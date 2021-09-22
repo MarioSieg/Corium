@@ -238,6 +238,6 @@ auto LoopBenchmark
 	for (auto& env {*Env}; auto _ : state)
 	{
 		[[maybe_unused]]
-			const auto result {env.Execute(bundle)};
+			const auto result {env.Call(bundle)};
 	}
 }

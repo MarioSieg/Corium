@@ -113,7 +113,7 @@ BenchmarkReporter::Run CreateRunReport(
   return report;
 }
 
-// Execute one thread of benchmark b for the specified number of iterations.
+// Call one thread of benchmark b for the specified number of iterations.
 // Adds the stats collected for the thread into manager->results.
 void RunInThread(const BenchmarkInstance* b, IterationCount iters,
                  int thread_id, ThreadManager* manager,

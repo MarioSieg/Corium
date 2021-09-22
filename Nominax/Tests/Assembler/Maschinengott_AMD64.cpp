@@ -130,14 +130,13 @@ TEST(CodeGenerator_AMD64, ExecuteMultiByteNOPChain)
         []
         {
             constexpr auto machineCodeSize { sizeof(MWord) * 16 };
-            MWord* const machineCode { static_cast<MWord*>(VMM::VirtualAlloc(machineCodeSize, MemoryPageProtectionFlags::ReadWriteExecute)) };
-            MWord* machineCodeBack = machineCode + machineCodeSize - 1;
-            int x { 10 };
+            MWord* machineCode { static_cast<MWord*>(VMM::VirtualAlloc(machineCodeSize, MemoryPageProtectionFlags::ReadWriteExecute)) };
+            MWord* const machineCodeBack = machineCode + machineCodeSize - 1;
+            auto x { 10 };
 
-            MWord* needle { machineCode };
-            MG_EMIT_NOP_CHAIN(needle, 15);
-            MG_EMIT_RETN(needle); // return
-
+            MG_EMIT_NOP_CHAIN(machineCode, 15);
+            MG_EMIT_RETN(machineCode);
+            machineCode -= machineCodeSize;
             __builtin___clear_cache(reinterpret_cast<char*>(machineCode), reinterpret_cast<char*>(machineCodeBack));
             reinterpret_cast<auto(*)()->void>(machineCode)();
 
@@ -165,15 +164,15 @@ TEST(CodeGenerator_AMD64, InjectWrongNOPChainSize)
     ASSERT_DEATH(executor(), "");
 }
 
-TEST(CodeGenerator_AMD64, InjectWrongNOPChainSize)
+TEST(CodeGenerator_AMD64, InjectWrongNOPChainSize2)
 {
     const auto executor
     {
-            []
-            {
-                MWord m;
-                MG_InjectMultiByteNOPChain(&m, 16);
-            }
+        []
+        {
+            MWord m;
+            MG_InjectMultiByteNOPChain(&m, 16);
+        }
     };
     ASSERT_DEATH(executor(), "");
 }
@@ -182,10 +181,10 @@ TEST(CodeGenerator_AMD64, InjectWrongNOPChainNullBuf)
 {
     const auto executor
     {
-            []
-            {
-                MG_InjectMultiByteNOPChain(nullptr, 16);
-            }
+        []
+        {
+            MG_InjectMultiByteNOPChain(nullptr, 16);
+        }
     };
     ASSERT_DEATH(executor(), "");
 }

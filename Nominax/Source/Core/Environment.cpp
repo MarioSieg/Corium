@@ -567,7 +567,7 @@ namespace Nominax::Core
         std::FILE* const outStream  { stdout };
         std::fflush(outStream);
 
-        // Execute on alpha reactor:
+        // Call on alpha reactor:
         const ReactorState& state { (*this->Context_->CorePool)(image) };
 
         // Add execution time:

@@ -353,7 +353,7 @@ namespace Nominax::Core
 		auto Boot(const EnvironmentDescriptor& descriptor) -> void;
 
 		/// <summary>
-		/// Execute stream on alpha reactor.
+		/// Call stream on alpha reactor.
 		/// </summary>
 		/// <param name="image"></param>
 		/// <returns></returns>
@@ -361,7 +361,7 @@ namespace Nominax::Core
 		auto Execute(const ByteCode::Image& image) -> const ReactorState&;
 
 		/// <summary>
-		/// Execute stream on alpha reactor.
+		/// Call stream on alpha reactor.
 		/// </summary>
 		/// <param name="stream"></param>
 		/// <returns></returns>
@@ -369,7 +369,7 @@ namespace Nominax::Core
 		auto Execute(ByteCode::Stream&& stream) -> const ReactorState&;
 
 		/// <summary>
-		/// Execute stream on alpha reactor.
+		/// Call stream on alpha reactor.
 		/// </summary>
 		/// <param name="stream"></param>
 		/// <returns></returns>
@@ -377,7 +377,7 @@ namespace Nominax::Core
 		auto Execute(const ByteCode::Stream& stream) -> const ReactorState&;
 
 		/// <summary>
-		/// Execute stream on alpha reactor.
+		/// Call stream on alpha reactor.
 		/// </summary>
 		/// <param name="image"></param>
 		/// <returns></returns>
@@ -385,7 +385,7 @@ namespace Nominax::Core
 		auto operator()(const ByteCode::Image& image) -> const ReactorState&;
 
 		/// <summary>
-		/// Execute stream on alpha reactor.
+		/// Call stream on alpha reactor.
 		/// </summary>
 		/// <param name="stream"></param>
 		/// <returns></returns>
@@ -393,7 +393,7 @@ namespace Nominax::Core
 		auto operator()(ByteCode::Stream&& stream) -> const ReactorState&;
 
 		/// <summary>
-		/// Execute stream on alpha reactor.
+		/// Call stream on alpha reactor.
 		/// </summary>
 		/// <param name="stream"></param>
 		/// <returns></returns>

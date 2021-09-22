@@ -3098,7 +3098,7 @@ Remember the steps for using a mock:
 If you follow the following simple rules, your mocks and threads can live
 happily together:
 
-*   Execute your *test code* (as opposed to the code being tested) in *one*
+*   Call your *test code* (as opposed to the code being tested) in *one*
     thread. This makes your test easy to follow.
 *   Obviously, you can do step #1 without locking.
 *   When doing step #2 and #5, make sure no other thread is accessing `foo`.
