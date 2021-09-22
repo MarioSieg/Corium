@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
 
 # Set project name:
-project(NominaxRuntime CXX ASM)
+project(NominaxRuntime C CXX ASM)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
@@ -21,7 +21,7 @@ option(NOMINAX_BUILD_UNIT_TESTS "Build the unit tests for all projects" OFF)
 option(NOMINAX_BUILD_BENCHMARKS "Build the benchmarks for all projects" OFF)
 
 # runtime library:
-file(GLOB_RECURSE NOMINAX_SOURCES Source/*.cpp Source/*.S Include/*.hpp Include/*.inl)
+file(GLOB_RECURSE NOMINAX_SOURCES Source/*.cpp Source/*.c Source/*.h Source/*.S Include/*.hpp Include/*.inl)
 
 # Set more optimizations for special reactors:
 SET_SOURCE_FILES_PROPERTIES(Source/Core/VM_Impl_AVX.cpp PROPERTIES COMPILE_FLAGS -mavx)

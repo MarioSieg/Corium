@@ -1,4 +1,4 @@
-// Author: Mario
+// Author: Mario Sieg
 // Project: Nominax
 //
 //                                  Apache License

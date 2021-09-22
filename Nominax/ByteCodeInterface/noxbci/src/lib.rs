@@ -1,4 +1,4 @@
-// Author: Mario
+// Author: Mario Sieg
 // Project: NominaxRuntime (noxbci - Nominax Byte Code Interface)
 //
 //                                  Apache License
