@@ -214,18 +214,64 @@ namespace Nominax::Foundation
     /// <summary>
     /// Contains all options available on the command line.
     /// </summary>
-    struct CLIOptions final : public IDisplay
+    struct CLIOptions final : IDisplay
     {
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         constexpr CLIOptions() = default;
+
+        /// <summary>
+        /// Copy constructor.
+        /// </summary>
+        /// <param name="other"></param>
         constexpr CLIOptions(const CLIOptions& other) = default;
+
+        /// <summary>
+        /// Move constructor.
+        /// </summary>
+        /// <param name="other"></param>
         constexpr CLIOptions(CLIOptions&& other) = default;
+
+        /// <summary>
+        /// Copy assignment operator.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         constexpr auto operator =(const CLIOptions& other) -> CLIOptions& = default;
+
+        /// <summary>
+        /// Move assignment operator.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         constexpr auto operator =(CLIOptions&& other) -> CLIOptions& = default;
+
+		/// <summary>
+		/// Destructor.
+		/// </summary>
         ~CLIOptions() override = default;
 
+        /// <summary>
+        /// If true, the code is executed in the sandbox VM,
+        /// without optimizations and JIT.
+        /// Good for untrusted code or debugging.
+        /// </summary>
         bool ForceSandboxVM { false };
+
+        /// <summary>
+        /// If true, the code is executed in the default fallback VM, with JIT but without ISA extensions.
+        /// </summary>
         bool ForceFallbackVM { false };
+
+        /// <summary>
+        /// If true, the power saving mode is activated and CPU/GPU usage is reduced.
+        /// </summary>
         bool PowerSafeMode { false };
+
+        /// <summary>
+        /// If true, it will not search for a config file, neither create one.
+        /// </summary>
         bool NoConfig { false };
 
         /// <summary>

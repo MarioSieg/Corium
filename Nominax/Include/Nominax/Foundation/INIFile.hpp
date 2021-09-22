@@ -267,7 +267,14 @@ namespace Nominax::Foundation
 		static constexpr char COMMENT { ';' };
 
 	private:
+		/// <summary>
+		/// Map of all sections.
+		/// </summary>
 		SectionMap Sections_ { };
+
+        /// <summary>
+        /// Key to the current section.
+        /// </summary>
         Key CurrentSection { };
 
 	public:

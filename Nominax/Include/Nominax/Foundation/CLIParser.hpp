@@ -213,10 +213,24 @@
 
 namespace Nominax::Foundation
 {
+    /// <summary>
+    /// Command line option.
+    /// </summary>
     struct CLIOption final
     {
+        /// <summary>
+        /// Short name. For example: -h.
+        /// </summary>
         std::string_view Short { };
+
+        /// <summary>
+        /// Long name. For example: --help.
+        /// </summary>
         std::string_view Long { };
+
+        /// <summary>
+        /// Help message for the user.
+        /// </summary>
         std::string_view Description { };
     };
 
@@ -225,7 +239,14 @@ namespace Nominax::Foundation
 	/// </summary>
 	class CLIParser final : public IDisplay
 	{
+		/// <summary>
+		/// Arguments from environment.
+		/// </summary>
 		std::unordered_set<std::string_view> Args_ { };
+
+		/// <summary>
+		/// Registered available options.
+		/// </summary>
 		std::vector<CLIOption> Options_ { };
 
 	public:

@@ -211,7 +211,10 @@
 
 namespace Nominax::JIT
 {
-    class ExecutableBuffer final : public Foundation::MappedMemory
+    /// <summary>
+    /// Represents a buffer which contains an executable code image.
+    /// </summary>
+    class ExecutableImageBuffer final : public Foundation::MappedMemory
     {
         const MachCode* const Buffer_;
         const MachCode* const BufferEnd_;
@@ -221,18 +224,18 @@ namespace Nominax::JIT
         static constexpr auto SECURITY_FLAGS { Foundation::MemoryPageProtectionFlags::ReadExecute };
         static constexpr bool LOCK_PROTECTION { true };
 
-        ExecutableBuffer(std::span<const std::uint8_t> source);
-        ExecutableBuffer(const ExecutableBuffer& other) = delete;
-        ExecutableBuffer(ExecutableBuffer&& other) = delete;
-        auto operator =(const ExecutableBuffer& other) -> ExecutableBuffer& = delete;
-        auto operator =(ExecutableBuffer&& other) -> ExecutableBuffer& = delete;
-        ~ExecutableBuffer() override = default;
+        ExecutableImageBuffer(std::span<const std::uint8_t> source);
+        ExecutableImageBuffer(const ExecutableImageBuffer& other) = delete;
+        ExecutableImageBuffer(ExecutableImageBuffer&& other) = delete;
+        auto operator =(const ExecutableImageBuffer& other) -> ExecutableImageBuffer& = delete;
+        auto operator =(ExecutableImageBuffer&& other) -> ExecutableImageBuffer& = delete;
+        ~ExecutableImageBuffer() override = default;
 
         auto Call() const -> void;
         auto AsSpan() const -> std::span<const MachCode>;
     };
 
-    inline auto ExecutableBuffer::Call() const -> void
+    inline auto ExecutableImageBuffer::Call() const -> void
     {
         const MachCode* const needle { this->Buffer_ };
         const MachCode* const end { this->BufferEnd_ };
@@ -240,7 +243,7 @@ namespace Nominax::JIT
     }
 
 
-    inline auto ExecutableBuffer::AsSpan() const -> std::span<const MachCode>
+    inline auto ExecutableImageBuffer::AsSpan() const -> std::span<const MachCode>
     {
         return
         {

@@ -209,16 +209,56 @@
 
 namespace Nominax::Foundation
 {
+    /// <summary>
+    /// Controller for the logger protocol.
+    /// </summary>
     struct ProtocolController final
     {
+        /// <summary>
+        /// Static class.
+        /// </summary>
         ProtocolController() = delete;
+
+        /// <summary>
+        /// Static class.
+        /// </summary>
+        /// <param name="other"></param>
         ProtocolController(const ProtocolController& other) = delete;
+
+        /// <summary>
+        /// Static class.
+        /// </summary>
+        /// <param name="other"></param>
         ProtocolController(ProtocolController&& other) = delete;
+
+        /// <summary>
+        /// Static class.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         auto operator =(const ProtocolController& other) -> ProtocolController& = delete;
+
+        /// <summary>
+        /// Static class.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         auto operator =(ProtocolController&& other) -> ProtocolController& = delete;
+
+		/// <summary>
+		/// Static class.
+		/// </summary>
         ~ProtocolController() = delete;
 
+        /// <summary>
+        /// If true, the protocol will be printed out to the console, else the protocol is ignored.
+        /// </summary>
         static inline constinit bool IsProtocolEnabled { true };
+
+        /// <summary>
+        /// Query output stream.
+        /// </summary>
+        /// <returns>The current stream acting as stdout.</returns>
         static inline auto GetProtocolStream() -> FILE*;
     };
 

@@ -210,11 +210,21 @@
 namespace Nominax::JIT
 {
 #if NOX_ARCH_X86_64
+    /// <summary>
+    /// Machine code scalar.
+    /// </summary>
     using MachCode = std::uint8_t;
 #else
+    /// <summary>
+    /// Machine code scalar.
+    /// </summary>
     using MachCode = std::uint32_t;
 #endif
 
+    /// <summary>
+    /// Machine code scalar encoding a breakpoint or trap instruction.
+    /// Used to fill the JIT execbuf and to pad aligned subroutines.
+    /// </summary>
     constexpr MachCode TRAP
     {
         []
@@ -230,6 +240,14 @@ namespace Nominax::JIT
         }()
     };
 
+    /// <summary>
+    /// Invokes the machine code using a call instruction.
+    /// The machine code MUST contains an exit (return) stub!
+    /// Cache might be cleared by this too on some platforms.
+    /// </summary>
+    /// <param name="needle"></param>
+    /// <param name="end"></param>
+    /// <returns></returns>
     inline auto Invoke(const MachCode* const needle,  const MachCode* const end)
     {
         __builtin___clear_cache(reinterpret_cast<char*>(const_cast<MachCode*>(needle)), reinterpret_cast<char*>(const_cast<MachCode*>(end)));

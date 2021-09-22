@@ -214,6 +214,8 @@ namespace Nominax::Foundation
 {
 	/// <summary>
 	/// RAII wrapper around a virtual memory mapping.
+	///	To get more features and a type-safe and alignment aware version,
+	///	use MappedMemoryWrapper<T> in MappedMemoryWrapper.hpp!
 	/// </summary>
 	class MappedMemory
 	{

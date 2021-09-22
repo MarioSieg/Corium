@@ -203,14 +203,110 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include <span>
 
-#define ARG_TUPLE_1(p1, ...) p1
-#define ARG_TUPLE_2(p1, p2, ...) p1, p2
-#define ARG_TUPLE_3(p1, p2, p3, ...) p1, p2, p3
-#define ARG_TUPLE_4(p1, p2, p3, p4, ...) p1, p2, p3, p4
-#define ARG_TUPLE_5(p1, p2, p3, p4, p5, ...) p1, p2, p3, p4, p5
-#define ARG_TUPLE_6(p1, p2, p3, p4, p5, p6, ...) p1, p2, p3, p4, p5, p6
-#define ARG_TUPLE_7(p1, p2, p3, p4, p5, p6, p7, ...) p1, p2, p3, p4, p5, p6, p7
-#define ARG_TUPLE_8(p1, p2, p3, p4, p5, p6, p7, p8, ...) p1, p2, p3, p4, p5, p6, p7, p8
-#define ARG_TUPLE_9(p1, p2, p3, p4, p5, p6, p7, p8, p9, ...) p1, p2, p3, p4, p5, p6, p7, p8, p9
+#include "../Foundation/MappedMemory.hpp"
+
+#include "Execution.hpp"
+
+namespace Nominax::JIT
+{
+    /// <summary>
+    /// Represents a buffer which allows execution of it's contents
+    /// using page protection flags.
+    /// 3 stages:
+    /// 1. Allocate with Read | Write | Exec
+    /// 2. Copy machine code to self
+    /// 3. Protect with Read | Exec, Lock?
+    /// </summary>
+    class ExecutableImageBuffer final : public Foundation::MappedMemory
+    {
+        const MachCode* const Buffer_;
+        const MachCode* const BufferEnd_;
+
+    public:
+        /// <summary>
+        /// Flags used for allocation, before copying the machine code.
+        /// </summary>
+        static constexpr auto ALLOCATION_FLAGS { Foundation::MemoryPageProtectionFlags::ReadWriteExecute };
+
+        /// <summary>
+        /// Flags used for security protection after copying the machine codes.
+        /// </summary>
+        static constexpr auto SECURITY_FLAGS { Foundation::MemoryPageProtectionFlags::ReadExecute };
+
+        /// <summary>
+        /// If true, the protection is locked after copying the machine code.
+        /// </summary>
+        static constexpr bool LOCK_PROTECTION { true };
+
+        /// <summary>
+        /// 3 stages:
+        /// 1. Allocate with Read | Write | Exec
+        /// 2. Copy machine code to self
+        /// 3. Protect with Read | Exec, Lock?
+        /// </summary>
+        /// <param name="source"></param>
+        ExecutableImageBuffer(std::span<const std::uint8_t> source);
+
+        /// <summary>
+        /// No copy.
+        /// </summary>
+        /// <param name="other"></param>
+        ExecutableImageBuffer(const ExecutableImageBuffer& other) = delete;
+
+        /// <summary>
+        /// No move.
+        /// </summary>
+        /// <param name="other"></param>
+        ExecutableImageBuffer(ExecutableImageBuffer&& other) = delete;
+
+        /// <summary>
+        /// No copy.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        auto operator =(const ExecutableImageBuffer& other) -> ExecutableImageBuffer& = delete;
+
+        /// <summary>
+        /// No move.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        auto operator =(ExecutableImageBuffer&& other) -> ExecutableImageBuffer& = delete;
+
+		/// <summary>
+		/// Destructor.
+		/// </summary>
+        ~ExecutableImageBuffer() override = default;
+
+        /// <summary>
+        /// Invoke using call instruction.
+        /// </summary>
+        /// <returns></returns>
+        auto Call() const -> void;
+
+        /// <summary>
+        /// Access as span.
+        /// </summary>
+        /// <returns></returns>
+        auto AsSpan() const -> std::span<const MachCode>;
+    };
+
+    inline auto ExecutableImageBuffer::Call() const -> void
+    {
+        const MachCode* const needle { this->Buffer_ };
+        const MachCode* const end { this->BufferEnd_ };
+        Invoke(needle, end);
+    }
+
+
+    inline auto ExecutableImageBuffer::AsSpan() const -> std::span<const MachCode>
+    {
+        return
+        {
+            this->Buffer_,
+            this->BufferEnd_
+        };
+    }
+}

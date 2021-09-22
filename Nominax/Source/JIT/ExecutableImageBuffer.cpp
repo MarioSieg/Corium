@@ -1,8 +1,8 @@
-#include "../../Include/Nominax/JIT/ExecutableBuffer.hpp"
+#include "../../Include/Nominax/JIT/ExecutableImageBuffer.hpp"
 
 namespace Nominax::JIT
 {
-    ExecutableBuffer::ExecutableBuffer(const std::span<const std::uint8_t> source) :
+    ExecutableImageBuffer::ExecutableImageBuffer(const std::span<const std::uint8_t> source) :
         Foundation::MappedMemory { std::size(source), ALLOCATION_FLAGS },
         Buffer_ { static_cast<const MachCode*>(this->Region_) },
         BufferEnd_ { Buffer_ + GetByteSize() }

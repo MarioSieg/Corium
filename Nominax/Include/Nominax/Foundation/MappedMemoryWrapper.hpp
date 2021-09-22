@@ -211,13 +211,15 @@
 
 namespace Nominax::Foundation
 {
+    /// <summary>
+    /// Restructs mapped memory PODs.
+    /// </summary>
     template <typename T>
     concept MappedMemoryType = requires
     {
         std::is_trivial_v<T>;
         IsPowerOfTwo(alignof(T));
     };
-
 
     /// <summary>
     /// Thin wrapper around virtual mapped memory which allows

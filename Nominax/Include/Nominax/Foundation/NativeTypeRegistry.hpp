@@ -214,25 +214,81 @@
 
 namespace Nominax::Foundation
 {
+    /// <summary>
+    /// Contains native type info.
+    /// </summary>
     struct NativeTypeInfo final
     {
+        /// <summary>
+        /// The size in bytes.
+        /// </summary>
         std::uint8_t Size { };
+
+        /// <summary>
+        /// The alignment in bytes.
+        /// </summary>
         std::uint8_t Alignment { };
+
+        /// <summary>
+        /// The name.
+        /// </summary>
         std::string_view Name { };
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         constexpr NativeTypeInfo() = default;
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="size"></param>
+        /// <param name="alignment"></param>
+        /// <param name="name"></param>
         constexpr NativeTypeInfo
         (
             std::uint8_t size,
             std::uint8_t alignment,
             std::string_view name
         );
+
+        /// <summary>
+        /// Copy constructor.
+        /// </summary>
+        /// <param name="other"></param>
         constexpr NativeTypeInfo(const NativeTypeInfo& other) = default;
+
+        /// <summary>
+        /// Move constructor.
+        /// </summary>
+        /// <param name="other"></param>
         constexpr NativeTypeInfo(NativeTypeInfo&& other) = default;
+
+        /// <summary>
+        /// Copy assignment operator.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         constexpr auto operator =(const NativeTypeInfo& other) -> NativeTypeInfo& = default;
+
+        /// <summary>
+        /// Move assignment operator.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         constexpr auto operator =(NativeTypeInfo&& other) -> NativeTypeInfo& = default;
+
+		/// <summary>
+		/// Destructor.
+		/// </summary>
         ~NativeTypeInfo() = default;
 
+        /// <summary>
+        /// Creates a new type info from generic type plus name.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name"></param>
+        /// <returns></returns>
         template <typename T>
         [[nodiscard]]
         static constexpr auto Make(std::string_view name) -> NativeTypeInfo;
@@ -259,16 +315,56 @@ namespace Nominax::Foundation
         };
     }
 
-    struct NativeTypeRegistry final : public IDisplay
+    /// <summary>
+    /// Contains all available native type infos.
+    /// </summary>
+    struct NativeTypeRegistry final : IDisplay
     {
+        /// <summary>
+        /// The amount of entries. (Yeah kinda ugly to have it here but ok.)
+        /// </summary>
         static constexpr std::uint8_t REGISTRY_SIZE { 10 };
+
+        /// <summary>
+        /// Array with data.
+        /// </summary>
         const std::array<const NativeTypeInfo, REGISTRY_SIZE> Data;
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="data"></param>
         explicit constexpr NativeTypeRegistry(std::array<const NativeTypeInfo, REGISTRY_SIZE>&& data);
+
+        /// <summary>
+        /// No copy.
+        /// </summary>
+        /// <param name="other"></param>
         NativeTypeRegistry(const NativeTypeRegistry& other) = delete;
+
+        /// <summary>
+        /// No move.
+        /// </summary>
+        /// <param name="other"></param>
         NativeTypeRegistry(NativeTypeRegistry&& other) = delete;
+
+        /// <summary>
+        /// No copy.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         auto operator =(const NativeTypeRegistry& other) -> NativeTypeRegistry& = delete;
+
+        /// <summary>
+        /// No move.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         auto operator =(NativeTypeRegistry&& other) -> NativeTypeRegistry& = delete;
+
+		/// <summary>
+		/// Destructor.
+		/// </summary>
         ~NativeTypeRegistry() override = default;
 
         /// <summary>
@@ -279,5 +375,8 @@ namespace Nominax::Foundation
 
     constexpr NativeTypeRegistry::NativeTypeRegistry(std::array<const NativeTypeInfo, REGISTRY_SIZE>&& data) : Data { data } { }
 
+    /// <summary>
+    /// System wide native type registry.
+    /// </summary>
     extern const NativeTypeRegistry NATIVE_TYPE_REGISTRY;
 }
