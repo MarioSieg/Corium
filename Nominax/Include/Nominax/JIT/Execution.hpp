@@ -230,17 +230,9 @@ namespace Nominax::JIT
         }()
     };
 
-    template <const bool IsSubroutine = true>
     inline auto Invoke(const MachCode* const needle,  const MachCode* const end)
     {
         __builtin___clear_cache(reinterpret_cast<char*>(const_cast<MachCode*>(needle)), reinterpret_cast<char*>(const_cast<MachCode*>(end)));
-        if constexpr (IsSubroutine)
-        {
-            reinterpret_cast<auto(*)()->void>(const_cast<MachCode*>(needle))();
-        }
-        else
-        {
-            goto *needle;
-        }
+        reinterpret_cast<auto(*)()->void>(const_cast<MachCode*>(needle))();
     }
 }

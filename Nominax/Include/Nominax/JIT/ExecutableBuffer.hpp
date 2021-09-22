@@ -229,7 +229,6 @@ namespace Nominax::JIT
         ~ExecutableBuffer() override = default;
 
         auto Call() const -> void;
-        auto JumpTo() const -> void;
         auto AsSpan() const -> std::span<const MachCode>;
     };
 
@@ -237,15 +236,9 @@ namespace Nominax::JIT
     {
         const MachCode* const needle { this->Buffer_ };
         const MachCode* const end { this->BufferEnd_ };
-        Invoke<true>(needle, end);
+        Invoke(needle, end);
     }
 
-    inline auto ExecutableBuffer::JumpTo() const -> void
-    {
-        const MachCode* const needle { this->Buffer_ };
-        const MachCode* const end { this->BufferEnd_ };
-        Invoke<false>(needle, end);
-    }
 
     inline auto ExecutableBuffer::AsSpan() const -> std::span<const MachCode>
     {
