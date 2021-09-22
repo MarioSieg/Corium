@@ -301,7 +301,7 @@ impl<'a> AstParseable<'a> for Block<'a> {
         let rules = rule.into_inner();
         for rule in rules {
             match rule.as_rule() {
-                Rule::Statement => {
+                Rule::FunctionStatement => {
                     if let Some(nxt) = rule.into_inner().next() {
                         result.push(Statement::parse(nxt));
                     }

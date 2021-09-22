@@ -1,23 +1,16 @@
 CompilationUnit = _{
-    SOI ~ ModuleDef ~ (FunctionDef | NEWLINE | SEPARATOR)* ~ EOI
+    SOI ~ Module ~ GlobalStatement* ~ EOI
 }
 
-ModuleDef = {
+GlobalStatement = {
+    Function |
+    NativeFunction |
+    NEWLINE |
+    SEPARATOR
+}
+
+Module = {
     "module " ~ QualifiedName ~ NEWLINE
-}
-
-FunctionDef = {
-    "fun " ~ Ident ~ Sep ~ "(" ~ ParameterList? ~ ")" ~ (" " ~ QualifiedName)? ~ Sep ~ "{" ~ Block ~ "}"
-}
-
-Block = {
-     Statement*
-}
-
-Statement = {
-    LocalVariable |
-    ReturnStatement |
-    StatementSeparator
 }
 
 StatementSeparator = _{
@@ -25,8 +18,30 @@ StatementSeparator = _{
     SEPARATOR
 }
 
+Function = {
+     FunctionSignature ~ " {" ~ NEWLINE ~ Block ~ "}" ~ NEWLINE
+}
+
+NativeFunction = {
+    "native " ~ FunctionSignature ~ NEWLINE
+}
+
+FunctionSignature = {
+    "fun " ~ Ident ~ "(" ~ ParameterList? ~ ")" ~ (" " ~ QualifiedName)?
+}
+
+Block = {
+     FunctionStatement*
+}
+
+FunctionStatement = {
+    LocalVariable |
+    ReturnStatement |
+    StatementSeparator
+}
+
 LocalVariable = {
-    "let " ~ Ident ~ (" " ~ QualifiedName)? ~ Sep ~ "=" ~ Sep ~ Expression ~ NEWLINE
+    "let " ~ Ident ~ (" " ~ QualifiedName)? ~ " = " ~ Expression ~ NEWLINE
 }
 
 ReturnStatement = {
@@ -34,11 +49,11 @@ ReturnStatement = {
 }
 
 ParameterList = {
-    (Parameter ~ ("," ~ Sep ~ Parameter)*)
+    (Parameter ~ (", " ~ Parameter)*)
 }
 
 Parameter = {
-    Ident ~ " " ~ QualifiedName
+    Ident ~ " " ~ QualifiedName ~ (" = " ~ Expression)?
 }
 
 Expression = {
@@ -71,10 +86,6 @@ CharLiteral = @{
 
 StringLiteral = @{
     "\"" ~ Char* ~ "\""
-}
-
-Sep = _{
-    ((NEWLINE | SEPARATOR)+)?
 }
 
 QualifiedName = {

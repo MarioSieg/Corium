@@ -210,7 +210,7 @@ use pest_derive::*;
 
 pub mod error;
 #[cfg(test)]
-mod tests;
+mod grammar_test;
 
 use error::handle_parser_error;
 use pest::iterators::Pair;
@@ -241,8 +241,8 @@ pub fn parse_source(src: &str) -> Result<RootList, Error> {
 fn parse_rule_tree(rule: Pair<Rule>) -> Option<Node> {
     let ty = rule.as_rule();
     match ty {
-        Rule::ModuleDef => Some(Node::Module(ModuleName::parse(rule))),
-        Rule::FunctionDef => Some(Node::Function(Function::parse(rule))),
+        Rule::Module => Some(Node::Module(ModuleName::parse(rule))),
+        Rule::Function => Some(Node::Function(Function::parse(rule))),
         _ => None,
     }
 }
