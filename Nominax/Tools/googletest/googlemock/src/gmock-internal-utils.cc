@@ -120,7 +120,7 @@ GTEST_API_ FailureReporterInterface* GetFailureReporter() {
   return failure_reporter;
 }
 
-// Protects global resources (stdout in particular) used by Log().
+// Protects global resources (stdout in particular) used by LOG().
 static GTEST_DEFINE_STATIC_MUTEX_(g_log_mutex);
 
 // Returns true if and only if a log with the given severity is visible

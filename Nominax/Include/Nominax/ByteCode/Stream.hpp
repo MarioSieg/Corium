@@ -544,7 +544,7 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <param name="intrin"></param>
 		/// <returns></returns>
-		auto operator <<(SystemIntrinsicInvocationID intrin) -> Stream&;
+		auto operator <<(SysCall intrin) -> Stream&;
 
 		/// <summary>
 		/// PUSH stream entry.
@@ -823,7 +823,7 @@ namespace Nominax::ByteCode
 		return *this;
 	}
 
-	inline auto Stream::operator <<(const SystemIntrinsicInvocationID intrin) -> Stream&
+	inline auto Stream::operator <<(const SysCall intrin) -> Stream&
 	{
 		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal { intrin });

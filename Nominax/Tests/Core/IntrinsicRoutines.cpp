@@ -212,8 +212,8 @@ TEST(ReactorExecution, IntrinsicRoutine_Cos)
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::INTRIN},
-		Signal {SystemIntrinsicInvocationID::Cos},
+		Signal {Instruction::SYSCALL},
+		Signal {SysCall::COS},
 		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
@@ -235,8 +235,8 @@ TEST(ReactorExecution, IntrinsicRoutine_Sin)
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::INTRIN},
-		Signal {SystemIntrinsicInvocationID::Sin},
+		Signal {Instruction::SYSCALL},
+		Signal {SysCall::SIN},
 		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
@@ -258,8 +258,8 @@ TEST(ReactorExecution, IntrinsicRoutine_Tan)
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::INTRIN},
-		Signal {SystemIntrinsicInvocationID::Tan},
+		Signal {Instruction::SYSCALL},
+		Signal {SysCall::TAN},
 		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
@@ -281,8 +281,8 @@ TEST(ReactorExecution, IntrinsicRoutine_ACos)
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::INTRIN},
-		Signal {SystemIntrinsicInvocationID::ACos},
+		Signal {Instruction::SYSCALL},
+		Signal {SysCall::ACOS},
 		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
@@ -304,8 +304,8 @@ TEST(ReactorExecution, IntrinsicRoutine_ASin)
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::INTRIN},
-		Signal {SystemIntrinsicInvocationID::ASin},
+		Signal {Instruction::SYSCALL},
+		Signal {SysCall::ASIN},
 		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
@@ -327,8 +327,8 @@ TEST(ReactorExecution, IntrinsicRoutine_ATan)
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::INTRIN},
-		Signal {SystemIntrinsicInvocationID::ATan},
+		Signal {Instruction::SYSCALL},
+		Signal {SysCall::ATAN},
 		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
@@ -352,8 +352,8 @@ TEST(ReactorExecution, IntrinsicRoutine_ATan2)
 		Signal {0.35},
 		Signal {Instruction::PUSH},
 		Signal {0.15},
-		Signal {Instruction::INTRIN},
-		Signal {SystemIntrinsicInvocationID::ATan2},
+		Signal {Instruction::SYSCALL},
+		Signal {SysCall::ATAN2},
 		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
@@ -376,8 +376,8 @@ TEST(ReactorExecution, IntrinsicRoutine_CosH)
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::INTRIN},
-		Signal {SystemIntrinsicInvocationID::CosH},
+		Signal {Instruction::SYSCALL},
+		Signal {SysCall::COSH},
 		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
@@ -399,8 +399,8 @@ TEST(ReactorExecution, IntrinsicRoutine_SinH)
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::INTRIN},
-		Signal {SystemIntrinsicInvocationID::SinH},
+		Signal {Instruction::SYSCALL},
+		Signal {SysCall::SINH},
 		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
@@ -422,8 +422,8 @@ TEST(ReactorExecution, IntrinsicRoutine_TanH)
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::INTRIN},
-		Signal {SystemIntrinsicInvocationID::TanH},
+		Signal {Instruction::SYSCALL},
+		Signal {SysCall::TANH},
 		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
@@ -445,8 +445,8 @@ TEST(ReactorExecution, IntrinsicRoutine_ACosH)
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {1.6},
-		Signal {Instruction::INTRIN},
-		Signal {SystemIntrinsicInvocationID::ACosH},
+		Signal {Instruction::SYSCALL},
+		Signal {SysCall::ACOSH},
 		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
@@ -468,8 +468,8 @@ TEST(ReactorExecution, IntrinsicRoutine_ASinH)
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::INTRIN},
-		Signal {SystemIntrinsicInvocationID::ASinH},
+		Signal {Instruction::SYSCALL},
+		Signal {SysCall::ASINH},
 		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
@@ -491,8 +491,8 @@ TEST(ReactorExecution, IntrinsicRoutine_ATanH)
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::INTRIN},
-		Signal {SystemIntrinsicInvocationID::ATanH},
+		Signal {Instruction::SYSCALL},
+		Signal {SysCall::ATANH},
 		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
@@ -514,8 +514,8 @@ TEST(ReactorExecution, IntrinsicRoutine_Exp)
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::INTRIN},
-		Signal {SystemIntrinsicInvocationID::Exp},
+		Signal {Instruction::SYSCALL},
+		Signal {SysCall::EXP},
 		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
@@ -537,8 +537,8 @@ TEST(ReactorExecution, IntrinsicRoutine_Log)
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::INTRIN},
-		Signal {SystemIntrinsicInvocationID::Log},
+		Signal {Instruction::SYSCALL},
+		Signal {SysCall::LOG},
 		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
@@ -560,8 +560,8 @@ TEST(ReactorExecution, IntrinsicRoutine_Log10)
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::INTRIN},
-		Signal {SystemIntrinsicInvocationID::Log10},
+		Signal {Instruction::SYSCALL},
+		Signal {SysCall::LOG10},
 		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
@@ -583,8 +583,8 @@ TEST(ReactorExecution, IntrinsicRoutine_Exp2)
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::INTRIN},
-		Signal {SystemIntrinsicInvocationID::Exp2},
+		Signal {Instruction::SYSCALL},
+		Signal {SysCall::EXP2},
 		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
@@ -606,8 +606,8 @@ TEST(ReactorExecution, IntrinsicRoutine_ILogB)
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {1.332},
-		Signal {Instruction::INTRIN},
-		Signal {SystemIntrinsicInvocationID::ILogB},
+		Signal {Instruction::SYSCALL},
+		Signal {SysCall::ILOGB},
 		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
@@ -629,8 +629,8 @@ TEST(ReactorExecution, IntrinsicRoutine_Log2)
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::INTRIN},
-		Signal {SystemIntrinsicInvocationID::Log2},
+		Signal {Instruction::SYSCALL},
+		Signal {SysCall::LOG2},
 		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
@@ -654,8 +654,8 @@ TEST(ReactorExecution, IntrinsicRoutine_Pow)
 		Signal {0.35},
 		Signal {Instruction::PUSH},
 		Signal {0.15},
-		Signal {Instruction::INTRIN},
-		Signal {SystemIntrinsicInvocationID::Pow},
+		Signal {Instruction::SYSCALL},
+		Signal {SysCall::POW},
 		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
@@ -679,8 +679,8 @@ TEST(ReactorExecution, IntrinsicRoutine_Sqrt)
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::INTRIN},
-		Signal {SystemIntrinsicInvocationID::Sqrt},
+		Signal {Instruction::SYSCALL},
+		Signal {SysCall::SQRT},
 		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
@@ -702,8 +702,8 @@ TEST(ReactorExecution, IntrinsicRoutine_Cbrt)
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::INTRIN},
-		Signal {SystemIntrinsicInvocationID::Cbrt},
+		Signal {Instruction::SYSCALL},
+		Signal {SysCall::CBRT},
 		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
@@ -727,8 +727,8 @@ TEST(ReactorExecution, IntrinsicRoutine_Hypot)
 		Signal {0.35},
 		Signal {Instruction::PUSH},
 		Signal {0.15},
-		Signal {Instruction::INTRIN},
-		Signal {SystemIntrinsicInvocationID::Hypot},
+		Signal {Instruction::SYSCALL},
+		Signal {SysCall::HYPOT},
 		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
@@ -751,8 +751,8 @@ TEST(ReactorExecution, IntrinsicRoutine_Ceil)
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::INTRIN},
-		Signal {SystemIntrinsicInvocationID::Ceil},
+		Signal {Instruction::SYSCALL},
+		Signal {SysCall::CEIL},
 		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
@@ -774,8 +774,8 @@ TEST(ReactorExecution, IntrinsicRoutine_Floor)
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::INTRIN},
-		Signal {SystemIntrinsicInvocationID::Floor},
+		Signal {Instruction::SYSCALL},
+		Signal {SysCall::FLOOR},
 		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
@@ -797,8 +797,8 @@ TEST(ReactorExecution, IntrinsicRoutine_Round)
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::INTRIN},
-		Signal {SystemIntrinsicInvocationID::Round},
+		Signal {Instruction::SYSCALL},
+		Signal {SysCall::ROUND},
 		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
@@ -820,8 +820,8 @@ TEST(ReactorExecution, IntrinsicRoutine_RInt)
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::INTRIN},
-		Signal {SystemIntrinsicInvocationID::RInt},
+		Signal {Instruction::SYSCALL},
+		Signal {SysCall::RINT},
 		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
@@ -845,8 +845,8 @@ TEST(ReactorExecution, IntrinsicRoutine_IMax)
 		Signal {INT64_C(4)},
 		Signal {Instruction::PUSH},
 		Signal {INT64_C(7)},
-		Signal {Instruction::INTRIN},
-		Signal {SystemIntrinsicInvocationID::IMax},
+		Signal {Instruction::SYSCALL},
+		Signal {SysCall::IMAX},
 		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
@@ -871,8 +871,8 @@ TEST(ReactorExecution, IntrinsicRoutine_IMin)
 		Signal {INT64_C(4)},
 		Signal {Instruction::PUSH},
 		Signal {INT64_C(7)},
-		Signal {Instruction::INTRIN},
-		Signal {SystemIntrinsicInvocationID::IMin},
+		Signal {Instruction::SYSCALL},
+		Signal {SysCall::IMIN},
 		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
@@ -897,8 +897,8 @@ TEST(ReactorExecution, IntrinsicRoutine_FMax)
 		Signal {0.35},
 		Signal {Instruction::PUSH},
 		Signal {0.15},
-		Signal {Instruction::INTRIN},
-		Signal {SystemIntrinsicInvocationID::FMax},
+		Signal {Instruction::SYSCALL},
+		Signal {SysCall::FMAX},
 		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
@@ -923,8 +923,8 @@ TEST(ReactorExecution, IntrinsicRoutine_FMin)
 		Signal {0.35},
 		Signal {Instruction::PUSH},
 		Signal {0.15},
-		Signal {Instruction::INTRIN},
-		Signal {SystemIntrinsicInvocationID::FMin},
+		Signal {Instruction::SYSCALL},
+		Signal {SysCall::FMIN},
 		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
@@ -949,8 +949,8 @@ TEST(ReactorExecution, IntrinsicRoutine_Dim)
 		Signal {0.35},
 		Signal {Instruction::PUSH},
 		Signal {0.15},
-		Signal {Instruction::INTRIN},
-		Signal {SystemIntrinsicInvocationID::Dim},
+		Signal {Instruction::SYSCALL},
+		Signal {SysCall::DIM},
 		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
@@ -974,8 +974,8 @@ TEST(ReactorExecution, IntrinsicRoutine_IAbs)
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {INT64_C(223233)},
-		Signal {Instruction::INTRIN},
-		Signal {SystemIntrinsicInvocationID::IAbs},
+		Signal {Instruction::SYSCALL},
+		Signal {SysCall::IABS},
 		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};
@@ -997,8 +997,8 @@ TEST(ReactorExecution, IntrinsicRoutine_FAbs)
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
-		Signal {Instruction::INTRIN},
-		Signal {SystemIntrinsicInvocationID::FAbs},
+		Signal {Instruction::SYSCALL},
+		Signal {SysCall::FABS},
 		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};

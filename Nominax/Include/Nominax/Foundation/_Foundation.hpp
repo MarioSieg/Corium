@@ -244,6 +244,7 @@
 #include "Stopwatch.hpp"
 #include "SystemAllocator.hpp"
 #include "TextFile.hpp"
+#include "VariadicMacroHelper.hpp"
 #include "VectorLib.hpp"
 #include "VirtualPageAllocator.hpp"
 #include "VirtualPageProtectionFlags.hpp"

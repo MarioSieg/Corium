@@ -203,14 +203,20 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+/* We don't want any include guard here! It's like an .inl file - just included to merge the implementation. */
+
 #include <chrono>
 #include <cstring>
 
 #include "ReactorCores.hpp"
+#include "SysCall.hpp"
 
-#include "../../Include/Nominax/ByteCode/_ByteCode.hpp"
-#include "../../Include/Nominax/Foundation/_Foundation.hpp"
-#include "../../Include/Nominax/Core/_Core.hpp"
+#include "../../Include/Nominax/ByteCode/Signal.hpp"
+#include "../../Include/Nominax/ByteCode/Instruction.hpp"
+#include "../../Include/Nominax/Foundation/VectorLib.hpp"
+#include "../../Include/Nominax/Foundation/ProxyF64.hpp"
+#include "../../Include/Nominax/Foundation/Algorithm.hpp"
+#include "../../Include/Nominax/Foundation/CPU.hpp"
 
 namespace Nominax::Core
 {
@@ -232,7 +238,7 @@ namespace Nominax::Core
 	using Foundation::VectorLib::F64_X16_Mul_Unaligned;
 	using Foundation::VectorLib::F64_X16_Div_Unaligned;
 
-	using ByteCode::SystemIntrinsicInvocationID;
+	using ByteCode::SysCall;
 	using ByteCode::Instruction;
 	using ByteCode::IntrinsicRoutine;
 	using ByteCode::Signal;
@@ -244,19 +250,19 @@ namespace Nominax::Core
 	 * Asm volatile is like a black box and never touched by the compiler so it might affect code generation/ordering!
 	 */
 	#if NOX_REACTOR_ASM_MARKERS
-	#	define ASM_MARKER(msg) asm volatile("#" msg)
+	#	define ASM_MARKER(msg) asm volatile("# __" msg "__")
 	#else
 	#	define ASM_MARKER(msg)
     #endif
 
     #if NOX_OPT_EXECUTION_ADDRESS_MAPPING
-    #   define JMP_PTR()		*((*++ip).Ptr)
-    #   define JMP_PTR_REL()	*((*ip).Ptr)
-    #   define UPDATE_IP()		ip = reinterpret_cast<const Signal*>(abs)
+    #   define PEEK_DISPATCH()			*((*++ip).Ptr)
+    #   define DISPATCH()				*((*ip).Ptr)
+    #   define SET_JUMP_TARGET()		ip = reinterpret_cast<const Signal*>(abs)
     #else
-    #   define JMP_PTR()		**(jumpTable + (*++ip).OpCode)
-    #   define JMP_PTR_REL()	**(jumpTable + (*ip).OpCode)
-    #   define UPDATE_IP()		ip = ipLo + abs - 1
+    #   define PEEK_DISPATCH()			**(jumpTable+(*++ip).OpCode)
+    #   define DISPATCH()				**(jumpTable+(*ip).OpCode)
+    #   define SET_JUMP_TARGET()		ip = ipLo+abs-1
     #endif
 
     #define LIKELY(expr)    __builtin_expect(expr, true)
@@ -265,7 +271,7 @@ namespace Nominax::Core
     /*
      * Compute vtor memory offset relative to %sp
      */
-    #define VEC_MOFFS(x) (sp - (( x ) + 1))
+    #define VEC_MOFFS(x) (sp-((x)+1))
 
     /// <summary>
     /// Operator for double precision floating point modulo.
@@ -274,338 +280,6 @@ namespace Nominax::Core
     {
         self.AsF64 = std::fmod(self.AsF64, value);
     }
-
-	/// <summary>
-	/// Implementation for the "intrin" instruction.
-	/// This contains a jump table with the implementation of all system intrinsic routines.
-	/// The stack pointer is copied, so all local pushes will be popped automically when
-	/// returning. Since all local pushes and pops are not updates to the original stack pointer,
-	/// this function can only modify the stack values, but not the original sp.
-	/// For that reason the intrinsic routines requires the caller to push/pop the arguments and the return values.
-	/// This is very important!
-	/// So for single argument intrinsic routines, the intrinsic routine just modifies the stack top:
-	/// For example (pseudo code):
-	/// stack[0] = sin(stack[0])
-	/// If a preserved value is needed, a call to "dupl" is needed before calling "intrin".
-	/// A two argument intrinsic routine will write the result into the previous stack element and use the top as second argument:
-	/// stack[-1] = atan2(stack[-1], stack[0])
-	/// So the stack will be:
-	/// +---+-------+
-	/// |sp | value |
-	/// +---+-------+
-	/// | 0 | 12233 | << top -> stack[0] -> (arg1 and result)
-	/// +---+-------+
-	/// | 1 | 27223 | << top - 1 -> stack[-1] -> (arg2)
-	/// +---+-------+
-	/// So stack[-1] will be overwritten and contains the result.
-	/// stack[0] will still contain arg2.
-	/// </summary>
-	NOX_HOT
-    static auto SyscallIntrin(Record* NOX_RESTRICT const sp, const std::uint64_t id) -> void
-	{
-		static constexpr std::array<const void* NOX_RESTRICT const, ToUnderlying(SystemIntrinsicInvocationID::Count_)> JUMP_TABLE
-		{
-			&&__cos__,
-			&&__sin__,
-			&&__tan__,
-			&&__acos__,
-			&&__asin__,
-			&&__atan__,
-			&&__atan2__,
-			&&__cosh__,
-			&&__sinh__,
-			&&__tanh__,
-			&&__acosh__,
-			&&__asinh__,
-			&&__atanh__,
-			&&__exp__,
-			&&__log__,
-			&&__log10__,
-			&&__exp2__,
-			&&__ilogb__,
-			&&__log2__,
-			&&__pow__,
-			&&__sqrt__,
-			&&__cbrt__,
-			&&__hypot__,
-			&&__ceil__,
-			&&__floor__,
-			&&__round__,
-			&&__rint__,
-			&&__max__,
-			&&__min__,
-			&&__fmax__,
-			&&__fmin__,
-			&&__fdim__,
-			&&__abs__,
-			&&__fabs__,
-			&&__io_port_write_cluster__,
-			&&__io_port_read_cluster__,
-			&&__io_port_flush__
-		};
-
-		static_assert(ValidateJumpTable(std::data(JUMP_TABLE), std::size(JUMP_TABLE)));
-
-		const void* NOX_RESTRICT const* const jumpTable { std::data(JUMP_TABLE) };
-
-		goto
-		**(jumpTable + id);
-
-	__cos__:
-		NOX_HOT_LABEL;
-
-		(*sp).AsF64 = std::cos((*sp).AsF64);
-
-		return;
-
-	__sin__:
-		NOX_HOT_LABEL;
-
-		(*sp).AsF64 = std::sin((*sp).AsF64);
-
-		return;
-
-	__tan__:
-		NOX_HOT_LABEL;
-
-		(*sp).AsF64 = std::tan((*sp).AsF64);
-
-		return;
-
-	__acos__:
-		NOX_HOT_LABEL;
-
-		(*sp).AsF64 = std::acos((*sp).AsF64);
-
-		return;
-
-	__asin__:
-		NOX_HOT_LABEL;
-
-		(*sp).AsF64 = std::asin((*sp).AsF64);
-
-		return;
-
-	__atan__:
-		NOX_HOT_LABEL;
-
-		(*sp).AsF64 = std::atan((*sp).AsF64);
-
-		return;
-
-	__atan2__:
-		NOX_HOT_LABEL;
-
-		(*(sp - 1)).AsF64 = std::atan2((*(sp - 1)).AsF64, (*sp).AsF64);
-
-		return;
-
-	__cosh__:
-		NOX_HOT_LABEL;
-
-		(*sp).AsF64 = std::cosh((*sp).AsF64);
-
-		return;
-
-	__sinh__:
-		NOX_HOT_LABEL;
-
-		(*sp).AsF64 = std::sinh((*sp).AsF64);
-
-		return;
-
-	__tanh__:
-		NOX_HOT_LABEL;
-
-		(*sp).AsF64 = std::tanh((*sp).AsF64);
-
-		return;
-
-	__acosh__:
-		NOX_HOT_LABEL;
-
-		(*sp).AsF64 = std::acosh((*sp).AsF64);
-
-		return;
-
-	__asinh__:
-		NOX_HOT_LABEL;
-
-		(*sp).AsF64 = std::asinh((*sp).AsF64);
-
-		return;
-
-	__atanh__:
-		NOX_HOT_LABEL;
-
-		(*sp).AsF64 = std::atanh((*sp).AsF64);
-
-		return;
-
-	__exp__:
-		NOX_HOT_LABEL;
-
-		(*sp).AsF64 = std::exp((*sp).AsF64);
-
-		return;
-
-	__log__:
-		NOX_HOT_LABEL;
-
-		(*sp).AsF64 = std::log((*sp).AsF64);
-
-		return;
-
-	__log10__:
-		NOX_HOT_LABEL;
-
-		(*sp).AsF64 = std::log10((*sp).AsF64);
-
-		return;
-
-	__exp2__:
-		NOX_HOT_LABEL;
-
-		(*sp).AsF64 = std::exp2((*sp).AsF64);
-
-		return;
-
-	__ilogb__:
-		NOX_HOT_LABEL;
-
-		(*sp).AsI64 = std::ilogb((*sp).AsF64);
-
-		return;
-
-	__log2__:
-		NOX_HOT_LABEL;
-
-		(*sp).AsF64 = std::log2((*sp).AsF64);
-
-		return;
-
-	__pow__:
-		NOX_HOT_LABEL;
-
-		(*(sp - 1)).AsF64 = std::pow((*(sp - 1)).AsF64, (*sp).AsF64);
-
-		return;
-
-	__sqrt__:
-		NOX_HOT_LABEL;
-
-		(*sp).AsF64 = std::sqrt((*sp).AsF64);
-
-		return;
-
-	__cbrt__:
-		NOX_HOT_LABEL;
-
-		(*sp).AsF64 = std::cbrt((*sp).AsF64);
-
-		return;
-
-	__hypot__:
-		NOX_HOT_LABEL;
-
-		(*(sp - 1)).AsF64 = std::hypot((*(sp - 1)).AsF64, (*sp).AsF64);
-
-		return;
-
-	__ceil__:
-		NOX_HOT_LABEL;
-
-		(*sp).AsF64 = std::ceil((*sp).AsF64);
-
-		return;
-
-	__floor__:
-		NOX_HOT_LABEL;
-
-		(*sp).AsF64 = std::floor((*sp).AsF64);
-
-		return;
-
-	__round__:
-		NOX_HOT_LABEL;
-
-		(*sp).AsF64 = std::round((*sp).AsF64);
-
-		return;
-
-	__rint__:
-		NOX_HOT_LABEL;
-
-		(*sp).AsF64 = std::rint((*sp).AsF64);
-
-		return;
-
-	__max__:
-		NOX_HOT_LABEL;
-
-		(*(sp - 1)).AsI64 = std::max((*(sp - 1)).AsI64, (*sp).AsI64);
-
-		return;
-
-	__min__:
-		NOX_HOT_LABEL;
-
-		(*(sp - 1)).AsI64 = std::min((*(sp - 1)).AsI64, (*sp).AsI64);
-
-		return;
-
-	__fmax__:
-		NOX_HOT_LABEL;
-
-		(*(sp - 1)).AsF64 = std::max((*(sp - 1)).AsF64, (*sp).AsF64);
-
-		return;
-
-	__fmin__:
-		NOX_HOT_LABEL;
-
-		(*(sp - 1)).AsF64 = std::min((*(sp - 1)).AsF64, (*sp).AsF64);
-
-		return;
-
-	__fdim__:
-		NOX_HOT_LABEL;
-
-		(*(sp - 1)).AsF64 = std::fdim((*(sp - 1)).AsF64, (*sp).AsF64);
-
-		return;
-
-	__abs__:
-		NOX_HOT_LABEL;
-
-		(*sp).AsI64 = std::abs((*sp).AsI64);
-
-		return;
-
-	__fabs__:
-		NOX_HOT_LABEL;
-
-		(*sp).AsF64 = std::abs((*sp).AsF64);
-
-		return;
-
-	__io_port_write_cluster__:
-		NOX_COLD_LABEL;
-        // TODO
-		return;
-
-	__io_port_read_cluster__:
-		NOX_COLD_LABEL;
-        // TODO
-		return;
-
-	__io_port_flush__:
-		NOX_COLD_LABEL;
-
-		std::fflush(stdout);
-
-		return;
-	}
 
 	NOX_HOT auto NOX_REACTOR_IMPL_NAME
 	(
@@ -617,8 +291,8 @@ namespace Nominax::Core
 		static constexpr std::array<const void* NOX_RESTRICT const, ToUnderlying(Instruction::Count_)> JUMP_TABLE
 		{
 			&&__int__,
+			&&__syscall__,
 			&&__intrin__,
-			&&__cintrin__,
 			&&__call__,
 			&&__ret__,
 			&&__mov__,
@@ -692,10 +366,13 @@ namespace Nominax::Core
             &&__cvti2f__,
             &&__cvtf2i__,
             &&__cvti2c__,
-            &&__cvti2b__
+            &&__cvti2b__,
+            &&__gcalloc__,
+            &&__derefw__,
+            &&__derefr__
 		};
 
-		static_assert(ValidateJumpTable(std::data(JUMP_TABLE), std::size(JUMP_TABLE)));
+		static_assert(ValidateJumpTable(std::data(JUMP_TABLE), std::size(JUMP_TABLE)), "Instruction count in enum does not match jump table entry count!");
 
         if (outJumpTable)
         {
@@ -727,45 +404,44 @@ namespace Nominax::Core
 
 		// exec first:
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 	__int__:
 		NOX_COLD_LABEL;
 		{
-			ASM_MARKER("__int__");
+			ASM_MARKER("int");
 
 			interruptCode = static_cast<InterruptStatus>((*++ip).R64.AsI64);
             (*interruptHandlerHook)(interruptCode);
             goto _terminate_;
 		}
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
+
+	__syscall__:
+		NOX_HOT_LABEL;
+		ASM_MARKER("syscall");
+
+		SysCallIntrin(sp, (*++ip).R64.AsU64); // syscall(sp, imm())
+
+		goto
+		PEEK_DISPATCH();
 
 
 	__intrin__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__intrin__");
-
-		SyscallIntrin(sp, (*++ip).R64.AsU64); // syscall(sp, imm())
-
-		goto
-		JMP_PTR();
-
-
-	__cintrin__:
-		NOX_HOT_LABEL;
-		ASM_MARKER("__cintrin__");
+		ASM_MARKER("intrin");
 
 		(**(intrinsicTable + (*++ip).R64.AsU64))(sp);
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__call__:
 		NOX_HOT_LABEL;
 		{
-			ASM_MARKER("__call__");
+			ASM_MARKER("call");
 
 			// ip + 1 is the procedure to jump to, so
 			// ip + 2 is the next instruction
@@ -774,126 +450,126 @@ namespace Nominax::Core
 			ip = ipLo + abs;                               // ip = begin + offset
 		}
 		goto
-		JMP_PTR_REL();
+		DISPATCH();
 
 
 	__ret__:
 		NOX_HOT_LABEL;
 		{
-			ASM_MARKER("__ret__");
+			ASM_MARKER("ret");
 
 			// restore address from last call:
 			ip = bp;
 		}
 		goto
-		JMP_PTR_REL();
+		DISPATCH();
 
 
 	__mov__:
 		NOX_HOT_LABEL;
 		{
-			ASM_MARKER("__mov__");
+			ASM_MARKER("mov");
 
 			const std::uint64_t dst { (*++ip).R64.AsU64 }; // imm() -> arg 1 (reg) - dst
 			*(sp + dst) = *(sp + (*++ip).R64.AsU64);       // poke(dst) = poke(imm())
 		}
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__sto__:
 		NOX_HOT_LABEL;
 		{
-			ASM_MARKER("__sto__");
+			ASM_MARKER("sto");
 
 			const std::uint64_t dst { (*++ip).R64.AsU64 }; // imm() -> arg 1 (reg) - dst
 			(*(sp + dst)).AsU64 = (*++ip).R64.AsU64;       // poke(dst) = imm()
 		}
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__push__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__push__");
+		ASM_MARKER("push");
 
 		*++sp = (*++ip).R64; // push(imm())
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__pop__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__pop__");
+		ASM_MARKER("pop");
 
 		--sp;
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__pop2__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__pop2__");
+		ASM_MARKER("pop2");
 
 		sp -= 2;
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__dupl__:
 		NOX_HOT_LABEL;
 		{
-			ASM_MARKER("__dupl__");
+			ASM_MARKER("dupl");
 			const auto top { *sp }; // peek()
 			*++sp = top;            // push(peek())
 		}
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__dupl2__:
 		NOX_HOT_LABEL;
 		{
-			ASM_MARKER("__dupl2__");
+			ASM_MARKER("dupl2");
 
 			const auto top { *sp }; // peek
 			*++sp = top;            // push(peek())
 			*++sp = top;            // push(peek())
 		}
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__swap__:
 		NOX_HOT_LABEL;
 		{
-			ASM_MARKER("__swap__");
+			ASM_MARKER("swap");
 
 			const auto top { *sp }; // backup = top()
 			*sp       = *(sp - 1);  // top() = poke(1)
 			*(sp - 1) = top;        // poke(1) = backup
 		}
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__nop__:
 		NOX_COLD_LABEL;
-		ASM_MARKER("__nop__");
+		ASM_MARKER("nop");
 
 		NoOperation();
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__jmp__:
 		NOX_HOT_LABEL;
 		{
-			ASM_MARKER("__jmp__");
+			ASM_MARKER("jmp");
 
 			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
 			#if NOX_OPT_EXECUTION_ADDRESS_MAPPING
@@ -903,13 +579,13 @@ namespace Nominax::Core
 			#endif
 		}
 		goto
-		JMP_PTR_REL();
+		DISPATCH();
 
 
 	__jmpr__:
 		NOX_HOT_LABEL;
 		{
-			ASM_MARKER("__jmprel__");
+			ASM_MARKER("jmprel");
 
 			const std::uint64_t rel { (*++ip).R64.AsU64 }; // relative address
 			#if NOX_OPT_EXECUTION_ADDRESS_MAPPING
@@ -919,595 +595,595 @@ namespace Nominax::Core
 			#endif
 		}
 		goto
-		JMP_PTR_REL();
+		DISPATCH();
 
 
 	__jz__:
 		NOX_HOT_LABEL;
 		{
-			ASM_MARKER("__jz__");
+			ASM_MARKER("jz");
 
 			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
 			if ((*sp--).AsI64 == 0)
 			{
-				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
+				SET_JUMP_TARGET(); // ip = begin + offset - 1 (inc stride)
 			}
 		}
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__jnz__:
 		NOX_HOT_LABEL;
 		{
-			ASM_MARKER("__jnz__");
+			ASM_MARKER("jnz");
 
 			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
 			if ((*sp--).AsI64 != 0)
 			{
-				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
+				SET_JUMP_TARGET(); // ip = begin + offset - 1 (inc stride)
 			}
 		}
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__jocmpi__:
 		NOX_HOT_LABEL;
 		{
-			ASM_MARKER("__jo_cmpi__");
+			ASM_MARKER("jo_cmpi");
 
 			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
 			if ((*sp--).AsI64 == 1)
 			{
 				// pop()
-				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
+				SET_JUMP_TARGET(); // ip = begin + offset - 1 (inc stride)
 			}
 		}
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__jocmpf__:
 		NOX_HOT_LABEL;
 		{
-			ASM_MARKER("__jo_cmpf__");
+			ASM_MARKER("jo_cmpf");
 
 			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
 			if (Proxy_F64IsOne((*sp--).AsF64))
 			{
 				// pop()
-				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
+				SET_JUMP_TARGET(); // ip = begin + offset - 1 (inc stride)
 			}
 		}
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__jnocmpi__:
 		NOX_HOT_LABEL;
 		{
-			ASM_MARKER("__jno_cmpi__");
+			ASM_MARKER("jno_cmpi");
 
 			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
 			if ((*sp--).AsI64 != 1)
 			{
 				// pop()
-				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
+				SET_JUMP_TARGET(); // ip = begin + offset - 1 (inc stride)
 			}
 		}
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__jnocmpf__:
 		NOX_HOT_LABEL;
 		{
-			ASM_MARKER("__jno_cmpf__");
+			ASM_MARKER("jno_cmpf");
 
 			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
 			if (!Proxy_F64IsOne((*sp--).AsF64))
 			{
 				// pop()
-				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
+				SET_JUMP_TARGET(); // ip = begin + offset - 1 (inc stride)
 			}
 		}
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__jecmpi__:
 		NOX_HOT_LABEL;
 		{
-			ASM_MARKER("__je_cmpi__");
+			ASM_MARKER("je_cmpi");
 
 			--sp;                                          // pop()
 			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
 			if ((*sp).AsI64 == (*(sp + 1)).AsI64)
 			{
-				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
+				SET_JUMP_TARGET(); // ip = begin + offset - 1 (inc stride)
 			}
 			--sp; // pop()
 		}
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__jecmpf__:
 		NOX_HOT_LABEL;
 		{
-			ASM_MARKER("__je_cmpf__");
+			ASM_MARKER("je_cmpf");
 
 			--sp;                                          // pop()
 			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
 			if (Proxy_F64Equals((*sp).AsF64, (*(sp + 1)).AsF64))
 			{
-				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
+				SET_JUMP_TARGET(); // ip = begin + offset - 1 (inc stride)
 			}
 			--sp; // pop()
 		}
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__jnecmpi__:
 		NOX_HOT_LABEL;
 		{
-			ASM_MARKER("__jne_cmpi__");
+			ASM_MARKER("jne_cmpi");
 
 			--sp;                                          // pop()
 			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
 			if ((*sp).AsI64 != (*(sp + 1)).AsI64)
 			{
-				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
+				SET_JUMP_TARGET(); // ip = begin + offset - 1 (inc stride)
 			}
 			--sp; // pop()
 		}
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__jnecmpf__:
 		NOX_HOT_LABEL;
 		{
-			ASM_MARKER("__jne_cmpf__");
+			ASM_MARKER("jne_cmpf");
 
 			--sp;                                          // pop()
 			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
 			if (!Proxy_F64Equals((*sp).AsF64, (*(sp + 1)).AsF64))
 			{
-				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
+				SET_JUMP_TARGET(); // ip = begin + offset - 1 (inc stride)
 			}
 			--sp; // pop()
 		}
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__jacmpi__:
 		NOX_HOT_LABEL;
 		{
-			ASM_MARKER("__ja_cmpi__");
+			ASM_MARKER("ja_cmpi");
 
 			--sp;                                          // pop()
 			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
 			if ((*sp).AsI64 > (*(sp + 1)).AsI64)
 			{
-				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
+				SET_JUMP_TARGET(); // ip = begin + offset - 1 (inc stride)
 			}
 			--sp; // pop()
 		}
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__jacmpf__:
 		NOX_HOT_LABEL;
 		{
-			ASM_MARKER("__ja_cmpf__");
+			ASM_MARKER("ja_cmpf");
 
 			--sp;                                          // pop()
 			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
 			if ((*sp).AsF64 > (*(sp + 1)).AsF64)
 			{
-				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
+				SET_JUMP_TARGET(); // ip = begin + offset - 1 (inc stride)
 			}
 			--sp; // pop()
 		}
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__jlcmpi__:
 		NOX_HOT_LABEL;
 		{
-			ASM_MARKER("__jl_cmpi__");
+			ASM_MARKER("jl_cmpi");
 
 			--sp;                                          // pop()
 			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
 			if ((*sp).AsI64 < (*(sp + 1)).AsI64)
 			{
-				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
+				SET_JUMP_TARGET(); // ip = begin + offset - 1 (inc stride)
 			}
 			--sp; // pop()
 		}
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__jlcmpf__:
 		NOX_HOT_LABEL;
 		{
-			ASM_MARKER("__jl_cmpf__");
+			ASM_MARKER("jl_cmpf");
 
 			--sp;                                          // pop()
 			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
 			if ((*sp).AsF64 < (*(sp + 1)).AsF64)
 			{
-				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
+				SET_JUMP_TARGET(); // ip = begin + offset - 1 (inc stride)
 			}
 			--sp; // pop()
 		}
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__jaecmpi__:
 		NOX_HOT_LABEL;
 		{
-			ASM_MARKER("__jae_cmpi__");
+			ASM_MARKER("jae_cmpi");
 
 			--sp;                                          // pop()
 			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
 			if ((*sp).AsI64 >= (*(sp + 1)).AsI64)
 			{
-				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
+				SET_JUMP_TARGET(); // ip = begin + offset - 1 (inc stride)
 			}
 			--sp; // pop()
 		}
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__jaecmpf__:
 		NOX_HOT_LABEL;
 		{
-			ASM_MARKER("__jae_cmpf__");
+			ASM_MARKER("jae_cmpf");
 
 			--sp;                                          // pop()
 			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
 			if ((*sp).AsF64 >= (*(sp + 1)).AsF64)
 			{
-				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
+				SET_JUMP_TARGET(); // ip = begin + offset - 1 (inc stride)
 			}
 			--sp; // pop()
 		}
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__jlecmpi__:
 		NOX_HOT_LABEL;
 		{
-			ASM_MARKER("__jle_cmpi__");
+			ASM_MARKER("jle_cmpi");
 
 			--sp;                                          // pop()
 			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
 			if ((*sp).AsI64 <= (*(sp + 1)).AsI64)
 			{
-				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
+				SET_JUMP_TARGET(); // ip = begin + offset - 1 (inc stride)
 			}
 			--sp; // pop()
 		}
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__jlecmpf__:
 		NOX_HOT_LABEL;
 		{
-			ASM_MARKER("__jle_cmpf__");
+			ASM_MARKER("jle_cmpf");
 
 			--sp;                                          // pop()
 			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
 			if ((*sp).AsF64 <= (*(sp + 1)).AsF64)
 			{
-				UPDATE_IP(); // ip = begin + offset - 1 (inc stride)
+				SET_JUMP_TARGET(); // ip = begin + offset - 1 (inc stride)
 			}
 			--sp; // pop()
 		}
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__ipushz__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__ipushz__");
+		ASM_MARKER("ipushz");
 
 		(*++sp).AsI64 = 0; // push(0)
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__ipusho__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__ipusho__");
+		ASM_MARKER("ipusho");
 
 		(*++sp).AsI64 = 1; // push(1)
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__fpusho__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__fpusho__");
+		ASM_MARKER("fpusho");
 
 		(*++sp).AsF64 = 1.0; // push(1)
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__iinc__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__iinc__");
+		ASM_MARKER("iinc");
 
 		++(*sp).AsI64;
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__idec__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__idec__");
+		ASM_MARKER("idec");
 
 		--(*sp).AsI64;
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__iadd__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__iadd__");
+		ASM_MARKER("iadd");
 
 		--sp;                             // pop
 		(*sp).AsI64 += (*(sp + 1)).AsI64; // peek() += poke(1)
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__isub__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__isub__");
+		ASM_MARKER("isub");
 
 		--sp;                             // pop
 		(*sp).AsI64 -= (*(sp + 1)).AsI64; // peek() -= poke(1)
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__imul__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__imul__");
+		ASM_MARKER("imul");
 
 		--sp;                             // pop
 		(*sp).AsI64 *= (*(sp + 1)).AsI64; // peek() *= poke(1)
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__idiv__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__idiv__");
+		ASM_MARKER("idiv");
 
 		--sp;                             // pop
 		(*sp).AsI64 /= (*(sp + 1)).AsI64; // peek() /= poke(1)
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__imod__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__imod__");
+		ASM_MARKER("imod");
 
 		--sp;                             // pop
 		(*sp).AsI64 %= (*(sp + 1)).AsI64; // peek() %= poke(1)
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__iand__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__iand__");
+		ASM_MARKER("iand");
 		--sp;                             // pop
 		(*sp).AsI64 &= (*(sp + 1)).AsI64; // peek() &= poke(1)
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__ior__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__ior__");
+		ASM_MARKER("ior");
 
 		--sp;                             // pop
 		(*sp).AsI64 |= (*(sp + 1)).AsI64; // peek() |= poke(1)
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__ixor__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__ixor__");
+		ASM_MARKER("ixor");
 
 		--sp;                             // pop
 		(*sp).AsI64 ^= (*(sp + 1)).AsI64; // peek() ^= poke(1)
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__icom__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__icom__");
+		ASM_MARKER("icom");
 
 		(*sp).AsI64 = ~(*sp).AsI64;
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__isal__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__isal__");
+		ASM_MARKER("isal");
 
 		--sp;                              // pop
 		(*sp).AsI64 <<= (*(sp + 1)).AsI64; // peek() <<= poke(1)
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__isar__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__isar__");
+		ASM_MARKER("isar");
 
 		--sp;                              // pop
 		(*sp).AsI64 >>= (*(sp + 1)).AsI64; // peek() >>= poke(1)
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__irol__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__irol__");
+		ASM_MARKER("irol");
 
 		--sp; // pop
 		(*sp).AsU64 = Rol64((*sp).AsU64, static_cast<std::uint8_t>((*(sp + 1)).AsU64));
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__iror__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__iror__");
+		ASM_MARKER("iror");
 
 		--sp; // pop
 		(*sp).AsU64 = Ror64((*sp).AsU64, static_cast<std::uint8_t>((*(sp + 1)).AsU64));
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__ineg__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__ineg__");
+		ASM_MARKER("ineg");
 
 		(*sp).AsI64 = -(*sp).AsI64;
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__fadd__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__fadd__");
+		ASM_MARKER("fadd");
 
 		--sp;                             // pop
 		(*sp).AsF64 += (*(sp + 1)).AsF64; // peek() += poke(1)
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__fsub__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__fsub__");
+		ASM_MARKER("fsub");
 
 		--sp;                             // pop
 		(*sp).AsF64 -= (*(sp + 1)).AsF64; // peek() -= poke(1)
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__fmul__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__fmul__");
+		ASM_MARKER("fmul");
 
 		--sp;                             // pop
 		(*sp).AsF64 *= (*(sp + 1)).AsF64; // peek() *= poke(1)
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__fdiv__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__fdiv__");
+		ASM_MARKER("fdiv");
 
 		--sp;                             // pop
 		(*sp).AsF64 /= (*(sp + 1)).AsF64; // peek() /= poke(1)
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__fmod__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__fmod__");
+		ASM_MARKER("fmod");
 
 		--sp;                     // pop
 		*sp %= (*(sp + 1)).AsF64; // peek() %= poke(1)
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__fneg__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__fneg__");
+		ASM_MARKER("fneg");
 
 		(*sp).AsF64 = -(*sp).AsF64;
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__finc__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__finc__");
+		ASM_MARKER("finc");
 
 		++(*sp).AsF64;
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__fdec__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__fdec__");
+		ASM_MARKER("fdec");
 
 		--(*sp).AsF64;
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__vpush__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__vpush__");
+		ASM_MARKER("vpush");
 
 		/*
 			SSE:
@@ -1526,21 +1202,21 @@ namespace Nominax::Core
 		ip += 4;
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__vpop__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__vpop__");
+		ASM_MARKER("vpop");
 
 		sp -= 4;
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 	__vadd__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__vadd__");
+		ASM_MARKER("vadd");
 
 		/*
 			SSE:
@@ -1563,12 +1239,12 @@ namespace Nominax::Core
 		sp -= 4;
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__vsub__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__vsub__");
+		ASM_MARKER("vsub");
 
 		/*
 			SSE:
@@ -1592,12 +1268,12 @@ namespace Nominax::Core
 		sp -= 4;
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__vmul__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__vmul__");
+		ASM_MARKER("vmul");
 
 		/*
 			SSE:
@@ -1621,12 +1297,12 @@ namespace Nominax::Core
 		sp -= 4;
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__vdiv__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__vdiv__");
+		ASM_MARKER("vdiv");
 
 		/*
 			SSE:
@@ -1650,11 +1326,11 @@ namespace Nominax::Core
 		sp -= 4;
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 	__mpush__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__mpush__");
+		ASM_MARKER("mpush");
 
 		/*
 			SSE:
@@ -1697,21 +1373,21 @@ namespace Nominax::Core
 		ip += 16;
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 
 	__mpop__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__mpop__");
+		ASM_MARKER("mpop");
 
 		sp -= 16;
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 	__madd__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__madd__");
+		ASM_MARKER("madd");
 
 		/*
 			SSE:
@@ -1773,11 +1449,11 @@ namespace Nominax::Core
 		sp -= 16;
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 	__msub__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__msub__");
+		ASM_MARKER("msub");
 
 		/*
 			SSE:
@@ -1839,11 +1515,11 @@ namespace Nominax::Core
 		sp -= 16;
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 	__mmul__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__mmul__");
+		ASM_MARKER("mmul");
 
 		/*
 			SSE:
@@ -1905,11 +1581,11 @@ namespace Nominax::Core
 		sp -= 16;
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
 	__mdiv__:
 		NOX_HOT_LABEL;
-		ASM_MARKER("__mdiv__");
+		ASM_MARKER("mdiv");
 
 		/*
 			SSE:
@@ -1972,43 +1648,64 @@ namespace Nominax::Core
 		sp -= 16;
 
 		goto
-		JMP_PTR();
+		PEEK_DISPATCH();
 
     __cvti2f__:
         NOX_HOT_LABEL;
-        ASM_MARKER("__cvti2f__");
+        ASM_MARKER("cvti2f");
 
         (*sp).AsF64 = static_cast<double>((*sp).AsI64);
 
         goto
-        JMP_PTR();
+        PEEK_DISPATCH();
 
     __cvtf2i__:
         NOX_HOT_LABEL;
-        ASM_MARKER("__cvtf2i__");
+        ASM_MARKER("cvtf2i");
 
         (*sp).AsI64 = static_cast<std::int64_t>((*sp).AsF64);
 
         goto
-        JMP_PTR();
+        PEEK_DISPATCH();
 
     __cvti2c__:
         NOX_HOT_LABEL;
-        ASM_MARKER("__cvti2c__");
+        ASM_MARKER("cvti2c");
 
         (*sp).AsChar32 = static_cast<char32_t>((*sp).AsI64);
 
         goto
-        JMP_PTR();
+        PEEK_DISPATCH();
 
     __cvti2b__:
         NOX_HOT_LABEL;
-        ASM_MARKER("__cvti2b__");
+        ASM_MARKER("cvti2b");
 
         (*sp).AsU64 &= true;
 
         goto
-        JMP_PTR();
+        PEEK_DISPATCH();
+
+    __gcalloc__:
+        NOX_HOT_LABEL;
+        ASM_MARKER("gcalloc");
+
+        goto
+        PEEK_DISPATCH();
+
+    __derefw__:
+        NOX_HOT_LABEL;
+        ASM_MARKER("derefw");
+
+        goto
+        PEEK_DISPATCH();
+
+    __derefr__:
+        NOX_HOT_LABEL;
+        ASM_MARKER("derefr");
+
+        goto
+        PEEK_DISPATCH();
 
 	_terminate_:
 		NOX_COLD_LABEL;

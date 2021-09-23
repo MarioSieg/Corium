@@ -220,7 +220,7 @@ TEST(BytecodeStream, Push)
 	stream << static_cast<std::uint64_t>(0);
 	stream << Instruction::NOP;
 	stream << Instruction::CALL;
-	stream << SystemIntrinsicInvocationID::ACos;
+	stream << SysCall::ACOS;
 	stream << UserIntrinsicInvocationID {3};
 	stream << 3.5;
 	stream << UINT64_C(32);
@@ -230,7 +230,7 @@ TEST(BytecodeStream, Push)
 	ASSERT_TRUE(stream[0].Contains(UINT64_C(0)));
 	ASSERT_TRUE(stream[1].Contains(Instruction::NOP));
 	ASSERT_TRUE(stream[2].Contains(Instruction::CALL));
-	ASSERT_TRUE(stream[3].Contains(SystemIntrinsicInvocationID::ACos));
+	ASSERT_TRUE(stream[3].Contains(SysCall::ACOS));
 	ASSERT_TRUE(stream[4].Contains(UserIntrinsicInvocationID{ 3 }));
 	ASSERT_TRUE(stream[5].Contains(3.5));
 	ASSERT_TRUE(stream[6].Contains(UINT64_C(32)));

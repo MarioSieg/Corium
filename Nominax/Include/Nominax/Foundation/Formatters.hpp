@@ -229,7 +229,7 @@ struct fmt::formatter<Nominax::ByteCode::Instruction>
 };
 
 template <>
-struct fmt::formatter<Nominax::ByteCode::SystemIntrinsicInvocationID>
+struct fmt::formatter<Nominax::ByteCode::SysCall>
 {
 	template <typename ParseContext>
 	constexpr auto parse(ParseContext& ctx)
@@ -237,7 +237,7 @@ struct fmt::formatter<Nominax::ByteCode::SystemIntrinsicInvocationID>
 		return ctx.begin();
 	}
 
-	auto format(const Nominax::ByteCode::SystemIntrinsicInvocationID& value, format_context& ctx) const -> FormatOutput;
+	auto format(const Nominax::ByteCode::SysCall& value, format_context& ctx) const -> FormatOutput;
 };
 
 template <>

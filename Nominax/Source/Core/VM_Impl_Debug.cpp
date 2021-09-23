@@ -204,5 +204,5 @@
 //    limitations under the License.
 
 #define NOX_REACTOR_IMPL_NAME ReactorCore_Debug
-#include "VM.inl"
+#include "VM.hpp"
 #undef NOX_REACTOR_IMPL_NAME
