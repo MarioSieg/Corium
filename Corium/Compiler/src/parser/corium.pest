@@ -5,21 +5,15 @@ CompilationUnit = _{
 GlobalStatement = {
     Function |
     NativeFunction |
-    NEWLINE |
-    SEPARATOR
+    StatementSeparator
 }
 
 Module = {
     "module " ~ QualifiedName ~ NEWLINE
 }
 
-StatementSeparator = _{
-    NEWLINE |
-    SEPARATOR
-}
-
 Function = {
-     FunctionSignature ~ " {" ~ NEWLINE ~ Block ~ "}" ~ NEWLINE
+     FunctionSignature ~ " {" ~ NEWLINE ~ FunctionStatement* ~ "}" ~ NEWLINE
 }
 
 NativeFunction = {
@@ -38,6 +32,11 @@ FunctionStatement = {
     LocalVariable |
     ReturnStatement |
     StatementSeparator
+}
+
+StatementSeparator = _{
+    NEWLINE |
+    SEPARATOR
 }
 
 LocalVariable = {

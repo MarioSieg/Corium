@@ -1401,4 +1401,417 @@ mod rules {
             }
         }
     }
+
+    mod local_variable {
+        use super::*;
+
+        mod valid {
+            use super::*;
+
+            #[test]
+            fn int() {
+                let mut result = CoriumParser::parse(Rule::LocalVariable, "let x = 10\n").unwrap();
+                assert_eq!(result.as_str(), "let x = 10\n");
+                let mut result = result.next().unwrap().into_inner();
+                let ident = result.next().unwrap();
+                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_str(), "x");
+                let literal = result.next().unwrap();
+                assert_eq!(literal.as_rule(), Rule::Expression);
+                assert_eq!(literal.as_str(), "10");
+            }
+
+            #[test]
+            fn float() {
+                let mut result =
+                    CoriumParser::parse(Rule::LocalVariable, "let x = 10.0\n").unwrap();
+                assert_eq!(result.as_str(), "let x = 10.0\n");
+                let mut result = result.next().unwrap().into_inner();
+                let ident = result.next().unwrap();
+                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_str(), "x");
+                let literal = result.next().unwrap();
+                assert_eq!(literal.as_rule(), Rule::Expression);
+                assert_eq!(literal.as_str(), "10.0");
+            }
+
+            #[test]
+            fn char() {
+                let mut result = CoriumParser::parse(Rule::LocalVariable, "let x = 'x'\n").unwrap();
+                assert_eq!(result.as_str(), "let x = 'x'\n");
+                let mut result = result.next().unwrap().into_inner();
+                let ident = result.next().unwrap();
+                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_str(), "x");
+                let literal = result.next().unwrap();
+                assert_eq!(literal.as_rule(), Rule::Expression);
+                assert_eq!(literal.as_str(), "'x'");
+            }
+
+            #[test]
+            fn bool() {
+                let mut result =
+                    CoriumParser::parse(Rule::LocalVariable, "let x = true\n").unwrap();
+                assert_eq!(result.as_str(), "let x = true\n");
+                let mut result = result.next().unwrap().into_inner();
+                let ident = result.next().unwrap();
+                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_str(), "x");
+                let literal = result.next().unwrap();
+                assert_eq!(literal.as_rule(), Rule::Expression);
+                assert_eq!(literal.as_str(), "true");
+            }
+
+            #[test]
+            fn string() {
+                let mut result =
+                    CoriumParser::parse(Rule::LocalVariable, "let x = \"Name\"\n").unwrap();
+                assert_eq!(result.as_str(), "let x = \"Name\"\n");
+                let mut result = result.next().unwrap().into_inner();
+                let ident = result.next().unwrap();
+                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_str(), "x");
+                let literal = result.next().unwrap();
+                assert_eq!(literal.as_rule(), Rule::Expression);
+                assert_eq!(literal.as_str(), "\"Name\"");
+            }
+
+            #[test]
+            fn type_int() {
+                let mut result =
+                    CoriumParser::parse(Rule::LocalVariable, "let x int = 10\n").unwrap();
+                assert_eq!(result.as_str(), "let x int = 10\n");
+                let mut result = result.next().unwrap().into_inner();
+                let ident = result.next().unwrap();
+                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_str(), "x");
+                let ident = result.next().unwrap();
+                assert_eq!(ident.as_rule(), Rule::QualifiedName);
+                assert_eq!(ident.as_str(), "int");
+                let literal = result.next().unwrap();
+                assert_eq!(literal.as_rule(), Rule::Expression);
+                assert_eq!(literal.as_str(), "10");
+            }
+
+            #[test]
+            fn type_float() {
+                let mut result =
+                    CoriumParser::parse(Rule::LocalVariable, "let x float = 10.0\n").unwrap();
+                assert_eq!(result.as_str(), "let x float = 10.0\n");
+                let mut result = result.next().unwrap().into_inner();
+                let ident = result.next().unwrap();
+                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_str(), "x");
+                let ident = result.next().unwrap();
+                assert_eq!(ident.as_rule(), Rule::QualifiedName);
+                assert_eq!(ident.as_str(), "float");
+                let literal = result.next().unwrap();
+                assert_eq!(literal.as_rule(), Rule::Expression);
+                assert_eq!(literal.as_str(), "10.0");
+            }
+
+            #[test]
+            fn type_char() {
+                let mut result =
+                    CoriumParser::parse(Rule::LocalVariable, "let x char = 'x'\n").unwrap();
+                assert_eq!(result.as_str(), "let x char = 'x'\n");
+                let mut result = result.next().unwrap().into_inner();
+                let ident = result.next().unwrap();
+                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_str(), "x");
+                let ident = result.next().unwrap();
+                assert_eq!(ident.as_rule(), Rule::QualifiedName);
+                assert_eq!(ident.as_str(), "char");
+                let literal = result.next().unwrap();
+                assert_eq!(literal.as_rule(), Rule::Expression);
+                assert_eq!(literal.as_str(), "'x'");
+            }
+
+            #[test]
+            fn type_bool() {
+                let mut result =
+                    CoriumParser::parse(Rule::LocalVariable, "let x bool = true\n").unwrap();
+                assert_eq!(result.as_str(), "let x bool = true\n");
+                let mut result = result.next().unwrap().into_inner();
+                let ident = result.next().unwrap();
+                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_str(), "x");
+                let ident = result.next().unwrap();
+                assert_eq!(ident.as_rule(), Rule::QualifiedName);
+                assert_eq!(ident.as_str(), "bool");
+                let literal = result.next().unwrap();
+                assert_eq!(literal.as_rule(), Rule::Expression);
+                assert_eq!(literal.as_str(), "true");
+            }
+
+            #[test]
+            fn type_string() {
+                let mut result =
+                    CoriumParser::parse(Rule::LocalVariable, "let x string = \"Name\"\n").unwrap();
+                assert_eq!(result.as_str(), "let x string = \"Name\"\n");
+                let mut result = result.next().unwrap().into_inner();
+                let ident = result.next().unwrap();
+                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_str(), "x");
+                let ident = result.next().unwrap();
+                assert_eq!(ident.as_rule(), Rule::QualifiedName);
+                assert_eq!(ident.as_str(), "string");
+                let literal = result.next().unwrap();
+                assert_eq!(literal.as_rule(), Rule::Expression);
+                assert_eq!(literal.as_str(), "\"Name\"");
+            }
+        }
+
+        mod invalid {
+            use super::*;
+
+            #[test]
+            fn missing() {
+                let result = CoriumParser::parse(Rule::LocalVariable, "let\n");
+                assert!(result.is_err());
+            }
+
+            #[test]
+            fn missing2() {
+                let result = CoriumParser::parse(Rule::LocalVariable, "let=\n");
+                assert!(result.is_err());
+            }
+
+            #[test]
+            fn missing3() {
+                let result = CoriumParser::parse(Rule::LocalVariable, "let = \n");
+                assert!(result.is_err());
+            }
+
+            #[test]
+            fn missing4() {
+                let result = CoriumParser::parse(Rule::LocalVariable, "let x\n");
+                assert!(result.is_err());
+            }
+
+            #[test]
+            fn missing5() {
+                let result = CoriumParser::parse(Rule::LocalVariable, "let x int\n");
+                assert!(result.is_err());
+            }
+
+            #[test]
+            fn missing6() {
+                let result = CoriumParser::parse(Rule::LocalVariable, "let x int = \n");
+                assert!(result.is_err());
+            }
+
+            #[test]
+            fn no_space() {
+                let result = CoriumParser::parse(Rule::LocalVariable, "let x=10\n");
+                assert!(result.is_err());
+            }
+
+            #[test]
+            fn no_space2() {
+                let result = CoriumParser::parse(Rule::LocalVariable, "letx=3\n");
+                assert!(result.is_err());
+            }
+
+            #[test]
+            fn no_newline() {
+                let result = CoriumParser::parse(Rule::LocalVariable, "let x = 10");
+                assert!(result.is_err());
+            }
+        }
+    }
+
+    mod function_statement {
+        use super::*;
+
+        mod valid {
+            use super::*;
+
+            #[test]
+            fn local_var() {
+                let mut result =
+                    CoriumParser::parse(Rule::FunctionStatement, "let x = 10\n").unwrap();
+                let mut result = result.next().unwrap().into_inner();
+                let var = result.next().unwrap();
+                assert_eq!(var.as_rule(), Rule::LocalVariable);
+                assert_eq!(var.as_str(), "let x = 10\n");
+            }
+
+            #[test]
+            fn return_statement() {
+                let mut result = CoriumParser::parse(Rule::FunctionStatement, "return\n").unwrap();
+                let mut result = result.next().unwrap().into_inner();
+                let var = result.next().unwrap();
+                assert_eq!(var.as_rule(), Rule::ReturnStatement);
+                assert_eq!(var.as_str(), "return\n");
+            }
+
+            #[test]
+            fn return_statement2() {
+                let mut result =
+                    CoriumParser::parse(Rule::FunctionStatement, "return true\n").unwrap();
+                let mut result = result.next().unwrap().into_inner();
+                let var = result.next().unwrap();
+                assert_eq!(var.as_rule(), Rule::ReturnStatement);
+                assert_eq!(var.as_str(), "return true\n");
+            }
+
+            #[test]
+            fn separators() {
+                let result = CoriumParser::parse(Rule::FunctionStatement, " \n  \t \t \n\n  \n");
+                assert!(result.is_ok());
+            }
+        }
+
+        mod invalid {
+            use super::*;
+
+            #[test]
+            fn invalid() {
+                let result = CoriumParser::parse(Rule::FunctionStatement, "HELLO THERE");
+                assert!(result.is_err());
+            }
+
+            #[test]
+            fn invalid2() {
+                let result = CoriumParser::parse(Rule::FunctionStatement, "42742");
+                assert!(result.is_err());
+            }
+
+            #[test]
+            fn invalid3() {
+                let result = CoriumParser::parse(Rule::FunctionStatement, "fun f()");
+                assert!(result.is_err());
+            }
+        }
+    }
+
+    mod block {
+        use super::*;
+
+        mod valid {
+            use super::*;
+
+            #[test]
+            fn variables() {
+                let source = concat!(
+                    "let x = 10\n",
+                    "let y int = true\n",
+                    "let name = \"Hey\"\n",
+                    "let z bool = true\n",
+                    "let z float = 2.33225\n"
+                );
+                let mut y = CoriumParser::parse(Rule::Block, source)
+                    .unwrap()
+                    .next()
+                    .unwrap()
+                    .into_inner();
+
+                let var = y.next().unwrap();
+                assert_eq!(var.as_str(), "let x = 10\n");
+
+                let var = y.next().unwrap();
+                assert_eq!(var.as_str(), "let y int = true\n");
+
+                let var = y.next().unwrap();
+                assert_eq!(var.as_str(), "let name = \"Hey\"\n");
+
+                let var = y.next().unwrap();
+                assert_eq!(var.as_str(), "let z bool = true\n");
+
+                let var = y.next().unwrap();
+                assert_eq!(var.as_str(), "let z float = 2.33225\n");
+            }
+
+            #[test]
+            fn returns() {
+                let source = concat!(
+                    "return\n",
+                    "return true\n",
+                    "return \"Hey\"\n",
+                    "return true\n",
+                    "return 2.33225\n"
+                );
+                let mut y = CoriumParser::parse(Rule::Block, source)
+                    .unwrap()
+                    .next()
+                    .unwrap()
+                    .into_inner();
+
+                let var = y.next().unwrap();
+                assert_eq!(var.as_str(), "return\n");
+
+                let var = y.next().unwrap();
+                assert_eq!(var.as_str(), "return true\n");
+
+                let var = y.next().unwrap();
+                assert_eq!(var.as_str(), "return \"Hey\"\n");
+
+                let var = y.next().unwrap();
+                assert_eq!(var.as_str(), "return true\n");
+
+                let var = y.next().unwrap();
+                assert_eq!(var.as_str(), "return 2.33225\n");
+            }
+
+            #[test]
+            fn mixed() {
+                let source = concat!(
+                    "let x = 10\n",
+                    "return true\n",
+                    "return \"Hey\"\n",
+                    "let z bool = true\n",
+                    "let z float = 2.33225\n"
+                );
+                let mut y = CoriumParser::parse(Rule::Block, source)
+                    .unwrap()
+                    .next()
+                    .unwrap()
+                    .into_inner();
+
+                let var = y.next().unwrap();
+                assert_eq!(var.as_str(), "let x = 10\n");
+
+                let var = y.next().unwrap();
+                assert_eq!(var.as_str(), "return true\n");
+
+                let var = y.next().unwrap();
+                assert_eq!(var.as_str(), "return \"Hey\"\n");
+
+                let var = y.next().unwrap();
+                assert_eq!(var.as_str(), "let z bool = true\n");
+
+                let var = y.next().unwrap();
+                assert_eq!(var.as_str(), "let z float = 2.33225\n");
+            }
+        }
+
+        mod invalid {
+            use super::*;
+
+            #[test]
+            fn mixed() {
+                let result = CoriumParser::parse(Rule::Block, "48dad22adad8482").unwrap();
+                assert!(result.as_str().is_empty());
+            }
+
+            #[test]
+            fn mixed2() {
+                let result = CoriumParser::parse(Rule::Block, "let = 4828482").unwrap();
+                assert!(result.as_str().is_empty());
+            }
+
+            #[test]
+            fn mixed3() {
+                let result = CoriumParser::parse(Rule::Block, "return").unwrap();
+                assert!(result.as_str().is_empty());
+            }
+
+            #[test]
+            fn mixed4() {
+                let result = CoriumParser::parse(Rule::Block, " \n\n \t \t\t   \n\t ");
+                assert!(result.is_ok());
+            }
+        }
+    }
 }
