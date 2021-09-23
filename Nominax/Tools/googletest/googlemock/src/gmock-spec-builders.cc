@@ -442,7 +442,7 @@ UntypedActionResultHolderBase* UntypedFunctionMockerBase::UntypedInvokeWith(
   // True if and only if we need to print the call's arguments
   // and return value.
   // This definition must be kept in sync with the uses of Expect()
-  // and Log() in this function.
+  // and LOG() in this function.
   const bool need_to_report_call =
       !found || is_excessive || LogIsVisible(kInfo);
   if (!need_to_report_call) {

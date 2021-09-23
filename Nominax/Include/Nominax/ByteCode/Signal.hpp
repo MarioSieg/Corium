@@ -264,7 +264,17 @@ namespace Nominax::ByteCode
 			/// <summary>
 			/// Jump address.
 			/// </summary>
-			JumpAddress
+			JumpAddress,
+
+            /// <summary>
+            /// Object ID
+            /// </summary>
+            ObjectID,
+
+            /// <summary>
+            /// Field offset in records.
+            /// </summary>
+            FieldOffset
 		};
 
 		/// <summary>
@@ -280,7 +290,7 @@ namespace Nominax::ByteCode
 		/// <summary>
 		/// Reinterpret as system intrinsic call id.
 		/// </summary>
-		SystemIntrinsicInvocationID SystemIntrinID;
+		SysCall SystemIntrinID;
 
 		/// <summary>
 		/// Reinterpret as custom intrinsic call id.
@@ -327,7 +337,7 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr Signal(SystemIntrinsicInvocationID value);
+		explicit constexpr Signal(SysCall value);
 
 		/// <summary>
 			/// Construct from custom intrinsic call id.
@@ -381,7 +391,7 @@ namespace Nominax::ByteCode
 
 	constexpr Signal::Signal(const Foundation::Record value) : R64 { value } {}
 	constexpr Signal::Signal(const Instruction value) : Instr { value } {}
-	constexpr Signal::Signal(const SystemIntrinsicInvocationID value) : SystemIntrinID { value } {}
+	constexpr Signal::Signal(const SysCall value) : SystemIntrinID {value } {}
 	constexpr Signal::Signal(const UserIntrinsicInvocationID value) : UserIntrinID { value } {}
 	constexpr Signal::Signal(void* const value) : Ptr { value } {}
 	constexpr Signal::Signal(const std::int64_t value) : R64 { value } {}

@@ -229,7 +229,7 @@ namespace Nominax::ByteCode
 	/// <param name="id"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	extern auto ValidateSystemIntrinsicCall(SystemIntrinsicInvocationID id) -> bool;
+	extern auto ValidateSystemIntrinsicCall(SysCall id) -> bool;
 
 	/// <summary>
 	/// Validates a user intrinsic call id. To be valid the call id must be:

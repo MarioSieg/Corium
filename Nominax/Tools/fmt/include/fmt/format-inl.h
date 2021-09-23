@@ -689,10 +689,10 @@ inline round_direction get_round_direction(uint64_t divisor, uint64_t remainder,
   FMT_ASSERT(remainder < divisor, "");  // divisor - remainder won't overflow.
   FMT_ASSERT(error < divisor, "");      // divisor - error won't overflow.
   FMT_ASSERT(error < divisor - error, "");  // error * 2 won't overflow.
-  // Round down if (remainder + error) * 2 <= divisor.
+  // ROUND down if (remainder + error) * 2 <= divisor.
   if (remainder <= divisor - remainder && error * 2 <= divisor - remainder * 2)
     return round_direction::down;
-  // Round up if (remainder - error) * 2 >= divisor.
+  // ROUND up if (remainder - error) * 2 >= divisor.
   if (remainder >= error &&
       remainder - error >= divisor - (remainder - error)) {
     return round_direction::up;
@@ -2364,7 +2364,7 @@ void fallback_format(Double d, int num_digits, bool binary32, buffer<char>& buf,
           ++data[num_digits - 1];
         } else if (high) {
           int result = add_compare(numerator, numerator, denominator);
-          // Round half to even.
+          // ROUND half to even.
           if (result > 0 || (result == 0 && (digit % 2) != 0))
             ++data[num_digits - 1];
         }

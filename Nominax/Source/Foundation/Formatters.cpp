@@ -226,9 +226,9 @@ auto formatter<Instruction, char, void>::format
 	);
 }
 
-auto formatter<SystemIntrinsicInvocationID, char, void>::format
+auto formatter<SysCall, char, void>::format
 (
-	const SystemIntrinsicInvocationID& value,
+	const SysCall& value,
 	format_context&                    ctx
 ) const -> FormatOutput
 {

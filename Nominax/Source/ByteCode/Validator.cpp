@@ -381,9 +381,9 @@ namespace Nominax::ByteCode
 		return NOX_EXPECT_VALUE(bucket[idx].Contains<Instruction>(), true);
 	}
 
-	auto ValidateSystemIntrinsicCall(const SystemIntrinsicInvocationID id) -> bool
+	auto ValidateSystemIntrinsicCall(const SysCall id) -> bool
 	{
-		constexpr auto max { ToUnderlying(SystemIntrinsicInvocationID::Count_) - 1 };
+		constexpr auto max {ToUnderlying(SysCall::Count_) - 1 };
 		const auto     value { ToUnderlying(id) };
 		static_assert(std::is_unsigned_v<decltype(value)>);
 		return NOX_EXPECT_VALUE(value <= max, true);

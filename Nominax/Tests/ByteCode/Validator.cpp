@@ -210,7 +210,7 @@
 // Legacy compat:
 struct DynamicSignal final
 {
-	using DataVariant = std::variant<Instruction, SystemIntrinsicInvocationID, UserIntrinsicInvocationID, JumpAddress, std::uint64_t, std::int64_t, double>;
+	using DataVariant = std::variant<Instruction, SysCall, UserIntrinsicInvocationID, JumpAddress, std::uint64_t, std::int64_t, double>;
 
 	DataVariant Data {0ULL};
 
@@ -271,10 +271,10 @@ TEST(ValidatorAlgorithms, ValidateJumpAddressValid)
 
 TEST(ValidatorAlgorithms, ValidateSystemIntrinsicCall)
 {
-	ASSERT_TRUE(ValidateSystemIntrinsicCall(SystemIntrinsicInvocationID::ACos));
-	ASSERT_TRUE(ValidateSystemIntrinsicCall(SystemIntrinsicInvocationID::IoPortWriteCluster));
-	ASSERT_FALSE(ValidateSystemIntrinsicCall(SystemIntrinsicInvocationID::Count_));
-	ASSERT_FALSE(ValidateSystemIntrinsicCall(static_cast<SystemIntrinsicInvocationID>(-1)));
+	ASSERT_TRUE(ValidateSystemIntrinsicCall(SysCall::ACOS));
+	ASSERT_TRUE(ValidateSystemIntrinsicCall(SysCall::ASIN));
+	ASSERT_FALSE(ValidateSystemIntrinsicCall(SysCall::Count_));
+	ASSERT_FALSE(ValidateSystemIntrinsicCall(static_cast<SysCall>(-1)));
 }
 
 TEST(ValidatorAlgorithms, ValidateCustomIntrinsicCall)
@@ -312,27 +312,27 @@ TEST(ValidatorAlgorithms, ValidateInstructionArguments_Jmp)
 
 TEST(ValidatorAlgorithms, ValidateInstructionArguments_Intrin)
 {
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::INTRIN, {DynamicSignal{3LL} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::INTRIN, {DynamicSignal{3.0} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::INTRIN, {DynamicSignal{3ULL} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::INTRIN, {DynamicSignal{3LL}, {} }), ValidationResultCode::TooManyArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::INTRIN, std::vector<DynamicSignal>{{} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::INTRIN, {DynamicSignal{SystemIntrinsicInvocationID::ASin}, DynamicSignal{SystemIntrinsicInvocationID::ASin} }),
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::SYSCALL, {DynamicSignal{3LL} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::SYSCALL, {DynamicSignal{3.0} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::SYSCALL, {DynamicSignal{3ULL} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::SYSCALL, {DynamicSignal{3LL}, {} }), ValidationResultCode::TooManyArgumentsForInstruction);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::SYSCALL, std::vector<DynamicSignal>{{} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::SYSCALL, {DynamicSignal{SysCall::ASIN}, DynamicSignal{SysCall::ASIN} }),
 	          ValidationResultCode::TooManyArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::INTRIN, {DynamicSignal{SystemIntrinsicInvocationID::ASin} }), ValidationResultCode::Ok);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::SYSCALL, {DynamicSignal{SysCall::ASIN} }), ValidationResultCode::Ok);
 }
 
 
 TEST(ValidatorAlgorithms, ValidateInstructionArguments_CIntrin)
 {
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::CINTRIN, {DynamicSignal{3LL} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::CINTRIN, {DynamicSignal{3.0} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::CINTRIN, {DynamicSignal{3ULL} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::CINTRIN, {DynamicSignal{3LL}, {} }), ValidationResultCode::TooManyArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::CINTRIN, std::vector<DynamicSignal>{{} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::CINTRIN, {DynamicSignal{UserIntrinsicInvocationID{3}}, DynamicSignal{UserIntrinsicInvocationID{3}} }),
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::INTRIN, {DynamicSignal{3LL} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::INTRIN, {DynamicSignal{3.0} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::INTRIN, {DynamicSignal{3ULL} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::INTRIN, {DynamicSignal{3LL}, {} }), ValidationResultCode::TooManyArgumentsForInstruction);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::INTRIN, std::vector<DynamicSignal>{{} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::INTRIN, {DynamicSignal{UserIntrinsicInvocationID{3}}, DynamicSignal{UserIntrinsicInvocationID{3}} }),
 	          ValidationResultCode::TooManyArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::CINTRIN, {DynamicSignal{UserIntrinsicInvocationID{3}} }), ValidationResultCode::Ok);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::INTRIN, {DynamicSignal{UserIntrinsicInvocationID{3}} }), ValidationResultCode::Ok);
 }
 
 TEST(ValidatorAlgorithms, ValidateInstructionArguments_None)
@@ -352,7 +352,7 @@ TEST(ValidatorAlgorithms, ValidateInstructionArguments_Push_Combined)
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::PUSH, {DynamicSignal{3LL} }), ValidationResultCode::Ok);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::PUSH, {DynamicSignal{3ULL} }), ValidationResultCode::Ok);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::PUSH, {DynamicSignal{3.0} }), ValidationResultCode::Ok);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::PUSH, {DynamicSignal{SystemIntrinsicInvocationID::ASin} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::PUSH, {DynamicSignal{SysCall::ASIN} }), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::PUSH, {DynamicSignal{UserIntrinsicInvocationID{3}} }), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::PUSH, {DynamicSignal{JumpAddress{2}} }), ValidationResultCode::ArgumentTypeMismatch);
 }
@@ -367,7 +367,7 @@ TEST(ValidatorAlgorithms, ValidateInstructionArguments_Sto_Combined)
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::STO, {DynamicSignal{3LL}, DynamicSignal{3LL} }), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::STO, {DynamicSignal{3.0}, DynamicSignal{3ULL} }), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::STO, {DynamicSignal{3.0}, DynamicSignal{3.0} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::STO, {DynamicSignal{3ULL}, DynamicSignal{SystemIntrinsicInvocationID::ASin} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::STO, {DynamicSignal{3ULL}, DynamicSignal{SysCall::ASIN} }), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::STO, {DynamicSignal{3ULL}, DynamicSignal{UserIntrinsicInvocationID{3}} }), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::STO, {DynamicSignal{3ULL}, DynamicSignal{JumpAddress{2}} }), ValidationResultCode::ArgumentTypeMismatch);
 }
@@ -832,9 +832,9 @@ TEST(ValidatorAlgorithms, ValidateUserIntrinsicValid)
 
 	Stream code { };
 	code.Prologue();
-	code << Instruction::CINTRIN << UserIntrinsicInvocationID {0};
-	code << Instruction::CINTRIN << UserIntrinsicInvocationID {1};
-	code << Instruction::CINTRIN << UserIntrinsicInvocationID {2};
+	code << Instruction::INTRIN << UserIntrinsicInvocationID {0};
+	code << Instruction::INTRIN << UserIntrinsicInvocationID {1};
+	code << Instruction::INTRIN << UserIntrinsicInvocationID {2};
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code, routines), ValidationResultCode::Ok);
@@ -851,9 +851,9 @@ TEST(ValidatorAlgorithms, ValidateUserIntrinsicInvalidNull)
 
 	Stream code { };
 	code.Prologue();
-	code << Instruction::CINTRIN << UserIntrinsicInvocationID {0};
-	code << Instruction::CINTRIN << UserIntrinsicInvocationID {1};
-	code << Instruction::CINTRIN << UserIntrinsicInvocationID {2};
+	code << Instruction::INTRIN << UserIntrinsicInvocationID {0};
+	code << Instruction::INTRIN << UserIntrinsicInvocationID {1};
+	code << Instruction::INTRIN << UserIntrinsicInvocationID {2};
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code, routines), ValidationResultCode::InvalidUserIntrinsicCall);
@@ -870,9 +870,9 @@ TEST(ValidatorAlgorithms, ValidateUserIntrinsicInvalidOutOfRange)
 
 	Stream code { };
 	code.Prologue();
-	code << Instruction::CINTRIN << UserIntrinsicInvocationID {0};
-	code << Instruction::CINTRIN << UserIntrinsicInvocationID {1};
-	code << Instruction::CINTRIN << UserIntrinsicInvocationID {3};
+	code << Instruction::INTRIN << UserIntrinsicInvocationID {0};
+	code << Instruction::INTRIN << UserIntrinsicInvocationID {1};
+	code << Instruction::INTRIN << UserIntrinsicInvocationID {3};
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code, routines), ValidationResultCode::InvalidUserIntrinsicCall);
@@ -884,9 +884,9 @@ TEST(ValidatorAlgorithms, ValidateUserIntrinsicInvalidOutOfRange2)
 
 	Stream code { };
 	code.Prologue();
-	code << Instruction::CINTRIN << UserIntrinsicInvocationID {0};
-	code << Instruction::CINTRIN << UserIntrinsicInvocationID {1};
-	code << Instruction::CINTRIN << UserIntrinsicInvocationID {3};
+	code << Instruction::INTRIN << UserIntrinsicInvocationID {0};
+	code << Instruction::INTRIN << UserIntrinsicInvocationID {1};
+	code << Instruction::INTRIN << UserIntrinsicInvocationID {3};
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code, routines), ValidationResultCode::InvalidUserIntrinsicCall);

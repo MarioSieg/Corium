@@ -240,7 +240,7 @@ namespace Nominax::ByteCode
 		{
 			return { Signal::Discriminator::Instruction };
 		}
-		else if constexpr (std::is_same_v<SystemIntrinsicInvocationID, T>)
+		else if constexpr (std::is_same_v<SysCall, T>)
 		{
 			return { Signal::Discriminator::SystemIntrinsicInvocationID };
 		}

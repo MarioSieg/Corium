@@ -242,7 +242,7 @@ IterationCount BenchmarkRunner::PredictNumItersNeeded(
   multiplier = is_significant ? multiplier : std::min(10.0, multiplier);
   if (multiplier <= 1.0) multiplier = 2.0;
 
-  // So what seems to be the sufficiently-large iteration count? Round up.
+  // So what seems to be the sufficiently-large iteration count? ROUND up.
   const IterationCount max_next_iters = static_cast<IterationCount>(
       std::lround(std::max(multiplier * static_cast<double>(i.iters),
                            static_cast<double>(i.iters) + 1.0)));
