@@ -256,8 +256,8 @@ namespace Nominax::Core
     #endif
 
     #if NOX_OPT_EXECUTION_ADDRESS_MAPPING
-    #   define PEEK_DISPATCH()			*((*++ip).Ptr)
-    #   define DISPATCH()				*((*ip).Ptr)
+    #   define PEEK_DISPATCH()			*((*++ip).Reference)
+    #   define DISPATCH()				*((*ip).Reference)
     #   define SET_JUMP_TARGET()		ip = reinterpret_cast<const Signal*>(abs)
     #else
     #   define PEEK_DISPATCH()			**(jumpTable+(*++ip).OpCode)

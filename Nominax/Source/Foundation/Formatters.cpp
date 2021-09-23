@@ -303,7 +303,7 @@ auto formatter<DiscriminatedSignal, char, void>::format
 			return format_to(ctx.out(), "*rel {}",
 			                 ToUnderlying(value.Value.JmpAddress));
 		default:
-		case Dis::Ptr:
+		case Dis::Reference:
 			return format_to(ctx.out(), "*ref {:X}", value.Value.R64.AsU64);
 	}
 }

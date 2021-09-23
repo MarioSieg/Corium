@@ -233,7 +233,7 @@ struct DynamicSignal final
 			case 6:
 				return Signal::Discriminator::Float;
 			default:
-				return Signal::Discriminator::Ptr;
+				return Signal::Discriminator::Reference;
 		}
 	}
 };

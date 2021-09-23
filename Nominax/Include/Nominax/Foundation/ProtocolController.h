@@ -259,11 +259,11 @@ namespace Nominax::Foundation
         /// Query output stream.
         /// </summary>
         /// <returns>The current stream acting as stdout.</returns>
-        static inline auto GetProtocolStream() -> FILE*;
+        static inline auto GetProtocolStream() -> FILE&;
     };
 
-    inline auto ProtocolController::GetProtocolStream() -> FILE*
+    inline auto ProtocolController::GetProtocolStream() -> FILE&
     {
-        return stdout;
+        return *stdout;
     }
 }

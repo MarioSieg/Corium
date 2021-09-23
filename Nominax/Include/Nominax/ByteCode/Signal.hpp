@@ -259,7 +259,7 @@ namespace Nominax::ByteCode
 			/// <summary>
 			/// Pointer.
 			/// </summary>
-			Ptr,
+			Reference,
 
 			/// <summary>
 			/// Jump address.
@@ -269,13 +269,54 @@ namespace Nominax::ByteCode
             /// <summary>
             /// Object ID
             /// </summary>
-            ObjectID,
+            TypeID,
 
             /// <summary>
             /// Field offset in records.
             /// </summary>
-            FieldOffset
+            FieldOffset,
+
+            /// <summary>
+            /// Amount of discriminators.
+            /// </summary>
+            Count_
 		};
+
+        /// <summary>
+        /// Contains the name of all discriminators.
+        /// </summary>
+        static constexpr std::array<const std::string_view, ToUnderlying(Discriminator::Count_)> DISCRIMINATOR_NAMES
+        {
+            "UOffset",
+            "Int",
+            "Float",
+            "Instruction",
+            "SyscallID",
+            "IntrinsicID",
+            "Opcode",
+            "Reference",
+            "JumpAddress",
+            "TypeID",
+            "FieldOffset"
+        };
+
+        /// <summary>
+        /// Contains the name of all discriminators.
+        /// </summary>
+        static constexpr std::array<const std::string_view, ToUnderlying(Discriminator::Count_)> SHORT_DISCRIMINATOR_NAMES
+        {
+            "U64",
+            "I64",
+            "F64",
+            "INS",
+            "SYS",
+            "INT",
+            "OPC",
+            "REF",
+            "JMP",
+            "TYD",
+            "FOF"
+        };
 
 		/// <summary>
 		/// Reinterpret as Record64.

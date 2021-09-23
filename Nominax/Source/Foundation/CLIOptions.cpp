@@ -206,6 +206,7 @@
 #include "../../Include/Nominax/Foundation/CLIOptions.hpp"
 #include "../../Include/Nominax/Foundation/Version.hpp"
 #include "../../Include/Nominax/Foundation/Print.hpp"
+#include "../../Include/Nominax/ByteCode/InstructionMetaDataRegistry.hpp"
 
 namespace Nominax::Foundation
 {
@@ -226,8 +227,12 @@ namespace Nominax::Foundation
              }
         };
 
+        // terminating info flags:
+
         const bool help { createAndCheckFlag("-h", "--help", "Display this help message listing all options.") };
         const bool version { createAndCheckFlag("-v", "--version", "Display the version of the runtime system plus addition information.") };
+        const bool dumpISA { createAndCheckFlag("-i", "--isa", "Display the bytecode instruction set architecture.") };
+
         const bool sandbox { createAndCheckFlag("-s", "--sandbox", "Force sandbox VM execution.") };
         const bool fallback { createAndCheckFlag("-f", "--fallback", "Force fallback VM execution.") };
         const bool powersafe { createAndCheckFlag("-ps", "--powersafe", "Enable powersafe mode for less CPU usage.") };
@@ -237,12 +242,20 @@ namespace Nominax::Foundation
         // check if no arguments where submitted (1 arg is always .exe dir)
         if (std::size(parser.GetArgs()) <= 1 || help)
         {
+            [[unlikely]]
             parser.DisplayToConsole();
             return false;
         }
         else if (version)
         {
+            [[unlikely]]
             SYSTEM_VERSION.DisplayToConsole();
+            return false;
+        }
+        else if (dumpISA)
+        {
+            [[unlikely]]
+            ByteCode::InstructionMetaDataRegistry::PrintInstructionSetTable(ProtocolController::GetProtocolStream());
             return false;
         }
 

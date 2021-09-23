@@ -307,13 +307,28 @@ namespace Nominax::ByteCode
 	/// </summary>
 	enum class InstructionCategory : std::uint8_t
 	{
-		Control = 0x00,
-		Memory = 0x01,
-		Branching = 0x02,
-		Arithmetic = 0x03,
-		BitWise = 0x04,
-		VectorArithmetic = 0x05
+		Control,
+		Memory,
+		Branching,
+		Arithmetic,
+		Bitwise,
+		VectorArithmetic,
+
+        Count_
 	};
+
+    /// <summary>
+    /// Instruction category sigils.
+    /// </summary>
+    constexpr std::array<const char, ToUnderlying(InstructionCategory::Count_)> INSTRUCTION_CATEGORY_SIGILS
+    {
+        'C',
+        'M',
+        'B',
+        'A',
+        'I',
+        'V'
+    };
 
 	/// <summary>
 	/// Represents a jump address which
