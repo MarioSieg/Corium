@@ -1,4 +1,4 @@
-// Author: Mario
+// Author: Mario Sieg
 // Project: Nominax
 // 
 //                                  Apache License
@@ -205,6 +205,8 @@
 
 #include "../../../Nominax/Include/Nominax/ByteCode/_ByteCode.hpp"
 #include "../../../Nominax/Include/Nominax/Foundation/_Foundation.hpp"
+#include "../../Include/Nominax/ByteCode/Stream.hpp"
+
 
 namespace Nominax::ByteCode
 {
@@ -212,7 +214,7 @@ namespace Nominax::ByteCode
 	{
 		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		std::memcpy(std::data(out.Magic), std::data(SerializationImageHeader::MAGIC_ID), sizeof out.Magic);
-		out.CodeImageSize          = std::size(this->CodeBuffer_);
+		out.CodeImageSize = std::size(this->CodeBuffer_);
 		out.DiscriminatorImageSize = std::size(this->CodeDiscriminatorBuffer_);
 		out.EncryptDecrypt();
 	}
@@ -246,7 +248,7 @@ namespace Nominax::ByteCode
 			if (header.Magic[i] != SerializationImageHeader::MAGIC_ID[i])
 			{
 				[[unlikely]]
-					return false;
+                return false;
 			}
 		}
 
@@ -254,7 +256,7 @@ namespace Nominax::ByteCode
 		if (!header.CodeImageSize || !header.DiscriminatorImageSize)
 		{
 			[[unlikely]]
-				return false;
+            return false;
 		}
 
 		// validate code section marker
@@ -263,7 +265,7 @@ namespace Nominax::ByteCode
 		if (codeSectionMarker != STREAM_IMAGE_CODE_SECTION_MARKER)
 		{
 			[[unlikely]]
-				return false;
+            return false;
 		}
 
 		// load code section:
@@ -277,7 +279,7 @@ namespace Nominax::ByteCode
 		if (discriminatorSectionMarker != STREAM_IMAGE_DISCRIMINATOR_SECTION_MARKER)
 		{
 			[[unlikely]]
-				return false;
+            return false;
 		}
 
 		// load discriminator section:
@@ -286,54 +288,6 @@ namespace Nominax::ByteCode
 		in.read(reinterpret_cast<char*>(std::data(this->CodeDiscriminatorBuffer_)), header.DiscriminatorImageSize * sizeof(CodeStorageType::value_type));
 
 		return true;
-	}
-
-	auto Stream::DumpByteCode() const -> void
-	{
-		using namespace Foundation;
-
-		Print("Signal: {}, Size: {:.3} kB, Granularity: {} B\n", this->Size(), Bytes2Kilobytes(static_cast<float>(this->SizeInBytes())), sizeof(Signal));
-
-		for (std::uint64_t i { 0 }; i < this->Size(); ++i)
-		{
-			const auto bytes { std::bit_cast<std::array<std::uint8_t, sizeof(Signal)>>(this->CodeBuffer_[i]) };
-			Print("&{:016X} ", std::bit_cast<std::uintptr_t>(&this->CodeBuffer_[i]));
-			Print
-			(
-				"| {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} | ",
-				bytes[0],
-				bytes[1],
-				bytes[2],
-				bytes[3],
-				bytes[4],
-				bytes[5],
-				bytes[6],
-				bytes[7]
-			);
-			Print("{}\n", (*this)[i]);
-		}
-
-		Print("\n\n");
-	}
-
-	auto Stream::PrintMemoryCompositionInfo() const -> void
-	{
-		using namespace Foundation;
-
-		Print("Stream size: {}\n", this->Size());
-		Print
-        (
-            "Code buffer: {:.03F} MB\n",
-            Bytes2Megabytes<float>(static_cast<float>(this->CodeBuffer_.size())
-            * static_cast<float>(sizeof(CodeStorageType::value_type)))
-        );
-		Print
-        (
-            "Discriminator buffer: {:.03F} MB\n",
-            Bytes2Megabytes<float>(static_cast<float>(this->CodeDiscriminatorBuffer_.size())
-            * static_cast<float>(sizeof(DiscriminatorStorageType::value_type)))
-        );
-		Print("Total: {:.03F} MB\n", Bytes2Megabytes<float>(static_cast<float>(this->SizeInBytes())));
 	}
 
 	auto Stream::Prologue() -> Stream&
@@ -362,7 +316,7 @@ namespace Nominax::ByteCode
 		if (validationResult != ValidationResultCode::Ok)
 		{
 			[[unlikely]]
-				return validationResult;
+            return validationResult;
 		}
         LinkStreamToImageByMove(std::move(stream), optInfo, out);
 		return ValidationResultCode::Ok;
@@ -374,7 +328,7 @@ namespace Nominax::ByteCode
 		if (validationResult != ValidationResultCode::Ok)
 		{
 			[[unlikely]]
-				return validationResult;
+            return validationResult;
 		}
         LinkStreamToImageByCopy(stream, optInfo, out);
 		return ValidationResultCode::Ok;
@@ -389,4 +343,44 @@ namespace Nominax::ByteCode
 	{
 		return ByteCode::ContainsEpilogue(*this);
 	}
+
+    auto Stream::Display(std::FILE& stream) const -> void
+    {
+        using namespace Foundation;
+
+        Print(stream, "Stream size: {}\n", this->Size());
+        Print
+        (
+            stream,
+            "Code buffer: {:.3F} MB\n",
+            Bytes2Megabytes<float>(static_cast<float>(this->CodeBuffer_.size()) * static_cast<float>(sizeof(CodeStorageType::value_type)))
+        );
+        Print
+        (
+            stream,
+            "Discriminator buffer: {:.3F} MB\n",
+            Bytes2Megabytes<float>(static_cast<float>(this->CodeDiscriminatorBuffer_.size()) * static_cast<float>(sizeof(DiscriminatorStorageType::value_type)))
+        );
+        Print(stream,"Total: {:.3F} MB\n", Bytes2Megabytes<float>(static_cast<float>(this->SizeInBytes())));
+        Print(stream,"Signal: {}, Size: {:.3} kB, Granularity: {} B\n", this->Size(), Bytes2Kilobytes(static_cast<float>(this->SizeInBytes())), sizeof(Signal));
+        for (std::uint64_t i { 0 }; i < this->Size(); ++i)
+        {
+            const auto bytes { std::bit_cast<std::array<std::uint8_t, sizeof(Signal)>>(this->CodeBuffer_[i]) };
+            Print(stream, "&{:016X} ", std::bit_cast<std::uintptr_t>(&this->CodeBuffer_[i]));
+            Print
+            (
+                stream,
+                "| {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} | ",
+                bytes[0],
+                bytes[1],
+                bytes[2],
+                bytes[3],
+                bytes[4],
+                bytes[5],
+                bytes[6],
+                bytes[7]
+            );
+            Print(stream,"{}\n", (*this)[i]);
+        }
+    }
 }

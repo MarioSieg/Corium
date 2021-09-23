@@ -1,4 +1,4 @@
-// Author: Mario
+// Author: Mario Sieg
 // Project: Nominax
 // 
 //                                  Apache License
@@ -214,63 +214,6 @@ namespace Nominax::Core
 {
 	using namespace Foundation;
 
-	/// <summary>
-	/// Fetch and print machine info.
-	/// </summary>
-	/// <returns></returns>
-	static auto InitSysInfo() -> SystemInfoSnapshot
-	{
-		Print('\n');
-		SystemInfoSnapshot snapshot { };
-		snapshot.Print();
-		return snapshot;
-	}
-
-	/// <summary>
-	/// Fetch and print cpu features.
-	/// </summary>
-	/// <returns></returns>Common::
-	static auto InitCpuFeatures() -> CPUFeatureDetector
-	{
-		Print('\n');
-		CPUFeatureDetector cpuFeatureDetector { };
-		cpuFeatureDetector.Dump();
-		Print('\n');
-		return cpuFeatureDetector;
-	}
-
-	/// <summary>
-	/// Prints the info of one type.
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="name"></param>
-	/// <returns></returns>
-	template <typename T>
-	static inline auto PrintTypeInfo(const std::string_view name) -> void
-	{
-		Print("{0: <14} | {1: <14} | {2: <14}\n", name, sizeof(T), alignof(T));
-	}
-
-	/// <summary>
-	/// Print size and alignment of common types.
-	/// </summary>
-	/// <returns></returns>
-	static auto PrintTypeInfoTable() -> void
-	{
-		Print("{0: <14} | {1: <14} | {2: <14}\n\n", "Type", "Byte WordSize", "Alignment");
-		PrintTypeInfo<Record>("Record");
-		PrintTypeInfo<ByteCode::Signal>("Signal");
-		PrintTypeInfo<ByteCode::Signal::Discriminator>("SignalDisc");
-		PrintTypeInfo<Object>("Object");
-		PrintTypeInfo<ObjectHeader>("ObjectHeader");
-		PrintTypeInfo<std::int64_t>("int");
-		PrintTypeInfo<std::uint64_t>("uint");
-		PrintTypeInfo<double>("float");
-		PrintTypeInfo<char32_t>("char");
-		PrintTypeInfo<bool>("bool");
-		PrintTypeInfo<void*>("void*");
-	}
-
 	#define DISPATCH_HOOK(method, ...)							    \
         do															\
         {															\
@@ -293,11 +236,7 @@ namespace Nominax::Core
 	/// <returns></returns>
 	static inline auto MapStackSize(const std::uint64_t sizeInBytes) -> std::uint64_t
 	{
-		if (sizeInBytes % sizeof(Record) != 0)
-		{
-			[[unlikely]]
-            Panic(Format("Invalid stack size: {}! Must be a multiple of sizeof(Record) -> 8!", sizeInBytes));
-		}
+        NOX_PAS_EQ(sizeInBytes % sizeof(Record), 0, Format("Invalid stack size: {}! Must be a multiple of sizeof(Record) -> 8!", sizeInBytes));
 		return sizeInBytes / sizeof(Record);
 	}
 
@@ -406,7 +345,29 @@ namespace Nominax::Core
 	{
 		return fallback ? HyperVisor::GetFallbackRoutineLink() : HyperVisor::GetOptimalReactorRoutine(cpu);
 	}
-	
+
+    /// <summary>
+    /// Fetch and print machine info.
+    /// </summary>
+    /// <returns></returns>
+    static auto InitSysInfo() -> SystemInfoSnapshot
+    {
+        SystemInfoSnapshot snapshot { };
+        snapshot.DisplayToConsole();
+        return snapshot;
+    }
+
+    /// <summary>
+    /// Fetch and print cpu features.
+    /// </summary>
+    /// <returns></returns>Common::
+    static auto InitCpuFeatures() -> CPUFeatureDetector
+    {
+        CPUFeatureDetector cpuFeatureDetector { };
+        cpuFeatureDetector.DisplayToConsole();
+        return cpuFeatureDetector;
+    }
+
 	/// <summary>
 	/// Contains all the runtime variables required for the runtime system.
 	/// </summary>
@@ -426,9 +387,9 @@ namespace Nominax::Core
 		const ReactorRoutineLink                                    OptimalReactorRoutine;
 		ReactorPool                                                 CorePool;
         std::uint64_t                                               ExecutionCount;
-        FILE*                                                       OutputStream;
-        FILE*                                                       ErrorStream;
-        FILE*                                                       InputStream;
+        std::FILE*                                                  OutputStream;
+        std::FILE*                                                  ErrorStream;
+        std::FILE*                                                  InputStream;
 
 		explicit Context(const EnvironmentDescriptor& descriptor);
 		Context(const Context& other)                       = delete;
@@ -530,8 +491,8 @@ namespace Nominax::Core
 
 		// Basic setup:
 		std::ios_base::sync_with_stdio(false);
-		PrintSystemInfo();
-        PrintTypeInfoTable();
+		SYSTEM_VERSION.DisplayToConsole();
+        NATIVE_TYPE_REGISTRY.DisplayToConsole();
 		Print("\nBooting runtime environment...\nApp: \"{}\"\n", descriptor.AppName);
 		const auto tik { std::chrono::high_resolution_clock::now() };
 
@@ -603,10 +564,10 @@ namespace Nominax::Core
 
         // Info
         Print("Executing...\n");
-        FILE* const outStream  { stdout };
+        std::FILE* const outStream  { stdout };
         std::fflush(outStream);
 
-        // Execute on alpha reactor:
+        // Call on alpha reactor:
         const ReactorState& state { (*this->Context_->CorePool)(image) };
 
         // Add execution time:
@@ -719,37 +680,37 @@ namespace Nominax::Core
 		};
 	}
 
-    auto Environment::GetOutputStream() const -> FILE&
+    auto Environment::GetOutputStream() const -> std::FILE&
     {
         VALIDATE_ONLINE_BOOT_STATE();
         return *this->Context_->OutputStream;
     }
 
-    auto Environment::GetErrorStream() const -> FILE&
+    auto Environment::GetErrorStream() const -> std::FILE&
     {
         VALIDATE_ONLINE_BOOT_STATE();
         return *this->Context_->ErrorStream;
     }
 
-    auto Environment::GetInputStream() const -> FILE&
+    auto Environment::GetInputStream() const -> std::FILE&
     {
         VALIDATE_ONLINE_BOOT_STATE();
         return *this->Context_->InputStream;
     }
 
-    auto Environment::SetOutputStream(FILE& stream) const -> void
+    auto Environment::SetOutputStream(std::FILE& stream) const -> void
     {
         VALIDATE_ONLINE_BOOT_STATE();
         this->Context_->OutputStream = &stream;
     }
 
-    auto Environment::SetErrorStream(FILE& stream) const -> void
+    auto Environment::SetErrorStream(std::FILE& stream) const -> void
     {
         VALIDATE_ONLINE_BOOT_STATE();
         this->Context_->ErrorStream = &stream;
     }
 
-    auto Environment::SetInputStream(FILE& stream) const -> void
+    auto Environment::SetInputStream(std::FILE& stream) const -> void
     {
         VALIDATE_ONLINE_BOOT_STATE();
         this->Context_->InputStream = &stream;

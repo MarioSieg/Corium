@@ -1,4 +1,4 @@
-// Author: Mario
+// Author: Mario Sieg
 // Project: Nominax
 // 
 //                                  Apache License
@@ -207,8 +207,9 @@
 
 #include <thread>
 #include <string>
-
 #include <cstdint>
+
+#include "IDisplay.hpp"
 #include "Platform.hpp"
 
 namespace Nominax::Foundation
@@ -216,13 +217,8 @@ namespace Nominax::Foundation
 	/// <summary>
 	/// Contains information about the process, operating system and hardware.
 	/// </summary>
-	struct SystemInfoSnapshot final
+	struct SystemInfoSnapshot final : public IDisplay
 	{
-		/// <summary>
-		/// The current thread id.
-		/// </summary>
-		std::thread::id ThreadId { };
-
 		/// <summary>
 		/// Name of the operating system.
 		/// </summary>
@@ -297,7 +293,7 @@ namespace Nominax::Foundation
 		/// <summary>
 		/// Destructor.
 		/// </summary>
-		~SystemInfoSnapshot() = default;
+		~SystemInfoSnapshot() override = default;
 
 		/// <summary>
 		/// Fetch and refresh data.
@@ -305,10 +301,9 @@ namespace Nominax::Foundation
 		/// <returns></returns>
 		auto QueryAll() -> void;
 
-		/// <summary>
-		/// Print the data.
-		/// </summary>
-		/// <returns></returns>
-		auto Print() const -> void;
+        /// <summary>
+        /// Prints this object into the file stream.
+        /// </summary>
+        virtual auto Display(std::FILE& stream) const -> void override;
 	};
 }

@@ -1,0 +1,9 @@
+module sys
+
+native fun print(value int)
+native fun print(value float)
+native fun print(value bool)
+native fun print(value char)
+native fun print(value string)
+
+native fun input() string

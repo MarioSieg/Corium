@@ -1,4 +1,4 @@
-// Author: Mario
+// Author: Mario Sieg
 // Project: Nominax
 // 
 //                                  Apache License
@@ -204,5 +204,5 @@
 //    limitations under the License.
 
 #define NOX_REACTOR_IMPL_NAME ReactorCore_Fallback
-#include "VM.inl"
+#include "VM.hpp"
 #undef NOX_REACTOR_IMPL_NAME

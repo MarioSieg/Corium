@@ -1,4 +1,4 @@
-// Author: Mario
+// Author: Mario Sieg
 // Project: Nominax
 // 
 //                                  Apache License
@@ -205,22 +205,22 @@
 
 #pragma once
 
-#include <cstdint>
-#include "../Foundation/ISerializable.hpp"
-#include "../Foundation/PanicAssertions.hpp"
-
 #include "Image.hpp"
 #include "Signal.hpp"
 #include "DiscriminatedSignal.hpp"
 #include "Optimization.hpp"
 #include "ValidationResult.hpp"
 
+#include "../Foundation/ISerializable.hpp"
+#include "../Foundation/PanicAssertions.hpp"
+#include "../Foundation/IDisplay.hpp"
+
 namespace Nominax::ByteCode
 {
 	/// <summary>
 	/// Dynamic byte code stream.
 	/// </summary>
-	class Stream final : public Foundation::ISerializable
+	class Stream final : public Foundation::ISerializable, public Foundation::IDisplay
 	{
 		/// <summary>
 		/// Code section marker.
@@ -544,7 +544,7 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <param name="intrin"></param>
 		/// <returns></returns>
-		auto operator <<(SystemIntrinsicInvocationID intrin) -> Stream&;
+		auto operator <<(SysCall intrin) -> Stream&;
 
 		/// <summary>
 		/// PUSH stream entry.
@@ -588,38 +588,10 @@ namespace Nominax::ByteCode
 		/// <returns></returns>
 		auto operator <<(double value) -> Stream&;
 
-		/// <summary>
-		/// PUSH stream entry.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		auto operator <<(CharClusterUtf8 value) -> Stream&;
-
-		/// <summary>
-		/// PUSH stream entry.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		auto operator <<(CharClusterUtf16 value) -> Stream&;
-
-		/// <summary>
-		/// PUSH stream entry.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		auto operator <<(CharClusterUtf32 value) -> Stream&;
-
-		/// <summary>
-		/// Print out immediate byte code.
-		/// </summary>
-		/// <returns></returns>
-		auto DumpByteCode() const -> void;
-
-		/// <summary>
-		/// Print the size of the stream with memory info.
-		/// </summary>
-		/// <returns></returns>
-		auto PrintMemoryCompositionInfo() const -> void;
+        /// <summary>
+        /// Prints this object into the file stream.
+        /// </summary>
+        virtual auto Display(std::FILE& stream) const -> void override;
 
 		/// <summary>
 		/// Index lookup.
@@ -851,7 +823,7 @@ namespace Nominax::ByteCode
 		return *this;
 	}
 
-	inline auto Stream::operator <<(const SystemIntrinsicInvocationID intrin) -> Stream&
+	inline auto Stream::operator <<(const SysCall intrin) -> Stream&
 	{
 		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal { intrin });
@@ -902,29 +874,5 @@ namespace Nominax::ByteCode
 	inline auto Stream::operator<<(const signed value) -> Stream&
 	{
 		return *this << static_cast<std::int64_t>(value);
-	}
-
-	inline auto Stream::operator <<(const CharClusterUtf8 value) -> Stream&
-	{
-		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
-		this->CodeBuffer_.emplace_back(Signal { value });
-		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::CharClusterUtf8);
-		return *this;
-	}
-
-	inline auto Stream::operator<<(const CharClusterUtf16 value) -> Stream&
-	{
-		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
-		this->CodeBuffer_.emplace_back(Signal { value });
-		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::CharClusterUtf16);
-		return *this;
-	}
-
-	inline auto Stream::operator<<(const CharClusterUtf32 value) -> Stream&
-	{
-		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
-		this->CodeBuffer_.emplace_back(Signal { value });
-		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::CharClusterUtf32);
-		return *this;
 	}
 }

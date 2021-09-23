@@ -1,4 +1,4 @@
-// Author: Mario
+// Author: Mario Sieg
 // Project: Nominax
 // 
 //                                  Apache License
@@ -252,6 +252,23 @@ TEST(MappedMemory, Lock)
 		}
 	};
 	ASSERT_NO_FATAL_FAILURE(exec());
+}
+
+TEST(MappedMemory, Protect)
+{
+    const auto exec
+    {
+        []
+        {
+            MappedMemory mem { sizeof(int) * 2 };
+            ASSERT_FALSE(mem.IsLocked());
+            ASSERT_EQ(mem.GetProtectionFlags(), MemoryPageProtectionFlags::ReadWrite);
+            ASSERT_TRUE(mem.Protect(MemoryPageProtectionFlags::ReadWriteExecute, true));
+            ASSERT_EQ(mem.GetProtectionFlags(), MemoryPageProtectionFlags::ReadWriteExecute);
+            ASSERT_TRUE(mem.IsLocked());
+        }
+    };
+    ASSERT_NO_FATAL_FAILURE(exec());
 }
 
 TEST(MappedMemory, MemSet)

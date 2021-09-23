@@ -1,4 +1,4 @@
-// Author: Mario
+// Author: Mario Sieg
 // Project: Nominax
 // 
 //                                  Apache License
@@ -250,7 +250,7 @@ namespace Nominax::Core
 			"Reactor {:08X}: "
 			"Stack: {} MB, "
 			"{} KRec, "
-			"INTRIN: {}, "
+			"SYSCALL: {}, "
 			"InterruptStatus: {}, "
 			"Power: {}, "
 			"Pool: {:02}\n",

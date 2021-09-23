@@ -1,4 +1,4 @@
-// Author: Mario
+// Author: Mario Sieg
 // Project: Nominax
 // 
 //                                  Apache License
@@ -209,7 +209,6 @@
 
 #include "../Core/ReactorValidator.hpp"
 #include "../ByteCode/Instruction.hpp"
-#include "../ByteCode/CharCluster.hpp"
 #include "../ByteCode/DiscriminatedSignal.hpp"
 #include "../ByteCode/ValidationResult.hpp"
 
@@ -230,7 +229,7 @@ struct fmt::formatter<Nominax::ByteCode::Instruction>
 };
 
 template <>
-struct fmt::formatter<Nominax::ByteCode::SystemIntrinsicInvocationID>
+struct fmt::formatter<Nominax::ByteCode::SysCall>
 {
 	template <typename ParseContext>
 	constexpr auto parse(ParseContext& ctx)
@@ -238,7 +237,7 @@ struct fmt::formatter<Nominax::ByteCode::SystemIntrinsicInvocationID>
 		return ctx.begin();
 	}
 
-	auto format(const Nominax::ByteCode::SystemIntrinsicInvocationID& value, format_context& ctx) const -> FormatOutput;
+	auto format(const Nominax::ByteCode::SysCall& value, format_context& ctx) const -> FormatOutput;
 };
 
 template <>
@@ -263,42 +262,6 @@ struct fmt::formatter<Nominax::ByteCode::JumpAddress>
 	}
 
 	auto format(const Nominax::ByteCode::JumpAddress& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf8>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::CharClusterUtf8& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf16>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::CharClusterUtf16& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::CharClusterUtf32>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::CharClusterUtf32& value, format_context& ctx) const -> FormatOutput;
 };
 
 template <>

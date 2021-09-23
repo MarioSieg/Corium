@@ -1,4 +1,4 @@
-// Author: Mario
+// Author: Mario Sieg
 // Project: Nominax
 // 
 //                                  Apache License
@@ -258,14 +258,20 @@ namespace Nominax::Foundation
 		if (!region)
 		{
 			[[unlikely]]
-				return false;
+			return false;
 		}
 		auto* const blockOffset { VAH::ComputeRegionStart(region) };
 		auto& header { VAH::MapHeader(blockOffset) };
-		if (header.IsLocked()) // Already locked, we can't change any protection flags...
-		{
-			return false;
-		}
+        if (header.IsLocked()) // Already locked, we can't change any protection flags...
+        {
+            [[unlikely]]
+            return false;
+        }
+        if (header.ProtectionFlags == newFlags && header.IsLocked() == locked)
+        {
+            [[unlikely]]
+            return true;
+        }
 		const bool result { OSI::MemoryProtect(blockOffset, header.Size, newFlags) };
 		if (!result)
 		{

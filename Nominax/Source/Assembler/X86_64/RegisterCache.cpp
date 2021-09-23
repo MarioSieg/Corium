@@ -1,4 +1,4 @@
-// Author: Mario
+// Author: Mario Sieg
 // Project: Nominax
 //
 //                                  Apache License
@@ -250,60 +250,34 @@ namespace Nominax::Assembler::X86_64
         this->RIP = std::bit_cast<GPRRegister64Layout>(Routines::QueryRIP());
     }
 
-    using Foundation::Print;
-
-    auto RegisterCache::DumpSmart() const -> void
+    auto RegisterCache::Display(std::FILE& stream) const -> void
     {
-        Print("%rip = {:016X}", this->RIP.AsU64);
-        DumpRegisterSet(this->GPRSet);
+        using Foundation::Print;
+
+        Print(stream, "%rip = {:016X}", this->RIP.AsU64);
+        DumpRegisterSet(stream, this->GPRSet);
         if (this->AVXSet)
         {
-            DumpRegisterSet(*this->AVXSet);
+            DumpRegisterSet(stream, *this->AVXSet);
         }
         else if (this->AVX512Set)
         {
-            DumpRegisterSet(*this->AVX512Set);
+            DumpRegisterSet(stream, *this->AVX512Set);
             if (this->AVX512MaskSet)
             {
                 if (const AVX512MaskRegisterSet* const masks = std::get_if<AVX512MaskRegisterSet>(&*this->AVX512MaskSet))
                 {
-                    DumpRegisterSet(*masks);
+                    DumpRegisterSet(stream, *masks);
                 }
                 else if (const AVX512BWMaskRegisterSet* const wideMasks = std::get_if<AVX512BWMaskRegisterSet>(&*this->AVX512MaskSet))
                 {
-                    DumpRegisterSet(*wideMasks);
+                    DumpRegisterSet(stream, *wideMasks);
                 }
             }
         }
         else
         {
-            DumpRegisterSet(this->SSESet);
-        }
-    }
-
-    auto RegisterCache::DumpAll() const -> void
-    {
-        Print("%rip = {:016X}", this->RIP.AsU64);
-        DumpRegisterSet(this->GPRSet);
-        DumpRegisterSet(this->SSESet);
-        if (this->AVXSet)
-        {
-            DumpRegisterSet(*this->AVXSet);
-        }
-        if (this->AVX512Set)
-        {
-            DumpRegisterSet(*this->AVX512Set);
-            if (this->AVX512MaskSet)
-            {
-                if (const AVX512MaskRegisterSet* const masks = std::get_if<AVX512MaskRegisterSet>(&*this->AVX512MaskSet))
-                {
-                    DumpRegisterSet(*masks);
-                }
-                else if (const AVX512BWMaskRegisterSet* const wideMasks = std::get_if<AVX512BWMaskRegisterSet>(&*this->AVX512MaskSet))
-                {
-                    DumpRegisterSet(*wideMasks);
-                }
-            }
+            DumpRegisterSet(stream, this->SSESet);
         }
     }
 }

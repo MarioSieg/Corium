@@ -1,4 +1,4 @@
-// Author: Mario
+// Author: Mario Sieg
 // Project: Nominax
 // 
 //                                  Apache License
@@ -210,6 +210,6 @@
 #		error "This reactore core requires AVX!"
 #	endif
 #	define NOX_REACTOR_IMPL_NAME ReactorCore_Avx
-#		include "VM.inl"
+#		include "VM.hpp"
 #	undef NOX_REACTOR_IMPL_NAME
 #endif

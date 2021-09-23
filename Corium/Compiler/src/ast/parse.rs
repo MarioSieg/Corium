@@ -1,4 +1,4 @@
-// Author: Mario
+// Author: Mario Sieg
 // Project: Corium
 //
 //                                  Apache License
@@ -223,7 +223,7 @@ impl<'a> AstParseable<'a> for Function<'a> {
         if let Some(nested) = rule.next() {
             match nested.as_rule() {
                 // we have params
-                Rule::parameter_list => {
+                Rule::ParameterList => {
                     let parameter_list = nested.into_inner();
                     for param in parameter_list {
                         parameters.push(Variable::parse(param));
@@ -231,12 +231,12 @@ impl<'a> AstParseable<'a> for Function<'a> {
                     // fetch next
                     let nested = rule.next().unwrap();
                     match nested.as_rule() {
-                        Rule::qualified_name => {
+                        Rule::QualifiedName => {
                             // yes we have a return type
                             return_type = Some(TypeName::from(nested.as_str()));
                             block = Block::parse(rule.next().unwrap());
                         }
-                        Rule::block => {
+                        Rule::Block => {
                             // no return type just a block
                             block = Block::parse(nested);
                         }
@@ -246,12 +246,12 @@ impl<'a> AstParseable<'a> for Function<'a> {
                     }
                 }
                 // we have no params, but a return type
-                Rule::qualified_name => {
+                Rule::QualifiedName => {
                     return_type = Some(TypeName::from(nested.as_str()));
                     block = Block::parse(rule.next().unwrap());
                 }
                 // we no params and no return type
-                Rule::block => {
+                Rule::Block => {
                     block = Block::parse(nested);
                 }
                 _ => unreachable!(),
@@ -276,10 +276,10 @@ impl<'a> AstParseable<'a> for Variable<'a> {
         let mut value = None;
         let inner = rule.next().unwrap();
         match inner.as_rule() {
-            Rule::qualified_name => {
+            Rule::QualifiedName => {
                 type_hint = Some(TypeName::parse(inner));
             }
-            Rule::expression => value = Some(Expression::parse(inner.into_inner().next().unwrap())),
+            Rule::Expression => value = Some(Expression::parse(inner.into_inner().next().unwrap())),
             _ => unreachable!(),
         }
         if let Some(val) = rule.next() {
@@ -301,7 +301,7 @@ impl<'a> AstParseable<'a> for Block<'a> {
         let rules = rule.into_inner();
         for rule in rules {
             match rule.as_rule() {
-                Rule::statement => {
+                Rule::FunctionStatement => {
                     if let Some(nxt) = rule.into_inner().next() {
                         result.push(Statement::parse(nxt));
                     }
@@ -325,8 +325,8 @@ impl<'a> AstParseable<'a> for ModuleName<'a> {
 impl<'a> AstParseable<'a> for Statement<'a> {
     fn parse(rule: RuleIterator<'a>) -> Self {
         match rule.as_rule() {
-            Rule::local_variable => Self::LocalVariable(Variable::parse(rule)),
-            Rule::return_statement => {
+            Rule::LocalVariable => Self::LocalVariable(Variable::parse(rule)),
+            Rule::ReturnStatement => {
                 let mut expr = None;
                 if let Some(rule) = rule.into_inner().next() {
                     let literal = rule.into_inner().next().unwrap();
@@ -351,16 +351,14 @@ impl<'a> AstParseable<'a> for Literal<'a> {
         let str = rule.as_str();
         let len = str.len();
         match rule.as_rule() {
-            Rule::float_literal => {
-                Self::Float(Float::from_str(str).expect("Invalid float literal"))
-            }
-            Rule::int_literal => Self::Int(Int::from_str(str).expect("Invalid int literal")),
-            Rule::bool_literal => Self::Bool(Bool::from_str(str).expect("Invalid bool literal")),
-            Rule::char_literal => {
+            Rule::FloatLiteral => Self::Float(Float::from_str(str).expect("Invalid float literal")),
+            Rule::IntLiteral => Self::Int(Int::from_str(str).expect("Invalid int literal")),
+            Rule::BoolLiteral => Self::Bool(Bool::from_str(str).expect("Invalid bool literal")),
+            Rule::CharLiteral => {
                 let str = &str[1..len - 1]; // skip ''
                 Self::Char(Char::from_str(str).expect("Invalid char literal"))
             }
-            Rule::string_literal => {
+            Rule::StringLiteral => {
                 let str = &str[1..len - 1]; // skip ""
                 Self::String(str)
             }
@@ -372,7 +370,7 @@ impl<'a> AstParseable<'a> for Literal<'a> {
 impl<'a> AstParseable<'a> for Expression<'a> {
     fn parse(rule: RuleIterator<'a>) -> Self {
         match rule.as_rule() {
-            Rule::literal => Self::Literal(Literal::parse(rule)),
+            Rule::Literal => Self::Literal(Literal::parse(rule)),
             _ => unreachable!(),
         }
     }

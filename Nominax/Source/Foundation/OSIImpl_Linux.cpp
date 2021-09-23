@@ -1,4 +1,4 @@
-// Author: Mario
+// Author: Mario Sieg
 // Project: Nominax
 // 
 //                                  Apache License
@@ -204,8 +204,6 @@
 //    limitations under the License.
 
 #include "../../../Nominax/Include/Nominax/Foundation/_Foundation.hpp"
-#include "../../Include/Nominax/Foundation/OSInterface.hpp"
-
 
 #if NOX_OS_LINUX
 
@@ -235,7 +233,7 @@ namespace Nominax::Foundation
 
 	auto OSI::QueryProcessMemoryUsed() -> std::uint64_t
 	{
-		FILE* const file { std::fopen("/proc/self/statm", "r") };
+		std::FILE* const file { std::fopen("/proc/self/statm", "r") };
 		if (!file)
 		{
 			[[unlikely]]

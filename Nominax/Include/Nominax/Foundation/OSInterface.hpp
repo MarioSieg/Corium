@@ -1,4 +1,4 @@
-// Author: Mario
+// Author: Mario Sieg
 // Project: Nominax
 // 
 //                                  Apache License
@@ -274,6 +274,13 @@ namespace Nominax::Foundation
 		/// <returns>The name of the CPU.</returns>
 		[[nodiscard]]
 		static auto QueryCpuName() -> const std::string&;
+
+        /// <summary>
+        /// Fetch system info.
+        /// </summary>
+        /// <returns>The name amount of hardware thread available.</returns>
+        [[nodiscard]]
+        static auto QueryLogicalCPUCount() -> std::uint32_t;
 
 		/// <summary>
 		/// Fetch system info.

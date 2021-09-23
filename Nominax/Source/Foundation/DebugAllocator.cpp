@@ -1,4 +1,4 @@
-// Author: Mario
+// Author: Mario Sieg
 // Project: Nominax
 // 
 //                                  Apache License
@@ -204,6 +204,8 @@
 //    limitations under the License.
 
 #include "../../../Nominax/Include/Nominax/Foundation/_Foundation.hpp"
+#include "../../Include/Nominax/Foundation/DebugAllocator.hpp"
+
 
 namespace Nominax::Foundation
 {
@@ -276,17 +278,17 @@ namespace Nominax::Foundation
 		++this->Deallocations_;
 	}
 
-	auto DebugAllocator::DumpAllocationInfo() const -> void
-	{
-		const auto [count, suffix] { GetMemoryUnitInfo(this->BytesAllocated_) };
-		Print("Allocations: {}\n", this->Allocations_);
-		Print("Reallocations: {}\n", this->Reallocations_);
-		Print("Deallocations: {}\n", this->Deallocations_);
-		Print("Total: {} {}\n", count, suffix);
-		if (this->Allocations_ != this->Deallocations_)
-		{
-			Print("Missing allocations: {}\n", this->Allocations_ - this->Deallocations_);
-		}
-		Print("Warning! Some global shutdown deallocations might not be tracked!\n");
-	}
+    auto DebugAllocator::Display(std::FILE& stream) const -> void
+    {
+        const auto [count, suffix] { GetMemoryUnitInfo(this->BytesAllocated_) };
+        Print(stream, "Allocations: {}\n", this->Allocations_);
+        Print(stream, "Reallocations: {}\n", this->Reallocations_);
+        Print(stream, "Deallocations: {}\n", this->Deallocations_);
+        Print(stream, "Total: {} {}\n", count, suffix);
+        if (this->Allocations_ != this->Deallocations_)
+        {
+            Print(stream, "Missing allocations: {}\n", this->Allocations_ - this->Deallocations_);
+        }
+        Print(stream, "Warning! Some global shutdown deallocations might not be tracked!\n");
+    }
 }

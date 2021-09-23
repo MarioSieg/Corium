@@ -1,4 +1,4 @@
-// Author: Mario
+// Author: Mario Sieg
 // Project: Nominax
 //
 //                                  Apache License
@@ -204,15 +204,26 @@
 //    limitations under the License.
 
 #pragma once
+#define NOX_ARG_TUPLE_1(p1, ...) p1
+#define NOX_ARG_TUPLE_2(p1, p2, ...) p1, p2
+#define NOX_ARG_TUPLE_3(p1, p2, p3, ...) p1, p2, p3
+#define NOX_ARG_TUPLE_4(p1, p2, p3, p4, ...) p1, p2, p3, p4
+#define NOX_ARG_TUPLE_5(p1, p2, p3, p4, p5, ...) p1, p2, p3, p4, p5
+#define NOX_ARG_TUPLE_6(p1, p2, p3, p4, p5, p6, ...) p1, p2, p3, p4, p5, p6
+#define NOX_ARG_TUPLE_7(p1, p2, p3, p4, p5, p6, p7, ...) p1, p2, p3, p4, p5, p6, p7
+#define NOX_ARG_TUPLE_8(p1, p2, p3, p4, p5, p6, p7, p8, ...) p1, p2, p3, p4, p5, p6, p7, p8
+#define NOX_ARG_TUPLE_9(p1, p2, p3, p4, p5, p6, p7, p8, p9, ...) p1, p2, p3, p4, p5, p6, p7, p8, p9
 
-#define ARG_TUPLE_1(p1, ...) p1
-#define ARG_TUPLE_2(p1, p2, ...) p1, p2
-#define ARG_TUPLE_3(p1, p2, p3, ...) p1, p2, p3
-#define ARG_TUPLE_4(p1, p2, p3, p4, ...) p1, p2, p3, p4
-#define ARG_TUPLE_5(p1, p2, p3, p4, p5, ...) p1, p2, p3, p4, p5
-#define ARG_TUPLE_6(p1, p2, p3, p4, p5, p6, ...) p1, p2, p3, p4, p5, p6
-#define ARG_TUPLE_7(p1, p2, p3, p4, p5, p6, p7, ...) p1, p2, p3, p4, p5, p6, p7
-#define ARG_TUPLE_8(p1, p2, p3, p4, p5, p6, p7, p8, ...) p1, p2, p3, p4, p5, p6, p7, p8
-#define ARG_TUPLE_9(p1, p2, p3, p4, p5, p6, p7, p8, p9, ...) p1, p2, p3, p4, p5, p6, p7, p8, p9
-
-
+#define NOX_EXPAND(x) x
+#define NOX_REVERSE_1(a)        a
+#define NOX_REVERSE_2(a, b)     b, a
+#define NOX_REVERSE_3(a,...)    NOX_EXPAND(NOX_REVERSE_2(__VA_ARGS__)), a
+#define NOX_REVERSE_4(a,...)    NOX_EXPAND(NOX_REVERSE_3(__VA_ARGS__)), a
+#define NOX_REVERSE_5(a,...)    NOX_EXPAND(NOX_REVERSE_4(__VA_ARGS__)), a
+#define NOX_REVERSE_6(a,...)    NOX_EXPAND(NOX_REVERSE_5(__VA_ARGS__)), a
+#define NOX_REVERSE_7(a,...)    NOX_EXPAND(NOX_REVERSE_6(__VA_ARGS__)), a
+#define NOX_REVERSE_8(a,...)    NOX_EXPAND(NOX_REVERSE_7(__VA_ARGS__)), a
+#define NOX_REVERSE_9(a,...)    NOX_EXPAND(NOX_REVERSE_8(__VA_ARGS__)), a
+#define NOX_REVERSE_10(a,...)   NOX_EXPAND(NOX_REVERSE_9(__VA_ARGS__)), a
+#define NOX_REVERSE1(N,...)     NOX_EXPAND(NOX_REVERSE_ ## N(__VA_ARGS__))
+#define NOX_REVERSE(N, ...)     NOX_REVERSE1(N, __VA_ARGS__)

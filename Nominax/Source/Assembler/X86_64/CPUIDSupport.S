@@ -205,6 +205,7 @@
 
 .globl IsCPUIDSupported
 
+# extern "C" NOX_ASM_ROUTINE auto IsCPUIDSupported() -> bool;
 # Header: Arch/X86_64/CpuId.hpp
 IsCPUIDSupported:
     pushq   %rbp                # stack frame prologue

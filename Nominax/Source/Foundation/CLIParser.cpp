@@ -1,4 +1,4 @@
-// Author: Mario
+// Author: Mario Sieg
 // Project: Nominax
 // 
 //                                  Apache License
@@ -206,13 +206,15 @@
 #include "../../../Nominax/Include/Nominax/Foundation/_Foundation.hpp"
 #include "../../Include/Nominax/Foundation/CLIParser.hpp"
 
-
 namespace Nominax::Foundation
 {
 	CLIParser::CLIParser(const int argc, const char* const* const argv)
 	{
-		Args_.reserve(argc);
-		Args_.insert(argv, argc + argv);
+        if (argc > 1)
+        {
+            Args_.reserve(argc);
+            Args_.insert(argv, argc + argv);
+        }
 	}
 
 	auto CLIParser::AddOption(const CLIOption& option) -> void
@@ -247,16 +249,11 @@ namespace Nominax::Foundation
         return found(option.Short) || found(option.Long);
 	}
 
-    auto CLIParser::PrintAllOptions() const -> void
+    auto CLIParser::Display(std::FILE& stream) const -> void
     {
         for (const auto& option : this->Options_)
         {
-            Print("{} {} {}\n", option.Short, option.Long, option.Description);
+            Print(stream, "{0: <3} | {1: <12} | {2: <20}\n", option.Short, option.Long, option.Description);
         }
-    }
-
-    auto CLIParser::PrintUsage() const -> void
-    {
-
     }
 }

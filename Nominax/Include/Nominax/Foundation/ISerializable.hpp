@@ -1,4 +1,4 @@
-// Author: Mario
+// Author: Mario Sieg
 // Project: Nominax
 // 
 //                                  Apache License
@@ -211,8 +211,8 @@
 namespace Nominax::Foundation
 {
 	/// <summary>
-		/// Base class for all serializable objects.
-		/// </summary>
+    /// Base class for all serializable objects.
+    /// </summary>
 	class ISerializable
 	{
 	protected:

@@ -1,4 +1,4 @@
-// Author: Mario
+// Author: Mario Sieg
 // Project: Nominax
 // 
 //                                  Apache License
@@ -245,7 +245,7 @@ namespace Nominax::Core
 
 		/// <summary>
 		/// The reactor input descriptor build
-		/// when Execute() is called.
+		/// when Call() is called.
 		/// </summary>
 		VerboseReactorDescriptor Input_;
 
@@ -312,7 +312,7 @@ namespace Nominax::Core
 		~Reactor() = default;
 
 		/// <summary>
-		/// Execute reactor with specified application code image.
+		/// Call reactor with specified application code image.
 		/// </summary>
 		/// <param name="image"></param>
 		/// <returns></returns>
@@ -320,7 +320,7 @@ namespace Nominax::Core
 		auto Execute(const ByteCode::Image& image) -> const ReactorState&;
 
 		/// <summary>
-		/// Execute reactor with specified application code bundle.
+		/// Call reactor with specified application code bundle.
 		/// </summary>
 		/// <param name="bundle"></param>
 		/// <returns></returns>

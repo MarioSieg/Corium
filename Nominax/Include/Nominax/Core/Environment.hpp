@@ -1,4 +1,4 @@
-// Author: Mario
+// Author: Mario Sieg
 // Project: Nominax
 // 
 //                                  Apache License
@@ -353,7 +353,7 @@ namespace Nominax::Core
 		auto Boot(const EnvironmentDescriptor& descriptor) -> void;
 
 		/// <summary>
-		/// Execute stream on alpha reactor.
+		/// Call stream on alpha reactor.
 		/// </summary>
 		/// <param name="image"></param>
 		/// <returns></returns>
@@ -361,7 +361,7 @@ namespace Nominax::Core
 		auto Execute(const ByteCode::Image& image) -> const ReactorState&;
 
 		/// <summary>
-		/// Execute stream on alpha reactor.
+		/// Call stream on alpha reactor.
 		/// </summary>
 		/// <param name="stream"></param>
 		/// <returns></returns>
@@ -369,7 +369,7 @@ namespace Nominax::Core
 		auto Execute(ByteCode::Stream&& stream) -> const ReactorState&;
 
 		/// <summary>
-		/// Execute stream on alpha reactor.
+		/// Call stream on alpha reactor.
 		/// </summary>
 		/// <param name="stream"></param>
 		/// <returns></returns>
@@ -377,7 +377,7 @@ namespace Nominax::Core
 		auto Execute(const ByteCode::Stream& stream) -> const ReactorState&;
 
 		/// <summary>
-		/// Execute stream on alpha reactor.
+		/// Call stream on alpha reactor.
 		/// </summary>
 		/// <param name="image"></param>
 		/// <returns></returns>
@@ -385,7 +385,7 @@ namespace Nominax::Core
 		auto operator()(const ByteCode::Image& image) -> const ReactorState&;
 
 		/// <summary>
-		/// Execute stream on alpha reactor.
+		/// Call stream on alpha reactor.
 		/// </summary>
 		/// <param name="stream"></param>
 		/// <returns></returns>
@@ -393,7 +393,7 @@ namespace Nominax::Core
 		auto operator()(ByteCode::Stream&& stream) -> const ReactorState&;
 
 		/// <summary>
-		/// Execute stream on alpha reactor.
+		/// Call stream on alpha reactor.
 		/// </summary>
 		/// <param name="stream"></param>
 		/// <returns></returns>
@@ -482,39 +482,39 @@ namespace Nominax::Core
         /// </summary>
         /// <returns>The output stream of the context.</returns>
         [[nodiscard]]
-        auto GetOutputStream() const -> FILE&;
+        auto GetOutputStream() const -> std::FILE&;
 
         /// <summary>
         ///
         /// </summary>
         /// <returns>The output stream of the context.</returns>
         [[nodiscard]]
-        auto GetErrorStream() const -> FILE&;
+        auto GetErrorStream() const -> std::FILE&;
 
         /// <summary>
         ///
         /// </summary>
         /// <returns>The output stream of the context.</returns>
         [[nodiscard]]
-        auto GetInputStream() const -> FILE&;
+        auto GetInputStream() const -> std::FILE&;
 
         /// <summary>
         ///
         /// </summary>
         /// <param name="stream">The new stream.</param>
-        auto SetOutputStream(FILE& stream) const -> void;
+        auto SetOutputStream(std::FILE& stream) const -> void;
 
         /// <summary>
         ///
         /// </summary>
         /// <param name="stream">The new stream.</param>
-        auto SetErrorStream(FILE& stream) const -> void;
+        auto SetErrorStream(std::FILE& stream) const -> void;
 
         /// <summary>
         ///
         /// </summary>
         /// <param name="stream">The new stream.</param>
-        auto SetInputStream(FILE& stream) const -> void;
+        auto SetInputStream(std::FILE& stream) const -> void;
 	};
 
 	inline auto Environment::operator()(const ByteCode::Image& image) -> const ReactorState&

@@ -1,4 +1,4 @@
-// Author: Mario
+// Author: Mario Sieg
 // Project: Nominax
 // 
 //                                  Apache License
@@ -209,21 +209,44 @@
 #include <unordered_set>
 #include <vector>
 
+#include "IDisplay.hpp"
+
 namespace Nominax::Foundation
 {
+    /// <summary>
+    /// Command line option.
+    /// </summary>
     struct CLIOption final
     {
+        /// <summary>
+        /// Short name. For example: -h.
+        /// </summary>
         std::string_view Short { };
+
+        /// <summary>
+        /// Long name. For example: --help.
+        /// </summary>
         std::string_view Long { };
+
+        /// <summary>
+        /// Help message for the user.
+        /// </summary>
         std::string_view Description { };
     };
 
 	/// <summary>
 	/// Helper to parse command line interface arguments.
 	/// </summary>
-	class CLIParser final
+	class CLIParser final : public IDisplay
 	{
+		/// <summary>
+		/// Arguments from environment.
+		/// </summary>
 		std::unordered_set<std::string_view> Args_ { };
+
+		/// <summary>
+		/// Registered available options.
+		/// </summary>
 		std::vector<CLIOption> Options_ { };
 
 	public:
@@ -266,7 +289,7 @@ namespace Nominax::Foundation
 		/// <summary>
 		/// Destructor.
 		/// </summary>
-		~CLIParser() = default;
+		~CLIParser() override = default;
 
 		/// <summary>
 		/// Returns true if the command line flag is set,
@@ -283,15 +306,10 @@ namespace Nominax::Foundation
 		/// <param name="option">The new option.</param>
 		auto AddOption(const CLIOption& option) -> void;
 
-		/// <summary>
-		/// Prints all the added options with description.
-		/// </summary>
-		auto PrintAllOptions() const -> void;
-
         /// <summary>
-        /// Prints the
+        /// Prints this object into the file stream.
         /// </summary>
-        auto PrintUsage() const -> void;
+        virtual auto Display(std::FILE& stream) const -> void override;
 
 		/// <summary>
 		/// Returns true if the argument count is less or equal to one,

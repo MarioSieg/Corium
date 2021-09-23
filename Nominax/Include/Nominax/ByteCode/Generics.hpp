@@ -1,4 +1,4 @@
-// Author: Mario
+// Author: Mario Sieg
 // Project: Nominax
 // 
 //                                  Apache License
@@ -240,7 +240,7 @@ namespace Nominax::ByteCode
 		{
 			return { Signal::Discriminator::Instruction };
 		}
-		else if constexpr (std::is_same_v<SystemIntrinsicInvocationID, T>)
+		else if constexpr (std::is_same_v<SysCall, T>)
 		{
 			return { Signal::Discriminator::SystemIntrinsicInvocationID };
 		}
@@ -263,18 +263,6 @@ namespace Nominax::ByteCode
 		else if constexpr (std::is_same_v<double, T>)
 		{
 			return { Signal::Discriminator::Float };
-		}
-		else if constexpr (std::is_same_v<CharClusterUtf8, T>)
-		{
-			return { Signal::Discriminator::CharClusterUtf8 };
-		}
-		else if constexpr (std::is_same_v<CharClusterUtf16, T>)
-		{
-			return { Signal::Discriminator::CharClusterUtf16 };
-		}
-		else if constexpr (std::is_same_v<CharClusterUtf32, T>)
-		{
-			return { Signal::Discriminator::CharClusterUtf32 };
 		}
 		else
 		{

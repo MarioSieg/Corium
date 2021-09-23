@@ -1,4 +1,4 @@
-// Author: Mario
+// Author: Mario Sieg
 // Project: Nominax
 //
 //                                  Apache License
@@ -207,21 +207,72 @@
 
 #include "CLIParser.hpp"
 #include "Platform.hpp"
+#include "IDisplay.hpp"
 
 namespace Nominax::Foundation
 {
     /// <summary>
     /// Contains all options available on the command line.
     /// </summary>
-    struct CLIOptions final
+    struct CLIOptions final : IDisplay
     {
-        bool EnableProtocol { false };
-        bool ForceSandboxVM { false };
-        bool ForceFallbackVM { false };
-        bool PowerSafeMode { false };
-        bool NoConfig { false };
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        constexpr CLIOptions() = default;
 
-        auto Print() const -> void;
+        /// <summary>
+        /// Copy constructor.
+        /// </summary>
+        /// <param name="other"></param>
+        constexpr CLIOptions(const CLIOptions& other) = default;
+
+        /// <summary>
+        /// Move constructor.
+        /// </summary>
+        /// <param name="other"></param>
+        constexpr CLIOptions(CLIOptions&& other) = default;
+
+        /// <summary>
+        /// Copy assignment operator.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        constexpr auto operator =(const CLIOptions& other) -> CLIOptions& = default;
+
+        /// <summary>
+        /// Move assignment operator.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        constexpr auto operator =(CLIOptions&& other) -> CLIOptions& = default;
+
+		/// <summary>
+		/// Destructor.
+		/// </summary>
+        ~CLIOptions() override = default;
+
+        /// <summary>
+        /// If true, the code is executed in the sandbox VM,
+        /// without optimizations and JIT.
+        /// Good for untrusted code or debugging.
+        /// </summary>
+        bool ForceSandboxVM { false };
+
+        /// <summary>
+        /// If true, the code is executed in the default fallback VM, with JIT but without ISA extensions.
+        /// </summary>
+        bool ForceFallbackVM { false };
+
+        /// <summary>
+        /// If true, the power saving mode is activated and CPU/GPU usage is reduced.
+        /// </summary>
+        bool PowerSafeMode { false };
+
+        /// <summary>
+        /// If true, it will not search for a config file, neither create one.
+        /// </summary>
+        bool NoConfig { false };
 
         /// <summary>
         /// Parses the CLI args and processes them.
@@ -232,5 +283,10 @@ namespace Nominax::Foundation
         /// True if we should boot.
         /// </returns>
         auto ParseAndProcess(CLIParser& parser) -> bool;
+
+        /// <summary>
+        /// Prints this object into the file stream.
+        /// </summary>
+        virtual auto Display(std::FILE& stream) const -> void override;
     };
 }

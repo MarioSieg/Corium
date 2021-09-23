@@ -1,4 +1,4 @@
-// Author: Mario
+// Author: Mario Sieg
 // Project: Nominax
 // 
 //                                  Apache License
@@ -206,6 +206,7 @@
 #pragma once
 
 #include "Algorithm.hpp"
+#include "AlignedMalloc.hpp"
 #include "Alignment.hpp"
 #include "AllocatorProxy.hpp"
 #include "AtomicState.hpp"
@@ -220,12 +221,14 @@
 #include "DyProc.hpp"
 #include "Formatters.hpp"
 #include "IAllocator.hpp"
+#include "IDisplay.hpp"
 #include "INIFile.hpp"
 #include "ISerializable.hpp"
 #include "MachineClass.hpp"
 #include "MappedMemory.hpp"
 #include "MappedMemoryWrapper.hpp"
 #include "MemoryUnits.hpp"
+#include "NativeTypeRegistry.hpp"
 #include "Object.hpp"
 #include "ObjectHeader.hpp"
 #include "OSInterface.hpp"
@@ -241,6 +244,7 @@
 #include "Stopwatch.hpp"
 #include "SystemAllocator.hpp"
 #include "TextFile.hpp"
+#include "VariadicMacroHelper.hpp"
 #include "VectorLib.hpp"
 #include "VirtualPageAllocator.hpp"
 #include "VirtualPageProtectionFlags.hpp"

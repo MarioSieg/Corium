@@ -1,5 +1,7 @@
 module test
 
+native fun test(x int, y int) float
+
 fun test() {
     let a = 10
     let b = 2.5

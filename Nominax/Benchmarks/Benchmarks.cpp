@@ -1,4 +1,4 @@
-// Author: Mario
+// Author: Mario Sieg
 // Project: Nominax
 // 
 //                                  Apache License
@@ -296,7 +296,6 @@ auto ValidateAlgorithm1BillionEntries(State& state) -> void
 	}
 
 	stream.Epilogue();
-	stream.PrintMemoryCompositionInfo();
 
 	for (auto _ : state)
 	{
@@ -327,7 +326,6 @@ auto TransformAlgorithm1BillionEntries(State& state) -> void
 	}
 
 	stream.Epilogue();
-	stream.PrintMemoryCompositionInfo();
 
 	const auto size {stream.Size()};
 	for (auto _ : state)

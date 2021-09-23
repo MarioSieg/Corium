@@ -1,4 +1,4 @@
-// Author: Mario
+// Author: Mario Sieg
 // Project: Nominax
 // 
 //                                  Apache License
@@ -205,10 +205,8 @@
 
 #pragma once
 
-#include <array>
-#include <string_view>
+#include "SysCall.hpp"
 
-#include <cstdint>
 #include "../Foundation/Algorithm.hpp"
 #include "../Foundation/Record.hpp"
 
@@ -220,8 +218,8 @@ namespace Nominax::ByteCode
 	enum class alignas(alignof(std::uint64_t)) Instruction : std::uint64_t
 	{
 		INT         = 0x00,
-		INTRIN      = 0x01,
-		CINTRIN     = 0x02,
+		SYSCALL     = 0x01,
+		INTRIN      = 0x02,
 		CALL        = 0x03,
 		RET         = 0x04,
 		MOV         = 0x05,
@@ -296,6 +294,9 @@ namespace Nominax::ByteCode
         CVTF2I      = 0x4A,
         CVTI2C      = 0x4B,
         CVTI2B      = 0x4C,
+        GCALLOC     = 0x4D,
+        DEREFW      = 0x4E,
+        DEREFR      = 0x4F,
 
 		/* count of total instructions */
 		Count_
@@ -312,53 +313,6 @@ namespace Nominax::ByteCode
 		Arithmetic = 0x03,
 		BitWise = 0x04,
 		VectorArithmetic = 0x05
-	};
-
-	/// <summary>
-	/// Subroutine invocation id for system intrinsic routines.
-	/// </summary>
-	enum class alignas(alignof(std::uint64_t)) SystemIntrinsicInvocationID : std::uint64_t
-	{
-		Cos = 0x00,
-		Sin = 0x01,
-		Tan = 0x02,
-		ACos = 0x03,
-		ASin = 0x04,
-		ATan = 0x05,
-		ATan2 = 0x06,
-		CosH = 0x07,
-		SinH = 0x08,
-		TanH = 0x09,
-		ACosH = 0x0A,
-		ASinH = 0x0B,
-		ATanH = 0x0C,
-		Exp = 0x0D,
-		Log = 0x0E,
-		Log10 = 0x0F,
-		Exp2 = 0x10,
-		ILogB = 0x11,
-		Log2 = 0x12,
-		Pow = 0x13,
-		Sqrt = 0x14,
-		Cbrt = 0x15,
-		Hypot = 0x16,
-		Ceil = 0x17,
-		Floor = 0x18,
-		Round = 0x19,
-		RInt = 0x1A,
-		IMax = 0x1B,
-		IMin = 0x1C,
-		FMax = 0x1D,
-		FMin = 0x1E,
-		Dim = 0x1F,
-		IAbs = 0x20,
-		FAbs = 0x21,
-		IoPortWriteCluster = 0x22,
-		IoPortReadCluster = 0x23,
-		IoPortFlush = 0x24,
-
-		/* !no intrinsic routine - count of total intrinsic routines! */
-		Count_
 	};
 
 	/// <summary>
@@ -386,4 +340,5 @@ namespace Nominax::ByteCode
 	/// user intrinsic virtual machine calls.
 	/// </summary>
 	using UserIntrinsicRoutineRegistry = std::span<IntrinsicRoutine*>;
+
 }

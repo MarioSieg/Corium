@@ -1,4 +1,4 @@
-// Author: Mario
+// Author: Mario Sieg
 // Project: Nominax
 // 
 //                                  Apache License
@@ -210,6 +210,7 @@
 #include <fmt/chrono.h>
 #include <fmt/color.h>
 
+#include "ProtocolController.h"
 #include "Platform.hpp"
 #include "Algorithm.hpp"
 
@@ -228,26 +229,66 @@ namespace Nominax::Foundation
 	/// <param name="formatString">The format string.</param>
 	/// <param name="args">The arguments to format.</param>
 	template <typename... Args>
-	inline auto Print([[maybe_unused]] const std::string_view formatString, [[maybe_unused]] Args&&...args) -> void
+	NOX_COLD
+    inline auto Print([[maybe_unused]] const std::string_view formatString, [[maybe_unused]] Args&&...args) -> void
 	{
 		if constexpr (!NOX_TEST)
         {
-		    fmt::print(stdout, formatString, std::forward<Args>(args)...);
+            if (ProtocolController::IsProtocolEnabled)
+            {
+                [[unlikely]]
+                fmt::print(ProtocolController::GetProtocolStream(), formatString, std::forward<Args>(args)...);
+            }
         }
 	}
+
+    /// <summary>
+    /// Prints out the formatting string and
+    /// formats the arguments into the string if format
+    /// arguments are given.
+    /// The formatting rules follow the C++ 20 <format> convention.
+    /// All printing inside Nominax should be done via this functions
+    /// and friends because it also allows different configurations.
+    /// </summary>
+    /// <typeparam name="Str">The string type.</typeparam>
+    /// <typeparam name="...Args">The argument types.</typeparam>
+    /// <param name="formatString">The format string.</param>
+    /// <param name="args">The arguments to format.</param>
+    template <typename... Args>
+    NOX_COLD
+    inline auto Print([[maybe_unused]] std::FILE& stream, [[maybe_unused]] const std::string_view formatString, [[maybe_unused]] Args&&...args) -> void
+    {
+        fmt::print(&stream, formatString, std::forward<Args>(args)...);
+    }
 
 	/// <summary>
 	/// Print single char.
 	/// </summary>
 	/// <param name="x"></param>
 	/// <returns></returns>
-	inline auto Print(const char x) -> void
+    NOX_COLD
+    inline auto Print(const char x) -> void
 	{
         if constexpr (!NOX_TEST)
         {
-            fputc(x, stdout);
+            if (ProtocolController::IsProtocolEnabled)
+            {
+                [[unlikely]]
+                std::fputc(x, ProtocolController::GetProtocolStream());
+            }
         }
 	}
+
+    /// <summary>
+    /// Print single char.
+    /// </summary>
+    /// <param name="x"></param>
+    /// <returns></returns>
+    NOX_COLD
+    inline auto Print([[maybe_unused]] std::FILE& stream, const char x) -> void
+    {
+        std::fputc(x, &stream);
+    }
 
 	/// <summary>
 	/// Formats the arguments into the string if format
