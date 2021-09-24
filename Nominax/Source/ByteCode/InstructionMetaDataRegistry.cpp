@@ -203,17 +203,60 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../Include/Nominax/Foundation/IDisplay.hpp"
+#include "../../Include/Nominax/ByteCode/InstructionMetaDataRegistry.hpp"
 #include "../../Include/Nominax/Foundation/Print.hpp"
 
-namespace Nominax::Foundation
+namespace Nominax::ByteCode
 {
-    auto IDisplay::DisplayToConsole() const -> void
+    auto InstructionMetaDataRegistry::PrintInstructionSetTable(std::FILE& stream) -> void
     {
-        if (ProtocolController::IsProtocolEnabled) [[unlikely]]
+        using Foundation::Print;
+
+        Print(stream, "OP | {0: <8} | {1: <2} | S+ | S- | S+- | C | {2: <4} | {3: <4}\n", "Mnemonic", "IA", "OP1", "OP2");
+
+        const auto getOperandName
         {
-            std::FILE& console { ProtocolController::GetProtocolStream() };
-            this->Display(console);
+            [](const std::underlying_type_t<Instruction> i, const std::uint8_t op) -> std::string
+            {
+                if (std::empty(OPERAND_TYPE_TABLE[i]))
+                {
+                    return "N/A";
+                }
+                const TypeIndexBitFlagVector flags { std::begin(OPERAND_TYPE_TABLE[i])[op] };
+                if (flags == ANY_SCALAR_VALUE_TYPE)
+                {
+                    return "*64";
+                }
+                std::string result {  };
+                result.reserve(32);
+                for (std::underlying_type_t<Signal::Discriminator> j { }; j < ToUnderlying(Signal::Discriminator::Count_); ++j)
+                {
+                    if (flags & ComputeDiscBit(static_cast<Signal::Discriminator>(j + 1)))
+                    {
+                        result.append(Signal::SHORT_DISCRIMINATOR_NAMES[j]);
+                        result.push_back(' ');
+                    }
+                }
+                return result;
+            }
+        };
+
+        for (std::underlying_type_t<Instruction> i { }; i < ToUnderlying(Instruction::Count_); ++i)
+        {
+            Print
+            (
+                    stream,
+                    "{0:02X} | {1: <8} | {2:2} | {3:2} | {4:2} | {5:3} | {6: <1} | {7: <4} | {7: <4}\n",
+                    i,
+                    MNEMONIC_TABLE[i],
+                    std::size(OPERAND_TYPE_TABLE[i]),
+                    PUSH_RECORD_TABLE[i],
+                    POP_RECORD_TABLE[i],
+                    STACK_DIFF_TABLE[i],
+                    INSTRUCTION_CATEGORY_SIGILS[ToUnderlying(CATEGORY_TABLE[i])],
+                    getOperandName(i, 0),
+                    getOperandName(i, 1)
+            );
         }
     }
 }

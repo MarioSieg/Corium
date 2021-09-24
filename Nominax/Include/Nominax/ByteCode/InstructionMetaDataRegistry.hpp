@@ -223,9 +223,9 @@ namespace Nominax::ByteCode
     using InstructionOperandTable = std::initializer_list<const TypeIndexBitFlagVector>;
 
     [[nodiscard]]
-    constexpr auto ComputeDiscriminatorBit(const Signal::Discriminator discriminator) -> TypeIndexBitFlagVector
+    constexpr auto ComputeDiscBit(const Signal::Discriminator discriminator) -> TypeIndexBitFlagVector
     {
-        return static_cast<TypeIndexBitFlagVector>(1) << static_cast<TypeIndexBitFlagVector>(ToUnderlying(discriminator));
+        return 1 << static_cast<TypeIndexBitFlagVector>(ToUnderlying(discriminator));
     }
 
     /// <summary>
@@ -268,9 +268,9 @@ namespace Nominax::ByteCode
         /// </summary>
         static constexpr TypeIndexBitFlagVector ANY_SCALAR_VALUE_TYPE
         {
-            ComputeDiscriminatorBit(Signal::Discriminator::UOffset)             |
-            ComputeDiscriminatorBit(Signal::Discriminator::Int)                 |
-            ComputeDiscriminatorBit(Signal::Discriminator::Float)
+            ComputeDiscBit(Signal::Discriminator::UOffset) |
+            ComputeDiscBit(Signal::Discriminator::Int) |
+            ComputeDiscBit(Signal::Discriminator::Float)
         };
 
         /// <summary>
@@ -278,13 +278,14 @@ namespace Nominax::ByteCode
         /// </summary>
         static constexpr std::array<const InstructionOperandTable, ToUnderlying(Instruction::Count_)> OPERAND_TYPE_TABLE
         {
-            /* int      */  InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::Int) },
-            /* syscall  */  InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::SystemIntrinsicInvocationID) },
-            /* intrin   */  InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::UserIntrinsicInvocationID) },
-            /* call     */  InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::UOffset) },
+            /* int      */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::Int) },
+            /* syscall  */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::SystemIntrinsicInvocationID) },
+            /* intrin   */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::UserIntrinsicInvocationID) },
+            /* call     */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::UOffset) },
             /* ret      */  InstructionOperandTable { },
-            /* mov      */  InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::UOffset), ComputeDiscriminatorBit(Signal::Discriminator::UOffset) },
-            /* sto      */  InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::UOffset), ANY_SCALAR_VALUE_TYPE },
+            /* mov      */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::UOffset),
+                                                      ComputeDiscBit(Signal::Discriminator::UOffset) },
+            /* sto      */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::UOffset), ANY_SCALAR_VALUE_TYPE },
             /* push     */  InstructionOperandTable { ANY_SCALAR_VALUE_TYPE },
             /* pop      */  InstructionOperandTable { },
             /* pop2     */  InstructionOperandTable { },
@@ -292,26 +293,26 @@ namespace Nominax::ByteCode
             /* dupl2    */  InstructionOperandTable { },
             /* swap     */  InstructionOperandTable { },
             /* nop      */  InstructionOperandTable { },
-            /* jmp      */  InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::JumpAddress) },
-            /* jmprel   */  InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::JumpAddress) },
-            /* jz       */  InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::JumpAddress) },
-            /* jnz      */  InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::JumpAddress) },
-            /* jocmpi  */   InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::JumpAddress) },
-            /* jocmpf  */   InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::JumpAddress) },
-            /* jnocmpi */   InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::JumpAddress) },
-            /* jnocmpf */   InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::JumpAddress) },
-            /* jecmpi  */   InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::JumpAddress) },
-            /* jecmpf  */   InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::JumpAddress) },
-            /* jnecmpi */   InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::JumpAddress) },
-            /* jnecmpf */   InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::JumpAddress) },
-            /* jacmpi  */   InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::JumpAddress) },
-            /* jacmpf  */   InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::JumpAddress) },
-            /* jlcmpi  */   InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::JumpAddress) },
-            /* jlcmpf  */   InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::JumpAddress) },
-            /* jaecmpi */   InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::JumpAddress) },
-            /* jaecmpf */   InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::JumpAddress) },
-            /* jlecmpi */   InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::JumpAddress) },
-            /* jlecmpf */   InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::JumpAddress) },
+            /* jmp      */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::JumpAddress) },
+            /* jmprel   */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::JumpAddress) },
+            /* jz       */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::JumpAddress) },
+            /* jnz      */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::JumpAddress) },
+            /* jocmpi  */   InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::JumpAddress) },
+            /* jocmpf  */   InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::JumpAddress) },
+            /* jnocmpi */   InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::JumpAddress) },
+            /* jnocmpf */   InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::JumpAddress) },
+            /* jecmpi  */   InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::JumpAddress) },
+            /* jecmpf  */   InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::JumpAddress) },
+            /* jnecmpi */   InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::JumpAddress) },
+            /* jnecmpf */   InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::JumpAddress) },
+            /* jacmpi  */   InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::JumpAddress) },
+            /* jacmpf  */   InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::JumpAddress) },
+            /* jlcmpi  */   InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::JumpAddress) },
+            /* jlcmpf  */   InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::JumpAddress) },
+            /* jaecmpi */   InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::JumpAddress) },
+            /* jaecmpf */   InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::JumpAddress) },
+            /* jlecmpi */   InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::JumpAddress) },
+            /* jlecmpf */   InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::JumpAddress) },
             /* pushz    */  InstructionOperandTable { },
             /* ipusho   */  InstructionOperandTable { },
             /* fpusho   */  InstructionOperandTable { },
@@ -381,9 +382,9 @@ namespace Nominax::ByteCode
             /* cvtf2i   */  InstructionOperandTable { },
             /* cvti2c   */  InstructionOperandTable { },
             /* cvti2b   */  InstructionOperandTable { },
-            /* gcalloc  */  InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::ObjectID) },
-            /* derefw   */  InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::FieldOffset) },
-            /* derefr   */  InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::FieldOffset) }
+            /* gcalloc  */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::TypeID) },
+            /* derefw   */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::FieldOffset) },
+            /* derefr   */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::FieldOffset) }
         };
 
         /// <summary>
@@ -524,15 +525,15 @@ namespace Nominax::ByteCode
              /* imul     */  InstructionCategory::Arithmetic,
              /* idiv     */  InstructionCategory::Arithmetic,
              /* imod     */  InstructionCategory::Arithmetic,
-             /* iand     */  InstructionCategory::BitWise,
-             /* ior      */  InstructionCategory::BitWise,
-             /* ixor     */  InstructionCategory::BitWise,
-             /* icom     */  InstructionCategory::BitWise,
-             /* isal     */  InstructionCategory::BitWise,
-             /* isar     */  InstructionCategory::BitWise,
-             /* irol     */  InstructionCategory::BitWise,
-             /* iror     */  InstructionCategory::BitWise,
-             /* ineg     */  InstructionCategory::BitWise,
+             /* iand     */  InstructionCategory::Bitwise,
+             /* ior      */  InstructionCategory::Bitwise,
+             /* ixor     */  InstructionCategory::Bitwise,
+             /* icom     */  InstructionCategory::Bitwise,
+             /* isal     */  InstructionCategory::Bitwise,
+             /* isar     */  InstructionCategory::Bitwise,
+             /* irol     */  InstructionCategory::Bitwise,
+             /* iror     */  InstructionCategory::Bitwise,
+             /* ineg     */  InstructionCategory::Bitwise,
              /* fadd     */  InstructionCategory::Arithmetic,
              /* fsub     */  InstructionCategory::Arithmetic,
              /* fmul     */  InstructionCategory::Arithmetic,
@@ -851,7 +852,7 @@ namespace Nominax::ByteCode
 
         static constexpr auto IsValidArgumentType(const Instruction instruction, const std::uint64_t typeIndex, const Signal::Discriminator discriminator) -> bool
         {
-            return LookupInstructArgumentType(instruction, typeIndex) & ComputeDiscriminatorBit(discriminator);
+            return LookupInstructArgumentType(instruction, typeIndex) & ComputeDiscBit(discriminator);
         }
 
         static constexpr auto LookupInstructArgumentCount(const Instruction instruction) -> std::uint16_t
@@ -966,6 +967,9 @@ namespace Nominax::ByteCode
             /* derefw   */  1,
             /* derefr   */  1
         };
+
+
+        NOX_COLD static auto PrintInstructionSetTable(std::FILE& stream) -> void;
     };
 
     static consteval auto ValidateImmediateArgumentCounts() -> bool

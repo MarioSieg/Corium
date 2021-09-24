@@ -237,7 +237,7 @@ namespace Nominax::Foundation
             if (ProtocolController::IsProtocolEnabled)
             {
                 [[unlikely]]
-                fmt::print(ProtocolController::GetProtocolStream(), formatString, std::forward<Args>(args)...);
+                fmt::print(&ProtocolController::GetProtocolStream(), formatString, std::forward<Args>(args)...);
             }
         }
 	}
@@ -274,7 +274,7 @@ namespace Nominax::Foundation
             if (ProtocolController::IsProtocolEnabled)
             {
                 [[unlikely]]
-                std::fputc(x, ProtocolController::GetProtocolStream());
+                std::fputc(x, &ProtocolController::GetProtocolStream());
             }
         }
 	}
