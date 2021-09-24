@@ -228,8 +228,14 @@ pub fn parse_source(src: &str) -> Result<RootList, Error> {
         Ok(rules) => {
             let mut result = RootList::new();
             for rule in rules {
-                if let Some(node) = parse_rule_tree(rule) {
-                    result.push(node);
+                assert!(matches!(
+                    rule.as_rule(),
+                    Rule::Module | Rule::GlobalStatement | Rule::EOI
+                ));
+                if let Some(inner) = rule.into_inner().next() {
+                    if let Some(node) = parse_rule_tree(inner) {
+                        result.push(node);
+                    }
                 }
             }
             Ok(result)
@@ -238,11 +244,11 @@ pub fn parse_source(src: &str) -> Result<RootList, Error> {
     }
 }
 
-fn parse_rule_tree(rule: Pair<Rule>) -> Option<Node> {
+fn parse_rule_tree(rule: Pair<Rule>) -> Option<GlobalStatement> {
     let ty = rule.as_rule();
     match ty {
-        Rule::Module => Some(Node::Module(ModuleName::parse(rule))),
-        Rule::Function => Some(Node::Function(Function::parse(rule))),
+        Rule::Module => Some(GlobalStatement::Module(ModuleName::parse(rule))),
+        Rule::Function => Some(GlobalStatement::Function(Function::parse(rule))),
         _ => None,
     }
 }

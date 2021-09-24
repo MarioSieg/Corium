@@ -25,12 +25,13 @@ FunctionSignature = {
 }
 
 Block = {
-     (FunctionStatement | StatementSeparator)*
+     FunctionStatement*
 }
 
 FunctionStatement = {
     LocalVariable |
-    ReturnStatement
+    ReturnStatement |
+    StatementSeparator
 }
 
 StatementSeparator = _{

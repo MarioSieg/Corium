@@ -227,19 +227,16 @@ impl<'a> ParseTreeMapper<'a> {
         }
     }
 
-    pub fn process_ast(&mut self, root: RootList<'a>) -> &ErrorList {
+    pub fn process_ast(&mut self, root: RootList<'a>) {
         for node in root {
             self.process_node(node);
         }
-        &self.error_list
     }
 
-    pub fn process_node(&mut self, node: Node<'a>) {
+    pub fn process_node(&mut self, node: GlobalStatement<'a>) {
         match node {
-            Node::Module(name) => self.visit(name),
-            Node::Function(func) => self.visit(func),
-            Node::QualifiedName(name) => self.visit(name),
-            Node::Identifier(ident) => self.visit(ident),
+            GlobalStatement::Module(name) => self.visit(name),
+            GlobalStatement::Function(func) => self.visit(func),
         }
     }
 }
@@ -253,18 +250,6 @@ impl<'a> Visitor<ModuleName<'a>> for ParseTreeMapper<'a> {
 impl<'a> Visitor<Function<'a>> for ParseTreeMapper<'a> {
     fn visit(&mut self, obj: Function<'a>) {
         self.function_table.insert(QualifiedName(obj.name.0), obj);
-    }
-}
-
-impl<'a> Visitor<QualifiedName<'a>> for ParseTreeMapper<'a> {
-    fn visit(&mut self, obj: QualifiedName) {
-        println!("NAME: {}", obj);
-    }
-}
-
-impl<'a> Visitor<Identifier<'a>> for ParseTreeMapper<'a> {
-    fn visit(&mut self, obj: Identifier) {
-        println!("IDENT: {}", obj);
     }
 }
 

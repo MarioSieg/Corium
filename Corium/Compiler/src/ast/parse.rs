@@ -375,3 +375,13 @@ impl<'a> AstParseable<'a> for Expression<'a> {
         }
     }
 }
+
+impl<'a> AstParseable<'a> for GlobalStatement<'a> {
+    fn parse(rule: RuleIterator<'a>) -> Self {
+        match rule.as_rule() {
+            Rule::Module => Self::Module(ModuleName::parse(rule)),
+            Rule::Function => Self::Function(Function::parse(rule)),
+            _ => unreachable!(),
+        }
+    }
+}

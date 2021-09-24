@@ -224,7 +224,7 @@ pub struct CompilationUnit<'a> {
     id: Uuid,
     error_list: ErrorList,
     root: Option<Result<RootList<'a>, Error>>,
-    ast_processor: ParseTreeMapper<'a>,
+    ast_mapper: ParseTreeMapper<'a>,
 }
 
 impl<'a> CompilationUnit<'a> {
@@ -239,7 +239,7 @@ impl<'a> CompilationUnit<'a> {
             id,
             error_list,
             root,
-            ast_processor,
+            ast_mapper: ast_processor,
         }
     }
 
@@ -262,7 +262,7 @@ impl<'a> CompilationUnit<'a> {
             id,
             error_list,
             root,
-            ast_processor,
+            ast_mapper: ast_processor,
         }
     }
 
@@ -274,8 +274,8 @@ impl<'a> CompilationUnit<'a> {
             Some(root) => match root {
                 Ok(root) => {
                     let clock = Instant::now();
-                    self.ast_processor.process_ast(root);
-                    print!("{}", self.ast_processor);
+                    self.ast_mapper.process_ast(root);
+                    print!("{}", self.ast_mapper);
                     if !self.error_list.0.is_empty() {
                         print!("{}", self.error_list);
                     }
@@ -283,7 +283,7 @@ impl<'a> CompilationUnit<'a> {
                         "{}",
                         format!(
                             "Compiled \"{}\" in {}",
-                            self.ast_processor.module,
+                            self.ast_mapper.module,
                             Duration::from(clock.elapsed())
                         )
                         .green()
@@ -318,6 +318,6 @@ impl<'a> CompilationUnit<'a> {
 
     #[inline]
     pub fn get_ast_processor_context(&'a self) -> &'a ParseTreeMapper {
-        &self.ast_processor
+        &self.ast_mapper
     }
 }

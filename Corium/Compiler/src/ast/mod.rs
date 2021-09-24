@@ -215,13 +215,24 @@ pub trait AstComponent: Clone + fmt::Display + fmt::Debug {
     const IS_ATOMIC: bool;
 }
 
-/// Represents an AST node.
+/// Represents a file scope statement.
 #[derive(Clone, Debug)]
-pub enum Node<'a> {
+pub enum GlobalStatement<'a> {
     Module(ModuleName<'a>),
     Function(Function<'a>),
-    QualifiedName(QualifiedName<'a>),
-    Identifier(Identifier<'a>),
+}
+
+impl<'a> AstComponent for GlobalStatement<'a> {
+    const IS_ATOMIC: bool = false;
+}
+
+impl<'a> fmt::Display for GlobalStatement<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Module(x) => write!(f, "{}", x),
+            Self::Function(x) => write!(f, "{}", x),
+        }
+    }
 }
 
 /// Represents a function.
@@ -600,7 +611,7 @@ pub type Bool = bool;
 pub type Char = char;
 
 /// Represents the root nodes for a compilation unit.
-pub type RootList<'a> = Vec<Node<'a>>;
+pub type RootList<'a> = Vec<GlobalStatement<'a>>;
 
 impl<'a> AstComponent for &'a str {
     const IS_ATOMIC: bool = true;
