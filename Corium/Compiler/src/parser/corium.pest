@@ -13,7 +13,7 @@ Module = {
 }
 
 Function = {
-     FunctionSignature ~ " {" ~ NEWLINE ~ FunctionStatement* ~ "}" ~ NEWLINE
+     FunctionSignature ~ " {" ~ NEWLINE ~ Block ~ "}" ~ NEWLINE
 }
 
 NativeFunction = {
@@ -25,13 +25,12 @@ FunctionSignature = {
 }
 
 Block = {
-     FunctionStatement*
+     (FunctionStatement | StatementSeparator)*
 }
 
 FunctionStatement = {
     LocalVariable |
-    ReturnStatement |
-    StatementSeparator
+    ReturnStatement
 }
 
 StatementSeparator = _{

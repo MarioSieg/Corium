@@ -48,6 +48,7 @@ target_compile_options(NominaxRuntime PRIVATE -Wall)
 target_compile_options(NominaxRuntime PRIVATE -Werror)
 target_compile_options(NominaxRuntime PRIVATE -Wextra)
 target_compile_options(NominaxRuntime PRIVATE -Wno-error=unused-function)
+target_compile_options(NominaxRuntime PRIVATE -Wno-error=unused-macros)
 
 if (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang" AND "x${CMAKE_CXX_SIMULATE_ID}" STREQUAL "xMSVC")
     set(COM_CLANG_CL TRUE)
