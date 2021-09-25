@@ -205,154 +205,58 @@
 
 #pragma once
 
-#include <array>
-#include <cstdint>
+#include "Register.hpp"
+#include "Emitter.hpp"
 
-namespace Nominax::Assembler::X86_64
+namespace Nominax::Assembler::AMD64
 {
-    /// <summary>
-    /// Represents the inner layout of a 64-bit GPR register such as %rax or %rbx.
-    /// </summary>
-    union alignas(alignof(std::uint64_t)) GPRRegister64Layout
+    constexpr auto EncodeREX(const bool w, const bool r, const bool x, const bool b) -> std::uint8_t
     {
-        std::uint64_t AsU64;
-        std::int64_t AsI64;
-        double AsF64;
-        void* AsPtr;
-        std::array<std::uint16_t, sizeof(std::uint64_t) / sizeof(std::uint32_t)> AsU32S;
-        std::array<std::uint16_t, sizeof(std::uint64_t) / sizeof(std::uint16_t)> AsU16S;
-        std::array<std::uint8_t, sizeof(std::uint64_t)> AsU8S;
-        class alignas(alignof(std::uint32_t)) GPR32Layout final
-        {
-            [[maybe_unused]]
-            std::uint32_t Unused;
-        public:
-           union alignas(alignof(std::uint32_t))
-           {
-               std::uint32_t AsU32;
-               std::int32_t AsI32;
-               float AsF32;
-               char32_t AsChar32;
-               std::array<std::uint8_t, sizeof(std::uint32_t)> AsU8S;
-               std::array<std::uint16_t , sizeof(std::uint32_t) / sizeof(std::uint16_t)> AsU16S;
-               class alignas(alignof(std::uint16_t)) GPR16Layout final
-               {
-                   [[maybe_unused]]
-                   std::uint16_t Unused;
-               public:
-                   union alignas(alignof(std::uint16_t))
-                   {
-                       std::uint16_t AsU16;
-                       std::int16_t AsI16;
-                       char16_t AsChar16;
-                       std::array<std::uint8_t, sizeof(std::uint16_t)> AsU8S;
-                       struct alignas(alignof(std::uint16_t))
-                       {
-                           union alignas(alignof(std::uint8_t)) GPR8Layout
-                           {
-                               std::uint8_t AsU8;
-                               std::int8_t AsI8;
-                               char8_t AsChar8;
-                               char AsChar;
-                           } Hi8, Lo8;
-                           static_assert(sizeof(GPR8Layout) == sizeof(std::uint8_t));
-                       } HiLo;
-                       static_assert(sizeof(HiLo) == sizeof(std::uint16_t));
-                   } Inner;
-               } Lo16;
-               static_assert(sizeof(GPR16Layout) == sizeof(std::uint32_t));
-           } Inner;
-        } Lo32;
-        static_assert(sizeof(GPR32Layout) == sizeof(std::uint64_t));
+        return 0x40 | b | (x << 1) | (r << 2) | (w << 3);
+    }
+
+    constexpr auto EncodeREX2(const std::uint8_t rr, const std::uint8_t rb) -> std::uint8_t
+    {
+        return 0x40 | ((rr >> 1) & 4) | ((rb >> 3) & 1);
+    }
+
+    constexpr std::uint8_t REX64 { EncodeREX(true, false, false, false) };
+    static_assert(REX64 == 0x48);
+
+    enum class MODField : std::uint8_t
+    {
+        Offset0 = 0x00,
+        Offset8 = 0x40,
+        Offset32 = 0x80,
+        Register = 0xC0,
+        Scale1 = 0x00,
+        Scale2 = 0x40,
+        Scale4 = 0x80,
+        Scale8 = 0xC0
     };
 
-    static_assert(sizeof(GPRRegister64Layout) == sizeof(std::uint64_t));
-    static_assert(std::is_trivial_v<GPRRegister64Layout>);
-
-    /// <summary>
-    /// Represents the inner layout of a 128-bit SSE SIMD register such as %xmm0 oder %xmm15.
-    /// </summary>
-    union alignas(alignof(std::uint64_t)) SSERegister128Layout
+    constexpr auto EncodeModRM(const std::uint8_t mod, const std::uint8_t r1, const std::uint8_t r2) -> std::uint8_t
     {
-        struct alignas(alignof(std::uint64_t))
-        {
-            union alignas(alignof(std::uint64_t)) SSEWord64
-            {
-                std::uint64_t AsU64;
-                std::int64_t AsI64;
-                float AsF32;    /* SS -> scalar single precision */
-                double AsF64;   /* SD -> scalar double precision */
-                void* AsPtr;
-                std::array<std::uint16_t, sizeof(std::uint64_t) / sizeof(std::uint32_t)> AsU32S;
-                std::array<std::uint16_t, sizeof(std::uint64_t) / sizeof(std::uint16_t)> AsU16S;
-                std::array<std::uint8_t, sizeof(std::uint64_t)> AsU8S;
-            } Lo, Hi;
-            static_assert(sizeof(SSEWord64) == sizeof(std::uint64_t));
-        } Inner;
-        static_assert(sizeof(Inner) == sizeof(std::uint64_t) << 1);
-        std::array<std::int8_t, (sizeof(std::uint64_t) << 1) / sizeof(std::int8_t)> AsEPI8;
-        std::array<std::uint8_t, (sizeof(std::uint64_t) << 1) / sizeof(std::uint8_t)> AsEPU8;
-        std::array<std::int32_t, (sizeof(std::uint64_t) << 1) / sizeof(std::int32_t)> AsEPI32;
-        std::array<std::uint32_t, (sizeof(std::uint64_t) << 1) / sizeof(std::uint32_t)> AsEPU32;
-        std::array<float, (sizeof(std::uint64_t) << 1) / sizeof(float)> AsPS;
-        std::array<double, (sizeof(std::uint64_t) << 1) / sizeof(double)> AsPD;
-        std::array<std::uint64_t, (sizeof(std::uint64_t) << 1) / sizeof(std::uint64_t)> AsU64S;
-    };
+        return mod + ((r1 & 7) << 3) + (r2 & 7);
+    }
 
-    static_assert(sizeof(SSERegister128Layout) == sizeof(std::uint64_t) << 1);
-    static_assert(std::is_trivial_v<SSERegister128Layout>);
-
-    /// <summary>
-    /// Represents the inner layout of a 256-bit AVX SIMD register such as %ymm0 oder %ymm15.
-    /// </summary>
-    union alignas(alignof(std::uint64_t)) AVXRegister256Layout
+    constexpr auto EncodeModRM(const MODField mod, const std::uint8_t r1, const std::uint8_t r2) -> std::uint8_t
     {
-        struct alignas(alignof(std::uint64_t))
-        {
-            SSERegister128Layout Hi, Lo;
-        } Inner;
-        static_assert(sizeof(Inner) == sizeof(std::uint64_t) << 2);
-        std::array<std::int8_t, (sizeof(std::uint64_t) << 2) / sizeof(std::int8_t)> AsEPI8;
-        std::array<std::uint8_t, (sizeof(std::uint64_t) << 2) / sizeof(std::uint8_t)> AsEPU8;
-        std::array<std::int32_t, (sizeof(std::uint64_t) << 2) / sizeof(std::int32_t)> AsEPI32;
-        std::array<std::uint32_t, (sizeof(std::uint64_t) << 2) / sizeof(std::uint32_t)> AsEPU32;
-        std::array<float, (sizeof(std::uint64_t) << 2) / sizeof(float)> AsPS;
-        std::array<double, (sizeof(std::uint64_t) << 2) / sizeof(double)> AsPD;
-        std::array<std::uint64_t, (sizeof(std::uint64_t) << 2) / sizeof(std::uint64_t)> AsU64S;
-    };
+        return EncodeModRM(ToUnderlying(mod), r1, r2);
+    }
 
-    static_assert(sizeof(AVXRegister256Layout) == sizeof(std::uint64_t) << 2);
-    static_assert(std::is_trivial_v<AVXRegister256Layout>);
-
-    /// <summary>
-    /// Represents the inner layout of a 512-bit AVX-512F SIMD register such as %zmm0 oder %zmm15.
-    /// </summary>
-    union alignas(alignof(std::uint64_t)) AVX512Register512Layout
+    constexpr auto EncodeSIB(const std::uint8_t scale, const std::uint8_t index) -> std::uint8_t
     {
-        struct alignas(alignof(std::uint64_t))
-        {
-            AVXRegister256Layout Hi, Lo;
-        } Inner;
-        static_assert(sizeof(Inner) == sizeof(std::uint64_t) << 3);
-        std::array<std::int8_t, (sizeof(std::uint64_t) << 3) / sizeof(std::int8_t)> AsEPI8;
-        std::array<std::uint8_t, (sizeof(std::uint64_t) << 3) / sizeof(std::uint8_t)> AsEPU8;
-        std::array<std::int32_t, (sizeof(std::uint64_t) << 3) / sizeof(std::int32_t)> AsEPI32;
-        std::array<std::uint32_t, (sizeof(std::uint64_t) << 3) / sizeof(std::uint32_t)> AsEPU32;
-        std::array<float, (sizeof(std::uint64_t) << 3) / sizeof(float)> AsPS;
-        std::array<double, (sizeof(std::uint64_t) << 3) / sizeof(double)> AsPD;
-        std::array<std::uint64_t, (sizeof(std::uint64_t) << 3) / sizeof(std::uint64_t)> AsU64S;
-    };
+        return EncodeModRM(scale, index, 4);
+    }
 
-    static_assert(sizeof(AVX512Register512Layout) == sizeof(std::uint64_t) << 3);
-    static_assert(std::is_trivial_v<AVX512Register512Layout>);
+    constexpr auto CheckModRM(const std::uint8_t mod, const std::uint8_t r1, const std::uint8_t r2) -> bool
+    {
+        return !(~(mod & ~3) & ~(r1 & ~7) & ~(r2 & ~7));
+    }
 
-    /// <summary>
-    /// Represents the inner layout of a 16-bit AVX-512-F mask register such as %k0 oder %k7.
-    /// </summary>
-    using AVX512MaskRegister16Layout = std::uint16_t;
-
-    /// <summary>
-    /// Represents the inner layout of a 64-bit AVX-512-BW mask register such as %k0 oder %k7.
-    /// </summary>
-    using AVX512BWMaskRegister64Layout = std::uint64_t;
+    constexpr auto CheckModRM(const MODField mod, const std::uint8_t r1, const std::uint8_t r2) -> bool
+    {
+        return CheckModRM(ToUnderlying(mod), r1, r2);
+    }
 }

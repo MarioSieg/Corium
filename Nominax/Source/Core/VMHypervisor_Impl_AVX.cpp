@@ -203,69 +203,13 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "../../Include/Nominax/Foundation/_Foundation.hpp"
 
-#include "../../Foundation/_Foundation.hpp"
-
-namespace Nominax::Assembler::X86_64
-{
-	/// <summary>
-	/// Contains all instruction set extensions.
-	/// </summary>
-	enum class IsaExtension : std::uint8_t
-	{
-        RDTSC,
-        RDTSCP,
-        CPUID,
-        FEMMS,
-        MOVBE,
-        POPCNT,
-        LZCNT,
-        PCLMULQDQ,
-        RDRAND,
-        RDSEED,
-        CLFLUSH,
-        CLFLUSHOPT,
-        CLWB,
-        CLZERO,
-        PREFETCH,
-        PREFETCHW,
-        PREFETCHWT1,
-        MONITOR,
-        MONITORX,
-        CMOV,
-        MMX,
-        MMXEXT,
-        D3NOW,
-        D3NOWEXT,
-        SSE,
-        SSE2,
-        SSE3,
-        SSSE3,
-        SSE41,
-        SSE42,
-        SSE4A,
-        AVX,
-        AVX2,
-        AVX512F,
-        AVX512BW,
-        AVX512DQ,
-        AVX512VL,
-        AVX512PF,
-        AVX512ER,
-        AVX512CD,
-        AVX512VBMI,
-        AVX512IFMA,
-        AVX512VPOPCNTD,
-        XOP,
-        F16C,
-        FMA3,
-        FMA4,
-        BMI,
-        BMI2,
-        TBM,
-        ADX,
-        AES,
-        SHA
-	};
-}
+#if NOX_ARCH_X86_64
+#	if !defined(__AVX__) || !__AVX__
+#		error "This reactore core requires AVX!"
+#	endif
+#	define NOX_REACTOR_IMPL_NAME ReactorCore_Avx
+#		include "VMHypervisor.hpp"
+#	undef NOX_REACTOR_IMPL_NAME
+#endif

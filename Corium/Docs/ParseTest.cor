@@ -14,23 +14,25 @@ fun test() {
     let c2 bool = true
     let d2 char = 'x'
     let e2 string = "Hey"
-    return 2.6
 }
 
 fun compute(x int, y int, normalize bool) int {
     let result = 10
-    return 2.6
-    return
+    return 2
 }
 
 fun setValue(name string) {
     let result = 5
-    return 2.6
     return
 }
 
 fun getPi() float {
     return 2.6
-    return
 }
 
+fun loop() {
+    let arr = [10, 30, 40, 50, 50, 30, -3]
+    for i < 10 {
+
+    }
+}

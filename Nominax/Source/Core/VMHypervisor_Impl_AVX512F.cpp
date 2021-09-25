@@ -203,6 +203,13 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#define NOX_REACTOR_IMPL_NAME ReactorCore_Fallback
-#include "VM.hpp"
-#undef NOX_REACTOR_IMPL_NAME
+#include "../../Include/Nominax/Foundation/_Foundation.hpp"
+
+#if NOX_ARCH_X86_64
+#	if !defined(__AVX512F__) || !__AVX512F__
+#		error "This reactore core requires AVX512F!"
+#	endif
+#	define NOX_REACTOR_IMPL_NAME ReactorCore_Avx512F
+#		include "VMHypervisor.hpp"
+#	undef NOX_REACTOR_IMPL_NAME
+#endif

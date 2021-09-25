@@ -24,8 +24,8 @@ option(NOMINAX_BUILD_BENCHMARKS "Build the benchmarks for all projects" OFF)
 file(GLOB_RECURSE NOMINAX_SOURCES Source/*.cpp Source/*.c Source/*.h Source/*.S Include/*.hpp Include/*.inl)
 
 # Set more optimizations for special reactors:
-SET_SOURCE_FILES_PROPERTIES(Source/Core/VM_Impl_AVX.cpp PROPERTIES COMPILE_FLAGS -mavx)
-SET_SOURCE_FILES_PROPERTIES(Source/Core/VM_Impl_AVX512F.cpp PROPERTIES COMPILE_FLAGS -mavx512f)
+SET_SOURCE_FILES_PROPERTIES(Source/Core/VMHypervisor_Impl_AVX.cpp PROPERTIES COMPILE_FLAGS -mavx)
+SET_SOURCE_FILES_PROPERTIES(Source/Core/VMHypervisor_Impl_AVX512F.cpp PROPERTIES COMPILE_FLAGS -mavx512f)
 
 add_library(NominaxRuntime STATIC "${NOMINAX_SOURCES}")
 

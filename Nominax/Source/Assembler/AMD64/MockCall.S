@@ -203,14 +203,14 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-.globl IsAVXSupportedByOS
+.globl MockCall
 
-# extern "C" NOX_ASM_ROUTINE auto IsAVXSupportedByOS() -> bool;
-# Header: Arch/X86_64/CpuId.hpp
-IsAVXSupportedByOS:
-    xorl    %ecx, %ecx              # clear ecx
-    xgetbv                          # read value from extended control register into %edx:%eax
-    andb    $0b00000110, %al        # mask out avx bits
-    cmpb    $0b00000110, %al        # compare value
-    seteb   %al                     # if equals & supported, set al to 1 else 0
-    retq                            # return
+# Header: Arch/AMD64/CpuId.hpp
+MockCall:
+    xorl    %eax, %eax
+#ifdef __WIN__
+    movb	$0xFF, %al
+#else
+    movw	$1234, %ax
+#endif
+    retq

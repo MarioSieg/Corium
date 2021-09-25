@@ -203,81 +203,288 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../../Include/Nominax/Assembler/X86_64/RegisterCache.hpp"
-#include "../../../Include/Nominax/Assembler/X86_64/Routines.hpp"
+#pragma once
 
-namespace Nominax::Assembler::X86_64
+#include <algorithm>
+#include <cstdint>
+#include <cstring>
+#include <type_traits>
+
+namespace Nominax::Assembler::AMD64
 {
-    RegisterCache::RegisterCache()
+    inline auto Emit(std::uint8_t* m, const std::uint8_t x) -> std::uint8_t*
     {
-        this->Fetch();
+        *m++ = x;
+        return m;
     }
 
-    auto RegisterCache::Fetch() -> void
+    inline auto Emit(std::uint8_t* m, const std::uint16_t x) -> std::uint8_t*
     {
-        using Foundation::CPUFeatureBits;
-
-        Routines::QueryRegSet_GPR(std::data(this->GPRSet));
-        Routines::QueryRegSet_SSE(std::data(this->SSESet));
-        const Foundation::CPUFeatureDetector features { };
-        if (features[CPUFeatureBits::AVX])
-        {
-            AVXRegisterSet out { };
-            Routines::QueryRegSet_AVX(std::data(out));
-            this->AVXSet = { out };
-        }
-        if (features[CPUFeatureBits::AVX512F])
-        {
-            AVX512RegisterSet out { };
-            Routines::QueryRegSet_AVX512(std::data(out));
-            this->AVX512Set = { out };
-            if (features[CPUFeatureBits::AVX512BW])
-            {
-                // BW -> 64 bit %k masks
-                AVX512BWMaskRegisterSet kout { };
-                Routines::QueryRegSet_AVX512BWMasks(std::data(kout));
-                this->AVX512MaskSet = { kout };
-            }
-            else
-            {
-                // no BW -> 16 bit %k masks
-                AVX512MaskRegisterSet kout { };
-                Routines::QueryRegSet_AVX512Masks(std::data(kout));
-                this->AVX512MaskSet = { kout };
-            }
-        }
-        // Fetch rip afterwards because it clobbers %rax
-        this->RIP = std::bit_cast<GPRRegister64Layout>(Routines::QueryRIP());
+        std::memcpy(m, &x, sizeof(x));
+        m += sizeof(x);
+        return m;
     }
 
-    auto RegisterCache::Display(std::FILE& stream) const -> void
+    inline auto Emit(std::uint8_t* m, const std::uint32_t x) -> std::uint8_t*
     {
-        using Foundation::Print;
+        std::memcpy(m, &x, sizeof(x));
+        m += sizeof(x);
+        return m;
+    }
 
-        Print(stream, "%rip = {:016X}", this->RIP.AsU64);
-        DumpRegisterSet(stream, this->GPRSet);
-        if (this->AVXSet)
+    inline auto Emit(std::uint8_t* m, const std::uint64_t x) -> std::uint8_t*
+    {
+        std::memcpy(m, &x, sizeof(x));
+        m += sizeof(x);
+        return m;
+    }
+
+    inline auto Emit(std::uint8_t* m, const std::int8_t x) -> std::uint8_t*
+    {
+        *m++ = x;
+        return m;
+    }
+
+    inline auto Emit(std::uint8_t* m, const std::int16_t x) -> std::uint8_t*
+    {
+        std::memcpy(m, &x, sizeof(x));
+        m += sizeof(x);
+        return m;
+    }
+
+    inline auto Emit(std::uint8_t* m, const std::int32_t x) -> std::uint8_t*
+    {
+        std::memcpy(m, &x, sizeof(x));
+        m += sizeof(x);
+        return m;
+    }
+
+    inline auto Emit(std::uint8_t* m, const std::int64_t x) -> std::uint8_t*
+    {
+        std::memcpy(m, &x, sizeof(x));
+        m += sizeof(x);
+        return m;
+    }
+
+    inline auto Emit(std::uint8_t* m, const float x) -> std::uint8_t*
+    {
+        std::memcpy(m, &x, sizeof(x));
+        m += sizeof(x);
+        return m;
+    }
+
+    inline auto Emit(std::uint8_t* m, const double x) -> std::uint8_t*
+    {
+        std::memcpy(m, &x, sizeof(x));
+        m += sizeof(x);
+        return m;
+    }
+
+    inline auto Emit(std::uint8_t* m, const char x) -> std::uint8_t*
+    {
+        std::memcpy(m, &x, sizeof(x));
+        m += sizeof(x);
+        return m;
+    }
+
+    inline auto Emit(std::uint8_t* m, const char8_t x) -> std::uint8_t*
+    {
+        std::memcpy(m, &x, sizeof(x));
+        m += sizeof(x);
+        return m;
+    }
+
+    inline auto Emit(std::uint8_t* m, const wchar_t x) -> std::uint8_t*
+    {
+        std::memcpy(m, &x, sizeof(x));
+        m += sizeof(x);
+        return m;
+    }
+
+    inline auto Emit(std::uint8_t* m, const char16_t x) -> std::uint8_t*
+    {
+        std::memcpy(m, &x, sizeof(x));
+        m += sizeof(x);
+        return m;
+    }
+
+    inline auto Emit(std::uint8_t* m, const char32_t x) -> std::uint8_t*
+    {
+        std::memcpy(m, &x, sizeof(x));
+        m += sizeof(x);
+        return m;
+    }
+
+    constexpr auto EmitMultiByteNOPChain(std::uint8_t* m, std::uint8_t size) -> void
+    {
+        size = std::clamp<std::uint8_t>(size, 1, 15);
+        switch (size)
         {
-            DumpRegisterSet(stream, *this->AVXSet);
-        }
-        else if (this->AVX512Set)
-        {
-            DumpRegisterSet(stream, *this->AVX512Set);
-            if (this->AVX512MaskSet)
-            {
-                if (const AVX512MaskRegisterSet* const masks = std::get_if<AVX512MaskRegisterSet>(&*this->AVX512MaskSet))
-                {
-                    DumpRegisterSet(stream, *masks);
-                }
-                else if (const AVX512BWMaskRegisterSet* const wideMasks = std::get_if<AVX512BWMaskRegisterSet>(&*this->AVX512MaskSet))
-                {
-                    DumpRegisterSet(stream, *wideMasks);
-                }
-            }
-        }
-        else
-        {
-            DumpRegisterSet(stream, this->SSESet);
+            default:
+            case 1:
+                *m = 0x90;
+                return;
+
+            case 2:
+                *m = 0x40;
+                *++m = 0x90;
+                return;
+
+            case 3:
+                *m = 0x0F;
+                *++m = 0x1F;
+                *++m = 0x00;
+                return;
+
+            case 4:
+                *m = 0x0F;
+                *++m = 0x1F;
+                *++m = 0x40;
+                *++m = 0x00;
+                return;
+
+            case 5:
+                *m = 0x0F;
+                *++m = 0x1F;
+                *++m = 0x44;
+                *++m = 0x00;
+                *++m = 0x00;
+                return;
+
+            case 6:
+                *m = 0x66;
+                *++m = 0x0F;
+                *++m = 0x1F;
+                *++m = 0x44;
+                *++m = 0x00;
+                *++m = 0x00;
+                return;
+
+            case 7:
+                *m = 0x0F;
+                *++m = 0x1F;
+                *++m = 0x80;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                return;
+
+            case 8:
+                *m = 0x0F;
+                *++m = 0x1F;
+                *++m = 0x84;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                return;
+
+            case 9:
+                *m = 0x66;
+                *++m = 0x0F;
+                *++m = 0x1F;
+                *++m = 0x84;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                return;
+
+            case 10:
+                *m = 0x66;
+                *++m = 0x2E;
+                *++m = 0x0F;
+                *++m = 0x1F;
+                *++m = 0x84;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                return;
+
+            case 11:
+                *m = 0x66;
+                *++m = 0x66;
+                *++m = 0x2E;
+                *++m = 0x0F;
+                *++m = 0x1F;
+                *++m = 0x84;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                return;
+
+            case 12:
+                *m = 0x66;
+                *++m = 0x66;
+                *++m = 0x66;
+                *++m = 0x2E;
+                *++m = 0x0F;
+                *++m = 0x1F;
+                *++m = 0x84;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                return;
+
+            case 13:
+                *m = 0x66;
+                *++m = 0x66;
+                *++m = 0x66;
+                *++m = 0x66;
+                *++m = 0x2E;
+                *++m = 0x0F;
+                *++m = 0x1F;
+                *++m = 0x84;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                return;
+
+            case 14:
+                *m = 0x66;
+                *++m = 0x66;
+                *++m = 0x66;
+                *++m = 0x66;
+                *++m = 0x66;
+                *++m = 0x2E;
+                *++m = 0x0F;
+                *++m = 0x1F;
+                *++m = 0x84;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                return;
+
+            case 15:
+                *m = 0x66;
+                *++m = 0x66;
+                *++m = 0x66;
+                *++m = 0x66;
+                *++m = 0x66;
+                *++m = 0x66;
+                *++m = 0x2E;
+                *++m = 0x0F;
+                *++m = 0x1F;
+                *++m = 0x84;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                return;
         }
     }
 }

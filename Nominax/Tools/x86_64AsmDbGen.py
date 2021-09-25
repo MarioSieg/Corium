@@ -1250,7 +1250,7 @@ operand_lookup = {
 def mko(x):
     return "UINT64_C(" + hex(x if x is not None else 0) + ")" if type(x) is int or x is None else "OperandType::" + operand_lookup[x.type]
 
-target = "../Nominax/Source/Assembler/X86_64/"
+target = "../Nominax/Source/Assembler/AMD64/"
 
 fileObject = open("NominaxLicenseHeader.txt", "r")
 header = fileObject.read()
@@ -1260,7 +1260,7 @@ def generate_insertion_fun(range, idx):
     output = header
     output += "\n\n// Auto generated, do not edit!\n\n"
     output += "#include \"../../../Include/Nominax/Assembler/_Assembler.hpp\"\n\n"
-    output += "namespace Nominax::Assembler::X86_64\n{\n"
+    output += "namespace Nominax::Assembler::AMD64\n{\n"
     output += "NOX_NEVER_INLINE NOX_COLD auto GetVariationTable_" + str(idx) + "(std::pmr::monotonic_buffer_resource& allocator, std::pmr::vector<InstructionVariationPool>& out) -> void\n{\n"
     output += "\tstd::pmr::vector<InstructionVariation> instruction{&allocator};\n"
     for instr in range:

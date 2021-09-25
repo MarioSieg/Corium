@@ -203,12 +203,6 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
-
-#include "Encoding.hpp"
-#include "ISAExtension.hpp"
-#include "Register.hpp"
-#include "RegisterCache.hpp"
-#include "RegisterLayout.hpp"
-#include "RegisterSet.hpp"
-#include "Routines.hpp"
+#define NOX_REACTOR_IMPL_NAME ReactorCore_Debug
+#include "VMHypervisor.hpp"
+#undef NOX_REACTOR_IMPL_NAME

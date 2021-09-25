@@ -203,6 +203,6 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#define NOX_REACTOR_IMPL_NAME ReactorCore_Debug
-#include "VM.hpp"
+#define NOX_REACTOR_IMPL_NAME ReactorCore_Fallback
+#include "VMHypervisor.hpp"
 #undef NOX_REACTOR_IMPL_NAME

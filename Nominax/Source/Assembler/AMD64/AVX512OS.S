@@ -203,14 +203,14 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-.globl MockCall
+.globl IsAVX512SupportedByOS
 
-# Header: Arch/X86_64/CpuId.hpp
-MockCall:
-    xorl    %eax, %eax
-#ifdef __WIN__
-    movb	$0xFF, %al
-#else
-    movw	$1234, %ax
-#endif
-    retq
+# extern "C" NOX_ASM_ROUTINE auto IsAVX512SupportedByOS() -> bool;
+# Header: Arch/AMD64/CpuId.hpp
+IsAVX512SupportedByOS:
+    xorl    %ecx, %ecx          # clear ecx
+    xgetbv                      # read value from extended control register into %edx:%eax
+    andb    $0b11100000, %al    # mask out avx512 bit
+    cmpb    $0b11100000, %al    # compare bits
+    seteb   %al                 # if equals & supported, set al to 1 else 0
+    retq                        # return
