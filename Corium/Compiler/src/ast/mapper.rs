@@ -215,7 +215,7 @@ pub trait Visitor<T> {
 pub struct ParseTreeMapper<'a> {
     pub error_list: ErrorList,
     pub function_table: FunctionTable<'a>,
-    pub module: ModuleName<'a>,
+    pub module: Module<'a>,
 }
 
 impl<'a> ParseTreeMapper<'a> {
@@ -223,33 +223,21 @@ impl<'a> ParseTreeMapper<'a> {
         Self {
             error_list: ErrorList::new(),
             function_table: FunctionTable::new(),
-            module: ModuleName(QualifiedName("default")),
-        }
-    }
-
-    pub fn process_ast(&mut self, root: RootList<'a>) {
-        for node in root {
-            self.process_node(node);
-        }
-    }
-
-    pub fn process_node(&mut self, node: GlobalStatement<'a>) {
-        match node {
-            GlobalStatement::Module(name) => self.visit(name),
-            GlobalStatement::Function(func) => self.visit(func),
+            module: Module(QualifiedName("default")),
         }
     }
 }
 
-impl<'a> Visitor<ModuleName<'a>> for ParseTreeMapper<'a> {
-    fn visit(&mut self, obj: ModuleName<'a>) {
+impl<'a> Visitor<Module<'a>> for ParseTreeMapper<'a> {
+    fn visit(&mut self, obj: Module<'a>) {
         self.module = obj;
     }
 }
 
 impl<'a> Visitor<Function<'a>> for ParseTreeMapper<'a> {
     fn visit(&mut self, obj: Function<'a>) {
-        self.function_table.insert(QualifiedName(obj.name.0), obj);
+        self.function_table
+            .insert(QualifiedName(obj.signature.name.0), obj);
     }
 }
 

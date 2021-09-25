@@ -8,10 +8,6 @@ GlobalStatement = {
     StatementSeparator
 }
 
-Module = {
-    "module " ~ QualifiedName ~ NEWLINE
-}
-
 Function = {
      FunctionSignature ~ " {" ~ NEWLINE ~ Block ~ "}" ~ NEWLINE
 }
@@ -25,18 +21,16 @@ FunctionSignature = {
 }
 
 Block = {
-     FunctionStatement*
+     (FunctionStatement | StatementSeparator)*
 }
 
 FunctionStatement = {
     LocalVariable |
-    ReturnStatement |
-    StatementSeparator
+    ReturnStatement
 }
 
-StatementSeparator = _{
-    NEWLINE |
-    SEPARATOR
+Module = {
+    "module " ~ QualifiedName ~ NEWLINE
 }
 
 LocalVariable = {
@@ -99,4 +93,9 @@ Char = @{
     !("\"" | "\\") ~ ANY
     | "\\" ~ ("\"" | "\\" | "/" | "b" | "f" | "n" | "r" | "t" | "v")
     | "\\" ~ ("u" ~ ASCII_HEX_DIGIT{8})
+}
+
+StatementSeparator = _{
+    NEWLINE |
+    SEPARATOR
 }

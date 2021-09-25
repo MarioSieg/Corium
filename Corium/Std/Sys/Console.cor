@@ -1,9 +1,9 @@
 module sys
 
-native fun print(value int)
-native fun print(value float)
-native fun print(value bool)
-native fun print(value char)
-native fun print(value string)
+native fun print(value int, end char = '\n')
+native fun print(value float, end char = '\n')
+native fun print(value bool, end char = '\n')
+native fun print(value char, end char = '\n')
+native fun print(value string, end char = '\n')
 
 native fun input() string

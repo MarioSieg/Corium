@@ -203,34 +203,56 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use std::convert;
+use crate::parser::Rule;
 use std::fmt;
-use std::fmt::Formatter;
 
 pub mod mapper;
 pub mod parse;
 pub mod table;
 
+#[cfg(test)]
+mod tests;
+
 pub trait AstComponent: Clone + fmt::Display + fmt::Debug {
-    const IS_ATOMIC: bool;
+    const CORRESPONDING_RULE: Rule;
+}
+
+#[derive(Clone, Debug)]
+pub struct CompilationUnit<'a> {
+    pub module: Module<'a>,
+    pub statements: Vec<GlobalStatement<'a>>,
+}
+
+impl<'a> AstComponent for CompilationUnit<'a> {
+    const CORRESPONDING_RULE: Rule = Rule::CompilationUnit;
+}
+
+impl<'a> fmt::Display for CompilationUnit<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.module)?;
+        for smt in &self.statements {
+            write!(f, "{}", smt)?;
+        }
+        Ok(())
+    }
 }
 
 /// Represents a file scope statement.
 #[derive(Clone, Debug)]
 pub enum GlobalStatement<'a> {
-    Module(ModuleName<'a>),
     Function(Function<'a>),
+    NativeFunction(NativeFunction<'a>),
 }
 
 impl<'a> AstComponent for GlobalStatement<'a> {
-    const IS_ATOMIC: bool = false;
+    const CORRESPONDING_RULE: Rule = Rule::GlobalStatement;
 }
 
 impl<'a> fmt::Display for GlobalStatement<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Module(x) => write!(f, "{}", x),
             Self::Function(x) => write!(f, "{}", x),
+            Self::NativeFunction(x) => write!(f, "{}", x),
         }
     }
 }
@@ -238,28 +260,17 @@ impl<'a> fmt::Display for GlobalStatement<'a> {
 /// Represents a function.
 #[derive(Clone, Debug)]
 pub struct Function<'a> {
-    pub name: Identifier<'a>,
-    pub parameters: Vec<Variable<'a>>,
-    pub return_type: Option<TypeName<'a>>,
+    pub signature: FunctionSignature<'a>,
     pub block: Block<'a>,
 }
 
 impl<'a> AstComponent for Function<'a> {
-    const IS_ATOMIC: bool = false;
+    const CORRESPONDING_RULE: Rule = Rule::Function;
 }
 
 impl<'a> fmt::Display for Function<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}(", self.name)?;
-        let last = self.parameters.len().saturating_sub(1);
-        for (i, param) in self.parameters.iter().enumerate() {
-            let suffix = if i == last { "" } else { ", " };
-            write!(f, "{}{}", param, suffix)?;
-        }
-        write!(f, ")")?;
-        if let Some(ret) = &self.return_type {
-            write!(f, " {}", ret)?;
-        }
+        write!(f, "{}", self.signature)?;
         writeln!(f, " {{")?;
         if self.block.0.is_empty() {
             writeln!(f, "\t# NOP")?;
@@ -274,14 +285,54 @@ impl<'a> fmt::Display for Function<'a> {
 }
 
 #[derive(Clone, Debug)]
-pub struct Block<'a>(pub Vec<Statement<'a>>);
+pub struct NativeFunction<'a> {
+    pub signature: FunctionSignature<'a>,
+}
+
+impl<'a> AstComponent for NativeFunction<'a> {
+    const CORRESPONDING_RULE: Rule = Rule::NativeFunction;
+}
+
+impl<'a> fmt::Display for NativeFunction<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "native {}", self.signature)
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct FunctionSignature<'a> {
+    pub name: Identifier<'a>,
+    pub parameters: Option<ParameterList<'a>>,
+    pub return_type: Option<QualifiedName<'a>>,
+}
+
+impl<'a> AstComponent for FunctionSignature<'a> {
+    const CORRESPONDING_RULE: Rule = Rule::FunctionSignature;
+}
+
+impl<'a> fmt::Display for FunctionSignature<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}(", self.name)?;
+        for param in &self.parameters {
+            write!(f, "{}", param)?;
+        }
+        write!(f, ")")?;
+        if let Some(ret) = &self.return_type {
+            write!(f, " {}", ret)?;
+        }
+        Ok(())
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct Block<'a>(pub Vec<FunctionStatement<'a>>);
 
 impl<'a> AstComponent for Block<'a> {
-    const IS_ATOMIC: bool = false;
+    const CORRESPONDING_RULE: Rule = Rule::Block;
 }
 
 impl<'a> fmt::Display for Block<'a> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for smt in &self.0 {
             write!(f, "{}", smt)?;
         }
@@ -290,57 +341,99 @@ impl<'a> fmt::Display for Block<'a> {
 }
 
 #[derive(Clone, Debug)]
-pub enum Statement<'a> {
-    LocalVariable(Variable<'a>),
-    Return(Option<Expression<'a>>),
+pub enum FunctionStatement<'a> {
+    LocalVariable(LocalVariable<'a>),
+    ReturnStatement(ReturnStatement<'a>),
 }
 
-impl<'a> AstComponent for Statement<'a> {
-    const IS_ATOMIC: bool = false;
+impl<'a> AstComponent for FunctionStatement<'a> {
+    const CORRESPONDING_RULE: Rule = Rule::FunctionStatement;
 }
 
-impl<'a> fmt::Display for Statement<'a> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+impl<'a> fmt::Display for FunctionStatement<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::LocalVariable(var) => write!(f, "{}", var),
-            Self::Return(expr) => {
-                if let Some(expr) = expr {
-                    write!(f, "return {}", expr)
-                } else {
-                    write!(f, "return")
-                }
-            }
+            Self::LocalVariable(x) => write!(f, "{}", x),
+            Self::ReturnStatement(x) => write!(f, "{}", x),
         }
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct ReturnStatement<'a>(pub Option<Expression<'a>>);
+
+impl<'a> AstComponent for ReturnStatement<'a> {
+    const CORRESPONDING_RULE: Rule = Rule::ReturnStatement;
+}
+
+impl<'a> fmt::Display for ReturnStatement<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        if let Some(expr) = &self.0 {
+            write!(f, "return {}", expr)
+        } else {
+            write!(f, "return")
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct ParameterList<'a>(pub Vec<Parameter<'a>>);
+
+impl<'a> AstComponent for ParameterList<'a> {
+    const CORRESPONDING_RULE: Rule = Rule::ParameterList;
+}
+
+impl<'a> fmt::Display for ParameterList<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        for param in &self.0 {
+            write!(f, "{}", param)?;
+        }
+        Ok(())
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct Parameter<'a> {
+    pub name: Identifier<'a>,
+    pub type_hint: QualifiedName<'a>,
+    pub value: Option<Expression<'a>>,
+}
+
+impl<'a> AstComponent for Parameter<'a> {
+    const CORRESPONDING_RULE: Rule = Rule::Parameter;
+}
+
+impl<'a> fmt::Display for Parameter<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.name)?;
+        write!(f, " {}", self.type_hint)?;
+        if let Some(val) = &self.value {
+            write!(f, " = {}", val)?;
+        }
+        Ok(())
     }
 }
 
 /// Represents a local variable
 #[derive(Clone, Debug)]
-pub struct Variable<'a> {
+pub struct LocalVariable<'a> {
     pub name: Identifier<'a>,
-    pub type_hint: Option<TypeName<'a>>,
-    pub value: Option<Expression<'a>>,
-    pub is_parameter: bool,
+    pub type_hint: Option<QualifiedName<'a>>,
+    pub value: Expression<'a>,
 }
 
-impl<'a> AstComponent for Variable<'a> {
-    const IS_ATOMIC: bool = false;
+impl<'a> AstComponent for LocalVariable<'a> {
+    const CORRESPONDING_RULE: Rule = Rule::LocalVariable;
 }
 
-impl<'a> fmt::Display for Variable<'a> {
+impl<'a> fmt::Display for LocalVariable<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        if !self.is_parameter {
-            write!(f, "let ")?;
-        }
-        write!(f, "{}", self.name)?;
+        write!(f, "let {}", self.name)?;
         if let Some(typename) = &self.type_hint {
             write!(f, " {}", typename)?;
         }
-        if let Some(val) = &self.value {
-            write!(f, " = {}", val)
-        } else {
-            Ok(())
-        }
+        write!(f, " = {}", self.value)?;
+        Ok(())
     }
 }
 
@@ -348,71 +441,16 @@ impl<'a> fmt::Display for Variable<'a> {
 #[derive(Clone, Debug)]
 pub enum Expression<'a> {
     Literal(Literal<'a>),
-    Unary {
-        op: UnaryOperator,
-        val: Box<Self>,
-    },
-    Binary {
-        lhs: Box<Self>,
-        op: BinaryOperator,
-        rhs: Box<Self>,
-    },
 }
 
 impl<'a> AstComponent for Expression<'a> {
-    const IS_ATOMIC: bool = false;
+    const CORRESPONDING_RULE: Rule = Rule::Expression;
 }
 
 impl<'a> fmt::Display for Expression<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Self::Literal(lit) => write!(f, "{}", lit),
-            Self::Unary { op, val } => {
-                write!(f, "{} {}", op, val)
-            }
-            Self::Binary { lhs, op, rhs } => {
-                write!(f, "{} {} {}", lhs, op, rhs)
-            }
-        }
-    }
-}
-
-#[derive(Clone, Debug)]
-pub enum TypeName<'a> {
-    Int,
-    Float,
-    Char,
-    Bool,
-    String,
-    Custom(Identifier<'a>),
-}
-
-impl<'a> AstComponent for TypeName<'a> {
-    const IS_ATOMIC: bool = false;
-}
-
-impl<'a> convert::From<&'a str> for TypeName<'a> {
-    fn from(st: &'a str) -> Self {
-        match st {
-            "int" => TypeName::Int,
-            "float" => TypeName::Float,
-            "char" => TypeName::Char,
-            "bool" => TypeName::Bool,
-            "string" => TypeName::String,
-            _ => TypeName::Custom(Identifier(st)),
-        }
-    }
-}
-
-impl<'a> fmt::Display for TypeName<'a> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Self::Int => write!(f, "int"),
-            Self::Float => write!(f, "float"),
-            Self::Char => write!(f, "char"),
-            Self::Bool => write!(f, "bool"),
-            Self::String => write!(f, "string"),
-            Self::Custom(name) => write!(f, "{}", name),
         }
     }
 }
@@ -437,7 +475,7 @@ pub enum Literal<'a> {
 }
 
 impl<'a> AstComponent for Literal<'a> {
-    const IS_ATOMIC: bool = true;
+    const CORRESPONDING_RULE: Rule = Rule::Literal;
 }
 
 impl<'a> fmt::Display for Literal<'a> {
@@ -452,123 +490,15 @@ impl<'a> fmt::Display for Literal<'a> {
     }
 }
 
-/// Represents a binary operator.
-#[repr(usize)]
-#[derive(Copy, Clone, Eq, PartialEq, Debug)]
-pub enum BinaryOperator {
-    /// .
-    Dot,
-
-    ///+
-    Add,
-
-    /// -
-    Sub,
-
-    /// *
-    Mul,
-
-    /// /
-    Div,
-
-    /// %
-    Mod,
-
-    /// and
-    And,
-
-    /// or
-    Or,
-
-    /// &
-    BitAnd,
-
-    /// |
-    BitOr,
-
-    /// ^
-    BitXor,
-
-    /// <<
-    BitShiftLeft,
-
-    /// >>
-    BitShiftRight,
-
-    /// <<+
-    BitShiftLeftUnsigned,
-
-    /// >>+
-    BitShiftRightUnsigned,
-
-    /// <<<
-    BitRotationLeft,
-
-    /// >>>
-    BitRotationRight,
-}
-
-impl AstComponent for BinaryOperator {
-    const IS_ATOMIC: bool = true;
-}
-
-impl fmt::Display for BinaryOperator {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Self::Dot => write!(f, "."),
-            Self::Add => write!(f, "+"),
-            Self::Sub => write!(f, "-"),
-            Self::Mul => write!(f, "*"),
-            Self::Div => write!(f, "/"),
-            Self::Mod => write!(f, "%"),
-            Self::And => write!(f, "and"),
-            Self::Or => write!(f, "or"),
-            Self::BitAnd => write!(f, "&"),
-            Self::BitOr => write!(f, "|"),
-            Self::BitXor => write!(f, "^"),
-            Self::BitShiftLeft => write!(f, "<<"),
-            Self::BitShiftRight => write!(f, ">>"),
-            Self::BitShiftLeftUnsigned => write!(f, "<<<"),
-            Self::BitShiftRightUnsigned => write!(f, ">>>"),
-            Self::BitRotationLeft => write!(f, "<<<<"),
-            Self::BitRotationRight => write!(f, ">>>>"),
-        }
-    }
-}
-
-#[repr(usize)]
-#[derive(Copy, Clone, Eq, PartialEq, Debug)]
-pub enum UnaryOperator {
-    Plus,
-    Minus,
-    Not,
-    BitNot,
-}
-
-impl AstComponent for UnaryOperator {
-    const IS_ATOMIC: bool = true;
-}
-
-impl fmt::Display for UnaryOperator {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Self::Plus => write!(f, "+"),
-            Self::Minus => write!(f, "-"),
-            Self::Not => write!(f, "not"),
-            Self::BitNot => write!(f, "~"),
-        }
-    }
-}
-
 /// Represents a module definition.
 #[derive(Clone, Debug)]
-pub struct ModuleName<'a>(pub QualifiedName<'a>);
+pub struct Module<'a>(pub QualifiedName<'a>);
 
-impl<'a> AstComponent for ModuleName<'a> {
-    const IS_ATOMIC: bool = false;
+impl<'a> AstComponent for Module<'a> {
+    const CORRESPONDING_RULE: Rule = Rule::Module;
 }
 
-impl<'a> fmt::Display for ModuleName<'a> {
+impl<'a> fmt::Display for Module<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.0)
     }
@@ -583,7 +513,7 @@ impl<'a> fmt::Display for ModuleName<'a> {
 pub struct QualifiedName<'a>(pub &'a str);
 
 impl<'a> fmt::Display for QualifiedName<'a> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.0)
     }
 }
@@ -593,7 +523,7 @@ impl<'a> fmt::Display for QualifiedName<'a> {
 pub struct Identifier<'a>(pub &'a str);
 
 impl<'a> fmt::Display for Identifier<'a> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.0)
     }
 }
@@ -609,10 +539,3 @@ pub type Bool = bool;
 
 /// Represents a Corium "char".
 pub type Char = char;
-
-/// Represents the root nodes for a compilation unit.
-pub type RootList<'a> = Vec<GlobalStatement<'a>>;
-
-impl<'a> AstComponent for &'a str {
-    const IS_ATOMIC: bool = true;
-}

@@ -203,14 +203,14 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::{parse::AstParseable, *};
+use crate::ast::*;
 use crate::error::*;
-use pest::Parser;
+pub use pest::Parser;
 use pest_derive::*;
 
 pub mod error;
 #[cfg(test)]
-mod grammar_test;
+mod tests;
 
 use error::handle_parser_error;
 use pest::iterators::Pair;
@@ -222,33 +222,12 @@ pub type RuleIterator<'a> = Pair<'a, Rule>;
 #[grammar = "parser/corium.pest"]
 pub struct CoriumParser;
 
-pub fn parse_source(src: &str) -> Result<RootList, Error> {
+pub fn parse_source(src: &str) -> Result<CompilationUnit, Error> {
     let content = CoriumParser::parse(Rule::CompilationUnit, src);
     match handle_parser_error(content) {
-        Ok(rules) => {
-            let mut result = RootList::new();
-            for rule in rules {
-                assert!(matches!(
-                    rule.as_rule(),
-                    Rule::Module | Rule::GlobalStatement | Rule::EOI
-                ));
-                if let Some(inner) = rule.into_inner().next() {
-                    if let Some(node) = parse_rule_tree(inner) {
-                        result.push(node);
-                    }
-                }
-            }
-            Ok(result)
+        Ok(_rules) => {
+            todo!()
         }
         Err(err) => Err(err),
-    }
-}
-
-fn parse_rule_tree(rule: Pair<Rule>) -> Option<GlobalStatement> {
-    let ty = rule.as_rule();
-    match ty {
-        Rule::Module => Some(GlobalStatement::Module(ModuleName::parse(rule))),
-        Rule::Function => Some(GlobalStatement::Function(Function::parse(rule))),
-        _ => None,
     }
 }

@@ -2,6 +2,8 @@ module test
 
 native fun test(x int, y int) float
 
+native fun print(value bool, end char = '\n')
+
 fun test() {
     let a = 10
     let b = 2.5
@@ -30,9 +32,6 @@ fun getPi() float {
     return 2.6
 }
 
-fun loop() {
-    let arr = [10, 30, 40, 50, 50, 30, -3]
-    for i < 10 {
-
-    }
+fun loop() int {
+    return 10
 }

@@ -212,107 +212,94 @@
 
 namespace Nominax::Assembler::AMD64
 {
-    inline auto Emit(std::uint8_t* m, const std::uint8_t x) -> std::uint8_t*
+    inline auto Emit(std::uint8_t* const m, const std::uint8_t x) -> std::uint8_t*
     {
-        *m++ = x;
-        return m;
+        *m = x;
+        return m + sizeof(x);
     }
 
-    inline auto Emit(std::uint8_t* m, const std::uint16_t x) -> std::uint8_t*
+    inline auto Emit(std::uint8_t* const m, const std::uint16_t x) -> std::uint8_t*
     {
         std::memcpy(m, &x, sizeof(x));
-        m += sizeof(x);
-        return m;
+        return m + sizeof(x);
     }
 
-    inline auto Emit(std::uint8_t* m, const std::uint32_t x) -> std::uint8_t*
+    inline auto Emit(std::uint8_t* const m, const std::uint32_t x) -> std::uint8_t*
     {
         std::memcpy(m, &x, sizeof(x));
-        m += sizeof(x);
-        return m;
+        return m + sizeof(x);
     }
 
-    inline auto Emit(std::uint8_t* m, const std::uint64_t x) -> std::uint8_t*
+    inline auto Emit(std::uint8_t* const m, const std::uint64_t x) -> std::uint8_t*
     {
         std::memcpy(m, &x, sizeof(x));
-        m += sizeof(x);
-        return m;
+        return m + sizeof(x);
     }
 
-    inline auto Emit(std::uint8_t* m, const std::int8_t x) -> std::uint8_t*
+    inline auto Emit(std::uint8_t* const m, const std::int8_t x) -> std::uint8_t*
     {
-        *m++ = x;
-        return m;
+        *m = x;
+        return m + sizeof(x);
     }
 
-    inline auto Emit(std::uint8_t* m, const std::int16_t x) -> std::uint8_t*
-    {
-        std::memcpy(m, &x, sizeof(x));
-        m += sizeof(x);
-        return m;
-    }
-
-    inline auto Emit(std::uint8_t* m, const std::int32_t x) -> std::uint8_t*
+    inline auto Emit(std::uint8_t* const m, const std::int16_t x) -> std::uint8_t*
     {
         std::memcpy(m, &x, sizeof(x));
-        m += sizeof(x);
-        return m;
+        return m + sizeof(x);
     }
 
-    inline auto Emit(std::uint8_t* m, const std::int64_t x) -> std::uint8_t*
+    inline auto Emit(std::uint8_t* const m, const std::int32_t x) -> std::uint8_t*
     {
         std::memcpy(m, &x, sizeof(x));
-        m += sizeof(x);
-        return m;
+        return m + sizeof(x);
     }
 
-    inline auto Emit(std::uint8_t* m, const float x) -> std::uint8_t*
+    inline auto Emit(std::uint8_t* const m, const std::int64_t x) -> std::uint8_t*
     {
         std::memcpy(m, &x, sizeof(x));
-        m += sizeof(x);
-        return m;
+        return m + sizeof(x);
     }
 
-    inline auto Emit(std::uint8_t* m, const double x) -> std::uint8_t*
+    inline auto Emit(std::uint8_t* const m, const float x) -> std::uint8_t*
     {
         std::memcpy(m, &x, sizeof(x));
-        m += sizeof(x);
-        return m;
+        return m + sizeof(x);
     }
 
-    inline auto Emit(std::uint8_t* m, const char x) -> std::uint8_t*
+    inline auto Emit(std::uint8_t* const m, const double x) -> std::uint8_t*
     {
         std::memcpy(m, &x, sizeof(x));
-        m += sizeof(x);
-        return m;
+        return m + sizeof(x);
     }
 
-    inline auto Emit(std::uint8_t* m, const char8_t x) -> std::uint8_t*
+    inline auto Emit(std::uint8_t* const m, const char x) -> std::uint8_t*
     {
         std::memcpy(m, &x, sizeof(x));
-        m += sizeof(x);
-        return m;
+        return m + sizeof(x);
     }
 
-    inline auto Emit(std::uint8_t* m, const wchar_t x) -> std::uint8_t*
+    inline auto Emit(std::uint8_t* const m, const char8_t x) -> std::uint8_t*
     {
         std::memcpy(m, &x, sizeof(x));
-        m += sizeof(x);
-        return m;
+        return m + sizeof(x);
     }
 
-    inline auto Emit(std::uint8_t* m, const char16_t x) -> std::uint8_t*
+    inline auto Emit(std::uint8_t* const m, const wchar_t x) -> std::uint8_t*
     {
         std::memcpy(m, &x, sizeof(x));
-        m += sizeof(x);
-        return m;
+        return m + sizeof(x);
     }
 
-    inline auto Emit(std::uint8_t* m, const char32_t x) -> std::uint8_t*
+    inline auto Emit(std::uint8_t* const m, const char16_t x) -> std::uint8_t*
     {
         std::memcpy(m, &x, sizeof(x));
-        m += sizeof(x);
-        return m;
+        return m + sizeof(x);
+    }
+
+    inline auto Emit(std::uint8_t* const m, const char32_t x) -> std::uint8_t*
+    {
+        std::memcpy(m, &x, sizeof(x));
+        return m + sizeof(x);
     }
 
     constexpr auto EmitMultiByteNOPChain(std::uint8_t* m, std::uint8_t size) -> void

@@ -203,11 +203,11 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::unit::CompilationUnit;
+use crate::unit::FileCompilationUnit;
 use std::path::{Path, PathBuf};
 
 pub struct CompilerContext<'a> {
-    queue: Vec<CompilationUnit<'a>>,
+    queue: Vec<FileCompilationUnit<'a>>,
 }
 
 impl<'a> CompilerContext<'a> {
@@ -216,11 +216,11 @@ impl<'a> CompilerContext<'a> {
     }
 
     pub fn enqueue_file<P: AsRef<Path>>(&mut self, path: P) {
-        let unit = CompilationUnit::load_from_file(PathBuf::from(path.as_ref()));
+        let unit = FileCompilationUnit::load_from_file(PathBuf::from(path.as_ref()));
         self.queue.push(unit);
     }
 
-    pub fn get_queue(&self) -> &Vec<CompilationUnit> {
+    pub fn get_queue(&self) -> &Vec<FileCompilationUnit> {
         &self.queue
     }
 
