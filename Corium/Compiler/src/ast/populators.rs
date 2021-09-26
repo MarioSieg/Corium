@@ -219,6 +219,20 @@ pub trait AstPopulator<'a>: AstComponent {
     }
 }
 
+impl<'a> AstPopulator<'a> for Block<'a> {
+    fn populate(rule: RulePair<'a>) -> Self {
+        let mut rule = rule.into_inner();
+        let mut result = Vec::new();
+        // params*
+        while let Some(inner) = rule.peek() {
+            debug_assert_eq!(inner.as_rule(), Rule::FunctionStatement);
+            result.push(FunctionStatement::map(rule.clone()));
+            rule.next();
+        }
+        Self(result)
+    }
+}
+
 impl<'a> AstPopulator<'a> for FunctionStatement<'a> {
     fn populate(rule: RulePair<'a>) -> Self {
         let rule = rule.into_inner();

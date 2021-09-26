@@ -624,4 +624,157 @@ mod populators {
             ));
         }
     }
+
+    mod block {
+        use super::*;
+
+        #[test]
+        fn variables() {
+            let source = concat!(
+                "let x = 10\n",
+                "let y bool = true\n",
+                "let name = \"Hey\"\n",
+                "let z char = 'y'\n",
+                "let zw float = 2.33225\n"
+            );
+            let result = CoriumParser::parse(Rule::Block, source).unwrap();
+            let ast = Block::map(result);
+            assert_eq!(ast.0.len(), 5);
+
+            assert!(matches!(
+                &ast.0[0],
+                FunctionStatement::LocalVariable(LocalVariable {
+                    name: Identifier("x"),
+                    value: Expression::Literal(Literal::Int(10)),
+                    type_hint: None
+                })
+            ));
+
+            let name = QualifiedName::from("bool");
+            assert!(matches!(
+                &ast.0[1],
+                FunctionStatement::LocalVariable(LocalVariable {
+                    name: Identifier("y"),
+                    value: Expression::Literal(Literal::Bool(true)),
+                    type_hint: Some(name)
+                })
+            ));
+
+            assert!(matches!(
+                &ast.0[2],
+                FunctionStatement::LocalVariable(LocalVariable {
+                    name: Identifier("name"),
+                    value: Expression::Literal(Literal::String("Hey")),
+                    type_hint: None
+                })
+            ));
+
+            let name = QualifiedName::from("char");
+            assert!(matches!(
+                &ast.0[3],
+                FunctionStatement::LocalVariable(LocalVariable {
+                    name: Identifier("z"),
+                    value: Expression::Literal(Literal::Char('y')),
+                    type_hint: Some(name)
+                })
+            ));
+
+            let name = QualifiedName::from("float");
+            assert!(matches!(
+                &ast.0[4],
+                FunctionStatement::LocalVariable(LocalVariable {
+                    name: Identifier("zw"),
+                    value: Expression::Literal(Literal::Float(2.33225)),
+                    type_hint: Some(name)
+                })
+            ));
+        }
+
+        #[test]
+        fn returns() {
+            let source = concat!(
+                "return\n",
+                "return true\n",
+                "return \"Hey\"\n",
+                "return 2.33225\n"
+            );
+            let result = CoriumParser::parse(Rule::Block, source).unwrap();
+            let ast = Block::map(result);
+            assert_eq!(ast.0.len(), 4);
+            assert!(matches!(
+                &ast.0[0],
+                FunctionStatement::ReturnStatement(ReturnStatement(None))
+            ));
+            assert!(matches!(
+                &ast.0[1],
+                FunctionStatement::ReturnStatement(ReturnStatement(Some(Expression::Literal(
+                    Literal::Bool(true)
+                ))))
+            ));
+            assert!(matches!(
+                &ast.0[2],
+                FunctionStatement::ReturnStatement(ReturnStatement(Some(Expression::Literal(
+                    Literal::String("Hey")
+                ))))
+            ));
+            assert!(matches!(
+                &ast.0[3],
+                FunctionStatement::ReturnStatement(ReturnStatement(Some(Expression::Literal(
+                    Literal::Float(2.33225)
+                ))))
+            ));
+        }
+
+        #[test]
+        fn mixed() {
+            let source = concat!(
+                "let x = 10\n",
+                "return true\n",
+                "return \"Hey\"\n",
+                "let z bool = true\n",
+                "let z float = 2.33225\n"
+            );
+            let result = CoriumParser::parse(Rule::Block, source).unwrap();
+            let ast = Block::map(result);
+            assert_eq!(ast.0.len(), 5);
+            assert!(matches!(
+                &ast.0[0],
+                FunctionStatement::LocalVariable(LocalVariable {
+                    name: Identifier("x"),
+                    value: Expression::Literal(Literal::Int(10)),
+                    type_hint: None
+                })
+            ));
+            assert!(matches!(
+                &ast.0[1],
+                FunctionStatement::ReturnStatement(ReturnStatement(Some(Expression::Literal(
+                    Literal::Bool(true)
+                ))))
+            ));
+            assert!(matches!(
+                &ast.0[2],
+                FunctionStatement::ReturnStatement(ReturnStatement(Some(Expression::Literal(
+                    Literal::String("Hey")
+                ))))
+            ));
+            let name = QualifiedName::from("bool");
+            assert!(matches!(
+                &ast.0[3],
+                FunctionStatement::LocalVariable(LocalVariable {
+                    name: Identifier("z"),
+                    value: Expression::Literal(Literal::Bool(true)),
+                    type_hint: Some(name)
+                })
+            ));
+            let name = QualifiedName::from("float");
+            assert!(matches!(
+                &ast.0[4],
+                FunctionStatement::LocalVariable(LocalVariable {
+                    name: Identifier("z"),
+                    value: Expression::Literal(Literal::Float(2.33225)),
+                    type_hint: Some(name)
+                })
+            ));
+        }
+    }
 }
