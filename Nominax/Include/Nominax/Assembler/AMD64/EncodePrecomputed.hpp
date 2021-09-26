@@ -210,17 +210,17 @@
 
 namespace Nominax::Assembler::AMD64
 {
-    inline auto Encode64(std::uint8_t* m, const std::uint8_t opcode, const GPR64 src, const GPR64 dst) -> std::uint8_t*
+    inline auto BaseEncode64(std::uint8_t* m, const std::uint8_t opcode, const GPR64 src, const GPR64 dst) -> std::uint8_t*
     {
         m = Emit(m, REX64);
         m = Emit(m, opcode);
         m = Emit(m, EncodeModRM(MODField::Register, src.PhysicalID(), dst.PhysicalID()));
-        NOX_DBG_PAS_TRUE(CheckModRM(MODField::Register, src.PhysicalID(), dst.PhysicalID()), "Machine code encoding error!");
+        NOX_DBG_PAS_TRUE(CheckModRM(MODField::Register, src.PhysicalID(), dst.PhysicalID()), "Machine encoding error!");
         return m;
     }
 
     inline auto ADDQ(std::uint8_t* const m, const GPR64 src, const GPR64 dst) -> std::uint8_t*
     {
-        return Encode64(m, 0x1, src, dst);
+        return BaseEncode64(m, 0x1, src, dst);
     }
 }

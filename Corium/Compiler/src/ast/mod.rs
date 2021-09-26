@@ -204,10 +204,12 @@
 //    limitations under the License.
 
 use crate::parser::Rule;
+use std::convert;
+use std::default;
 use std::fmt;
 
 pub mod mapper;
-pub mod parse;
+pub mod mapping;
 pub mod table;
 
 #[cfg(test)]
@@ -481,8 +483,8 @@ impl<'a> AstComponent for Literal<'a> {
 impl<'a> fmt::Display for Literal<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Self::Int(x) => write!(f, "{}", x),
             Self::Float(x) => write!(f, "{}", x),
+            Self::Int(x) => write!(f, "{}", x),
             Self::Char(x) => write!(f, "'{}'", x),
             Self::Bool(x) => write!(f, "{}", x),
             Self::String(x) => write!(f, "\"{}\"", x),
@@ -504,23 +506,50 @@ impl<'a> fmt::Display for Module<'a> {
     }
 }
 
+impl<'a> default::Default for Module<'a> {
+    fn default() -> Self {
+        Self(QualifiedName::from("default"))
+    }
+}
+
 /// Represents a qualified name - such as a module name or a class type name.
 /// Qualified names can be seperated into sub paths by dots.
 /// E. g. TestClass
 /// E. g. Module.TestClass
 /// E. g. Module.TestClass.Function
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
-pub struct QualifiedName<'a>(pub &'a str);
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+pub struct QualifiedName<'a> {
+    pub full: &'a str,
+    pub split: Vec<&'a str>,
+}
 
 impl<'a> fmt::Display for QualifiedName<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.0)
+        write!(f, "{}", self.full)
+    }
+}
+
+impl<'a> AstComponent for QualifiedName<'a> {
+    const CORRESPONDING_RULE: Rule = Rule::QualifiedName;
+}
+
+impl<'a> convert::From<&'a str> for QualifiedName<'a> {
+    fn from(x: &'a str) -> Self {
+        assert!(!x.is_empty());
+        Self {
+            full: x,
+            split: vec![x],
+        }
     }
 }
 
 /// Represents an identifier such as a class or variable name.
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Identifier<'a>(pub &'a str);
+
+impl<'a> AstComponent for Identifier<'a> {
+    const CORRESPONDING_RULE: Rule = Rule::Identifier;
+}
 
 impl<'a> fmt::Display for Identifier<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

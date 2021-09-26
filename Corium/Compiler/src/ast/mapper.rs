@@ -223,7 +223,7 @@ impl<'a> ParseTreeMapper<'a> {
         Self {
             error_list: ErrorList::new(),
             function_table: FunctionTable::new(),
-            module: Module(QualifiedName("default")),
+            module: Module::default(),
         }
     }
 }
@@ -236,8 +236,7 @@ impl<'a> Visitor<Module<'a>> for ParseTreeMapper<'a> {
 
 impl<'a> Visitor<Function<'a>> for ParseTreeMapper<'a> {
     fn visit(&mut self, obj: Function<'a>) {
-        self.function_table
-            .insert(QualifiedName(obj.signature.name.0), obj);
+        self.function_table.insert(obj.signature.name, obj);
     }
 }
 

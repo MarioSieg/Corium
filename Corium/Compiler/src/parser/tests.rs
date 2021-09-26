@@ -149,7 +149,7 @@ mod rules {
         }
     }
 
-    mod ident {
+    mod identifier {
         use super::*;
 
         mod valid {
@@ -157,7 +157,7 @@ mod rules {
 
             #[test]
             fn alphanumeric() {
-                let result = CoriumParser::parse(Rule::Ident, "MyClass")
+                let result = CoriumParser::parse(Rule::Identifier, "MyClass")
                     .unwrap()
                     .as_str();
                 assert_eq!(result, "MyClass");
@@ -165,15 +165,15 @@ mod rules {
 
             #[test]
             fn mixed() {
-                let result = CoriumParser::parse(Rule::Ident, "My2Class32LOl")
+                let result = CoriumParser::parse(Rule::Identifier, "My2Class32LOl")
                     .unwrap()
                     .as_str();
                 assert_eq!(result, "My2Class32LOl");
             }
 
             #[test]
-            fn numberic() {
-                let result = CoriumParser::parse(Rule::Ident, "X278247842877284")
+            fn numeric() {
+                let result = CoriumParser::parse(Rule::Identifier, "X278247842877284")
                     .unwrap()
                     .as_str();
                 assert_eq!(result, "X278247842877284");
@@ -185,55 +185,55 @@ mod rules {
 
             #[test]
             fn numeric() {
-                let result = CoriumParser::parse(Rule::Ident, "1");
+                let result = CoriumParser::parse(Rule::Identifier, "1");
                 assert!(result.is_err());
             }
 
             #[test]
             fn numeric2() {
-                let result = CoriumParser::parse(Rule::Ident, "3MyClass");
+                let result = CoriumParser::parse(Rule::Identifier, "3MyClass");
                 assert!(result.is_err());
             }
 
             #[test]
             fn numeric3() {
-                let result = CoriumParser::parse(Rule::Ident, "0MyClass");
+                let result = CoriumParser::parse(Rule::Identifier, "0MyClass");
                 assert!(result.is_err());
             }
 
             #[test]
             fn numeric4() {
-                let result = CoriumParser::parse(Rule::Ident, "-10MyClass");
+                let result = CoriumParser::parse(Rule::Identifier, "-10MyClass");
                 assert!(result.is_err());
             }
 
             #[test]
             fn symbol() {
-                let result = CoriumParser::parse(Rule::Ident, "&MyClass");
+                let result = CoriumParser::parse(Rule::Identifier, "&MyClass");
                 assert!(result.is_err());
             }
 
             #[test]
             fn symbol2() {
-                let result = CoriumParser::parse(Rule::Ident, "+MyClass");
+                let result = CoriumParser::parse(Rule::Identifier, "+MyClass");
                 assert!(result.is_err());
             }
 
             #[test]
             fn symbol3() {
-                let result = CoriumParser::parse(Rule::Ident, "*MyClass");
+                let result = CoriumParser::parse(Rule::Identifier, "*MyClass");
                 assert!(result.is_err());
             }
 
             #[test]
             fn symbol4() {
-                let result = CoriumParser::parse(Rule::Ident, "#MyClass");
+                let result = CoriumParser::parse(Rule::Identifier, "#MyClass");
                 assert!(result.is_err());
             }
 
             #[test]
             fn symbol5() {
-                let result = CoriumParser::parse(Rule::Ident, "\"MyClass");
+                let result = CoriumParser::parse(Rule::Identifier, "\"MyClass");
                 assert!(result.is_err());
             }
         }
@@ -1093,7 +1093,7 @@ mod rules {
                 let mut result = CoriumParser::parse(Rule::Parameter, "myParam int").unwrap();
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "myParam");
                 let typename = result.next().unwrap();
                 assert_eq!(typename.as_rule(), Rule::QualifiedName);
@@ -1105,7 +1105,7 @@ mod rules {
                 let mut result = CoriumParser::parse(Rule::Parameter, "myParam float").unwrap();
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "myParam");
                 let typename = result.next().unwrap();
                 assert_eq!(typename.as_rule(), Rule::QualifiedName);
@@ -1117,7 +1117,7 @@ mod rules {
                 let mut result = CoriumParser::parse(Rule::Parameter, "myParam MyClass").unwrap();
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "myParam");
                 let typename = result.next().unwrap();
                 assert_eq!(typename.as_rule(), Rule::QualifiedName);
@@ -1130,7 +1130,7 @@ mod rules {
                     CoriumParser::parse(Rule::Parameter, "myParam MyPackage.MyClass").unwrap();
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "myParam");
                 let typename = result.next().unwrap();
                 assert_eq!(typename.as_rule(), Rule::QualifiedName);
@@ -1142,7 +1142,7 @@ mod rules {
                 let mut result = CoriumParser::parse(Rule::Parameter, "myParam int = 10").unwrap();
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "myParam");
                 let typename = result.next().unwrap();
                 assert_eq!(typename.as_rule(), Rule::QualifiedName);
@@ -1164,7 +1164,7 @@ mod rules {
                     CoriumParser::parse(Rule::Parameter, "myParam float = 0.999").unwrap();
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "myParam");
                 let typename = result.next().unwrap();
                 assert_eq!(typename.as_rule(), Rule::QualifiedName);
@@ -1186,7 +1186,7 @@ mod rules {
                     CoriumParser::parse(Rule::Parameter, "myParam bool = true").unwrap();
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "myParam");
                 let typename = result.next().unwrap();
                 assert_eq!(typename.as_rule(), Rule::QualifiedName);
@@ -1208,7 +1208,7 @@ mod rules {
                     CoriumParser::parse(Rule::Parameter, "myParam char = 'x'").unwrap();
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "myParam");
                 let typename = result.next().unwrap();
                 assert_eq!(typename.as_rule(), Rule::QualifiedName);
@@ -1231,7 +1231,7 @@ mod rules {
                         .unwrap();
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "myParam");
                 let typename = result.next().unwrap();
                 assert_eq!(typename.as_rule(), Rule::QualifiedName);
@@ -1414,7 +1414,7 @@ mod rules {
                 assert_eq!(result.as_str(), "let x = 10\n");
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "x");
                 let literal = result.next().unwrap();
                 assert_eq!(literal.as_rule(), Rule::Expression);
@@ -1428,7 +1428,7 @@ mod rules {
                 assert_eq!(result.as_str(), "let x = 10.0\n");
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "x");
                 let literal = result.next().unwrap();
                 assert_eq!(literal.as_rule(), Rule::Expression);
@@ -1441,7 +1441,7 @@ mod rules {
                 assert_eq!(result.as_str(), "let x = 'x'\n");
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "x");
                 let literal = result.next().unwrap();
                 assert_eq!(literal.as_rule(), Rule::Expression);
@@ -1455,7 +1455,7 @@ mod rules {
                 assert_eq!(result.as_str(), "let x = true\n");
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "x");
                 let literal = result.next().unwrap();
                 assert_eq!(literal.as_rule(), Rule::Expression);
@@ -1469,7 +1469,7 @@ mod rules {
                 assert_eq!(result.as_str(), "let x = \"Name\"\n");
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "x");
                 let literal = result.next().unwrap();
                 assert_eq!(literal.as_rule(), Rule::Expression);
@@ -1483,7 +1483,7 @@ mod rules {
                 assert_eq!(result.as_str(), "let x int = 10\n");
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "x");
                 let ident = result.next().unwrap();
                 assert_eq!(ident.as_rule(), Rule::QualifiedName);
@@ -1500,7 +1500,7 @@ mod rules {
                 assert_eq!(result.as_str(), "let x float = 10.0\n");
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "x");
                 let ident = result.next().unwrap();
                 assert_eq!(ident.as_rule(), Rule::QualifiedName);
@@ -1517,7 +1517,7 @@ mod rules {
                 assert_eq!(result.as_str(), "let x char = 'x'\n");
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "x");
                 let ident = result.next().unwrap();
                 assert_eq!(ident.as_rule(), Rule::QualifiedName);
@@ -1534,7 +1534,7 @@ mod rules {
                 assert_eq!(result.as_str(), "let x bool = true\n");
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "x");
                 let ident = result.next().unwrap();
                 assert_eq!(ident.as_rule(), Rule::QualifiedName);
@@ -1551,7 +1551,7 @@ mod rules {
                 assert_eq!(result.as_str(), "let x string = \"Name\"\n");
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "x");
                 let ident = result.next().unwrap();
                 assert_eq!(ident.as_rule(), Rule::QualifiedName);
@@ -1827,7 +1827,7 @@ mod rules {
                 assert_eq!(result.as_str(), "fun f()");
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "f");
             }
 
@@ -1838,7 +1838,7 @@ mod rules {
                 assert_eq!(result.as_str(), "fun f() int");
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "f");
                 let ret = result.next().unwrap();
                 assert_eq!(ret.as_rule(), Rule::QualifiedName);
@@ -1852,7 +1852,7 @@ mod rules {
                 assert_eq!(result.as_str(), "fun f(x float)");
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "f");
                 let params = result.next().unwrap();
                 assert_eq!(params.as_rule(), Rule::ParameterList);
@@ -1872,7 +1872,7 @@ mod rules {
                 );
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "f");
                 let params = result.next().unwrap();
                 assert_eq!(params.as_rule(), Rule::ParameterList);
@@ -1886,7 +1886,7 @@ mod rules {
                 assert_eq!(result.as_str(), "fun f(x float) float");
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "f");
                 let params = result.next().unwrap();
                 assert_eq!(params.as_rule(), Rule::ParameterList);
@@ -1902,7 +1902,7 @@ mod rules {
                 assert_eq!(result.as_str(), "fun f(x float, name string, ok bool = true, a int, b int, c float, d char, z string) char");
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "f");
                 let params = result.next().unwrap();
                 assert_eq!(params.as_rule(), Rule::ParameterList);
@@ -1968,7 +1968,7 @@ mod rules {
                 let mut result = result.next().unwrap().into_inner();
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "f");
             }
 
@@ -1980,7 +1980,7 @@ mod rules {
                 let mut result = result.next().unwrap().into_inner();
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "f");
                 let ret = result.next().unwrap();
                 assert_eq!(ret.as_rule(), Rule::QualifiedName);
@@ -1995,7 +1995,7 @@ mod rules {
                 let mut result = result.next().unwrap().into_inner();
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "f");
                 let params = result.next().unwrap();
                 assert_eq!(params.as_rule(), Rule::ParameterList);
@@ -2016,7 +2016,7 @@ mod rules {
                 let mut result = result.next().unwrap().into_inner();
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "f");
                 let params = result.next().unwrap();
                 assert_eq!(params.as_rule(), Rule::ParameterList);
@@ -2032,7 +2032,7 @@ mod rules {
                 let mut result = result.next().unwrap().into_inner();
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "f");
                 let params = result.next().unwrap();
                 assert_eq!(params.as_rule(), Rule::ParameterList);
@@ -2049,7 +2049,7 @@ mod rules {
                 let mut result = result.next().unwrap().into_inner();
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "f");
                 let params = result.next().unwrap();
                 assert_eq!(params.as_rule(), Rule::ParameterList);
@@ -2120,7 +2120,7 @@ mod rules {
                 let mut result = result.next().unwrap().into_inner();
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "f");
             }
 
@@ -2131,7 +2131,7 @@ mod rules {
                 let mut result = result.next().unwrap().into_inner();
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "f");
                 let ret = result.next().unwrap();
                 assert_eq!(ret.as_rule(), Rule::QualifiedName);
@@ -2146,7 +2146,7 @@ mod rules {
                 let mut result = result.next().unwrap().into_inner();
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "f");
                 let params = result.next().unwrap();
                 assert_eq!(params.as_rule(), Rule::ParameterList);
@@ -2167,7 +2167,7 @@ mod rules {
                 let mut result = result.next().unwrap().into_inner();
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "f");
                 let params = result.next().unwrap();
                 assert_eq!(params.as_rule(), Rule::ParameterList);
@@ -2182,7 +2182,7 @@ mod rules {
                 let mut result = result.next().unwrap().into_inner();
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "f");
                 let params = result.next().unwrap();
                 assert_eq!(params.as_rule(), Rule::ParameterList);
@@ -2199,7 +2199,7 @@ mod rules {
                 let mut result = result.next().unwrap().into_inner();
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "f");
                 let params = result.next().unwrap();
                 assert_eq!(params.as_rule(), Rule::ParameterList);
@@ -2216,7 +2216,7 @@ mod rules {
                 let mut result = result.next().unwrap().into_inner();
                 let mut inner = result.next().unwrap().into_inner();
                 let ident = inner.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "f");
                 let block = result.next().unwrap();
                 assert_eq!(block.as_rule(), Rule::Block);
@@ -2230,7 +2230,7 @@ mod rules {
                 let mut result = result.next().unwrap().into_inner();
                 let mut inner = result.next().unwrap().into_inner();
                 let ident = inner.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "f");
                 let block = result.next().unwrap();
                 assert_eq!(block.as_rule(), Rule::Block);
@@ -2256,7 +2256,7 @@ mod rules {
                 let mut result = result.next().unwrap().into_inner();
                 let mut inner = result.next().unwrap().into_inner();
                 let ident = inner.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::Ident);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "compute");
                 let block = result.next().unwrap();
                 assert_eq!(block.as_rule(), Rule::Block);

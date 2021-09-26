@@ -213,9 +213,10 @@ pub mod error;
 mod tests;
 
 use error::handle_parser_error;
-use pest::iterators::Pair;
+use pest::iterators::{Pair, Pairs};
 
-pub type RuleIterator<'a> = Pair<'a, Rule>;
+pub type RulePair<'a> = Pair<'a, Rule>;
+pub type RulePairs<'a> = Pairs<'a, Rule>;
 
 // Will be replaced by own parser implementation
 #[derive(Parser)]

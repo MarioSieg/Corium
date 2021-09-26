@@ -17,7 +17,7 @@ NativeFunction = {
 }
 
 FunctionSignature = {
-    "fun " ~ Ident ~ "(" ~ ParameterList? ~ ")" ~ (" " ~ QualifiedName)?
+    "fun " ~ Identifier ~ "(" ~ ParameterList? ~ ")" ~ (" " ~ QualifiedName)?
 }
 
 Block = {
@@ -34,7 +34,7 @@ Module = {
 }
 
 LocalVariable = {
-    "let " ~ Ident ~ (" " ~ QualifiedName)? ~ " = " ~ Expression ~ NEWLINE
+    "let " ~ Identifier ~ (" " ~ QualifiedName)? ~ " = " ~ Expression ~ NEWLINE
 }
 
 ReturnStatement = {
@@ -46,7 +46,7 @@ ParameterList = {
 }
 
 Parameter = {
-    Ident ~ " " ~ QualifiedName ~ (" = " ~ Expression)?
+    Identifier ~ " " ~ QualifiedName ~ (" = " ~ Expression)?
 }
 
 Expression = {
@@ -82,10 +82,10 @@ StringLiteral = @{
 }
 
 QualifiedName = {
-    Ident ~ ("." ~ Ident)*
+    Identifier ~ ("." ~ Identifier)*
 }
 
-Ident = @{
+Identifier = @{
     ASCII_ALPHA ~ ASCII_ALPHANUMERIC*
 }
 

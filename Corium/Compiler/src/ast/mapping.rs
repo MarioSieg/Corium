@@ -202,3 +202,85 @@
 //    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
+
+use crate::ast::*;
+use crate::parser::*;
+use std::str::FromStr;
+
+pub trait AstMapping<'a>: AstComponent {
+    fn populate(rule: RulePair<'a>) -> Result<Self, ()>;
+
+    fn map(mut rule: RulePairs<'a>) -> Result<Self, ()> {
+        let rule = rule.next().unwrap();
+        assert_eq!(rule.as_rule(), Self::CORRESPONDING_RULE);
+        Self::populate(rule)
+    }
+}
+
+impl<'a> AstMapping<'a> for Literal<'a> {
+    fn populate(rule: RulePair<'a>) -> Result<Self, ()> {
+        let rule = rule.into_inner().next().unwrap();
+        let text = rule.as_str();
+        match rule.as_rule() {
+            Rule::FloatLiteral => {
+                if let Ok(x) = Float::from_str(text) {
+                    Ok(Self::Float(x))
+                } else {
+                    Err(())
+                }
+            }
+            Rule::IntLiteral => {
+                if let Ok(x) = Int::from_str(text) {
+                    Ok(Self::Int(x))
+                } else {
+                    Err(())
+                }
+            }
+            Rule::BoolLiteral => {
+                if let Ok(x) = Bool::from_str(text) {
+                    Ok(Self::Bool(x))
+                } else {
+                    Err(())
+                }
+            }
+            Rule::CharLiteral => {
+                let text = &text[1..text.len() - 1]; // skip ''
+                if let Ok(x) = Char::from_str(text) {
+                    Ok(Self::Char(x))
+                } else {
+                    Err(())
+                }
+            }
+            Rule::StringLiteral => {
+                let text = &text[1..text.len() - 1]; // skip ""
+                Ok(Self::String(text))
+            }
+            _ => Err(()),
+        }
+    }
+}
+
+impl<'a> AstMapping<'a> for Module<'a> {
+    fn populate(rule: RulePair<'a>) -> Result<Self, ()> {
+        if let Ok(name) = QualifiedName::map(rule.into_inner()) {
+            Ok(Self(name))
+        } else {
+            Err(())
+        }
+    }
+}
+
+impl<'a> AstMapping<'a> for QualifiedName<'a> {
+    fn populate(rule: RulePair<'a>) -> Result<Self, ()> {
+        Ok(Self {
+            full: rule.as_str(),
+            split: rule.as_str().split('.').collect(),
+        })
+    }
+}
+
+impl<'a> AstMapping<'a> for Identifier<'a> {
+    fn populate(rule: RulePair<'a>) -> Result<Self, ()> {
+        Ok(Self(rule.as_str()))
+    }
+}
