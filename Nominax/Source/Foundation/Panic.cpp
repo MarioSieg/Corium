@@ -208,13 +208,13 @@
 #include "../../../Nominax/Include/Nominax/Foundation/_Foundation.hpp"
 #include "../../../Nominax/Include/Nominax/Assembler/_Assembler.hpp"
 
-namespace Nominax
+namespace Nominax::Foundation
 {
     static auto PrintPanicMessage(std::string_view message, const Foundation::SourceLocation& srcLoc) -> void;
 
     NOX_COLD auto Panic(const std::string_view message, const Foundation::SourceLocation& srcLoc) -> void
 	{
-        const Assembler::X86_64::RegisterCache regCache { };
+        const Assembler::AMD64::RegisterCache regCache { };
         PrintPanicMessage(message, srcLoc);
         regCache.DisplayToConsole();
         std::fflush(stdout);

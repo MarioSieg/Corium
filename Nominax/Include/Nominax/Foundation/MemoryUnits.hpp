@@ -210,139 +210,142 @@
 
 namespace Nominax
 {
-	/// <summary>
-	/// Kilobytes.
-	/// </summary>
-	constexpr std::uint64_t KB { 1000 };
+    namespace Foundation
+    {
+        /// <summary>
+        /// Kilobytes.
+        /// </summary>
+        constexpr std::uint64_t KB { 1000 };
 
-	/// <summary>
-	/// Megabytes.
-	/// </summary>
-	constexpr std::uint64_t MB { KB * KB };
+        /// <summary>
+        /// Megabytes.
+        /// </summary>
+        constexpr std::uint64_t MB { KB * KB };
 
-	/// <summary>
-	/// Gigabytes.
-	/// </summary>
-	constexpr std::uint64_t GB { KB * KB * KB };
+        /// <summary>
+        /// Gigabytes.
+        /// </summary>
+        constexpr std::uint64_t GB { KB * KB * KB };
 
-	/// <summary>
-	/// Terabytes.
-	/// </summary>
-	constexpr std::uint64_t TB { KB * KB * KB * KB };
+        /// <summary>
+        /// Terabytes.
+        /// </summary>
+        constexpr std::uint64_t TB { KB * KB * KB * KB };
 
-	/// <summary>
-	/// Petabytes.
-	/// </summary>
-	constexpr std::uint64_t PB { KB * KB * KB * KB * KB };
+        /// <summary>
+        /// Petabytes.
+        /// </summary>
+        constexpr std::uint64_t PB { KB * KB * KB * KB * KB };
 
-	/// <summary>
-	/// Convert between memory units.
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="bytes"></param>
-	/// <returns></returns>
-	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
-	[[nodiscard]]
-	constexpr auto Bytes2Gigabytes(T bytes) -> T
-	{
-		bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
-		return bytes / static_cast<T>(KB) / static_cast<T>(KB) / static_cast<T>(KB);
-	}
+        /// <summary>
+        /// Convert between memory units.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
+        template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
+        [[nodiscard]]
+        constexpr auto Bytes2Gigabytes(T bytes) -> T
+        {
+            bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
+            return bytes / static_cast<T>(KB) / static_cast<T>(KB) / static_cast<T>(KB);
+        }
 
-	/// <summary>
-	/// Convert between memory units.
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="bytes"></param>
-	/// <returns></returns>
-	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
-	[[nodiscard]]
-	constexpr auto Bytes2Megabytes(T bytes) -> T
-	{
-		bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
-		return bytes / static_cast<T>(KB) / static_cast<T>(KB);
-	}
+        /// <summary>
+        /// Convert between memory units.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
+        template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
+        [[nodiscard]]
+        constexpr auto Bytes2Megabytes(T bytes) -> T
+        {
+            bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
+            return bytes / static_cast<T>(KB) / static_cast<T>(KB);
+        }
 
-	/// <summary>
-	/// Convert between memory units.
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="bytes"></param>
-	/// <returns></returns>
-	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
-	[[nodiscard]]
-	constexpr auto Bytes2Kilobytes(T bytes) -> T
-	{
-		bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
-		return bytes / static_cast<T>(KB);
-	}
+        /// <summary>
+        /// Convert between memory units.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
+        template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
+        [[nodiscard]]
+        constexpr auto Bytes2Kilobytes(T bytes) -> T
+        {
+            bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
+            return bytes / static_cast<T>(KB);
+        }
 
-	/// <summary>
-	/// Convert between memory units.
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="gigabytes"></param>
-	/// <returns></returns>
-	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
-	[[nodiscard]]
-	constexpr auto Gigabytes2Bytes(const T gigabytes) -> T
-	{
-		return gigabytes * static_cast<T>(KB) * static_cast<T>(KB) * static_cast<T>(KB);
-	}
+        /// <summary>
+        /// Convert between memory units.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="gigabytes"></param>
+        /// <returns></returns>
+        template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
+        [[nodiscard]]
+        constexpr auto Gigabytes2Bytes(const T gigabytes) -> T
+        {
+            return gigabytes * static_cast<T>(KB) * static_cast<T>(KB) * static_cast<T>(KB);
+        }
 
-	/// <summary>
-	/// Convert between memory units.
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="megabytes"></param>
-	/// <returns></returns>
-	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
-	[[nodiscard]]
-	constexpr auto Megabytes2Bytes(const T megabytes) -> T
-	{
-		return megabytes * static_cast<T>(KB) * static_cast<T>(KB);
-	}
+        /// <summary>
+        /// Convert between memory units.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="megabytes"></param>
+        /// <returns></returns>
+        template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
+        [[nodiscard]]
+        constexpr auto Megabytes2Bytes(const T megabytes) -> T
+        {
+            return megabytes * static_cast<T>(KB) * static_cast<T>(KB);
+        }
 
-	/// <summary>
-	/// Convert between memory units.
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="kilobytes"></param>
-	/// <returns></returns>
-	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
-	[[nodiscard]]
-	constexpr auto Kilobytes2Bytes(const T kilobytes) -> T
-	{
-		return kilobytes * static_cast<T>(KB);
-	}
+        /// <summary>
+        /// Convert between memory units.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="kilobytes"></param>
+        /// <returns></returns>
+        template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
+        [[nodiscard]]
+        constexpr auto Kilobytes2Bytes(const T kilobytes) -> T
+        {
+            return kilobytes * static_cast<T>(KB);
+        }
+    }
 
-	/// <summary>
-	/// Convert between memory units.
-	/// </summary>
-	/// <param name="value"></param>
-	/// <returns></returns>
-	constexpr auto operator ""_KB(const unsigned long long value) -> std::uint64_t
-	{
-		return Kilobytes2Bytes<decltype(value)>(value);
-	}
+    /// <summary>
+    /// Convert between memory units.
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    constexpr auto operator ""_KB(const unsigned long long value) -> std::uint64_t
+    {
+        return Foundation::Kilobytes2Bytes<decltype(value)>(value);
+    }
 
-	/// <summary>
-	/// Convert between memory units.
-	/// </summary>
-	/// <param name="value"></param>
-	/// <returns></returns>
-	constexpr auto operator ""_MB(const unsigned long long value) -> std::uint64_t
-	{
-		return Megabytes2Bytes<decltype(value)>(value);
-	}
+    /// <summary>
+    /// Convert between memory units.
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    constexpr auto operator ""_MB(const unsigned long long value) -> std::uint64_t
+    {
+        return Foundation::Megabytes2Bytes<decltype(value)>(value);
+    }
 
-	/// <summary>
-	/// Convert between memory units.
-	/// </summary>
-	/// <param name="value"></param>
-	/// <returns></returns>
-	constexpr auto operator ""_GB(const unsigned long long value) -> std::uint64_t
-	{
-		return Gigabytes2Bytes<decltype(value)>(value);
-	}
+    /// <summary>
+    /// Convert between memory units.
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    constexpr auto operator ""_GB(const unsigned long long value) -> std::uint64_t
+    {
+        return Foundation::Gigabytes2Bytes<decltype(value)>(value);
+    }
 }

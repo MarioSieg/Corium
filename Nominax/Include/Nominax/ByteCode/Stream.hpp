@@ -591,7 +591,7 @@ namespace Nominax::ByteCode
         /// <summary>
         /// Prints this object into the file stream.
         /// </summary>
-        virtual auto Display(std::FILE& stream) const -> void override;
+        NOX_COLD virtual auto Display(std::FILE& stream) const -> void override;
 
 		/// <summary>
 		/// Index lookup.
@@ -827,7 +827,7 @@ namespace Nominax::ByteCode
 	{
 		NOX_DBG_PAS_TRUE(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal { intrin });
-		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::SystemIntrinsicInvocationID);
+		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::SysCallID);
 		return *this;
 	}
 

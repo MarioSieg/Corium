@@ -224,7 +224,7 @@ namespace Nominax::ByteCode
 			/// <summary>
 			/// Unsigned 64-bit offset.
 			/// </summary>
-			UOffset = 1,
+			UOffset,
 
 			/// <summary>
 			/// std::int64_t in record.
@@ -244,22 +244,12 @@ namespace Nominax::ByteCode
 			/// <summary>
 			/// System call id.
 			/// </summary>
-			SystemIntrinsicInvocationID,
+			SysCallID,
 
 			/// <summary>
 			/// User call id.
 			/// </summary>
 			UserIntrinsicInvocationID,
-
-			/// <summary>
-			/// Byte code instruction opcode.
-			/// </summary>
-			OpCode,
-
-			/// <summary>
-			/// Pointer.
-			/// </summary>
-			Ptr,
 
 			/// <summary>
 			/// Jump address.
@@ -269,13 +259,50 @@ namespace Nominax::ByteCode
             /// <summary>
             /// Object ID
             /// </summary>
-            ObjectID,
+            TypeID,
 
             /// <summary>
             /// Field offset in records.
             /// </summary>
-            FieldOffset
+            FieldOffset,
+
+            /// <summary>
+            /// Amount of discriminators.
+            /// </summary>
+            Count_
 		};
+
+        /// <summary>
+        /// Contains the name of all discriminators.
+        /// </summary>
+        static constexpr std::array<const std::string_view, Foundation::ToUnderlying(Discriminator::Count_)> DISCRIMINATOR_NAMES
+        {
+            "UOffset",
+            "Int",
+            "Float",
+            "Instruction",
+            "SyscallID",
+            "IntrinsicID",
+            "JumpAddress",
+            "TypeID",
+            "FieldOffset"
+        };
+
+        /// <summary>
+        /// Contains the name of all discriminators.
+        /// </summary>
+        static constexpr std::array<const std::string_view, Foundation::ToUnderlying(Discriminator::Count_)> DISCRIMINATOR_MNEMONICS
+        {
+            "u64",
+            "i64",
+            "f64",
+            "ins",
+            "sys",
+            "int",
+            "jmp",
+            "tyd",
+            "mof"
+        };
 
 		/// <summary>
 		/// Reinterpret as Record64.
@@ -290,27 +317,32 @@ namespace Nominax::ByteCode
 		/// <summary>
 		/// Reinterpret as system intrinsic call id.
 		/// </summary>
-		SysCall SystemIntrinID;
+		SysCall SysCallID;
 
 		/// <summary>
 		/// Reinterpret as custom intrinsic call id.
 		/// </summary>
 		UserIntrinsicInvocationID UserIntrinID;
 
-		/// <summary>
-		/// Reinterpret as 64-bit unsigned opcode. (For intrinsic calls and instructions).
-		/// </summary>
-		std::uint64_t OpCode;
+        /// <summary>
+        /// Reinterpret as jump target.
+        /// </summary>
+        JumpAddress JmpAddress;
 
-		/// <summary>
+        /// <summary>
+        /// Reinterpret as type id.
+        /// </summary>
+        TypeID Type;
+
+        /// <summary>
+        /// Reinterpret as field offset.
+        /// </summary>
+        FieldOffset FOffset;
+
+        /// <summary>
 		/// Reinterpret as void pointer.
 		/// </summary>
 		void* Ptr;
-
-		/// <summary>
-		/// Reinterpret as jump target.
-		/// </summary>
-		JumpAddress JmpAddress;
 
 		/// <summary>
 		/// Default constructor.
@@ -391,7 +423,7 @@ namespace Nominax::ByteCode
 
 	constexpr Signal::Signal(const Foundation::Record value) : R64 { value } {}
 	constexpr Signal::Signal(const Instruction value) : Instr { value } {}
-	constexpr Signal::Signal(const SysCall value) : SystemIntrinID {value } {}
+	constexpr Signal::Signal(const SysCall value) : SysCallID {value } {}
 	constexpr Signal::Signal(const UserIntrinsicInvocationID value) : UserIntrinID { value } {}
 	constexpr Signal::Signal(void* const value) : Ptr { value } {}
 	constexpr Signal::Signal(const std::int64_t value) : R64 { value } {}

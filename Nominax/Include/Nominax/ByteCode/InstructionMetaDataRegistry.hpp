@@ -223,9 +223,9 @@ namespace Nominax::ByteCode
     using InstructionOperandTable = std::initializer_list<const TypeIndexBitFlagVector>;
 
     [[nodiscard]]
-    constexpr auto ComputeDiscriminatorBit(const Signal::Discriminator discriminator) -> TypeIndexBitFlagVector
+    constexpr auto ComputeDiscBit(const Signal::Discriminator discriminator) -> TypeIndexBitFlagVector
     {
-        return static_cast<TypeIndexBitFlagVector>(1) << static_cast<TypeIndexBitFlagVector>(ToUnderlying(discriminator));
+        return 1 << static_cast<TypeIndexBitFlagVector>(Foundation::ToUnderlying(discriminator));
     }
 
     /// <summary>
@@ -268,23 +268,24 @@ namespace Nominax::ByteCode
         /// </summary>
         static constexpr TypeIndexBitFlagVector ANY_SCALAR_VALUE_TYPE
         {
-            ComputeDiscriminatorBit(Signal::Discriminator::UOffset)             |
-            ComputeDiscriminatorBit(Signal::Discriminator::Int)                 |
-            ComputeDiscriminatorBit(Signal::Discriminator::Float)
+            ComputeDiscBit(Signal::Discriminator::UOffset) |
+            ComputeDiscBit(Signal::Discriminator::Int) |
+            ComputeDiscBit(Signal::Discriminator::Float)
         };
 
         /// <summary>
         /// Contains all immediate argument types for each instruction.
         /// </summary>
-        static constexpr std::array<const InstructionOperandTable, ToUnderlying(Instruction::Count_)> OPERAND_TYPE_TABLE
+        static constexpr std::array<const InstructionOperandTable, Foundation::ToUnderlying(Instruction::Count_)> OPERAND_TYPE_TABLE
         {
-            /* int      */  InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::Int) },
-            /* syscall  */  InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::SystemIntrinsicInvocationID) },
-            /* intrin   */  InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::UserIntrinsicInvocationID) },
-            /* call     */  InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::UOffset) },
+            /* int      */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::Int) },
+            /* syscall  */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::SysCallID) },
+            /* intrin   */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::UserIntrinsicInvocationID) },
+            /* call     */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::UOffset) },
             /* ret      */  InstructionOperandTable { },
-            /* mov      */  InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::UOffset), ComputeDiscriminatorBit(Signal::Discriminator::UOffset) },
-            /* sto      */  InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::UOffset), ANY_SCALAR_VALUE_TYPE },
+            /* mov      */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::UOffset),
+                                                      ComputeDiscBit(Signal::Discriminator::UOffset) },
+            /* sto      */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::UOffset), ANY_SCALAR_VALUE_TYPE },
             /* push     */  InstructionOperandTable { ANY_SCALAR_VALUE_TYPE },
             /* pop      */  InstructionOperandTable { },
             /* pop2     */  InstructionOperandTable { },
@@ -292,26 +293,26 @@ namespace Nominax::ByteCode
             /* dupl2    */  InstructionOperandTable { },
             /* swap     */  InstructionOperandTable { },
             /* nop      */  InstructionOperandTable { },
-            /* jmp      */  InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::JumpAddress) },
-            /* jmprel   */  InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::JumpAddress) },
-            /* jz       */  InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::JumpAddress) },
-            /* jnz      */  InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::JumpAddress) },
-            /* jocmpi  */   InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::JumpAddress) },
-            /* jocmpf  */   InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::JumpAddress) },
-            /* jnocmpi */   InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::JumpAddress) },
-            /* jnocmpf */   InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::JumpAddress) },
-            /* jecmpi  */   InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::JumpAddress) },
-            /* jecmpf  */   InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::JumpAddress) },
-            /* jnecmpi */   InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::JumpAddress) },
-            /* jnecmpf */   InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::JumpAddress) },
-            /* jacmpi  */   InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::JumpAddress) },
-            /* jacmpf  */   InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::JumpAddress) },
-            /* jlcmpi  */   InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::JumpAddress) },
-            /* jlcmpf  */   InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::JumpAddress) },
-            /* jaecmpi */   InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::JumpAddress) },
-            /* jaecmpf */   InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::JumpAddress) },
-            /* jlecmpi */   InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::JumpAddress) },
-            /* jlecmpf */   InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::JumpAddress) },
+            /* jmp      */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::JumpAddress) },
+            /* jmprel   */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::JumpAddress) },
+            /* jz       */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::JumpAddress) },
+            /* jnz      */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::JumpAddress) },
+            /* jocmpi  */   InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::JumpAddress) },
+            /* jocmpf  */   InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::JumpAddress) },
+            /* jnocmpi */   InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::JumpAddress) },
+            /* jnocmpf */   InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::JumpAddress) },
+            /* jecmpi  */   InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::JumpAddress) },
+            /* jecmpf  */   InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::JumpAddress) },
+            /* jnecmpi */   InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::JumpAddress) },
+            /* jnecmpf */   InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::JumpAddress) },
+            /* jacmpi  */   InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::JumpAddress) },
+            /* jacmpf  */   InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::JumpAddress) },
+            /* jlcmpi  */   InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::JumpAddress) },
+            /* jlcmpf  */   InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::JumpAddress) },
+            /* jaecmpi */   InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::JumpAddress) },
+            /* jaecmpf */   InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::JumpAddress) },
+            /* jlecmpi */   InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::JumpAddress) },
+            /* jlecmpf */   InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::JumpAddress) },
             /* pushz    */  InstructionOperandTable { },
             /* ipusho   */  InstructionOperandTable { },
             /* fpusho   */  InstructionOperandTable { },
@@ -381,361 +382,45 @@ namespace Nominax::ByteCode
             /* cvtf2i   */  InstructionOperandTable { },
             /* cvti2c   */  InstructionOperandTable { },
             /* cvti2b   */  InstructionOperandTable { },
-            /* gcalloc  */  InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::ObjectID) },
-            /* derefw   */  InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::FieldOffset) },
-            /* derefr   */  InstructionOperandTable { ComputeDiscriminatorBit(Signal::Discriminator::FieldOffset) }
+            /* gcalloc  */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::TypeID) },
+            /* derefw   */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::FieldOffset) },
+            /* derefr   */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::FieldOffset) }
         };
 
         /// <summary>
         /// Contains all instruction mnemonics.
         /// </summary>
         [[maybe_unused]]
-        static constexpr std::array<const std::string_view, ToUnderlying(Instruction::Count_)> MNEMONIC_TABLE
+        static constexpr std::array<const std::string_view, Foundation::ToUnderlying(Instruction::Count_)> MNEMONIC_TABLE
         {
-            "int",
-            "syscall",
-            "intrin",
-            "call",
-            "ret",
-            "mov",
-            "sto",
-            "push",
-            "pop",
-            "pop2",
-            "dupl",
-            "dupl2",
-            "swap",
-            "nop",
-            "jmp",
-            "jmpr",
-            "jz",
-            "jnz",
-            "jocmpi",
-            "jocmpf",
-            "jnocmpi",
-            "jnocmpf",
-            "jecmpi",
-            "jecmpf",
-            "jnecmpi",
-            "jnecmpf",
-            "jacmpi",
-            "jacmpf",
-            "jlcmpi",
-            "jlcmpf",
-            "jaecmpi",
-            "jaecmpf",
-            "jlecmpi",
-            "jlecmpf",
-            "pushz",
-            "ipusho",
-            "fpusho",
-            "iinc",
-            "idec",
-            "iadd",
-            "isub",
-            "imul",
-            "idiv",
-            "imod",
-            "iand",
-            "ior",
-            "ixor",
-            "icom",
-            "isal",
-            "isar",
-            "irol",
-            "iror",
-            "ineg",
-            "fadd",
-            "fsub",
-            "fmul",
-            "fdiv",
-            "fmod",
-            "fneg",
-            "finc",
-            "fdec",
-            "vpush",
-            "vpop",
-            "vadd",
-            "vsub",
-            "vmul",
-            "vdiv",
-            "mpush",
-            "mpop",
-            "madd",
-            "msub",
-            "mmul",
-            "mdiv",
-            "cvti2f",
-            "cvtf2i",
-            "cvti2c",
-            "cvti2b",
-            "gcalloc",
-            "derefw",
-            "derefr"
+            #include "ExportInstructionMnemonicTable.hpp"
         };
 
         /// <summary>
         /// Contains the categories of all instructions.
         /// </summary>
         [[maybe_unused]]
-        static constexpr std::array<const InstructionCategory, ToUnderlying(Instruction::Count_)> CATEGORY_TABLE
+        static constexpr std::array<const InstructionCategory, Foundation::ToUnderlying(Instruction::Count_)> CATEGORY_TABLE
         {
-             /* int      */  InstructionCategory::Control,
-             /* syscall  */  InstructionCategory::Control,
-             /* intrin   */  InstructionCategory::Control,
-             /* call     */  InstructionCategory::Control,
-             /* ret      */  InstructionCategory::Control,
-             /* mov      */  InstructionCategory::Memory,
-             /* sto      */  InstructionCategory::Memory,
-             /* push     */  InstructionCategory::Memory,
-             /* pop      */  InstructionCategory::Memory,
-             /* pop2     */  InstructionCategory::Memory,
-             /* dupl     */  InstructionCategory::Memory,
-             /* dupl2    */  InstructionCategory::Memory,
-             /* swap     */  InstructionCategory::Memory,
-             /* nop      */  InstructionCategory::Memory,
-             /* jmp      */  InstructionCategory::Branching,
-             /* jmprel   */  InstructionCategory::Branching,
-             /* jz       */  InstructionCategory::Branching,
-             /* jnz      */  InstructionCategory::Branching,
-             /* jocmpi  */   InstructionCategory::Branching,
-             /* jocmpf  */   InstructionCategory::Branching,
-             /* jnocmpi */   InstructionCategory::Branching,
-             /* jnocmpf */   InstructionCategory::Branching,
-             /* jecmpi  */   InstructionCategory::Branching,
-             /* jecmpf  */   InstructionCategory::Branching,
-             /* jnecmpi */   InstructionCategory::Branching,
-             /* jnecmpf */   InstructionCategory::Branching,
-             /* jacmpi  */   InstructionCategory::Branching,
-             /* jacmpf  */   InstructionCategory::Branching,
-             /* jlcmpi  */   InstructionCategory::Branching,
-             /* jlcmpf  */   InstructionCategory::Branching,
-             /* jaecmpi */   InstructionCategory::Branching,
-             /* jaecmpf */   InstructionCategory::Branching,
-             /* jlecmpi */   InstructionCategory::Branching,
-             /* jlecmpf */   InstructionCategory::Branching,
-             /* pushz    */  InstructionCategory::Arithmetic,
-             /* ipusho   */  InstructionCategory::Arithmetic,
-             /* fpusho   */  InstructionCategory::Arithmetic,
-             /* iinc     */  InstructionCategory::Arithmetic,
-             /* idec     */  InstructionCategory::Arithmetic,
-             /* iadd     */  InstructionCategory::Arithmetic,
-             /* isub     */  InstructionCategory::Arithmetic,
-             /* imul     */  InstructionCategory::Arithmetic,
-             /* idiv     */  InstructionCategory::Arithmetic,
-             /* imod     */  InstructionCategory::Arithmetic,
-             /* iand     */  InstructionCategory::BitWise,
-             /* ior      */  InstructionCategory::BitWise,
-             /* ixor     */  InstructionCategory::BitWise,
-             /* icom     */  InstructionCategory::BitWise,
-             /* isal     */  InstructionCategory::BitWise,
-             /* isar     */  InstructionCategory::BitWise,
-             /* irol     */  InstructionCategory::BitWise,
-             /* iror     */  InstructionCategory::BitWise,
-             /* ineg     */  InstructionCategory::BitWise,
-             /* fadd     */  InstructionCategory::Arithmetic,
-             /* fsub     */  InstructionCategory::Arithmetic,
-             /* fmul     */  InstructionCategory::Arithmetic,
-             /* fdiv     */  InstructionCategory::Arithmetic,
-             /* fmod     */  InstructionCategory::Arithmetic,
-             /* fneg     */  InstructionCategory::Arithmetic,
-             /* finc     */  InstructionCategory::Arithmetic,
-             /* fdec     */  InstructionCategory::Arithmetic,
-             /* vpush    */  InstructionCategory::Memory,
-             /* vpop     */  InstructionCategory::Memory,
-             /* vadd     */  InstructionCategory::VectorArithmetic,
-             /* vsub     */  InstructionCategory::VectorArithmetic,
-             /* vmul     */  InstructionCategory::VectorArithmetic,
-             /* vdiv     */  InstructionCategory::VectorArithmetic,
-             /* mpush    */  InstructionCategory::Memory,
-             /* mpop     */  InstructionCategory::Memory,
-             /* madd     */  InstructionCategory::VectorArithmetic,
-             /* msub     */  InstructionCategory::VectorArithmetic,
-             /* mmul     */  InstructionCategory::VectorArithmetic,
-             /* mdiv     */  InstructionCategory::VectorArithmetic,
-             /* cvti2f   */  InstructionCategory::Memory,
-             /* cvtf2i   */  InstructionCategory::Memory,
-             /* cvti2c   */  InstructionCategory::Memory,
-             /* cvti2b   */  InstructionCategory::Memory,
-             /* gcalloc  */  InstructionCategory::Memory,
-             /* derefw   */  InstructionCategory::Memory,
-             /* derefr   */  InstructionCategory::Memory
+            #include "ExportInstructionCategoryTable.hpp"
         };
 
         /// <summary>
         /// Contains the amount of stack pushes each instruction will perform.
         /// </summary>
         [[maybe_unused]]
-        static constexpr std::array<const std::uint8_t, ToUnderlying(Instruction::Count_)> PUSH_RECORD_TABLE
+        static constexpr std::array<const std::uint8_t, Foundation::ToUnderlying(Instruction::Count_)> PUSH_RECORD_TABLE
         {
-             /* int      */  0,
-             /* syscall  */  0,
-             /* intrin   */  0,
-             /* call     */  0,
-             /* ret      */  0,
-             /* mov      */  0,
-             /* sto      */  0,
-             /* push     */  1,
-             /* pop      */  0,
-             /* pop2     */  0,
-             /* dupl     */  1,
-             /* dupl2    */  2,
-             /* swap     */  2,
-             /* nop      */  0,
-             /* jmp      */  0,
-             /* jmprel   */  0,
-             /* jz       */  0,
-             /* jnz      */  0,
-             /* jocmpi  */   0,
-             /* jocmpf  */   0,
-             /* jnocmpi */   0,
-             /* jnocmpf */   0,
-             /* jecmpi  */   0,
-             /* jecmpf  */   0,
-             /* jnecmpi */   0,
-             /* jnecmpf */   0,
-             /* jacmpi  */   0,
-             /* jacmpf  */   0,
-             /* jlcmpi  */   0,
-             /* jlcmpf  */   0,
-             /* jaecmpi */   0,
-             /* jaecmpf */   0,
-             /* jlecmpi */   0,
-             /* jlecmpf */   0,
-             /* pushz    */  1,
-             /* ipusho   */  1,
-             /* fpusho   */  1,
-             /* iinc     */  1,
-             /* idec     */  1,
-             /* iadd     */  1,
-             /* isub     */  1,
-             /* imul     */  1,
-             /* idiv     */  1,
-             /* imod     */  1,
-             /* iand     */  1,
-             /* ior      */  1,
-             /* ixor     */  1,
-             /* icom     */  1,
-             /* isal     */  1,
-             /* isar     */  1,
-             /* irol     */  1,
-             /* iror     */  1,
-             /* ineg     */  1,
-             /* fadd     */  1,
-             /* fsub     */  1,
-             /* fmul     */  1,
-             /* fdiv     */  1,
-             /* fmod     */  1,
-             /* fneg     */  1,
-             /* finc     */  1,
-             /* fdec     */  1,
-             /* vpush    */  4,
-             /* vpop     */  0,
-             /* vadd     */  4,
-             /* vsub     */  4,
-             /* vmul     */  4,
-             /* vdiv     */  4,
-             /* mpush    */  16,
-             /* mpop     */  0,
-             /* madd     */  16,
-             /* msub     */  16,
-             /* mmul     */  16,
-             /* mdiv     */  16,
-             /* cvti2f   */  1,
-             /* cvtf2i   */  1,
-             /* cvti2c   */  1,
-             /* cvti2b   */  1,
-             /* gcalloc  */  1,
-             /* derefw   */  0,
-             /* derefr   */  1
+            #include "ExportInstructionPushRecordTable.hpp"
         };
 
         /// <summary>
         /// Contains the amount of stack pops each instruction will perform.
         /// </summary>
         [[maybe_unused]]
-        static constexpr std::array<const std::uint8_t, ToUnderlying(Instruction::Count_)> POP_RECORD_TABLE
+        static constexpr std::array<const std::uint8_t, Foundation::ToUnderlying(Instruction::Count_)> POP_RECORD_TABLE
         {
-             /* int      */  0,
-             /* syscall  */  0,
-             /* intrin   */  0,
-             /* call     */  0,
-             /* ret      */  1,
-             /* mov      */  0,
-             /* sto      */  0,
-             /* push     */  0,
-             /* pop      */  1,
-             /* pop2     */  2,
-             /* dupl     */  0,
-             /* dupl2    */  0,
-             /* swap     */  2,
-             /* nop      */  0,
-             /* jmp      */  0,
-             /* jmprel   */  0,
-             /* jz       */  1,
-             /* jnz      */  1,
-             /* jocmpi  */   1,
-             /* jocmpf  */   1,
-             /* jnocmpi */   1,
-             /* jnocmpf */   1,
-             /* jecmpi  */   2,
-             /* jecmpf  */   2,
-             /* jnecmpi */   2,
-             /* jnecmpf */   2,
-             /* jacmpi  */   2,
-             /* jacmpf  */   2,
-             /* jlcmpi  */   2,
-             /* jlcmpf  */   2,
-             /* jaecmpi */   2,
-             /* jaecmpf */   2,
-             /* jlecmpi */   2,
-             /* jlecmpf */   2,
-             /* pushz    */  0,
-             /* ipusho   */  0,
-             /* fpusho   */  1,
-             /* iinc     */  1,
-             /* idec     */  1,
-             /* iadd     */  2,
-             /* isub     */  2,
-             /* imul     */  2,
-             /* idiv     */  2,
-             /* imod     */  2,
-             /* iand     */  2,
-             /* ior      */  2,
-             /* ixor     */  2,
-             /* icom     */  1,
-             /* isal     */  2,
-             /* isar     */  2,
-             /* irol     */  2,
-             /* iror     */  2,
-             /* ineg     */  1,
-             /* fadd     */  2,
-             /* fsub     */  2,
-             /* fmul     */  2,
-             /* fdiv     */  2,
-             /* fmod     */  2,
-             /* fneg     */  1,
-             /* finc     */  1,
-             /* fdec     */  1,
-             /* vpush    */  0,
-             /* vpop     */  4,
-             /* vadd     */  8,
-             /* vsub     */  8,
-             /* vmul     */  8,
-             /* vdiv     */  8,
-             /* mpush    */  0,
-             /* mpop     */  16,
-             /* madd     */  32,
-             /* msub     */  32,
-             /* mmul     */  32,
-             /* mdiv     */  32,
-             /* cvti2f   */  1,
-             /* cvtf2i   */  1,
-             /* cvti2c   */  1,
-             /* cvti2b   */  1,
-             /* gcalloc  */  0,
-             /* derefw   */  1,
-             /* derefr   */  0
+            #include "ExportInstructionPopRecordTable.hpp"
         };
 
         /// <summary>
@@ -743,12 +428,12 @@ namespace Nominax::ByteCode
         /// Automatically computed from the push and pop table.
         /// </summary>
         [[maybe_unused]]
-        static constexpr std::array<std::int8_t, ToUnderlying(Instruction::Count_)> STACK_DIFF_TABLE
+        static constexpr std::array<std::int8_t, Foundation::ToUnderlying(Instruction::Count_)> STACK_DIFF_TABLE
         {
             []
             {
-                std::array<std::int8_t, ToUnderlying(Instruction::Count_)> result { };
-                for (std::uint64_t i { 0 }; i < ToUnderlying(Instruction::Count_); ++i)
+                std::array<std::int8_t, Foundation::ToUnderlying(Instruction::Count_)> result { };
+                for (std::uint64_t i { 0 }; i < Foundation::ToUnderlying(Instruction::Count_); ++i)
                 {
                     result[i] = static_cast<std::int8_t>(PUSH_RECORD_TABLE[i] - POP_RECORD_TABLE[i]);
                 }
@@ -760,103 +445,24 @@ namespace Nominax::ByteCode
         /// Contains a short descriptions for all instructions.
         /// </summary>
         [[maybe_unused]]
-        static constexpr std::array<const std::string_view, ToUnderlying(Instruction::Count_)> DESCRIPTOR_TABLE
+        static constexpr std::array<const std::string_view, Foundation::ToUnderlying(Instruction::Count_)> DESCRIPTOR_TABLE
         {
-             /* int      */  "interrupt reactor execution",
-             /* syscall  */  "call intrinsic system routine",
-             /* intrin   */  "call custom intrinsic routine",
-             /* call     */  "call procedure",
-             /* ret      */  "return from procedure",
-             /* mov      */  "copy stack slot to stack record",
-             /* sto      */  "copy immediate to stack record",
-             /* push     */  "push one stack record onto stack",
-             /* pop      */  "pop one stack record from stack",
-             /* pop2     */  "pop two records from stack",
-             /* dupl     */  "duplicate stack top",
-             /* dupl2    */  "duplicate stack top two times",
-             /* swap     */  "swap the stack top slot with the lower slot",
-             /* nop      */  "no operation",
-             /* jmp      */  "absolute direct unconditional jump",
-             /* jmprel   */  "relative indirect jump unconditional jump",
-             /* jz       */  "jump if zero",
-             /* jnz      */  "jump if not zero",
-             /* jocmpi  */   "jump if one - compare as int",
-             /* jocmpf  */   "jump if one - compare as float",
-             /* jnocmpi */   "jump if not one - compare as int",
-             /* jnocmpf */   "jump if not one - compare as  int",
-             /* jecmpi  */   "jump if equal as int",
-             /* jecmpf  */   "jump if equal - compare as F32ing point",
-             /* jnecmpi */   "jump if not equal - compare  as int",
-             /* jnecmpf */   "jump if not equal - compare  as F32ing point",
-             /* jacmpi  */   "jump if above - compare  as int",
-             /* jacmpf  */   "jump if above - compare  as F32ing point",
-             /* jlcmpi  */   "jump if less - compare as F32ing point",
-             /* jlcmpf  */   "jump if less - compare as F32ing point",
-             /* jaecmpi */   "jump if above or equal - compare as int",
-             /* jaecmpf */   "jump if above or equal - compare as F32ing point",
-             /* jlecmpi */   "jump if less or equal - compare as int",
-             /* jlecmpf */   "jump if less or equal - compare as F32ing point",
-             /* pushz    */  "push zero as int",
-             /* ipusho   */  "push one as  int",
-             /* fpusho   */  "push one as F32ing point",
-             /* iinc     */  "int increment",
-             /* idec     */  "int decrement",
-             /* iadd     */  "int addition",
-             /* isub     */  "int subtraction",
-             /* imul     */  "int multiplication",
-             /* idiv     */  "int division",
-             /* imod     */  "int remainder",
-             /* iand     */  "int bitwise and",
-             /* ior      */  "int bitwise or",
-             /* ixor     */  "int bitwise xor",
-             /* icom     */  "int bitwise complement",
-             /* isal     */  "int bitwise arithmetic left shift",
-             /* isar     */  "int bitwise arithmetic right shift",
-             /* irol     */  "int bitwise rotation left",
-             /* iror     */  "int bitwise right rotation",
-             /* ineg     */  "int negation",
-             /* fadd     */  "float addition",
-             /* fsub     */  "float subtraction",
-             /* fmul     */  "float multiplication",
-             /* fdiv     */  "float division",
-             /* fmod     */  "float remainder",
-             /* fneg     */  "float negation",
-             /* finc     */  "float increment",
-             /* fdec     */  "float decrement",
-             /* vpush    */  "push vector4",
-             /* vpop     */  "pop vector4",
-             /* vadd     */  "simd float vector4 addition",
-             /* vsub     */  "simd float vector4 subtraction",
-             /* vmul     */  "simd float vector4 multiplication",
-             /* vdiv     */  "simd float vector4 division",
-             /* mpush    */  "push matrix4x4",
-             /* mpop     */  "pop matrix4x4 ",
-             /* madd     */  "simd float matrix4x4 matrix addition",
-             /* msub     */  "simd float matrix4x4 matrix subtraction",
-             /* mmul     */  "simd float matrix4x4 matrix multiplication",
-             /* mdiv     */  "simd float matrix4x4 matrix division",
-             /* cvti2f   */  "convert int to float",
-             /* cvtf2i   */  "convert float to int",
-             /* cvti2c   */  "convert int to char",
-             /* cvti2b   */  "convert int to bool",
-             /* gcalloc  */  "allocate garbage collected object",
-             /* derefw   */  "dereference and write field from stack top",
-             /* derefr   */  "dereference and read field to stack top"
+            #include "ExportInstructionDescriptorTable.hpp"
         };
 
         static constexpr auto LookupInstructArgumentType(const Instruction instruction, const std::uint64_t typeIndex) -> TypeIndexBitFlagVector
         {
-            return *(std::begin(OPERAND_TYPE_TABLE[ToUnderlying(instruction)]) + typeIndex);
+            return *(std::begin(OPERAND_TYPE_TABLE[Foundation::ToUnderlying(instruction)]) + typeIndex);
         }
 
         static constexpr auto IsValidArgumentType(const Instruction instruction, const std::uint64_t typeIndex, const Signal::Discriminator discriminator) -> bool
         {
-            return LookupInstructArgumentType(instruction, typeIndex) & ComputeDiscriminatorBit(discriminator);
+            return LookupInstructArgumentType(instruction, typeIndex) & ComputeDiscBit(discriminator);
         }
 
         static constexpr auto LookupInstructArgumentCount(const Instruction instruction) -> std::uint16_t
         {
-            return std::size(OPERAND_TYPE_TABLE[ToUnderlying(instruction)]);
+            return std::size(OPERAND_TYPE_TABLE[Foundation::ToUnderlying(instruction)]);
         }
 
         /// <summary>
@@ -867,7 +473,7 @@ namespace Nominax::ByteCode
         [[nodiscard]]
         static constexpr auto LookupInstructionArgumentTypes(const Instruction instruction) -> const InstructionOperandTable&
         {
-            return OPERAND_TYPE_TABLE[ToUnderlying(instruction)];
+            return OPERAND_TYPE_TABLE[Foundation::ToUnderlying(instruction)];
         }
 
         /// <summary>
@@ -876,101 +482,24 @@ namespace Nominax::ByteCode
         [[nodiscard]]
         static constexpr auto LookupInstructionArgumentCount(const Instruction instruction) -> std::uint64_t
         {
-            return std::size(OPERAND_TYPE_TABLE[ToUnderlying(instruction)]);
+            return std::size(OPERAND_TYPE_TABLE[Foundation::ToUnderlying(instruction)]);
         }
 
         /// <summary>
         /// Contains the amount of stack pops each instruction will perform.
         /// </summary>
         [[maybe_unused]]
-        static constexpr std::array<const std::uint8_t, ToUnderlying(Instruction::Count_)> IMMEDIATE_ARGUMENT_COUNT_TABLE
+        static constexpr std::array<const std::uint8_t, Foundation::ToUnderlying(Instruction::Count_)> IMMEDIATE_ARGUMENT_COUNT_TABLE
         {
-            /* int      */  1,
-            /* syscall  */  1,
-            /* intrin   */  1,
-            /* call     */  1,
-            /* ret      */  0,
-            /* mov      */  2,
-            /* sto      */  2,
-            /* push     */  1,
-            /* pop      */  0,
-            /* pop2     */  0,
-            /* dupl     */  0,
-            /* dupl2    */  0,
-            /* swap     */  0,
-            /* nop      */  0,
-            /* jmp      */  1,
-            /* jmprel   */  1,
-            /* jz       */  1,
-            /* jnz      */  1,
-            /* jocmpi  */   1,
-            /* jocmpf  */   1,
-            /* jnocmpi */   1,
-            /* jnocmpf */   1,
-            /* jecmpi  */   1,
-            /* jecmpf  */   1,
-            /* jnecmpi */   1,
-            /* jnecmpf */   1,
-            /* jacmpi  */   1,
-            /* jacmpf  */   1,
-            /* jlcmpi  */   1,
-            /* jlcmpf  */   1,
-            /* jaecmpi */   1,
-            /* jaecmpf */   1,
-            /* jlecmpi */   1,
-            /* jlecmpf */   1,
-            /* pushz    */  0,
-            /* ipusho   */  0,
-            /* fpusho   */  0,
-            /* iinc     */  0,
-            /* idec     */  0,
-            /* iadd     */  0,
-            /* isub     */  0,
-            /* imul     */  0,
-            /* idiv     */  0,
-            /* imod     */  0,
-            /* iand     */  0,
-            /* ior      */  0,
-            /* ixor     */  0,
-            /* icom     */  0,
-            /* isal     */  0,
-            /* isar     */  0,
-            /* irol     */  0,
-            /* iror     */  0,
-            /* ineg     */  0,
-            /* fadd     */  0,
-            /* fsub     */  0,
-            /* fmul     */  0,
-            /* fdiv     */  0,
-            /* fmod     */  0,
-            /* fneg     */  0,
-            /* finc     */  0,
-            /* fdec     */  0,
-            /* vpush    */  4,
-            /* vpop     */  0,
-            /* vadd     */  0,
-            /* vsub     */  0,
-            /* vmul     */  0,
-            /* vdiv     */  0,
-            /* mpush    */  16,
-            /* mpop     */  0,
-            /* madd     */  0,
-            /* msub     */  0,
-            /* mmul     */  0,
-            /* mdiv     */  0,
-            /* cvti2f   */  0,
-            /* cvtf2i   */  0,
-            /* cvti2c   */  0,
-            /* cvti2b   */  0,
-            /* gcalloc  */  1,
-            /* derefw   */  1,
-            /* derefr   */  1
+            #include "ExportInstructiontImmediateTable.hpp"
         };
+
+        NOX_COLD static auto PrintInstructionSetTable(std::FILE& stream) -> void;
     };
 
-    static consteval auto ValidateImmediateArgumentCounts() -> bool
+    consteval auto ValidateImmediateArgumentCounts() -> bool
     {
-        for (std::uint64_t i { 0 }; i < ToUnderlying(Instruction::Count_); ++i)
+        for (std::uint64_t i { 0 }; i < Foundation::ToUnderlying(Instruction::Count_); ++i)
         {
             if (InstructionMetaDataRegistry::IMMEDIATE_ARGUMENT_COUNT_TABLE[i] != std::size(InstructionMetaDataRegistry::OPERAND_TYPE_TABLE[i]))
             {

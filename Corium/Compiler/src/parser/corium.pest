@@ -8,12 +8,8 @@ GlobalStatement = {
     StatementSeparator
 }
 
-Module = {
-    "module " ~ QualifiedName ~ NEWLINE
-}
-
 Function = {
-     FunctionSignature ~ " {" ~ NEWLINE ~ FunctionStatement* ~ "}" ~ NEWLINE
+     FunctionSignature ~ " {" ~ NEWLINE ~ Block ~ "}" ~ NEWLINE
 }
 
 NativeFunction = {
@@ -21,26 +17,24 @@ NativeFunction = {
 }
 
 FunctionSignature = {
-    "fun " ~ Ident ~ "(" ~ ParameterList? ~ ")" ~ (" " ~ QualifiedName)?
+    "fun " ~ Identifier ~ "(" ~ ParameterList? ~ ")" ~ (" " ~ QualifiedName)?
 }
 
 Block = {
-     FunctionStatement*
+     (FunctionStatement | StatementSeparator)*
 }
 
 FunctionStatement = {
     LocalVariable |
-    ReturnStatement |
-    StatementSeparator
+    ReturnStatement
 }
 
-StatementSeparator = _{
-    NEWLINE |
-    SEPARATOR
+Module = {
+    "module " ~ QualifiedName ~ NEWLINE
 }
 
 LocalVariable = {
-    "let " ~ Ident ~ (" " ~ QualifiedName)? ~ " = " ~ Expression ~ NEWLINE
+    "let " ~ Identifier ~ (" " ~ QualifiedName)? ~ " = " ~ Expression ~ NEWLINE
 }
 
 ReturnStatement = {
@@ -52,7 +46,7 @@ ParameterList = {
 }
 
 Parameter = {
-    Ident ~ " " ~ QualifiedName ~ (" = " ~ Expression)?
+    Identifier ~ " " ~ QualifiedName ~ (" = " ~ Expression)?
 }
 
 Expression = {
@@ -88,10 +82,10 @@ StringLiteral = @{
 }
 
 QualifiedName = {
-    Ident ~ ("." ~ Ident)*
+    Identifier ~ ("." ~ Identifier)*
 }
 
-Ident = @{
+Identifier = @{
     ASCII_ALPHA ~ ASCII_ALPHANUMERIC*
 }
 
@@ -99,4 +93,9 @@ Char = @{
     !("\"" | "\\") ~ ANY
     | "\\" ~ ("\"" | "\\" | "/" | "b" | "f" | "n" | "r" | "t" | "v")
     | "\\" ~ ("u" ~ ASCII_HEX_DIGIT{8})
+}
+
+StatementSeparator = _{
+    NEWLINE |
+    SEPARATOR
 }

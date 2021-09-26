@@ -203,46 +203,32 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::{parse::AstParseable, *};
+use crate::ast::*;
 use crate::error::*;
-use pest::Parser;
+pub use pest::Parser;
 use pest_derive::*;
 
 pub mod error;
 #[cfg(test)]
-mod grammar_test;
+mod tests;
 
 use error::handle_parser_error;
-use pest::iterators::Pair;
+use pest::iterators::{Pair, Pairs};
 
-pub type RuleIterator<'a> = Pair<'a, Rule>;
+pub type RulePair<'a> = Pair<'a, Rule>;
+pub type RulePairs<'a> = Pairs<'a, Rule>;
 
 // Will be replaced by own parser implementation
 #[derive(Parser)]
 #[grammar = "parser/corium.pest"]
 pub struct CoriumParser;
 
-pub fn parse_source(src: &str) -> Result<RootList, Error> {
+pub fn parse_source(src: &str) -> Result<CompilationUnit, Error> {
     let content = CoriumParser::parse(Rule::CompilationUnit, src);
     match handle_parser_error(content) {
-        Ok(rules) => {
-            let mut result = RootList::new();
-            for rule in rules {
-                if let Some(node) = parse_rule_tree(rule) {
-                    result.push(node);
-                }
-            }
-            Ok(result)
+        Ok(_rules) => {
+            todo!()
         }
         Err(err) => Err(err),
-    }
-}
-
-fn parse_rule_tree(rule: Pair<Rule>) -> Option<Node> {
-    let ty = rule.as_rule();
-    match ty {
-        Rule::Module => Some(Node::Module(ModuleName::parse(rule))),
-        Rule::Function => Some(Node::Function(Function::parse(rule))),
-        _ => None,
     }
 }

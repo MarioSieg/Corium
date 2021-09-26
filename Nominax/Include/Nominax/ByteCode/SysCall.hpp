@@ -214,42 +214,6 @@ namespace Nominax::ByteCode
     /// </summary>
     enum class alignas(alignof(std::uint64_t)) SysCall : std::uint64_t
     {
-        COS = 0x00,
-        SIN = 0x01,
-        TAN = 0x02,
-        ACOS = 0x03,
-        ASIN = 0x04,
-        ATAN = 0x05,
-        ATAN2 = 0x06,
-        COSH = 0x07,
-        SINH = 0x08,
-        TANH = 0x09,
-        ACOSH = 0x0A,
-        ASINH = 0x0B,
-        ATANH = 0x0C,
-        EXP = 0x0D,
-        LOG = 0x0E,
-        LOG10 = 0x0F,
-        EXP2 = 0x10,
-        ILOGB = 0x11,
-        LOG2 = 0x12,
-        POW = 0x13,
-        SQRT = 0x14,
-        CBRT = 0x15,
-        HYPOT = 0x16,
-        CEIL = 0x17,
-        FLOOR = 0x18,
-        ROUND = 0x19,
-        RINT = 0x1A,
-        IMAX = 0x1B,
-        IMIN = 0x1C,
-        FMAX = 0x1D,
-        FMIN = 0x1E,
-        DIM = 0x1F,
-        IABS = 0x20,
-        FABS = 0x21,
-
-        /* !no intrinsic routine - count of total intrinsic routines! */
-        Count_
+        #include "ExportSysCallEnum.hpp"
     };
 }

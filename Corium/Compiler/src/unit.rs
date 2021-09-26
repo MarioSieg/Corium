@@ -204,7 +204,7 @@
 //    limitations under the License.
 
 use crate::ast::mapper::ParseTreeMapper;
-use crate::ast::RootList;
+use crate::ast::CompilationUnit;
 use crate::error::list::ErrorList;
 use crate::error::Error;
 use crate::parser::parse_source;
@@ -218,16 +218,16 @@ use uuid::Uuid;
 
 /// Represents a compilation unit.
 /// Each file contains a single compilation unit.
-pub struct CompilationUnit<'a> {
+pub struct FileCompilationUnit<'a> {
     source_code: String,
     file_name: PathBuf,
     id: Uuid,
     error_list: ErrorList,
-    root: Option<Result<RootList<'a>, Error>>,
-    ast_processor: ParseTreeMapper<'a>,
+    root: Option<Result<CompilationUnit<'a>, Error>>,
+    ast_mapper: ParseTreeMapper<'a>,
 }
 
-impl<'a> CompilationUnit<'a> {
+impl<'a> FileCompilationUnit<'a> {
     pub fn new(source_code: String, file_name: PathBuf) -> Self {
         let id = Uuid::new_v4();
         let error_list = ErrorList::new();
@@ -239,7 +239,7 @@ impl<'a> CompilationUnit<'a> {
             id,
             error_list,
             root,
-            ast_processor,
+            ast_mapper: ast_processor,
         }
     }
 
@@ -262,7 +262,7 @@ impl<'a> CompilationUnit<'a> {
             id,
             error_list,
             root,
-            ast_processor,
+            ast_mapper: ast_processor,
         }
     }
 
@@ -274,8 +274,9 @@ impl<'a> CompilationUnit<'a> {
             Some(root) => match root {
                 Ok(root) => {
                     let clock = Instant::now();
-                    self.ast_processor.process_ast(root);
-                    print!("{}", self.ast_processor);
+                    //self.ast_mapper.map(root);
+                    todo!();
+                    print!("{}", self.ast_mapper);
                     if !self.error_list.0.is_empty() {
                         print!("{}", self.error_list);
                     }
@@ -283,7 +284,7 @@ impl<'a> CompilationUnit<'a> {
                         "{}",
                         format!(
                             "Compiled \"{}\" in {}",
-                            self.ast_processor.module,
+                            self.ast_mapper.module,
                             Duration::from(clock.elapsed())
                         )
                         .green()
@@ -318,6 +319,6 @@ impl<'a> CompilationUnit<'a> {
 
     #[inline]
     pub fn get_ast_processor_context(&'a self) -> &'a ParseTreeMapper {
-        &self.ast_processor
+        &self.ast_mapper
     }
 }

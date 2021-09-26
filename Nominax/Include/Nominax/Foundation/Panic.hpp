@@ -208,7 +208,7 @@
 #include "Platform.hpp"
 #include "SourceLocation.hpp"
 
-namespace Nominax
+namespace Nominax::Foundation
 {
 	/// <summary>
 	/// Aborts the runtime showing a message and some information.

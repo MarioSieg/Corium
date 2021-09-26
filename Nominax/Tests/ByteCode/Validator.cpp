@@ -218,10 +218,11 @@ struct DynamicSignal final
 	{
 		switch (this->Data.index())
 		{
+            default:
 			case 0:
 				return Signal::Discriminator::Instruction;
 			case 1:
-				return Signal::Discriminator::SystemIntrinsicInvocationID;
+				return Signal::Discriminator::SysCallID;
 			case 2:
 				return Signal::Discriminator::UserIntrinsicInvocationID;
 			case 3:
@@ -232,8 +233,6 @@ struct DynamicSignal final
 				return Signal::Discriminator::Int;
 			case 6:
 				return Signal::Discriminator::Float;
-			default:
-				return Signal::Discriminator::Ptr;
 		}
 	}
 };

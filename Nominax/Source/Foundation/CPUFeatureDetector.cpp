@@ -211,7 +211,7 @@ namespace Nominax::Foundation
 	CPUFeatureDetector::CPUFeatureDetector() : FeatureBits_ { }
 	{
 		#if NOX_ARCH_X86_64
-            using namespace Assembler::X86_64::Routines;
+            using namespace Assembler::AMD64::Routines;
             using Cfb = CPUFeatureBits;
 
             // check if cpuid is supported on system
