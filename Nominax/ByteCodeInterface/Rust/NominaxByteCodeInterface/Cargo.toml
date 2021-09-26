@@ -1,5 +1,5 @@
 [package]
-name = "noxbci"
+name = "nominax_bytecode_interface"
 version = "0.1.0"
 authors = ["msi <support@kerbogames.com>"]
 edition = "2018"

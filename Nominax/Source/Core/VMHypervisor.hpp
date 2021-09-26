@@ -260,8 +260,8 @@ namespace Nominax::Core
     #   define DISPATCH()				*((*ip).Reference)
     #   define SET_JUMP_TARGET()		ip = reinterpret_cast<const Signal*>(abs)
     #else
-    #   define PEEK_DISPATCH()			**(jumpTable+(*++ip).OpCode)
-    #   define DISPATCH()				**(jumpTable+(*ip).OpCode)
+    #   define PEEK_DISPATCH()			**(jumpTable+(*++ip).R64.AsU64)
+    #   define DISPATCH()				**(jumpTable+(*ip).R64.AsU64)
     #   define SET_JUMP_TARGET()		ip = ipLo+abs-1
     #endif
 

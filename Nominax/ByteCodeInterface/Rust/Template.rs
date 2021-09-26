@@ -1,20 +1,20 @@
 // Author: Mario Sieg
-// Project: Nominax
-// 
+// Project: NominaxRuntime (noxbci - Nominax Byte Code Interface)
+//
 //                                  Apache License
 //                            Version 2.0, January 2004
 //                         http://www.apache.org/licenses/
-// 
+//
 //    TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
-// 
+//
 //    1. Definitions.
-// 
+//
 //       "License" shall mean the terms and conditions for use, reproduction,
 //       and distribution as defined by Sections 1 through 9 of this document.
-// 
+//
 //       "Licensor" shall mean the copyright owner or entity authorized by
 //       the copyright owner that is granting the License.
-// 
+//
 //       "Legal Entity" shall mean the union of the acting entity and all
 //       other entities that control, are controlled by, or are under common
 //       control with that entity. For the purposes of this definition,
@@ -22,24 +22,24 @@
 //       direction or management of such entity, whether by contract or
 //       otherwise, or (ii) ownership of fifty percent (50%) or more of the
 //       outstanding shares, or (iii) beneficial ownership of such entity.
-// 
+//
 //       "You" (or "Your") shall mean an individual or Legal Entity
 //       exercising permissions granted by this License.
-// 
+//
 //       "Source" form shall mean the preferred form for making modifications,
 //       including but not limited to software source code, documentation
 //       source, and configuration files.
-// 
+//
 //       "Object" form shall mean any form resulting from mechanical
 //       transformation or translation of a Source form, including but
 //       not limited to compiled object code, generated documentation,
 //       and conversions to other media types.
-// 
+//
 //       "Work" shall mean the work of authorship, whether in Source or
 //       Object form, made available under the License, as indicated by a
 //       copyright notice that is included in or attached to the work
 //       (an example is provided in the Appendix below).
-// 
+//
 //       "Derivative Works" shall mean any work, whether in Source or Object
 //       form, that is based on (or derived from) the Work and for which the
 //       editorial revisions, annotations, elaborations, or other modifications
@@ -47,7 +47,7 @@
 //       of this License, Derivative Works shall not include works that remain
 //       separable from, or merely link (or bind by name) to the interfaces of,
 //       the Work and Derivative Works thereof.
-// 
+//
 //       "Contribution" shall mean any work of authorship, including
 //       the original version of the Work and any modifications or additions
 //       to that Work or Derivative Works thereof, that is intentionally
@@ -61,18 +61,18 @@
 //       Licensor for the purpose of discussing and improving the Work, but
 //       excluding communication that is conspicuously marked or otherwise
 //       designated in writing by the copyright owner as "Not a Contribution."
-// 
+//
 //       "Contributor" shall mean Licensor and any individual or Legal Entity
 //       on behalf of whom a Contribution has been received by Licensor and
 //       subsequently incorporated within the Work.
-// 
+//
 //    2. Grant of Copyright License. Subject to the terms and conditions of
 //       this License, each Contributor hereby grants to You a perpetual,
 //       worldwide, non-exclusive, no-charge, royalty-free, irrevocable
 //       copyright license to reproduce, prepare Derivative Works of,
 //       publicly display, publicly perform, sublicense, and distribute the
 //       Work and such Derivative Works in Source or Object form.
-// 
+//
 //    3. Grant of Patent License. Subject to the terms and conditions of
 //       this License, each Contributor hereby grants to You a perpetual,
 //       worldwide, non-exclusive, no-charge, royalty-free, irrevocable
@@ -88,24 +88,24 @@
 //       or contributory patent infringement, then any patent licenses
 //       granted to You under this License for that Work shall terminate
 //       as of the date such litigation is filed.
-// 
+//
 //    4. Redistribution. You may reproduce and distribute copies of the
 //       Work or Derivative Works thereof in any medium, with or without
 //       modifications, and in Source or Object form, provided that You
 //       meet the following conditions:
-// 
+//
 //       (a) You must give any other recipients of the Work or
 //           Derivative Works a copy of this License; and
-// 
+//
 //       (b) You must cause any modified files to carry prominent notices
 //           stating that You changed the files; and
-// 
+//
 //       (c) You must retain, in the Source form of any Derivative Works
 //           that You distribute, all copyright, patent, trademark, and
 //           attribution notices from the Source form of the Work,
 //           excluding those notices that do not pertain to any part of
 //           the Derivative Works; and
-// 
+//
 //       (d) If the Work includes a "NOTICE" text file as part of its
 //           distribution, then any Derivative Works that You distribute must
 //           include a readable copy of the attribution notices contained
@@ -122,14 +122,14 @@
 //           or as an addendum to the NOTICE text from the Work, provided
 //           that such additional attribution notices cannot be construed
 //           as modifying the License.
-// 
+//
 //       You may add Your own copyright statement to Your modifications and
 //       may provide additional or different license terms and conditions
 //       for use, reproduction, or distribution of Your modifications, or
 //       for any such Derivative Works as a whole, provided Your use,
 //       reproduction, and distribution of the Work otherwise complies with
 //       the conditions stated in this License.
-// 
+//
 //    5. Submission of Contributions. Unless You explicitly state otherwise,
 //       any Contribution intentionally submitted for inclusion in the Work
 //       by You to the Licensor shall be under the terms and conditions of
@@ -137,12 +137,12 @@
 //       Notwithstanding the above, nothing herein shall supersede or modify
 //       the terms of any separate license agreement you may have executed
 //       with Licensor regarding such Contributions.
-// 
+//
 //    6. Trademarks. This License does not grant permission to use the trade
 //       names, trademarks, service marks, or product names of the Licensor,
 //       except as required for reasonable and customary use in describing the
 //       origin of the Work and reproducing the content of the NOTICE file.
-// 
+//
 //    7. Disclaimer of Warranty. Unless required by applicable law or
 //       agreed to in writing, Licensor provides the Work (and each
 //       Contributor provides its Contributions) on an "AS IS" BASIS,
@@ -152,7 +152,7 @@
 //       PARTICULAR PURPOSE. You are solely responsible for determining the
 //       appropriateness of using or redistributing the Work and assume any
 //       risks associated with Your exercise of permissions under this License.
-// 
+//
 //    8. Limitation of Liability. In no event and under no legal theory,
 //       whether in tort (including negligence), contract, or otherwise,
 //       unless required by applicable law (such as deliberate and grossly
@@ -164,7 +164,7 @@
 //       work stoppage, computer failure or malfunction, or any and all
 //       other commercial damages or losses), even if such Contributor
 //       has been advised of the possibility of such damages.
-// 
+//
 //    9. Accepting Warranty or Additional Liability. While redistributing
 //       the Work or Derivative Works thereof, You may choose to offer,
 //       and charge a fee for, acceptance of support, warranty, indemnity,
@@ -175,11 +175,11 @@
 //       defend, and hold each Contributor harmless for any liability
 //       incurred by, or claims asserted against, such Contributor by reason
 //       of your accepting any such warranty or additional liability.
-// 
+//
 //    END OF TERMS AND CONDITIONS
-// 
+//
 //    APPENDIX: How to apply the Apache License to your work.
-// 
+//
 //       To apply the Apache License to your work, attach the following
 //       boilerplate notice, with the fields enclosed by brackets "[]"
 //       replaced with your own identifying information. (Don't include
@@ -188,122 +188,73 @@
 //       file or class name and description of purpose be included on the
 //       same "printed page" as the copyright notice for easier
 //       identification within third-party archives.
-// 
+//
 //    Copyright 2021 Mario Sieg "pinsrq" <mt3000@gmx.de>
-// 
+//
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
 //    You may obtain a copy of the License at
-// 
+//
 //        http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 //    Unless required by applicable law or agreed to in writing, software
 //    distributed under the License is distributed on an "AS IS" BASIS,
 //    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../Include/Nominax/Foundation/Formatters.hpp"
-#include "../../Include/Nominax/ByteCode/_ByteCode.hpp"
-#include "../../Include/Nominax/Core/_Core.hpp"
+// Autogenerated, to NOT edit!
 
-using namespace Nominax;
-using namespace ByteCode;
-using namespace Core;
-using namespace fmt;
-
-auto formatter<Instruction, char, void>::format
-(
-	const Instruction& value,
-	format_context&    ctx
-) const -> FormatOutput
-{
-	return format_to
-	(
-		ctx.out(),
-		"{}",
-		InstructionMetaDataRegistry::MNEMONIC_TABLE[Foundation::ToUnderlying(value)]
-	);
+#[repr(u64)]
+#[derive(Copy, Clone, Eq, PartialEq)]
+pub enum Instruction {
+    $INSTRUCTION$
 }
 
-auto formatter<SysCall, char, void>::format
-(
-	const SysCall& value,
-	format_context&                    ctx
-) const -> FormatOutput
-{
-	return format_to(ctx.out(), "{:#X}", Foundation::ToUnderlying(value));
+#[repr(u8)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+pub enum InstructionCategory {
+    $INSTRUCTION_CATEGORY$
 }
 
-auto formatter<UserIntrinsicInvocationID, char, void>::format
-(
-	const UserIntrinsicInvocationID& value,
-	format_context&                  ctx
-) const -> FormatOutput
-{
-	return format_to(ctx.out(), "{:#X}", Foundation::ToUnderlying(value));
+#[repr(u64)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+pub enum SysCall {
+    $SYSCALL$
 }
 
-auto formatter<JumpAddress, char, void>::format(const JumpAddress& value, format_context& ctx) const -> FormatOutput
-{
-	return format_to(ctx.out(), "{:#X}", Foundation::ToUnderlying(value));
-}
-auto formatter<ValidationResultCode, char, void>::format
-(
-	const ValidationResultCode& value,
-	format_context&             ctx
-) const -> FormatOutput
-{
-	const auto idx { Foundation::ToUnderlying(value) };
-	return format_to(ctx.out(), "{}", BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES[idx]);
-}
+pub type JumpAddress = u64;
 
-auto formatter<ReactorValidationResult, char, void>::format
-(
-	const ReactorValidationResult& value,
-	format_context&                ctx
-) const -> FormatOutput
-{
-	const auto idx { Foundation::ToUnderlying(value) };
-	return format_to(ctx.out(), "{}", REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[idx]);
-}
+pub type UserIntrinsicInvocationID = u64;
 
-auto formatter<DiscriminatedSignal, char, void>::format
-(
-	const DiscriminatedSignal& value,
-	format_context&            ctx
-) const -> FormatOutput
-{
-	using Dis = Signal::Discriminator;
+pub type TypeID = u64;
 
-	switch (value.Discriminator)
-	{
-		case Dis::UOffset:
-			return format_to(ctx.out(), "*u64 ${}", value.Value.R64.AsU64);
+pub type FieldOffset = u64;
 
-		case Dis::Int:
-			return format_to(ctx.out(), "*i64 ${}", value.Value.R64.AsI64);
+pub mod meta_data {
+    use super::*;
 
-		case Dis::Float:
-			return format_to(ctx.out(), "*f64 ${}", value.Value.R64.AsF64);
+    pub const MNEMONIC_TABLE: [&'static str; Instruction::Count_ as usize] = [
+        $MNEMONIC_TABLE$
+    ];
 
-		case Dis::OpCode:
-		case Dis::Instruction:
-			return format_to(ctx.out(), "%{}", value.Value.Instr);
+    pub const CATEGORY_TABLE: [InstructionCategory; Instruction::Count_ as usize] = [
+        $CATEGORY_TABLE$
+    ];
 
-		case Dis::SystemIntrinsicInvocationID:
-			return format_to(ctx.out(), "*sys ${}",
-                             Foundation::ToUnderlying(value.Value.SystemIntrinID));
+    pub const PUSH_RECORD_TABLE: [u8; Instruction::Count_ as usize] = [
+        $PUSH_RECORD_TABLE$
+    ];
 
-		case Dis::UserIntrinsicInvocationID:
-			return format_to(ctx.out(), "*usr ${}",
-                             Foundation::ToUnderlying(value.Value.UserIntrinID));
+    pub const POP_RECORD_TABLE: [u8; Instruction::Count_ as usize] = [
+        $POP_RECORD_TABLE$
+    ];
 
-		case Dis::JumpAddress:
-			return format_to(ctx.out(), "*rel {}",
-                             Foundation::ToUnderlying(value.Value.JmpAddress));
-		default:
-		case Dis::Reference:
-			return format_to(ctx.out(), "*ref {:X}", value.Value.R64.AsU64);
-	}
+    pub const IMMEDIATE_TABLE: [u8; Instruction::Count_ as usize] = [
+        $IMMEDIATE_TABLE$
+    ];
+
+    pub const DESCRIPTOR_TABLE: [&'static str; Instruction::Count_ as usize] = [
+        $DESCRIPTOR_TABLE$
+    ];
 }

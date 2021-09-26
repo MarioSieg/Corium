@@ -279,6 +279,7 @@ out_dir = out_dir_base
 # Show description:
 info_path = "Tools/ProductionBuildInfo.txt"
 
+print("Production build generator Copyright 2021 Mario Sieg \"pinsrq\" <mt3000@gmx.de>")
 print("Info path: " + info_path)
 
 if not os.path.isfile(info_path):

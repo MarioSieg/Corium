@@ -353,34 +353,41 @@ namespace Nominax::ByteCode
         (
             stream,
             "Code buffer: {:.3F} MB\n",
-            Bytes2Megabytes<float>(static_cast<float>(this->CodeBuffer_.size()) * static_cast<float>(sizeof(CodeStorageType::value_type)))
+            Bytes2Megabytes<float>(static_cast<float>(std::size(this->CodeBuffer_)) * static_cast<float>(sizeof(CodeStorageType::value_type)))
         );
         Print
         (
             stream,
             "Discriminator buffer: {:.3F} MB\n",
-            Bytes2Megabytes<float>(static_cast<float>(this->CodeDiscriminatorBuffer_.size()) * static_cast<float>(sizeof(DiscriminatorStorageType::value_type)))
+            Bytes2Megabytes<float>(static_cast<float>(std::size(this->CodeDiscriminatorBuffer_)) * static_cast<float>(sizeof(DiscriminatorStorageType::value_type)))
         );
         Print(stream,"Total: {:.3F} MB\n", Bytes2Megabytes<float>(static_cast<float>(this->SizeInBytes())));
-        Print(stream,"Signal: {}, Size: {:.3} kB, Granularity: {} B\n", this->Size(), Bytes2Kilobytes(static_cast<float>(this->SizeInBytes())), sizeof(Signal));
+        Print(stream,"Signal: {}, Size: {:.3} kB, Granularity: {} B", this->Size(), Bytes2Kilobytes(static_cast<float>(this->SizeInBytes())), sizeof(Signal));
         for (std::uint64_t i { 0 }; i < this->Size(); ++i)
         {
-            const auto bytes { std::bit_cast<std::array<std::uint8_t, sizeof(Signal)>>(this->CodeBuffer_[i]) };
-            Print(stream, "&{:016X} ", std::bit_cast<std::uintptr_t>(&this->CodeBuffer_[i]));
-            Print
-            (
-                stream,
-                "| {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} | ",
-                bytes[0],
-                bytes[1],
-                bytes[2],
-                bytes[3],
-                bytes[4],
-                bytes[5],
-                bytes[6],
-                bytes[7]
-            );
-            Print(stream,"{}\n", (*this)[i]);
+            const Signal sig { this->CodeBuffer_[i] };
+            const Signal::Discriminator dis { this->CodeDiscriminatorBuffer_[i] };
+
+            switch (dis)
+            {
+                default:
+                case Signal::Discriminator::UOffset:
+                    Print(stream, " %{} #{}", Signal::DISCRIMINATOR_MNEMONICS[ToUnderlying(dis)], sig.R64.AsU64);
+                continue;
+
+                case Signal::Discriminator::Int:
+                    Print(stream, " %{} #{}", Signal::DISCRIMINATOR_MNEMONICS[ToUnderlying(dis)], sig.R64.AsI64);
+                continue;
+
+                case Signal::Discriminator::Float:
+                    Print(stream, " %{} #{}", Signal::DISCRIMINATOR_MNEMONICS[ToUnderlying(dis)], sig.R64.AsF64);
+                continue;
+
+                case Signal::Discriminator::Instruction:
+                    Print(stream, "\n{}", InstructionMetaDataRegistry::MNEMONIC_TABLE[sig.R64.AsU64]);
+                continue;
+            }
         }
+        Print(stream, '\n');
     }
 }

@@ -1,20 +1,20 @@
 // Author: Mario Sieg
 // Project: Nominax
-// 
+//
 //                                  Apache License
 //                            Version 2.0, January 2004
 //                         http://www.apache.org/licenses/
-// 
+//
 //    TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
-// 
+//
 //    1. Definitions.
-// 
+//
 //       "License" shall mean the terms and conditions for use, reproduction,
 //       and distribution as defined by Sections 1 through 9 of this document.
-// 
+//
 //       "Licensor" shall mean the copyright owner or entity authorized by
 //       the copyright owner that is granting the License.
-// 
+//
 //       "Legal Entity" shall mean the union of the acting entity and all
 //       other entities that control, are controlled by, or are under common
 //       control with that entity. For the purposes of this definition,
@@ -22,24 +22,24 @@
 //       direction or management of such entity, whether by contract or
 //       otherwise, or (ii) ownership of fifty percent (50%) or more of the
 //       outstanding shares, or (iii) beneficial ownership of such entity.
-// 
+//
 //       "You" (or "Your") shall mean an individual or Legal Entity
 //       exercising permissions granted by this License.
-// 
+//
 //       "Source" form shall mean the preferred form for making modifications,
 //       including but not limited to software source code, documentation
 //       source, and configuration files.
-// 
+//
 //       "Object" form shall mean any form resulting from mechanical
 //       transformation or translation of a Source form, including but
 //       not limited to compiled object code, generated documentation,
 //       and conversions to other media types.
-// 
+//
 //       "Work" shall mean the work of authorship, whether in Source or
 //       Object form, made available under the License, as indicated by a
 //       copyright notice that is included in or attached to the work
 //       (an example is provided in the Appendix below).
-// 
+//
 //       "Derivative Works" shall mean any work, whether in Source or Object
 //       form, that is based on (or derived from) the Work and for which the
 //       editorial revisions, annotations, elaborations, or other modifications
@@ -47,7 +47,7 @@
 //       of this License, Derivative Works shall not include works that remain
 //       separable from, or merely link (or bind by name) to the interfaces of,
 //       the Work and Derivative Works thereof.
-// 
+//
 //       "Contribution" shall mean any work of authorship, including
 //       the original version of the Work and any modifications or additions
 //       to that Work or Derivative Works thereof, that is intentionally
@@ -61,18 +61,18 @@
 //       Licensor for the purpose of discussing and improving the Work, but
 //       excluding communication that is conspicuously marked or otherwise
 //       designated in writing by the copyright owner as "Not a Contribution."
-// 
+//
 //       "Contributor" shall mean Licensor and any individual or Legal Entity
 //       on behalf of whom a Contribution has been received by Licensor and
 //       subsequently incorporated within the Work.
-// 
+//
 //    2. Grant of Copyright License. Subject to the terms and conditions of
 //       this License, each Contributor hereby grants to You a perpetual,
 //       worldwide, non-exclusive, no-charge, royalty-free, irrevocable
 //       copyright license to reproduce, prepare Derivative Works of,
 //       publicly display, publicly perform, sublicense, and distribute the
 //       Work and such Derivative Works in Source or Object form.
-// 
+//
 //    3. Grant of Patent License. Subject to the terms and conditions of
 //       this License, each Contributor hereby grants to You a perpetual,
 //       worldwide, non-exclusive, no-charge, royalty-free, irrevocable
@@ -88,24 +88,24 @@
 //       or contributory patent infringement, then any patent licenses
 //       granted to You under this License for that Work shall terminate
 //       as of the date such litigation is filed.
-// 
+//
 //    4. Redistribution. You may reproduce and distribute copies of the
 //       Work or Derivative Works thereof in any medium, with or without
 //       modifications, and in Source or Object form, provided that You
 //       meet the following conditions:
-// 
+//
 //       (a) You must give any other recipients of the Work or
 //           Derivative Works a copy of this License; and
-// 
+//
 //       (b) You must cause any modified files to carry prominent notices
 //           stating that You changed the files; and
-// 
+//
 //       (c) You must retain, in the Source form of any Derivative Works
 //           that You distribute, all copyright, patent, trademark, and
 //           attribution notices from the Source form of the Work,
 //           excluding those notices that do not pertain to any part of
 //           the Derivative Works; and
-// 
+//
 //       (d) If the Work includes a "NOTICE" text file as part of its
 //           distribution, then any Derivative Works that You distribute must
 //           include a readable copy of the attribution notices contained
@@ -122,14 +122,14 @@
 //           or as an addendum to the NOTICE text from the Work, provided
 //           that such additional attribution notices cannot be construed
 //           as modifying the License.
-// 
+//
 //       You may add Your own copyright statement to Your modifications and
 //       may provide additional or different license terms and conditions
 //       for use, reproduction, or distribution of Your modifications, or
 //       for any such Derivative Works as a whole, provided Your use,
 //       reproduction, and distribution of the Work otherwise complies with
 //       the conditions stated in this License.
-// 
+//
 //    5. Submission of Contributions. Unless You explicitly state otherwise,
 //       any Contribution intentionally submitted for inclusion in the Work
 //       by You to the Licensor shall be under the terms and conditions of
@@ -137,12 +137,12 @@
 //       Notwithstanding the above, nothing herein shall supersede or modify
 //       the terms of any separate license agreement you may have executed
 //       with Licensor regarding such Contributions.
-// 
+//
 //    6. Trademarks. This License does not grant permission to use the trade
 //       names, trademarks, service marks, or product names of the Licensor,
 //       except as required for reasonable and customary use in describing the
 //       origin of the Work and reproducing the content of the NOTICE file.
-// 
+//
 //    7. Disclaimer of Warranty. Unless required by applicable law or
 //       agreed to in writing, Licensor provides the Work (and each
 //       Contributor provides its Contributions) on an "AS IS" BASIS,
@@ -152,7 +152,7 @@
 //       PARTICULAR PURPOSE. You are solely responsible for determining the
 //       appropriateness of using or redistributing the Work and assume any
 //       risks associated with Your exercise of permissions under this License.
-// 
+//
 //    8. Limitation of Liability. In no event and under no legal theory,
 //       whether in tort (including negligence), contract, or otherwise,
 //       unless required by applicable law (such as deliberate and grossly
@@ -164,7 +164,7 @@
 //       work stoppage, computer failure or malfunction, or any and all
 //       other commercial damages or losses), even if such Contributor
 //       has been advised of the possibility of such damages.
-// 
+//
 //    9. Accepting Warranty or Additional Liability. While redistributing
 //       the Work or Derivative Works thereof, You may choose to offer,
 //       and charge a fee for, acceptance of support, warranty, indemnity,
@@ -175,11 +175,11 @@
 //       defend, and hold each Contributor harmless for any liability
 //       incurred by, or claims asserted against, such Contributor by reason
 //       of your accepting any such warranty or additional liability.
-// 
+//
 //    END OF TERMS AND CONDITIONS
-// 
+//
 //    APPENDIX: How to apply the Apache License to your work.
-// 
+//
 //       To apply the Apache License to your work, attach the following
 //       boilerplate notice, with the fields enclosed by brackets "[]"
 //       replaced with your own identifying information. (Don't include
@@ -188,114 +188,103 @@
 //       file or class name and description of purpose be included on the
 //       same "printed page" as the copyright notice for easier
 //       identification within third-party archives.
-// 
+//
 //    Copyright 2021 Mario Sieg "pinsrq" <mt3000@gmx.de>
-// 
+//
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
 //    You may obtain a copy of the License at
-// 
+//
 //        http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 //    Unless required by applicable law or agreed to in writing, software
 //    distributed under the License is distributed on an "AS IS" BASIS,
 //    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+// This file is used by the Nominax byte code interface generator for other languages.
+// Acts like an .inl file - no include guard required.
+// Just plain data here - these definitions should work in other languages too like
+// Rust, C#, Java etc..
 
-#include <fmt/format.h>
-
-#include "../Core/ReactorValidator.hpp"
-#include "../ByteCode/Instruction.hpp"
-#include "../ByteCode/DiscriminatedSignal.hpp"
-#include "../ByteCode/ValidationResult.hpp"
-
-#include <cstdint>
-
-using FormatOutput = fmt::format_context::iterator;
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::Instruction>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::Instruction& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::SysCall>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::SysCall& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::UserIntrinsicInvocationID>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::UserIntrinsicInvocationID& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::JumpAddress>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::JumpAddress& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::ValidationResultCode>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::ValidationResultCode& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::Core::ReactorValidationResult>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::Core::ReactorValidationResult& value, format_context& ctx) const -> FormatOutput;
-};
-
-template <>
-struct fmt::formatter<Nominax::ByteCode::DiscriminatedSignal>
-{
-	template <typename ParseContext>
-	constexpr auto parse(ParseContext& ctx)
-	{
-		return ctx.begin();
-	}
-
-	auto format(const Nominax::ByteCode::DiscriminatedSignal& value, format_context& ctx) const -> FormatOutput;
-};
+/* int      */  "interrupt reactor execution",
+/* syscall  */  "call intrinsic system routine",
+/* intrin   */  "call custom intrinsic routine",
+/* call     */  "call procedure",
+/* ret      */  "return from procedure",
+/* mov      */  "copy stack slot to stack record",
+/* sto      */  "copy immediate to stack record",
+/* push     */  "push one stack record onto stack",
+/* pop      */  "pop one stack record from stack",
+/* pop2     */  "pop two records from stack",
+/* dupl     */  "duplicate stack top",
+/* dupl2    */  "duplicate stack top two times",
+/* swap     */  "swap the stack top slot with the lower slot",
+/* nop      */  "no operation",
+/* jmp      */  "absolute direct unconditional jump",
+/* jmprel   */  "relative indirect jump unconditional jump",
+/* jz       */  "jump if zero",
+/* jnz      */  "jump if not zero",
+/* jocmpi  */   "jump if one - compare as int",
+/* jocmpf  */   "jump if one - compare as float",
+/* jnocmpi */   "jump if not one - compare as int",
+/* jnocmpf */   "jump if not one - compare as  int",
+/* jecmpi  */   "jump if equal as int",
+/* jecmpf  */   "jump if equal - compare as F32ing point",
+/* jnecmpi */   "jump if not equal - compare  as int",
+/* jnecmpf */   "jump if not equal - compare  as F32ing point",
+/* jacmpi  */   "jump if above - compare  as int",
+/* jacmpf  */   "jump if above - compare  as F32ing point",
+/* jlcmpi  */   "jump if less - compare as F32ing point",
+/* jlcmpf  */   "jump if less - compare as F32ing point",
+/* jaecmpi */   "jump if above or equal - compare as int",
+/* jaecmpf */   "jump if above or equal - compare as F32ing point",
+/* jlecmpi */   "jump if less or equal - compare as int",
+/* jlecmpf */   "jump if less or equal - compare as F32ing point",
+/* pushz    */  "push zero as int",
+/* ipusho   */  "push one as  int",
+/* fpusho   */  "push one as F32ing point",
+/* iinc     */  "int increment",
+/* idec     */  "int decrement",
+/* iadd     */  "int addition",
+/* isub     */  "int subtraction",
+/* imul     */  "int multiplication",
+/* idiv     */  "int division",
+/* imod     */  "int remainder",
+/* iand     */  "int bitwise and",
+/* ior      */  "int bitwise or",
+/* ixor     */  "int bitwise xor",
+/* icom     */  "int bitwise complement",
+/* isal     */  "int bitwise arithmetic left shift",
+/* isar     */  "int bitwise arithmetic right shift",
+/* irol     */  "int bitwise rotation left",
+/* iror     */  "int bitwise right rotation",
+/* ineg     */  "int negation",
+/* fadd     */  "float addition",
+/* fsub     */  "float subtraction",
+/* fmul     */  "float multiplication",
+/* fdiv     */  "float division",
+/* fmod     */  "float remainder",
+/* fneg     */  "float negation",
+/* finc     */  "float increment",
+/* fdec     */  "float decrement",
+/* vpush    */  "push vector4",
+/* vpop     */  "pop vector4",
+/* vadd     */  "simd float vector4 addition",
+/* vsub     */  "simd float vector4 subtraction",
+/* vmul     */  "simd float vector4 multiplication",
+/* vdiv     */  "simd float vector4 division",
+/* mpush    */  "push matrix4x4",
+/* mpop     */  "pop matrix4x4 ",
+/* madd     */  "simd float matrix4x4 matrix addition",
+/* msub     */  "simd float matrix4x4 matrix subtraction",
+/* mmul     */  "simd float matrix4x4 matrix multiplication",
+/* mdiv     */  "simd float matrix4x4 matrix division",
+/* cvti2f   */  "convert int to float",
+/* cvtf2i   */  "convert float to int",
+/* cvti2c   */  "convert int to char",
+/* cvti2b   */  "convert int to bool",
+/* gcalloc  */  "allocate garbage collected object",
+/* derefw   */  "dereference and write field from stack top",
+/* derefr   */  "dereference and read field to stack top"

@@ -217,104 +217,15 @@ namespace Nominax::ByteCode
 	/// </summary>
 	enum class alignas(alignof(std::uint64_t)) Instruction : std::uint64_t
 	{
-		INT         = 0x00,
-		SYSCALL     = 0x01,
-		INTRIN      = 0x02,
-		CALL        = 0x03,
-		RET         = 0x04,
-		MOV         = 0x05,
-		STO         = 0x06,
-		PUSH        = 0x07,
-		POP         = 0x08,
-		POP2        = 0x09,
-		DUPL        = 0x0A,
-		DUPL2       = 0x0B,
-		SWAP        = 0x0C,
-		NOP         = 0x0D,
-		JMP         = 0x0E,
-		JMPR        = 0x0F,
-		JZ          = 0x10,
-		JNZ         = 0x11,
-		JOCMPI      = 0x12,
-		JOCMPF      = 0x13,
-		JNOCMPI     = 0x14,
-		JNOCMPF     = 0x15,
-		JECMPI      = 0x16,
-		JECMPF      = 0x17,
-		JNECMPI     = 0x18,
-		JNECMPF     = 0x19,
-		JACMPI      = 0x1A,
-		JACMPF      = 0x1B,
-		JLCMPI      = 0x1C,
-		JLCMPF      = 0x1D,
-		JAECMPI     = 0x1E,
-		JAECMPF     = 0x1F,
-		JLECMPI     = 0x20,
-		JLECMPF     = 0x21,
-		PUSHZ       = 0x22,
-		IPUSHO      = 0x23,
-		FPUSHO      = 0x24,
-		IINC        = 0x25,
-		IDEC        = 0x26,
-		IADD        = 0x27,
-		ISUB        = 0x28,
-		IMUL        = 0x29,
-		IDIV        = 0x2A,
-		IMOD        = 0x2B,
-		IAND        = 0x2C,
-		IOR         = 0x2D,
-		IXOR        = 0x2E,
-		ICOM        = 0x2F,
-		ISAL        = 0x30,
-		ISAR        = 0x31,
-		IROL        = 0x32,
-		IROR        = 0x33,
-		INEG        = 0x34,
-		FADD        = 0x35,
-		FSUB        = 0x36,
-		FMUL        = 0x37,
-		FDIV        = 0x38,
-		FMOD        = 0x39,
-		FNEG        = 0x3A,
-		FINC        = 0x3B,
-		FDEC        = 0x3C,
-		VPUSH       = 0x3D,
-		VPOP        = 0x3E,
-		VADD        = 0x3F,
-		VSUB        = 0x40,
-		VMUL        = 0x41,
-		VDIV        = 0x42,
-		MPUSH       = 0x43,
-		MPOP        = 0x44,
-		MADD        = 0x45,
-		MSUB        = 0x46,
-		MMUL        = 0x47,
-		MDIV        = 0x48,
-        CVTI2F      = 0x49,
-        CVTF2I      = 0x4A,
-        CVTI2C      = 0x4B,
-        CVTI2B      = 0x4C,
-        GCALLOC     = 0x4D,
-        DEREFW      = 0x4E,
-        DEREFR      = 0x4F,
-
-		/* count of total instructions */
-		Count_
-	};
+        #include "ExportInstructionEnum.hpp"
+    };
 
 	/// <summary>
 	/// Instruction category.
 	/// </summary>
 	enum class InstructionCategory : std::uint8_t
 	{
-		Control,
-		Memory,
-		Branching,
-		Arithmetic,
-		Bitwise,
-		VectorArithmetic,
-
-        Count_
+        #include "ExportInstructionCategoryEnum.hpp"
 	};
 
     /// <summary>
@@ -355,5 +266,15 @@ namespace Nominax::ByteCode
 	/// user intrinsic virtual machine calls.
 	/// </summary>
 	using UserIntrinsicRoutineRegistry = std::span<IntrinsicRoutine*>;
+
+    /// <summary>
+    /// Index of a type descriptor.
+    /// </summary>
+    using TypeID = std::uint64_t;
+
+    /// <summary>
+    /// Index to a structure field.
+    /// </summary>
+    using FieldOffset = std::uint64_t;
 
 }
