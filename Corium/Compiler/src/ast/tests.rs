@@ -777,4 +777,384 @@ mod populators {
             ));
         }
     }
+
+    mod function_signature {
+        use super::*;
+
+        #[test]
+        fn simple() {
+            let result = CoriumParser::parse(Rule::FunctionSignature, "fun f()").unwrap();
+            let ast = FunctionSignature::map(result);
+            assert_eq!(ast.name.0, "f");
+            assert!(ast.parameters.is_none());
+            assert!(ast.return_type.is_none());
+        }
+
+        #[test]
+        fn return_type() {
+            let result = CoriumParser::parse(Rule::FunctionSignature, "fun f() int").unwrap();
+            let ast = FunctionSignature::map(result);
+            assert_eq!(ast.name.0, "f");
+            assert!(ast.parameters.is_none());
+            assert!(ast.return_type.is_some());
+            let name = QualifiedName::from("int");
+            assert!(matches!(ast.return_type.unwrap(), name));
+        }
+
+        #[test]
+        fn param() {
+            let result = CoriumParser::parse(Rule::FunctionSignature, "fun f(x float)").unwrap();
+            let ast = FunctionSignature::map(result);
+            assert_eq!(ast.name.0, "f");
+            assert!(ast.parameters.is_some());
+            assert_eq!(ast.parameters.as_ref().unwrap().0.len(), 1);
+            assert!(ast.return_type.is_none());
+            let name = QualifiedName::from("float");
+            assert!(matches!(
+                &ast.parameters.as_ref().unwrap().0[0],
+                Parameter {
+                    name: Identifier("x"),
+                    type_hint: name,
+                    value: None
+                }
+            ));
+        }
+
+        #[test]
+        fn params() {
+            let result = CoriumParser::parse(
+                Rule::FunctionSignature,
+                "fun proc(x float, name string, ok bool = true)",
+            )
+            .unwrap();
+            let ast = FunctionSignature::map(result);
+            assert_eq!(ast.name.0, "proc");
+            assert!(ast.parameters.is_some());
+            assert_eq!(ast.parameters.as_ref().unwrap().0.len(), 3);
+            assert!(ast.return_type.is_none());
+            let name = QualifiedName::from("float");
+            assert!(matches!(
+                &ast.parameters.as_ref().unwrap().0[0],
+                Parameter {
+                    name: Identifier("x"),
+                    type_hint: name,
+                    value: None
+                }
+            ));
+            let name = QualifiedName::from("string");
+            assert!(matches!(
+                &ast.parameters.as_ref().unwrap().0[1],
+                Parameter {
+                    name: Identifier("name"),
+                    type_hint: name,
+                    value: None
+                }
+            ));
+            let name = QualifiedName::from("bool");
+            assert!(matches!(
+                &ast.parameters.as_ref().unwrap().0[2],
+                Parameter {
+                    name: Identifier("ok"),
+                    type_hint: name,
+                    value: Some(Expression::Literal(Literal::Bool(true)))
+                }
+            ));
+        }
+
+        #[test]
+        fn param_ret() {
+            let result =
+                CoriumParser::parse(Rule::FunctionSignature, "fun f(x float) float").unwrap();
+            let ast = FunctionSignature::map(result);
+            assert_eq!(ast.name.0, "f");
+            assert!(ast.parameters.is_some());
+            assert_eq!(ast.parameters.as_ref().unwrap().0.len(), 1);
+            assert!(ast.return_type.is_some());
+            let name = QualifiedName::from("float");
+            assert!(matches!(ast.return_type.unwrap(), name));
+            let name = QualifiedName::from("float");
+            assert!(matches!(
+                &ast.parameters.as_ref().unwrap().0[0],
+                Parameter {
+                    name: Identifier("x"),
+                    type_hint: name,
+                    value: None
+                }
+            ));
+        }
+    }
+
+    mod native_function {
+        use super::*;
+
+        #[test]
+        fn simple() {
+            let result = CoriumParser::parse(Rule::NativeFunction, "native fun f()\n").unwrap();
+            let ast = NativeFunction::map(result);
+            assert_eq!(ast.signature.name.0, "f");
+            assert!(ast.signature.parameters.is_none());
+            assert!(ast.signature.return_type.is_none());
+        }
+
+        #[test]
+        fn return_type() {
+            let result = CoriumParser::parse(Rule::NativeFunction, "native fun f() int\n").unwrap();
+            let ast = NativeFunction::map(result);
+            assert_eq!(ast.signature.name.0, "f");
+            assert!(ast.signature.parameters.is_none());
+            assert!(ast.signature.return_type.is_some());
+            let name = QualifiedName::from("int");
+            assert!(matches!(ast.signature.return_type.unwrap(), name));
+        }
+
+        #[test]
+        fn param() {
+            let result =
+                CoriumParser::parse(Rule::NativeFunction, "native fun f(x float)\n").unwrap();
+            let ast = NativeFunction::map(result);
+            assert_eq!(ast.signature.name.0, "f");
+            assert!(ast.signature.parameters.is_some());
+            assert_eq!(ast.signature.parameters.as_ref().unwrap().0.len(), 1);
+            assert!(ast.signature.return_type.is_none());
+            let name = QualifiedName::from("float");
+            assert!(matches!(
+                &ast.signature.parameters.as_ref().unwrap().0[0],
+                Parameter {
+                    name: Identifier("x"),
+                    type_hint: name,
+                    value: None
+                }
+            ));
+        }
+
+        #[test]
+        fn params() {
+            let result = CoriumParser::parse(
+                Rule::NativeFunction,
+                "native fun proc(x float, name string, ok bool = true)\n",
+            )
+            .unwrap();
+            let ast = NativeFunction::map(result);
+            assert_eq!(ast.signature.name.0, "proc");
+            assert!(ast.signature.parameters.is_some());
+            assert_eq!(ast.signature.parameters.as_ref().unwrap().0.len(), 3);
+            assert!(ast.signature.return_type.is_none());
+            let name = QualifiedName::from("float");
+            assert!(matches!(
+                &ast.signature.parameters.as_ref().unwrap().0[0],
+                Parameter {
+                    name: Identifier("x"),
+                    type_hint: name,
+                    value: None
+                }
+            ));
+            let name = QualifiedName::from("string");
+            assert!(matches!(
+                &ast.signature.parameters.as_ref().unwrap().0[1],
+                Parameter {
+                    name: Identifier("name"),
+                    type_hint: name,
+                    value: None
+                }
+            ));
+            let name = QualifiedName::from("bool");
+            assert!(matches!(
+                &ast.signature.parameters.as_ref().unwrap().0[2],
+                Parameter {
+                    name: Identifier("ok"),
+                    type_hint: name,
+                    value: Some(Expression::Literal(Literal::Bool(true)))
+                }
+            ));
+        }
+
+        #[test]
+        fn param_ret() {
+            let result =
+                CoriumParser::parse(Rule::NativeFunction, "native fun f(x float) float\n").unwrap();
+            let ast = NativeFunction::map(result);
+            assert_eq!(ast.signature.name.0, "f");
+            assert!(ast.signature.parameters.is_some());
+            assert_eq!(ast.signature.parameters.as_ref().unwrap().0.len(), 1);
+            assert!(ast.signature.return_type.is_some());
+            let name = QualifiedName::from("float");
+            assert!(matches!(ast.signature.return_type.unwrap(), name));
+            let name = QualifiedName::from("float");
+            assert!(matches!(
+                &ast.signature.parameters.as_ref().unwrap().0[0],
+                Parameter {
+                    name: Identifier("x"),
+                    type_hint: name,
+                    value: None
+                }
+            ));
+        }
+    }
+
+    mod function {
+        use super::*;
+
+        #[test]
+        fn simple() {
+            let result = CoriumParser::parse(Rule::Function, "fun f() {\n}\n").unwrap();
+            let ast = Function::map(result);
+            assert_eq!(ast.signature.name, Identifier("f"));
+            assert!(ast.signature.return_type.is_none());
+            assert!(ast.signature.parameters.is_none());
+            assert!(ast.block.0.is_empty());
+        }
+
+        #[test]
+        fn return_type() {
+            let result = CoriumParser::parse(Rule::Function, "fun f() int {\n}\n").unwrap();
+            let ast = Function::map(result);
+            assert_eq!(ast.signature.name, Identifier("f"));
+            assert!(ast.signature.return_type.is_some());
+            let name = QualifiedName::from("int");
+            assert!(matches!(ast.signature.return_type.as_ref().unwrap(), name));
+            assert!(ast.signature.parameters.is_none());
+            assert!(ast.block.0.is_empty());
+        }
+
+        #[test]
+        fn param() {
+            let result = CoriumParser::parse(Rule::Function, "fun f(x float) {\n}\n").unwrap();
+            let ast = Function::map(result);
+            assert!(ast.block.0.is_empty());
+            assert_eq!(ast.signature.name.0, "f");
+            assert!(ast.signature.parameters.is_some());
+            assert_eq!(ast.signature.parameters.as_ref().unwrap().0.len(), 1);
+            assert!(ast.signature.return_type.is_none());
+            let name = QualifiedName::from("float");
+            assert!(matches!(
+                &ast.signature.parameters.as_ref().unwrap().0[0],
+                Parameter {
+                    name: Identifier("x"),
+                    type_hint: name,
+                    value: None
+                }
+            ));
+        }
+
+        #[test]
+        fn params() {
+            let result = CoriumParser::parse(
+                Rule::Function,
+                "fun proc(x float, name string, ok bool = true) {\n}\n",
+            )
+            .unwrap();
+            let ast = Function::map(result);
+            assert!(ast.block.0.is_empty());
+            assert_eq!(ast.signature.name.0, "proc");
+            assert!(ast.signature.parameters.is_some());
+            assert_eq!(ast.signature.parameters.as_ref().unwrap().0.len(), 3);
+            assert!(ast.signature.return_type.is_none());
+            let name = QualifiedName::from("float");
+            assert!(matches!(
+                &ast.signature.parameters.as_ref().unwrap().0[0],
+                Parameter {
+                    name: Identifier("x"),
+                    type_hint: name,
+                    value: None
+                }
+            ));
+            let name = QualifiedName::from("string");
+            assert!(matches!(
+                &ast.signature.parameters.as_ref().unwrap().0[1],
+                Parameter {
+                    name: Identifier("name"),
+                    type_hint: name,
+                    value: None
+                }
+            ));
+            let name = QualifiedName::from("bool");
+            assert!(matches!(
+                &ast.signature.parameters.as_ref().unwrap().0[2],
+                Parameter {
+                    name: Identifier("ok"),
+                    type_hint: name,
+                    value: Some(Expression::Literal(Literal::Bool(true)))
+                }
+            ));
+        }
+
+        #[test]
+        fn param_ret() {
+            let result =
+                CoriumParser::parse(Rule::Function, "fun f(x float) float {\n}\n").unwrap();
+            let ast = Function::map(result);
+            assert!(ast.block.0.is_empty());
+            assert_eq!(ast.signature.name.0, "f");
+            assert!(ast.signature.parameters.is_some());
+            assert_eq!(ast.signature.parameters.as_ref().unwrap().0.len(), 1);
+            assert!(ast.signature.return_type.is_some());
+            let name = QualifiedName::from("float");
+            assert!(matches!(ast.signature.return_type.unwrap(), name));
+            let name = QualifiedName::from("float");
+            assert!(matches!(
+                &ast.signature.parameters.as_ref().unwrap().0[0],
+                Parameter {
+                    name: Identifier("x"),
+                    type_hint: name,
+                    value: None
+                }
+            ));
+        }
+
+        #[test]
+        fn return_statement() {
+            let result = CoriumParser::parse(Rule::Function, "fun f() {\nreturn 10\n}\n").unwrap();
+            let ast = Function::map(result);
+            assert_eq!(ast.signature.name.0, "f");
+            assert!(ast.signature.parameters.is_none());
+            assert!(ast.signature.return_type.is_none());
+            assert_eq!(ast.block.0.len(), 1);
+            assert!(matches!(
+                &ast.block.0[0],
+                FunctionStatement::ReturnStatement(ReturnStatement(Some(Expression::Literal(
+                    Literal::Int(10)
+                ))))
+            ))
+        }
+
+        #[test]
+        fn complex() {
+            let src = concat!(
+                "fun compute(x int = 0) int {\n",
+                "    let result = \"LOL\"\n",
+                "    return 23\n",
+                "}\n"
+            );
+            let result = CoriumParser::parse(Rule::Function, src).unwrap();
+            let ast = Function::map(result);
+            assert_eq!(ast.signature.name.0, "compute");
+            assert!(ast.signature.parameters.is_some());
+            assert!(ast.signature.return_type.is_some());
+            assert_eq!(ast.block.0.len(), 2);
+            let name = QualifiedName::from("int");
+            assert!(matches!(
+                &ast.signature.parameters.as_ref().unwrap().0[0],
+                Parameter {
+                    name: Identifier("x"),
+                    type_hint: name,
+                    value: Some(Expression::Literal(Literal::Int(0)))
+                }
+            ));
+            assert_eq!(ast.signature.return_type.unwrap().full, "int");
+            assert!(matches!(
+                &ast.block.0[0],
+                FunctionStatement::LocalVariable(LocalVariable {
+                    name: Identifier("result"),
+                    type_hint: None,
+                    value: Expression::Literal(Literal::String("LOL"))
+                })
+            ));
+            assert!(matches!(
+                &ast.block.0[1],
+                FunctionStatement::ReturnStatement(ReturnStatement(Some(Expression::Literal(
+                    Literal::Int(23)
+                ))))
+            ));
+        }
+    }
 }

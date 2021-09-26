@@ -219,6 +219,76 @@ pub trait AstPopulator<'a>: AstComponent {
     }
 }
 
+impl<'a> AstPopulator<'a> for Function<'a> {
+    fn populate(rule: RulePair<'a>) -> Self {
+        let mut rule = rule.into_inner();
+        let signature = {
+            let inner = rule.clone().next().unwrap();
+            debug_assert_eq!(inner.as_rule(), Rule::FunctionSignature);
+            FunctionSignature::map(rule.clone())
+        };
+        rule.next(); // advance
+        let block = {
+            let inner = rule.clone().next().unwrap();
+            debug_assert_eq!(inner.as_rule(), Rule::Block);
+            Block::map(rule.clone())
+        };
+        Self { signature, block }
+    }
+}
+
+impl<'a> AstPopulator<'a> for NativeFunction<'a> {
+    fn populate(rule: RulePair<'a>) -> Self {
+        let rule = rule.into_inner();
+        let inner = rule.clone().next().unwrap();
+        debug_assert_eq!(inner.as_rule(), Rule::FunctionSignature);
+        Self {
+            signature: FunctionSignature::map(rule.clone()),
+        }
+    }
+}
+
+impl<'a> AstPopulator<'a> for FunctionSignature<'a> {
+    fn populate(rule: RulePair<'a>) -> Self {
+        let mut rule = rule.into_inner();
+
+        // ehm yes this is not that beautiful - TODO make this nicer
+        let name = {
+            let inner = rule.clone().next().unwrap();
+            debug_assert_eq!(inner.as_rule(), Rule::Identifier);
+            Identifier::map(rule.clone())
+        };
+
+        rule.next(); // advance
+
+        let (parameters, return_type) = if let Some(inner) = rule.clone().next() {
+            match inner.as_rule() {
+                Rule::ParameterList => {
+                    let parameters = Some(ParameterList::map(rule.clone()));
+                    let mut return_type = None;
+                    if rule.next().is_some() {
+                        if let Some(inner) = rule.clone().next() {
+                            debug_assert_eq!(inner.as_rule(), Rule::QualifiedName);
+                            return_type = Some(QualifiedName::map(rule.clone()));
+                        }
+                    }
+                    (parameters, return_type)
+                }
+                Rule::QualifiedName => (None, Some(QualifiedName::map(rule.clone()))),
+                _ => unreachable!(),
+            }
+        } else {
+            (None, None)
+        };
+
+        Self {
+            name,
+            parameters,
+            return_type,
+        }
+    }
+}
+
 impl<'a> AstPopulator<'a> for Block<'a> {
     fn populate(rule: RulePair<'a>) -> Self {
         let mut rule = rule.into_inner();
@@ -256,6 +326,7 @@ impl<'a> AstPopulator<'a> for LocalVariable<'a> {
         let mut rule = rule.into_inner();
 
         // ehm yes this is not that beautiful - TODO make this nicer
+
         let name = {
             let inner = rule.clone().next().unwrap();
             debug_assert_eq!(inner.as_rule(), Rule::Identifier);
@@ -269,19 +340,12 @@ impl<'a> AstPopulator<'a> for LocalVariable<'a> {
         let inner = rule.clone().next().unwrap();
         let value = match inner.as_rule() {
             Rule::QualifiedName => {
-                debug_assert_eq!(inner.as_rule(), Rule::QualifiedName);
                 type_hint = Some(QualifiedName::map(rule.clone()));
-
-                // advance
-                rule.next();
-
+                rule.next(); // advance
                 debug_assert_eq!(rule.clone().next().unwrap().as_rule(), Rule::Expression);
                 Expression::map(rule.clone())
             }
-            Rule::Expression => {
-                debug_assert_eq!(inner.as_rule(), Rule::Expression);
-                Expression::map(rule)
-            }
+            Rule::Expression => Expression::map(rule),
             _ => unreachable!(),
         };
 
