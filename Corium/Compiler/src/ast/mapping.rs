@@ -208,79 +208,104 @@ use crate::parser::*;
 use std::str::FromStr;
 
 pub trait AstMapping<'a>: AstComponent {
-    fn populate(rule: RulePair<'a>) -> Result<Self, ()>;
+    fn populate(rule: RulePair<'a>) -> Self;
 
-    fn map(mut rule: RulePairs<'a>) -> Result<Self, ()> {
+    fn map(mut rule: RulePairs<'a>) -> Self {
         let rule = rule.next().unwrap();
-        assert_eq!(rule.as_rule(), Self::CORRESPONDING_RULE);
+        debug_assert_eq!(rule.as_rule(), Self::CORRESPONDING_RULE);
         Self::populate(rule)
     }
 }
 
+impl<'a> AstMapping<'a> for Parameter<'a> {
+    fn populate(rule: RulePair<'a>) -> Self {
+        let mut rule = rule.into_inner();
+
+        // ehm yes this is not that beautiful - TODO make this nicer
+
+        let name = {
+            let inner = rule.clone().next().unwrap();
+            debug_assert_eq!(inner.as_rule(), Rule::Identifier);
+            Identifier::map(rule.clone())
+        };
+
+        // advance
+        rule.next();
+
+        let type_hint = {
+            let inner = rule.clone().next().unwrap();
+            debug_assert_eq!(inner.as_rule(), Rule::QualifiedName);
+            QualifiedName::map(rule.clone())
+        };
+
+        let value = if rule.next().is_some() {
+            if let Some(inner) = rule.clone().next() {
+                debug_assert_eq!(inner.as_rule(), Rule::Expression);
+                Some(Expression::map(rule.clone()))
+            } else {
+                None
+            }
+        } else {
+            None
+        };
+
+        Self {
+            name,
+            type_hint,
+            value,
+        }
+    }
+}
+
+impl<'a> AstMapping<'a> for Expression<'a> {
+    fn populate(rule: RulePair<'a>) -> Self {
+        let rule = rule.into_inner();
+        let kind = rule.clone().next().unwrap().as_rule();
+        match kind {
+            Rule::Literal => Self::Literal(Literal::map(rule)),
+            _ => unreachable!(),
+        }
+    }
+}
+
 impl<'a> AstMapping<'a> for Literal<'a> {
-    fn populate(rule: RulePair<'a>) -> Result<Self, ()> {
+    fn populate(rule: RulePair<'a>) -> Self {
         let rule = rule.into_inner().next().unwrap();
         let text = rule.as_str();
         match rule.as_rule() {
-            Rule::FloatLiteral => {
-                if let Ok(x) = Float::from_str(text) {
-                    Ok(Self::Float(x))
-                } else {
-                    Err(())
-                }
-            }
-            Rule::IntLiteral => {
-                if let Ok(x) = Int::from_str(text) {
-                    Ok(Self::Int(x))
-                } else {
-                    Err(())
-                }
-            }
-            Rule::BoolLiteral => {
-                if let Ok(x) = Bool::from_str(text) {
-                    Ok(Self::Bool(x))
-                } else {
-                    Err(())
-                }
-            }
+            Rule::FloatLiteral => Self::Float(Float::from_str(text).unwrap()),
+            Rule::IntLiteral => Self::Int(Int::from_str(text).unwrap()),
+            Rule::BoolLiteral => Self::Bool(Bool::from_str(text).unwrap()),
             Rule::CharLiteral => {
                 let text = &text[1..text.len() - 1]; // skip ''
-                if let Ok(x) = Char::from_str(text) {
-                    Ok(Self::Char(x))
-                } else {
-                    Err(())
-                }
+                Self::Char(Char::from_str(text).unwrap())
             }
             Rule::StringLiteral => {
                 let text = &text[1..text.len() - 1]; // skip ""
-                Ok(Self::String(text))
+                Self::String(text)
             }
-            _ => Err(()),
+            _ => unreachable!(),
         }
     }
 }
 
 impl<'a> AstMapping<'a> for Module<'a> {
-    fn populate(rule: RulePair<'a>) -> Result<Self, ()> {
-        if let Ok(name) = QualifiedName::map(rule.into_inner()) {
-            Ok(Self(name))
-        } else {
-            Err(())
-        }
+    fn populate(rule: RulePair<'a>) -> Self {
+        Self(QualifiedName::map(rule.into_inner()))
     }
 }
 
 impl<'a> AstMapping<'a> for QualifiedName<'a> {
-    fn populate(rule: RulePair<'a>) -> Result<Self, ()> {
-        Ok(Self {
+    fn populate(rule: RulePair<'a>) -> Self {
+        Self {
             full: rule.as_str(),
             split: rule.as_str().split('.').collect(),
-        })
+        }
     }
 }
 
 impl<'a> AstMapping<'a> for Identifier<'a> {
-    fn populate(rule: RulePair<'a>) -> Result<Self, ()> {
-        Ok(Self(rule.as_str()))
+    fn populate(rule: RulePair<'a>) -> Self {
+        Self(rule.as_str())
     }
 }

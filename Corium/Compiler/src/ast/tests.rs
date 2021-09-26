@@ -10,21 +10,21 @@ mod mapping {
         #[test]
         fn alphanumeric() {
             let result = CoriumParser::parse(Rule::Identifier, "MyClass").unwrap();
-            let ast = Identifier::map(result).unwrap();
+            let ast = Identifier::map(result);
             assert_eq!(ast.0, "MyClass");
         }
 
         #[test]
         fn mixed() {
             let result = CoriumParser::parse(Rule::Identifier, "My2Class32LOl").unwrap();
-            let ast = Identifier::map(result).unwrap();
+            let ast = Identifier::map(result);
             assert_eq!(ast.0, "My2Class32LOl");
         }
 
         #[test]
         fn numeric() {
             let result = CoriumParser::parse(Rule::Identifier, "X278247842877284").unwrap();
-            let ast = Identifier::map(result).unwrap();
+            let ast = Identifier::map(result);
             assert_eq!(ast.0, "X278247842877284");
         }
     }
@@ -35,7 +35,7 @@ mod mapping {
         #[test]
         fn simple() {
             let result = CoriumParser::parse(Rule::QualifiedName, "MyPackage").unwrap();
-            let ast = QualifiedName::map(result).unwrap();
+            let ast = QualifiedName::map(result);
             assert_eq!(ast.full, "MyPackage");
             assert_eq!(ast.split.len(), 1);
             assert_eq!(ast.split[0], "MyPackage");
@@ -44,7 +44,7 @@ mod mapping {
         #[test]
         fn nested() {
             let result = CoriumParser::parse(Rule::QualifiedName, "MyPackage.Class").unwrap();
-            let ast = QualifiedName::map(result).unwrap();
+            let ast = QualifiedName::map(result);
             assert_eq!(ast.full, "MyPackage.Class");
             assert_eq!(ast.split.len(), 2);
             assert_eq!(ast.split[0], "MyPackage");
@@ -55,7 +55,7 @@ mod mapping {
         fn nested2() {
             let result =
                 CoriumParser::parse(Rule::QualifiedName, "MyPackage.Class.StaticMember").unwrap();
-            let ast = QualifiedName::map(result).unwrap();
+            let ast = QualifiedName::map(result);
             assert_eq!(ast.full, "MyPackage.Class.StaticMember");
             assert_eq!(ast.split.len(), 3);
             assert_eq!(ast.split[0], "MyPackage");
@@ -68,7 +68,7 @@ mod mapping {
             let result =
                 CoriumParser::parse(Rule::QualifiedName, "MyPackage.Class.StaticMember.Field")
                     .unwrap();
-            let ast = QualifiedName::map(result).unwrap();
+            let ast = QualifiedName::map(result);
             assert_eq!(ast.full, "MyPackage.Class.StaticMember.Field");
             assert_eq!(ast.split.len(), 4);
             assert_eq!(ast.split[0], "MyPackage");
@@ -84,7 +84,7 @@ mod mapping {
         #[test]
         fn simple() {
             let result = CoriumParser::parse(Rule::Module, "module MyPackage\n").unwrap();
-            let ast = Module::map(result).unwrap();
+            let ast = Module::map(result);
             assert_eq!(ast.0.full, "MyPackage");
             assert_eq!(ast.0.split.len(), 1);
             assert_eq!(ast.0.split[0], "MyPackage");
@@ -93,7 +93,7 @@ mod mapping {
         #[test]
         fn nested() {
             let result = CoriumParser::parse(Rule::Module, "module MyPackage.Class\n").unwrap();
-            let ast = Module::map(result).unwrap();
+            let ast = Module::map(result);
             assert_eq!(ast.0.full, "MyPackage.Class");
             assert_eq!(ast.0.split.len(), 2);
             assert_eq!(ast.0.split[0], "MyPackage");
@@ -104,7 +104,7 @@ mod mapping {
         fn nested2() {
             let result =
                 CoriumParser::parse(Rule::Module, "module MyPackage.Class.StaticMember\n").unwrap();
-            let ast = Module::map(result).unwrap();
+            let ast = Module::map(result);
             assert_eq!(ast.0.full, "MyPackage.Class.StaticMember");
             assert_eq!(ast.0.split.len(), 3);
             assert_eq!(ast.0.split[0], "MyPackage");
@@ -117,7 +117,7 @@ mod mapping {
             let result =
                 CoriumParser::parse(Rule::Module, "module MyPackage.Class.StaticMember.Field\n")
                     .unwrap();
-            let ast = Module::map(result).unwrap();
+            let ast = Module::map(result);
             assert_eq!(ast.0.full, "MyPackage.Class.StaticMember.Field");
             assert_eq!(ast.0.split.len(), 4);
             assert_eq!(ast.0.split[0], "MyPackage");
@@ -133,7 +133,7 @@ mod mapping {
         #[test]
         fn float() {
             let result = CoriumParser::parse(Rule::Literal, "2.5").unwrap();
-            let ast = Literal::map(result).unwrap();
+            let ast = Literal::map(result);
             match ast {
                 Literal::Float(x) => {
                     assert_eq!(x, 2.5);
@@ -145,7 +145,7 @@ mod mapping {
         #[test]
         fn int() {
             let result = CoriumParser::parse(Rule::Literal, "-10").unwrap();
-            let ast = Literal::map(result).unwrap();
+            let ast = Literal::map(result);
             match ast {
                 Literal::Int(x) => {
                     assert_eq!(x, -10);
@@ -157,7 +157,7 @@ mod mapping {
         #[test]
         fn boolean() {
             let result = CoriumParser::parse(Rule::Literal, "true").unwrap();
-            let ast = Literal::map(result).unwrap();
+            let ast = Literal::map(result);
             match ast {
                 Literal::Bool(x) => {
                     assert_eq!(x, true);
@@ -169,7 +169,7 @@ mod mapping {
         #[test]
         fn character() {
             let result = CoriumParser::parse(Rule::Literal, "'X'").unwrap();
-            let ast = Literal::map(result).unwrap();
+            let ast = Literal::map(result);
             match ast {
                 Literal::Char(x) => {
                     assert_eq!(x, 'X');
@@ -181,7 +181,7 @@ mod mapping {
         #[test]
         fn string() {
             let result = CoriumParser::parse(Rule::Literal, "\"Hallo zusammen ;)\"").unwrap();
-            let ast = Literal::map(result).unwrap();
+            let ast = Literal::map(result);
             match ast {
                 Literal::String(x) => {
                     assert_eq!(x, "Hallo zusammen ;)");
@@ -193,12 +193,178 @@ mod mapping {
         #[test]
         fn string_empty() {
             let result = CoriumParser::parse(Rule::Literal, "\"\"").unwrap();
-            let ast = Literal::map(result).unwrap();
+            let ast = Literal::map(result);
             match ast {
                 Literal::String(x) => {
                     assert!(x.is_empty());
                 }
                 _ => panic!("Invalid literal type!"),
+            }
+        }
+    }
+
+    mod expression {
+        use super::*;
+
+        #[test]
+        fn float_literal() {
+            let result = CoriumParser::parse(Rule::Expression, "2.5").unwrap();
+            let ast = Expression::map(result);
+        }
+
+        #[test]
+        fn int_literal() {
+            let result = CoriumParser::parse(Rule::Expression, "10").unwrap();
+            let ast = Expression::map(result);
+        }
+
+        #[test]
+        fn boolean_literal() {
+            let result = CoriumParser::parse(Rule::Expression, "true").unwrap();
+            let ast = Expression::map(result);
+        }
+
+        #[test]
+        fn character_literal() {
+            let result = CoriumParser::parse(Rule::Expression, "'X'").unwrap();
+            let ast = Expression::map(result);
+        }
+
+        #[test]
+        fn string_literal() {
+            let result = CoriumParser::parse(Rule::Expression, "\"Hallo zusammen ;)\"").unwrap();
+            let ast = Expression::map(result);
+        }
+    }
+
+    mod parameter {
+        use super::*;
+
+        #[test]
+        fn int() {
+            let result = CoriumParser::parse(Rule::Parameter, "myParam int").unwrap();
+            let ast = Parameter::map(result);
+            assert_eq!(ast.name.0, "myParam");
+            assert_eq!(ast.type_hint.full, "int");
+            assert!(ast.value.is_none());
+        }
+
+        #[test]
+        fn float() {
+            let mut result = CoriumParser::parse(Rule::Parameter, "myParam float").unwrap();
+            let ast = Parameter::map(result);
+            assert_eq!(ast.name.0, "myParam");
+            assert_eq!(ast.type_hint.full, "float");
+            assert!(ast.value.is_none());
+        }
+
+        #[test]
+        fn class() {
+            let mut result = CoriumParser::parse(Rule::Parameter, "myParam MyClass").unwrap();
+            let ast = Parameter::map(result);
+            assert_eq!(ast.name.0, "myParam");
+            assert_eq!(ast.type_hint.full, "MyClass");
+            assert!(ast.value.is_none());
+        }
+
+        #[test]
+        fn package_class() {
+            let mut result =
+                CoriumParser::parse(Rule::Parameter, "myParam MyPackage.MyClass").unwrap();
+            let ast = Parameter::map(result);
+            assert_eq!(ast.name.0, "myParam");
+            assert_eq!(ast.type_hint.full, "MyPackage.MyClass");
+            assert!(ast.value.is_none());
+        }
+
+        #[test]
+        fn int_with_default_value() {
+            let mut result = CoriumParser::parse(Rule::Parameter, "myParam int = 10").unwrap();
+            let ast = Parameter::map(result);
+            assert_eq!(ast.name.0, "myParam");
+            assert_eq!(ast.type_hint.full, "int");
+            assert!(ast.value.is_some());
+            match ast.value.unwrap() {
+                Expression::Literal(x) => match x {
+                    Literal::Int(y) => {
+                        assert_eq!(y, 10);
+                    }
+                    _ => panic!("Invalid literal!"),
+                },
+                _ => panic!("Invalid expression!"),
+            }
+        }
+
+        #[test]
+        fn float_with_default_value() {
+            let mut result = CoriumParser::parse(Rule::Parameter, "myParam float = 0.999").unwrap();
+            let ast = Parameter::map(result);
+            assert_eq!(ast.name.0, "myParam");
+            assert_eq!(ast.type_hint.full, "float");
+            assert!(ast.value.is_some());
+            match ast.value.unwrap() {
+                Expression::Literal(x) => match x {
+                    Literal::Float(y) => {
+                        assert_eq!(y, 0.999);
+                    }
+                    _ => panic!("Invalid literal!"),
+                },
+                _ => panic!("Invalid expression!"),
+            }
+        }
+
+        #[test]
+        fn bool_with_default_value() {
+            let mut result = CoriumParser::parse(Rule::Parameter, "myParam bool = true").unwrap();
+            let ast = Parameter::map(result);
+            assert_eq!(ast.name.0, "myParam");
+            assert_eq!(ast.type_hint.full, "bool");
+            assert!(ast.value.is_some());
+            match ast.value.unwrap() {
+                Expression::Literal(x) => match x {
+                    Literal::Bool(y) => {
+                        assert_eq!(y, true);
+                    }
+                    _ => panic!("Invalid literal!"),
+                },
+                _ => panic!("Invalid expression!"),
+            }
+        }
+
+        #[test]
+        fn char_with_default_value() {
+            let mut result = CoriumParser::parse(Rule::Parameter, "myParam char = 'x'").unwrap();
+            let ast = Parameter::map(result);
+            assert_eq!(ast.name.0, "myParam");
+            assert_eq!(ast.type_hint.full, "char");
+            assert!(ast.value.is_some());
+            match ast.value.unwrap() {
+                Expression::Literal(x) => match x {
+                    Literal::Char(y) => {
+                        assert_eq!(y, 'x');
+                    }
+                    _ => panic!("Invalid literal!"),
+                },
+                _ => panic!("Invalid expression!"),
+            }
+        }
+
+        #[test]
+        fn string_with_default_value() {
+            let mut result =
+                CoriumParser::parse(Rule::Parameter, "myParam string = \"I luv u :3\"").unwrap();
+            let ast = Parameter::map(result);
+            assert_eq!(ast.name.0, "myParam");
+            assert_eq!(ast.type_hint.full, "string");
+            assert!(ast.value.is_some());
+            match ast.value.unwrap() {
+                Expression::Literal(x) => match x {
+                    Literal::String(y) => {
+                        assert_eq!(y, "I luv u :3");
+                    }
+                    _ => panic!("Invalid literal!"),
+                },
+                _ => panic!("Invalid expression!"),
             }
         }
     }
