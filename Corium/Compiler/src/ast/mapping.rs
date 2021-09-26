@@ -211,9 +211,82 @@ pub trait AstMapping<'a>: AstComponent {
     fn populate(rule: RulePair<'a>) -> Self;
 
     fn map(mut rule: RulePairs<'a>) -> Self {
-        let rule = rule.next().unwrap();
+        let rule = rule
+            .next()
+            .unwrap_or_else(|| panic!("Expected another inner rule, but rule was empty!"));
         debug_assert_eq!(rule.as_rule(), Self::CORRESPONDING_RULE);
         Self::populate(rule)
+    }
+}
+
+impl<'a> AstMapping<'a> for LocalVariable<'a> {
+    fn populate(rule: RulePair<'a>) -> Self {
+        let mut rule = rule.into_inner();
+
+        // ehm yes this is not that beautiful - TODO make this nicer
+        let name = {
+            let inner = rule.clone().next().unwrap();
+            debug_assert_eq!(inner.as_rule(), Rule::Identifier);
+            Identifier::map(rule.clone())
+        };
+        let mut type_hint = None;
+
+        // advance
+        rule.next();
+
+        let inner = rule.clone().next().unwrap();
+        let value = match inner.as_rule() {
+            Rule::QualifiedName => {
+                debug_assert_eq!(inner.as_rule(), Rule::QualifiedName);
+                type_hint = Some(QualifiedName::map(rule.clone()));
+
+                // advance
+                rule.next();
+
+                debug_assert_eq!(rule.clone().next().unwrap().as_rule(), Rule::Expression);
+                Expression::map(rule.clone())
+            }
+            Rule::Expression => {
+                debug_assert_eq!(inner.as_rule(), Rule::Expression);
+                Expression::map(rule)
+            }
+            _ => unreachable!(),
+        };
+
+        Self {
+            name,
+            type_hint,
+            value,
+        }
+    }
+}
+
+impl<'a> AstMapping<'a> for ReturnStatement<'a> {
+    fn populate(rule: RulePair<'a>) -> Self {
+        if rule.clone().into_inner().next().is_some() {
+            Self(Some(Expression::map(rule.into_inner())))
+        } else {
+            Self(None)
+        }
+    }
+}
+
+impl<'a> AstMapping<'a> for ParameterList<'a> {
+    fn populate(rule: RulePair<'a>) -> Self {
+        let text = rule.as_str();
+        if text.is_empty() {
+            return Self(Vec::new());
+        }
+        let mut rule = rule.into_inner();
+        let mut result = Vec::new();
+
+        // params*
+        while let Some(inner) = rule.peek() {
+            debug_assert_eq!(inner.as_rule(), Rule::Parameter);
+            result.push(Parameter::map(rule.clone()));
+            rule.next();
+        }
+        Self(result)
     }
 }
 
