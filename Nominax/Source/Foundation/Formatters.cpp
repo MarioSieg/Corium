@@ -222,7 +222,7 @@ auto formatter<Instruction, char, void>::format
 	(
 		ctx.out(),
 		"{}",
-		InstructionMetaDataRegistry::MNEMONIC_TABLE[ToUnderlying(value)]
+		InstructionMetaDataRegistry::MNEMONIC_TABLE[Foundation::ToUnderlying(value)]
 	);
 }
 
@@ -232,7 +232,7 @@ auto formatter<SysCall, char, void>::format
 	format_context&                    ctx
 ) const -> FormatOutput
 {
-	return format_to(ctx.out(), "{:#X}", ToUnderlying(value));
+	return format_to(ctx.out(), "{:#X}", Foundation::ToUnderlying(value));
 }
 
 auto formatter<UserIntrinsicInvocationID, char, void>::format
@@ -241,12 +241,12 @@ auto formatter<UserIntrinsicInvocationID, char, void>::format
 	format_context&                  ctx
 ) const -> FormatOutput
 {
-	return format_to(ctx.out(), "{:#X}", ToUnderlying(value));
+	return format_to(ctx.out(), "{:#X}", Foundation::ToUnderlying(value));
 }
 
 auto formatter<JumpAddress, char, void>::format(const JumpAddress& value, format_context& ctx) const -> FormatOutput
 {
-	return format_to(ctx.out(), "{:#X}", ToUnderlying(value));
+	return format_to(ctx.out(), "{:#X}", Foundation::ToUnderlying(value));
 }
 auto formatter<ValidationResultCode, char, void>::format
 (
@@ -254,7 +254,7 @@ auto formatter<ValidationResultCode, char, void>::format
 	format_context&             ctx
 ) const -> FormatOutput
 {
-	const auto idx { ToUnderlying(value) };
+	const auto idx { Foundation::ToUnderlying(value) };
 	return format_to(ctx.out(), "{}", BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES[idx]);
 }
 
@@ -264,7 +264,7 @@ auto formatter<ReactorValidationResult, char, void>::format
 	format_context&                ctx
 ) const -> FormatOutput
 {
-	const auto idx { ToUnderlying(value) };
+	const auto idx { Foundation::ToUnderlying(value) };
 	return format_to(ctx.out(), "{}", REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[idx]);
 }
 
@@ -293,15 +293,15 @@ auto formatter<DiscriminatedSignal, char, void>::format
 
 		case Dis::SystemIntrinsicInvocationID:
 			return format_to(ctx.out(), "*sys ${}",
-			                 ToUnderlying(value.Value.SystemIntrinID));
+                             Foundation::ToUnderlying(value.Value.SystemIntrinID));
 
 		case Dis::UserIntrinsicInvocationID:
 			return format_to(ctx.out(), "*usr ${}",
-			                 ToUnderlying(value.Value.UserIntrinID));
+                             Foundation::ToUnderlying(value.Value.UserIntrinID));
 
 		case Dis::JumpAddress:
 			return format_to(ctx.out(), "*rel {}",
-			                 ToUnderlying(value.Value.JmpAddress));
+                             Foundation::ToUnderlying(value.Value.JmpAddress));
 		default:
 		case Dis::Reference:
 			return format_to(ctx.out(), "*ref {:X}", value.Value.R64.AsU64);

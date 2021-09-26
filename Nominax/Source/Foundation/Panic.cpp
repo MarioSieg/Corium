@@ -208,7 +208,7 @@
 #include "../../../Nominax/Include/Nominax/Foundation/_Foundation.hpp"
 #include "../../../Nominax/Include/Nominax/Assembler/_Assembler.hpp"
 
-namespace Nominax
+namespace Nominax::Foundation
 {
     static auto PrintPanicMessage(std::string_view message, const Foundation::SourceLocation& srcLoc) -> void;
 

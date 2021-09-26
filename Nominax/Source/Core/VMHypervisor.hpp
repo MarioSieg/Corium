@@ -288,7 +288,7 @@ namespace Nominax::Core
 		JumpTable* const outJumpTable
 	) -> bool
 	{
-		static constexpr std::array<const void* NOX_RESTRICT const, ToUnderlying(Instruction::Count_)> JUMP_TABLE
+		static constexpr std::array<const void* NOX_RESTRICT const, Foundation::ToUnderlying(Instruction::Count_)> JUMP_TABLE
 		{
 			&&__int__,
 			&&__syscall__,

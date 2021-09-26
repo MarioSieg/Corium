@@ -320,7 +320,7 @@ namespace Nominax::ByteCode
     /// <summary>
     /// Instruction category sigils.
     /// </summary>
-    constexpr std::array<const char, ToUnderlying(InstructionCategory::Count_)> INSTRUCTION_CATEGORY_SIGILS
+    constexpr std::array<const char, Foundation::ToUnderlying(InstructionCategory::Count_)> INSTRUCTION_CATEGORY_SIGILS
     {
         'C',
         'M',

@@ -215,7 +215,7 @@ namespace Nominax::ByteCode
 	/// </summary>
 	NOX_FORCE_INLINE inline auto ComputeRelativeJumpAddress(const Signal* const base, const JumpAddress address) -> const void*
 	{
-		return base + ToUnderlying(address) - 1;
+		return base + Foundation::ToUnderlying(address) - 1;
 	}
 
 	/// <summary>

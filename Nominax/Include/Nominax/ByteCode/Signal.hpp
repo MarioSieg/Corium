@@ -285,7 +285,7 @@ namespace Nominax::ByteCode
         /// <summary>
         /// Contains the name of all discriminators.
         /// </summary>
-        static constexpr std::array<const std::string_view, ToUnderlying(Discriminator::Count_)> DISCRIMINATOR_NAMES
+        static constexpr std::array<const std::string_view, Foundation::ToUnderlying(Discriminator::Count_)> DISCRIMINATOR_NAMES
         {
             "UOffset",
             "Int",
@@ -303,7 +303,7 @@ namespace Nominax::ByteCode
         /// <summary>
         /// Contains the name of all discriminators.
         /// </summary>
-        static constexpr std::array<const std::string_view, ToUnderlying(Discriminator::Count_)> SHORT_DISCRIMINATOR_NAMES
+        static constexpr std::array<const std::string_view, Foundation::ToUnderlying(Discriminator::Count_)> SHORT_DISCRIMINATOR_NAMES
         {
             "U64",
             "I64",

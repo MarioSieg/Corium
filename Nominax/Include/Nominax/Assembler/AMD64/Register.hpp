@@ -232,7 +232,7 @@ namespace Nominax::Assembler::AMD64
         constexpr auto Name() const -> std::string_view;
 
     private:
-        static constexpr std::array<const std::uint8_t, ToUnderlying(Count_)> PHYSICAL_ID_TABLE
+        static constexpr std::array<const std::uint8_t, Foundation::ToUnderlying(Count_)> PHYSICAL_ID_TABLE
         {
             0x00, 0x03, 0x01, 0x02,
             0x04, 0x05, 0x06, 0x07,
@@ -240,7 +240,7 @@ namespace Nominax::Assembler::AMD64
             0x04, 0x05, 0x06, 0x07
         };
 
-        static constexpr std::array<const std::string_view, ToUnderlying(Count_)> NAME_TABLE
+        static constexpr std::array<const std::string_view, Foundation::ToUnderlying(Count_)> NAME_TABLE
         {
             "%rax", "%rbx", "%rcx", "%rdx",
             "%rsp", "%rbp", "%rsi", "%rdi",
@@ -256,7 +256,7 @@ namespace Nominax::Assembler::AMD64
 
     constexpr auto GPR64::PhysicalID() const -> std::uint8_t
     {
-        return PHYSICAL_ID_TABLE[ToUnderlying(this->ID)];
+        return PHYSICAL_ID_TABLE[Foundation::ToUnderlying(this->ID)];
     }
 
     constexpr auto GPR64::Size() const -> std::uint8_t
@@ -266,6 +266,6 @@ namespace Nominax::Assembler::AMD64
 
     constexpr auto GPR64::Name() const -> std::string_view
     {
-        return NAME_TABLE[ToUnderlying(this->ID)];
+        return NAME_TABLE[Foundation::ToUnderlying(this->ID)];
     }
 }

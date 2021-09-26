@@ -242,7 +242,7 @@ namespace Nominax::Assembler::AMD64
 
     constexpr auto EncodeModRM(const MODField mod, const std::uint8_t r1, const std::uint8_t r2) -> std::uint8_t
     {
-        return EncodeModRM(ToUnderlying(mod), r1, r2);
+        return EncodeModRM(Foundation::ToUnderlying(mod), r1, r2);
     }
 
     constexpr auto EncodeSIB(const std::uint8_t scale, const std::uint8_t index) -> std::uint8_t
@@ -257,6 +257,6 @@ namespace Nominax::Assembler::AMD64
 
     constexpr auto CheckModRM(const MODField mod, const std::uint8_t r1, const std::uint8_t r2) -> bool
     {
-        return CheckModRM(ToUnderlying(mod), r1, r2);
+        return CheckModRM(Foundation::ToUnderlying(mod), r1, r2);
     }
 }
