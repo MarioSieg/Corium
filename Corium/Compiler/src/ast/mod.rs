@@ -209,7 +209,7 @@ use std::default;
 use std::fmt;
 
 pub mod mapper;
-pub mod mapping;
+pub mod populators;
 pub mod table;
 
 #[cfg(test)]

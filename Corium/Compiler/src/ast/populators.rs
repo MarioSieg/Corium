@@ -207,7 +207,7 @@ use crate::ast::*;
 use crate::parser::*;
 use std::str::FromStr;
 
-pub trait AstMapping<'a>: AstComponent {
+pub trait AstPopulator<'a>: AstComponent {
     fn populate(rule: RulePair<'a>) -> Self;
 
     fn map(mut rule: RulePairs<'a>) -> Self {
@@ -219,7 +219,25 @@ pub trait AstMapping<'a>: AstComponent {
     }
 }
 
-impl<'a> AstMapping<'a> for LocalVariable<'a> {
+impl<'a> AstPopulator<'a> for FunctionStatement<'a> {
+    fn populate(rule: RulePair<'a>) -> Self {
+        let rule = rule.into_inner();
+        let nested = rule.clone().next().unwrap();
+        match nested.as_rule() {
+            Rule::LocalVariable => Self::LocalVariable(LocalVariable::map(rule)),
+            Rule::ReturnStatement => Self::ReturnStatement(ReturnStatement::map(rule)),
+            _ => unreachable!(),
+        }
+    }
+}
+
+impl<'a> AstPopulator<'a> for Module<'a> {
+    fn populate(rule: RulePair<'a>) -> Self {
+        Self(QualifiedName::map(rule.into_inner()))
+    }
+}
+
+impl<'a> AstPopulator<'a> for LocalVariable<'a> {
     fn populate(rule: RulePair<'a>) -> Self {
         let mut rule = rule.into_inner();
 
@@ -261,7 +279,7 @@ impl<'a> AstMapping<'a> for LocalVariable<'a> {
     }
 }
 
-impl<'a> AstMapping<'a> for ReturnStatement<'a> {
+impl<'a> AstPopulator<'a> for ReturnStatement<'a> {
     fn populate(rule: RulePair<'a>) -> Self {
         if rule.clone().into_inner().next().is_some() {
             Self(Some(Expression::map(rule.into_inner())))
@@ -271,7 +289,7 @@ impl<'a> AstMapping<'a> for ReturnStatement<'a> {
     }
 }
 
-impl<'a> AstMapping<'a> for ParameterList<'a> {
+impl<'a> AstPopulator<'a> for ParameterList<'a> {
     fn populate(rule: RulePair<'a>) -> Self {
         let text = rule.as_str();
         if text.is_empty() {
@@ -290,7 +308,7 @@ impl<'a> AstMapping<'a> for ParameterList<'a> {
     }
 }
 
-impl<'a> AstMapping<'a> for Parameter<'a> {
+impl<'a> AstPopulator<'a> for Parameter<'a> {
     fn populate(rule: RulePair<'a>) -> Self {
         let mut rule = rule.into_inner();
 
@@ -330,7 +348,7 @@ impl<'a> AstMapping<'a> for Parameter<'a> {
     }
 }
 
-impl<'a> AstMapping<'a> for Expression<'a> {
+impl<'a> AstPopulator<'a> for Expression<'a> {
     fn populate(rule: RulePair<'a>) -> Self {
         let rule = rule.into_inner();
         let kind = rule.clone().next().unwrap().as_rule();
@@ -341,7 +359,7 @@ impl<'a> AstMapping<'a> for Expression<'a> {
     }
 }
 
-impl<'a> AstMapping<'a> for Literal<'a> {
+impl<'a> AstPopulator<'a> for Literal<'a> {
     fn populate(rule: RulePair<'a>) -> Self {
         let rule = rule.into_inner().next().unwrap();
         let text = rule.as_str();
@@ -362,13 +380,7 @@ impl<'a> AstMapping<'a> for Literal<'a> {
     }
 }
 
-impl<'a> AstMapping<'a> for Module<'a> {
-    fn populate(rule: RulePair<'a>) -> Self {
-        Self(QualifiedName::map(rule.into_inner()))
-    }
-}
-
-impl<'a> AstMapping<'a> for QualifiedName<'a> {
+impl<'a> AstPopulator<'a> for QualifiedName<'a> {
     fn populate(rule: RulePair<'a>) -> Self {
         Self {
             full: rule.as_str(),
@@ -377,7 +389,7 @@ impl<'a> AstMapping<'a> for QualifiedName<'a> {
     }
 }
 
-impl<'a> AstMapping<'a> for Identifier<'a> {
+impl<'a> AstPopulator<'a> for Identifier<'a> {
     fn populate(rule: RulePair<'a>) -> Self {
         Self(rule.as_str())
     }

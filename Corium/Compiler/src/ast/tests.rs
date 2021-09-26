@@ -1,7 +1,7 @@
-use crate::ast::{mapping::*, *};
+use crate::ast::{populators::*, *};
 use crate::parser::*;
 
-mod mapping {
+mod populators {
     use super::*;
 
     mod identifier {
@@ -85,72 +85,42 @@ mod mapping {
         fn float() {
             let result = CoriumParser::parse(Rule::Literal, "2.5").unwrap();
             let ast = Literal::map(result);
-            match ast {
-                Literal::Float(x) => {
-                    assert_eq!(x, 2.5);
-                }
-                _ => panic!("Invalid literal type!"),
-            }
+            assert!(matches!(ast, Literal::Float(2.5)));
         }
 
         #[test]
         fn int() {
             let result = CoriumParser::parse(Rule::Literal, "-10").unwrap();
             let ast = Literal::map(result);
-            match ast {
-                Literal::Int(x) => {
-                    assert_eq!(x, -10);
-                }
-                _ => panic!("Invalid literal type!"),
-            }
+            assert!(matches!(ast, Literal::Int(-10)));
         }
 
         #[test]
         fn boolean() {
             let result = CoriumParser::parse(Rule::Literal, "true").unwrap();
             let ast = Literal::map(result);
-            match ast {
-                Literal::Bool(x) => {
-                    assert_eq!(x, true);
-                }
-                _ => panic!("Invalid literal type!"),
-            }
+            assert!(matches!(ast, Literal::Bool(true)));
         }
 
         #[test]
         fn character() {
             let result = CoriumParser::parse(Rule::Literal, "'X'").unwrap();
             let ast = Literal::map(result);
-            match ast {
-                Literal::Char(x) => {
-                    assert_eq!(x, 'X');
-                }
-                _ => panic!("Invalid literal type!"),
-            }
+            assert!(matches!(ast, Literal::Char('X')));
         }
 
         #[test]
         fn string() {
             let result = CoriumParser::parse(Rule::Literal, "\"Hallo zusammen ;)\"").unwrap();
             let ast = Literal::map(result);
-            match ast {
-                Literal::String(x) => {
-                    assert_eq!(x, "Hallo zusammen ;)");
-                }
-                _ => panic!("Invalid literal type!"),
-            }
+            assert!(matches!(ast, Literal::String("Hallo zusammen ;)")));
         }
 
         #[test]
         fn string_empty() {
             let result = CoriumParser::parse(Rule::Literal, "\"\"").unwrap();
             let ast = Literal::map(result);
-            match ast {
-                Literal::String(x) => {
-                    assert!(x.is_empty());
-                }
-                _ => panic!("Invalid literal type!"),
-            }
+            assert!(matches!(ast, Literal::String("")));
         }
     }
 
@@ -161,30 +131,38 @@ mod mapping {
         fn float_literal() {
             let result = CoriumParser::parse(Rule::Expression, "2.5").unwrap();
             let ast = Expression::map(result);
+            assert!(matches!(ast, Expression::Literal(Literal::Float(2.5))));
         }
 
         #[test]
         fn int_literal() {
             let result = CoriumParser::parse(Rule::Expression, "10").unwrap();
             let ast = Expression::map(result);
+            assert!(matches!(ast, Expression::Literal(Literal::Int(10))));
         }
 
         #[test]
         fn boolean_literal() {
             let result = CoriumParser::parse(Rule::Expression, "true").unwrap();
             let ast = Expression::map(result);
+            assert!(matches!(ast, Expression::Literal(Literal::Bool(true))));
         }
 
         #[test]
         fn character_literal() {
             let result = CoriumParser::parse(Rule::Expression, "'X'").unwrap();
             let ast = Expression::map(result);
+            assert!(matches!(ast, Expression::Literal(Literal::Char('X'))));
         }
 
         #[test]
         fn string_literal() {
             let result = CoriumParser::parse(Rule::Expression, "\"Hallo zusammen ;)\"").unwrap();
             let ast = Expression::map(result);
+            assert!(matches!(
+                ast,
+                Expression::Literal(Literal::String("Hallo zusammen ;)"))
+            ));
         }
     }
 
@@ -235,15 +213,10 @@ mod mapping {
             assert_eq!(ast.name.0, "myParam");
             assert_eq!(ast.type_hint.full, "int");
             assert!(ast.value.is_some());
-            match ast.value.unwrap() {
-                Expression::Literal(x) => match x {
-                    Literal::Int(y) => {
-                        assert_eq!(y, 10);
-                    }
-                    _ => panic!("Invalid literal!"),
-                },
-                _ => panic!("Invalid expression!"),
-            }
+            assert!(matches!(
+                ast.value.unwrap(),
+                Expression::Literal(Literal::Int(10))
+            ));
         }
 
         #[test]
@@ -253,15 +226,10 @@ mod mapping {
             assert_eq!(ast.name.0, "myParam");
             assert_eq!(ast.type_hint.full, "float");
             assert!(ast.value.is_some());
-            match ast.value.unwrap() {
-                Expression::Literal(x) => match x {
-                    Literal::Float(y) => {
-                        assert_eq!(y, 0.999);
-                    }
-                    _ => panic!("Invalid literal!"),
-                },
-                _ => panic!("Invalid expression!"),
-            }
+            assert!(matches!(
+                ast.value.unwrap(),
+                Expression::Literal(Literal::Float(0.999))
+            ));
         }
 
         #[test]
@@ -271,15 +239,10 @@ mod mapping {
             assert_eq!(ast.name.0, "myParam");
             assert_eq!(ast.type_hint.full, "bool");
             assert!(ast.value.is_some());
-            match ast.value.unwrap() {
-                Expression::Literal(x) => match x {
-                    Literal::Bool(y) => {
-                        assert_eq!(y, true);
-                    }
-                    _ => panic!("Invalid literal!"),
-                },
-                _ => panic!("Invalid expression!"),
-            }
+            assert!(matches!(
+                ast.value.unwrap(),
+                Expression::Literal(Literal::Bool(true))
+            ));
         }
 
         #[test]
@@ -289,15 +252,10 @@ mod mapping {
             assert_eq!(ast.name.0, "myParam");
             assert_eq!(ast.type_hint.full, "char");
             assert!(ast.value.is_some());
-            match ast.value.unwrap() {
-                Expression::Literal(x) => match x {
-                    Literal::Char(y) => {
-                        assert_eq!(y, 'x');
-                    }
-                    _ => panic!("Invalid literal!"),
-                },
-                _ => panic!("Invalid expression!"),
-            }
+            assert!(matches!(
+                ast.value.unwrap(),
+                Expression::Literal(Literal::Char('x'))
+            ));
         }
 
         #[test]
@@ -308,15 +266,10 @@ mod mapping {
             assert_eq!(ast.name.0, "myParam");
             assert_eq!(ast.type_hint.full, "string");
             assert!(ast.value.is_some());
-            match ast.value.unwrap() {
-                Expression::Literal(x) => match x {
-                    Literal::String(y) => {
-                        assert_eq!(y, "I luv u :3");
-                    }
-                    _ => panic!("Invalid literal!"),
-                },
-                _ => panic!("Invalid expression!"),
-            }
+            assert!(matches!(
+                ast.value.unwrap(),
+                Expression::Literal(Literal::String("I luv u :3"))
+            ));
         }
     }
 
@@ -378,15 +331,10 @@ mod mapping {
             assert_eq!(ast.0[0].name.0, "x");
             assert_eq!(ast.0[0].type_hint.full, "int");
             assert!(ast.0[0].value.is_some());
-            match ast.0[0].value.as_ref().unwrap() {
-                Expression::Literal(x) => match x {
-                    Literal::Int(y) => {
-                        assert_eq!(*y, 10);
-                    }
-                    _ => panic!("Invalid literal!"),
-                },
-                _ => panic!("Invalid expression!"),
-            }
+            assert!(matches!(
+                ast.0[0].value.as_ref().unwrap(),
+                Expression::Literal(Literal::Int(10))
+            ));
         }
 
         #[test]
@@ -399,28 +347,18 @@ mod mapping {
             assert_eq!(ast.0[0].name.0, "x");
             assert_eq!(ast.0[0].type_hint.full, "int");
             assert!(ast.0[0].value.is_some());
-            match ast.0[0].value.as_ref().unwrap() {
-                Expression::Literal(x) => match x {
-                    Literal::Int(y) => {
-                        assert_eq!(*y, 10);
-                    }
-                    _ => panic!("Invalid literal!"),
-                },
-                _ => panic!("Invalid expression!"),
-            }
+            assert!(matches!(
+                ast.0[0].value.as_ref().unwrap(),
+                Expression::Literal(Literal::Int(10))
+            ));
 
             assert_eq!(ast.0[1].name.0, "y");
             assert_eq!(ast.0[1].type_hint.full, "float");
             assert!(ast.0[1].value.is_some());
-            match ast.0[1].value.as_ref().unwrap() {
-                Expression::Literal(x) => match x {
-                    Literal::Float(y) => {
-                        assert_eq!(*y, 2.4);
-                    }
-                    _ => panic!("Invalid literal!"),
-                },
-                _ => panic!("Invalid expression!"),
-            }
+            assert!(matches!(
+                ast.0[1].value.as_ref().unwrap(),
+                Expression::Literal(Literal::Float(2.4))
+            ));
         }
 
         #[test]
@@ -436,15 +374,10 @@ mod mapping {
             assert_eq!(ast.0[1].name.0, "x");
             assert_eq!(ast.0[1].type_hint.full, "int");
             assert!(ast.0[1].value.is_some());
-            match ast.0[1].value.as_ref().unwrap() {
-                Expression::Literal(x) => match x {
-                    Literal::Int(y) => {
-                        assert_eq!(*y, 10);
-                    }
-                    _ => panic!("Invalid literal!"),
-                },
-                _ => panic!("Invalid expression!"),
-            }
+            assert!(matches!(
+                ast.0[1].value.as_ref().unwrap(),
+                Expression::Literal(Literal::Int(10))
+            ));
         }
     }
 
@@ -463,15 +396,10 @@ mod mapping {
             let mut result = CoriumParser::parse(Rule::ReturnStatement, "return 10\n").unwrap();
             let ast = ReturnStatement::map(result);
             assert!(ast.0.is_some());
-            match ast.0.unwrap() {
-                Expression::Literal(x) => match x {
-                    Literal::Int(y) => {
-                        assert_eq!(y, 10)
-                    }
-                    _ => panic!("Invalid literal"),
-                },
-                _ => panic!("Invalid expression!"),
-            }
+            assert!(matches!(
+                ast.0.unwrap(),
+                Expression::Literal(Literal::Int(10))
+            ));
         }
 
         #[test]
@@ -479,15 +407,10 @@ mod mapping {
             let mut result = CoriumParser::parse(Rule::ReturnStatement, "return -0.51\n").unwrap();
             let ast = ReturnStatement::map(result);
             assert!(ast.0.is_some());
-            match ast.0.unwrap() {
-                Expression::Literal(x) => match x {
-                    Literal::Float(y) => {
-                        assert_eq!(y, -0.51)
-                    }
-                    _ => panic!("Invalid literal"),
-                },
-                _ => panic!("Invalid expression!"),
-            }
+            assert!(matches!(
+                ast.0.unwrap(),
+                Expression::Literal(Literal::Float(-0.51))
+            ));
         }
     }
 
@@ -499,15 +422,7 @@ mod mapping {
             let result = CoriumParser::parse(Rule::LocalVariable, "let x = 10\n").unwrap();
             let ast = LocalVariable::map(result);
             assert_eq!(ast.name.0, "x");
-            match ast.value {
-                Expression::Literal(x) => match x {
-                    Literal::Int(y) => {
-                        assert_eq!(y, 10);
-                    }
-                    _ => unreachable!(),
-                },
-                _ => unreachable!(),
-            }
+            assert!(matches!(ast.value, Expression::Literal(Literal::Int(10))));
             assert!(ast.type_hint.is_none());
         }
 
@@ -516,15 +431,10 @@ mod mapping {
             let mut result = CoriumParser::parse(Rule::LocalVariable, "let x = 10.0\n").unwrap();
             let ast = LocalVariable::map(result);
             assert_eq!(ast.name.0, "x");
-            match ast.value {
-                Expression::Literal(x) => match x {
-                    Literal::Float(y) => {
-                        assert_eq!(y, 10.0);
-                    }
-                    _ => unreachable!(),
-                },
-                _ => unreachable!(),
-            }
+            assert!(matches!(
+                ast.value,
+                Expression::Literal(Literal::Float(10.0))
+            ));
             assert!(ast.type_hint.is_none());
         }
 
@@ -533,15 +443,7 @@ mod mapping {
             let mut result = CoriumParser::parse(Rule::LocalVariable, "let x = 'x'\n").unwrap();
             let ast = LocalVariable::map(result);
             assert_eq!(ast.name.0, "x");
-            match ast.value {
-                Expression::Literal(x) => match x {
-                    Literal::Char(y) => {
-                        assert_eq!(y, 'x');
-                    }
-                    _ => unreachable!(),
-                },
-                _ => unreachable!(),
-            }
+            assert!(matches!(ast.value, Expression::Literal(Literal::Char('x'))));
             assert!(ast.type_hint.is_none());
         }
 
@@ -550,15 +452,10 @@ mod mapping {
             let mut result = CoriumParser::parse(Rule::LocalVariable, "let x = true\n").unwrap();
             let ast = LocalVariable::map(result);
             assert_eq!(ast.name.0, "x");
-            match ast.value {
-                Expression::Literal(x) => match x {
-                    Literal::Bool(y) => {
-                        assert!(y);
-                    }
-                    _ => unreachable!(),
-                },
-                _ => unreachable!(),
-            }
+            assert!(matches!(
+                ast.value,
+                Expression::Literal(Literal::Bool(true))
+            ));
             assert!(ast.type_hint.is_none());
         }
 
@@ -568,15 +465,10 @@ mod mapping {
                 CoriumParser::parse(Rule::LocalVariable, "let x = \"Name\"\n").unwrap();
             let ast = LocalVariable::map(result);
             assert_eq!(ast.name.0, "x");
-            match ast.value {
-                Expression::Literal(x) => match x {
-                    Literal::String(y) => {
-                        assert_eq!(y, "Name");
-                    }
-                    _ => unreachable!(),
-                },
-                _ => unreachable!(),
-            }
+            assert!(matches!(
+                ast.value,
+                Expression::Literal(Literal::String("Name"))
+            ));
             assert!(ast.type_hint.is_none());
         }
 
@@ -585,15 +477,7 @@ mod mapping {
             let mut result = CoriumParser::parse(Rule::LocalVariable, "let x int = 10\n").unwrap();
             let ast = LocalVariable::map(result);
             assert_eq!(ast.name.0, "x");
-            match ast.value {
-                Expression::Literal(x) => match x {
-                    Literal::Int(y) => {
-                        assert_eq!(y, 10);
-                    }
-                    _ => unreachable!(),
-                },
-                _ => unreachable!(),
-            }
+            assert!(matches!(ast.value, Expression::Literal(Literal::Int(10))));
             assert!(ast.type_hint.is_some());
             assert_eq!(ast.type_hint.unwrap().full, "int");
         }
@@ -604,15 +488,10 @@ mod mapping {
                 CoriumParser::parse(Rule::LocalVariable, "let x float = 10.0\n").unwrap();
             let ast = LocalVariable::map(result);
             assert_eq!(ast.name.0, "x");
-            match ast.value {
-                Expression::Literal(x) => match x {
-                    Literal::Float(y) => {
-                        assert_eq!(y, 10.0);
-                    }
-                    _ => unreachable!(),
-                },
-                _ => unreachable!(),
-            }
+            assert!(matches!(
+                ast.value,
+                Expression::Literal(Literal::Float(10.0))
+            ));
             assert!(ast.type_hint.is_some());
             assert_eq!(ast.type_hint.unwrap().full, "float");
         }
@@ -623,15 +502,7 @@ mod mapping {
                 CoriumParser::parse(Rule::LocalVariable, "let x char = 'x'\n").unwrap();
             let ast = LocalVariable::map(result);
             assert_eq!(ast.name.0, "x");
-            match ast.value {
-                Expression::Literal(x) => match x {
-                    Literal::Char(y) => {
-                        assert_eq!(y, 'x');
-                    }
-                    _ => unreachable!(),
-                },
-                _ => unreachable!(),
-            }
+            assert!(matches!(ast.value, Expression::Literal(Literal::Char('x'))));
             assert!(ast.type_hint.is_some());
             assert_eq!(ast.type_hint.unwrap().full, "char");
         }
@@ -642,15 +513,10 @@ mod mapping {
                 CoriumParser::parse(Rule::LocalVariable, "let x bool = true\n").unwrap();
             let ast = LocalVariable::map(result);
             assert_eq!(ast.name.0, "x");
-            match ast.value {
-                Expression::Literal(x) => match x {
-                    Literal::Bool(y) => {
-                        assert!(y);
-                    }
-                    _ => unreachable!(),
-                },
-                _ => unreachable!(),
-            }
+            assert!(matches!(
+                ast.value,
+                Expression::Literal(Literal::Bool(true))
+            ));
             assert!(ast.type_hint.is_some());
             assert_eq!(ast.type_hint.unwrap().full, "bool");
         }
@@ -661,15 +527,10 @@ mod mapping {
                 CoriumParser::parse(Rule::LocalVariable, "let x string = \"Name\"\n").unwrap();
             let ast = LocalVariable::map(result);
             assert_eq!(ast.name.0, "x");
-            match ast.value {
-                Expression::Literal(x) => match x {
-                    Literal::String(y) => {
-                        assert_eq!(y, "Name");
-                    }
-                    _ => unreachable!(),
-                },
-                _ => unreachable!(),
-            }
+            assert!(matches!(
+                ast.value,
+                Expression::Literal(Literal::String("Name"))
+            ));
             assert!(ast.type_hint.is_some());
             assert_eq!(ast.type_hint.unwrap().full, "string");
         }
@@ -721,6 +582,46 @@ mod mapping {
             assert_eq!(ast.0.split[1], "Class");
             assert_eq!(ast.0.split[2], "StaticMember");
             assert_eq!(ast.0.split[3], "Field");
+        }
+    }
+
+    mod function_statement {
+        use super::*;
+
+        #[test]
+        fn local_var() {
+            let result = CoriumParser::parse(Rule::FunctionStatement, "let x = 10\n").unwrap();
+            let ast = FunctionStatement::map(result);
+            assert!(matches!(
+                ast,
+                FunctionStatement::LocalVariable(LocalVariable {
+                    name: Identifier("x"),
+                    type_hint: None,
+                    value: Expression::Literal(Literal::Int(10))
+                })
+            ));
+        }
+
+        #[test]
+        fn return_statement() {
+            let result = CoriumParser::parse(Rule::FunctionStatement, "return\n").unwrap();
+            let ast = FunctionStatement::map(result);
+            assert!(matches!(
+                ast,
+                FunctionStatement::ReturnStatement(ReturnStatement(None))
+            ));
+        }
+
+        #[test]
+        fn return_statement2() {
+            let result = CoriumParser::parse(Rule::FunctionStatement, "return true\n").unwrap();
+            let ast = FunctionStatement::map(result);
+            assert!(matches!(
+                ast,
+                FunctionStatement::ReturnStatement(ReturnStatement(Some(Expression::Literal(
+                    Literal::Bool(true)
+                ))))
+            ));
         }
     }
 }
