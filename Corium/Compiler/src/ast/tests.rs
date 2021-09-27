@@ -1157,4 +1157,83 @@ mod populators {
             ));
         }
     }
+
+    mod global_statement {
+        use super::*;
+
+        #[test]
+        fn function() {
+            let src = "fun f() {\nlet x = 10\n}\n";
+            let mut result = CoriumParser::parse(Rule::GlobalStatement, src).unwrap();
+            let ast = GlobalStatement::map(result);
+            let block = vec![FunctionStatement::LocalVariable(LocalVariable {
+                name: Identifier("x"),
+                type_hint: None,
+                value: Expression::Literal(Literal::Int(10)),
+            })];
+            assert!(matches!(
+                ast,
+                GlobalStatement::Function(Function {
+                    signature: FunctionSignature {
+                        name: Identifier("f"),
+                        return_type: None,
+                        parameters: None
+                    },
+                    block: Block(block)
+                })
+            ));
+        }
+
+        #[test]
+        fn native_function() {
+            let src = "native fun f()\n";
+            let mut result = CoriumParser::parse(Rule::GlobalStatement, src).unwrap();
+            let ast = GlobalStatement::map(result);
+            assert!(matches!(
+                ast,
+                GlobalStatement::NativeFunction(NativeFunction {
+                    signature: FunctionSignature {
+                        name: Identifier("f"),
+                        return_type: None,
+                        parameters: None
+                    }
+                })
+            ));
+        }
+
+        #[test]
+        fn empty() {
+            let src = " \t \n \t   ";
+            let mut result = CoriumParser::parse(Rule::GlobalStatement, src).unwrap();
+            assert!(result.next().unwrap().into_inner().next().is_none());
+        }
+
+        #[test]
+        fn native_no_newline1() {
+            let src = "native fun f()";
+            let result = CoriumParser::parse(Rule::GlobalStatement, src);
+            assert!(result.is_err());
+        }
+
+        #[test]
+        fn function_no_newline1() {
+            let src = "fun f() {let x = 10\n}\n";
+            let result = CoriumParser::parse(Rule::GlobalStatement, src);
+            assert!(result.is_err());
+        }
+
+        #[test]
+        fn function_no_newline2() {
+            let src = "fun f() {\nlet x = 10}\n";
+            let result = CoriumParser::parse(Rule::GlobalStatement, src);
+            assert!(result.is_err());
+        }
+
+        #[test]
+        fn function_no_newline3() {
+            let src = "fun f() {\nlet x = 10\n}";
+            let result = CoriumParser::parse(Rule::GlobalStatement, src);
+            assert!(result.is_err());
+        }
+    }
 }

@@ -1,4 +1,4 @@
-CompilationUnit = _{
+CompilationUnit = {
     SOI ~ Module ~ GlobalStatement* ~ EOI
 }
 

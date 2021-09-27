@@ -2451,4 +2451,67 @@ mod rules {
             }
         }
     }
+
+    mod global_statement {
+        use super::*;
+
+        mod valid {
+            use super::*;
+
+            #[test]
+            fn function() {
+                let src = "fun f() {\n}\n";
+                let mut result = CoriumParser::parse(Rule::GlobalStatement, src).unwrap();
+                assert_eq!(result.as_str(), src);
+                let inner = result.next().unwrap().into_inner().next().unwrap();
+                assert_eq!(inner.as_rule(), Rule::Function);
+            }
+
+            #[test]
+            fn native_function() {
+                let src = "native fun f()\n";
+                let mut result = CoriumParser::parse(Rule::GlobalStatement, src).unwrap();
+                assert_eq!(result.as_str(), src);
+                let inner = result.next().unwrap().into_inner().next().unwrap();
+                assert_eq!(inner.as_rule(), Rule::NativeFunction);
+            }
+
+            #[test]
+            fn empty() {
+                let src = " \t \n \t   ";
+                let mut result = CoriumParser::parse(Rule::GlobalStatement, src).unwrap();
+                assert!(result.next().unwrap().into_inner().next().is_none());
+            }
+        }
+
+        mod invalid {
+            use super::*;
+
+            #[test]
+            fn literal() {
+                let src = "\"Hello\"\n";
+                let result = CoriumParser::parse(Rule::GlobalStatement, src);
+                assert!(result.is_err());
+            }
+
+            #[test]
+            fn local_var() {
+                let src = "let x = 10\n";
+                let result = CoriumParser::parse(Rule::GlobalStatement, src);
+                assert!(result.is_err());
+            }
+        }
+    }
+
+    mod compilation_unit {
+        use super::*;
+
+        mod valid {
+            use super::*;
+        }
+
+        mod invalid {
+            use super::*;
+        }
+    }
 }

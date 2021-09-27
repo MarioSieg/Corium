@@ -219,6 +219,18 @@ pub trait AstPopulator<'a>: AstComponent {
     }
 }
 
+impl<'a> AstPopulator<'a> for GlobalStatement<'a> {
+    fn populate(rule: RulePair<'a>) -> Self {
+        let rule = rule.into_inner();
+        let nested = rule.clone().next().unwrap();
+        match nested.as_rule() {
+            Rule::Function => Self::Function(Function::map(rule)),
+            Rule::NativeFunction => Self::NativeFunction(NativeFunction::map(rule)),
+            _ => unreachable!(),
+        }
+    }
+}
+
 impl<'a> AstPopulator<'a> for Function<'a> {
     fn populate(rule: RulePair<'a>) -> Self {
         let mut rule = rule.into_inner();
@@ -332,20 +344,18 @@ impl<'a> AstPopulator<'a> for LocalVariable<'a> {
             debug_assert_eq!(inner.as_rule(), Rule::Identifier);
             Identifier::map(rule.clone())
         };
-        let mut type_hint = None;
-
         // advance
         rule.next();
 
         let inner = rule.clone().next().unwrap();
-        let value = match inner.as_rule() {
+        let (type_hint, value) = match inner.as_rule() {
             Rule::QualifiedName => {
-                type_hint = Some(QualifiedName::map(rule.clone()));
+                let type_hint = Some(QualifiedName::map(rule.clone()));
                 rule.next(); // advance
                 debug_assert_eq!(rule.clone().next().unwrap().as_rule(), Rule::Expression);
-                Expression::map(rule.clone())
+                (type_hint, Expression::map(rule.clone()))
             }
-            Rule::Expression => Expression::map(rule),
+            Rule::Expression => (None, Expression::map(rule)),
             _ => unreachable!(),
         };
 
