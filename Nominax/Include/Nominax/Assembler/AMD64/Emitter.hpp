@@ -212,266 +212,95 @@
 
 namespace Nominax::Assembler::AMD64
 {
-    inline auto Emit(std::uint8_t* const m, const std::uint8_t x) -> std::uint8_t*
+    inline auto Emit(std::uint8_t*& m, const std::uint8_t x) -> void
     {
         *m = x;
-        return m + sizeof(x);
+        m += sizeof(x);
     }
 
-    inline auto Emit(std::uint8_t* const m, const std::uint16_t x) -> std::uint8_t*
+    inline auto Emit(std::uint8_t*& m, const std::uint16_t x) -> void
     {
         std::memcpy(m, &x, sizeof(x));
-        return m + sizeof(x);
+        m += sizeof(x);
     }
 
-    inline auto Emit(std::uint8_t* const m, const std::uint32_t x) -> std::uint8_t*
+    inline auto Emit(std::uint8_t*& m, const std::uint32_t x) -> void
     {
         std::memcpy(m, &x, sizeof(x));
-        return m + sizeof(x);
+        m += sizeof(x);
     }
 
-    inline auto Emit(std::uint8_t* const m, const std::uint64_t x) -> std::uint8_t*
+    inline auto Emit(std::uint8_t*& m, const std::uint64_t x) -> void
     {
         std::memcpy(m, &x, sizeof(x));
-        return m + sizeof(x);
+        m += sizeof(x);
     }
 
-    inline auto Emit(std::uint8_t* const m, const std::int8_t x) -> std::uint8_t*
+    inline auto Emit(std::uint8_t*& m, const std::int8_t x) -> void
     {
         *m = x;
-        return m + sizeof(x);
+        m += sizeof(x);
     }
 
-    inline auto Emit(std::uint8_t* const m, const std::int16_t x) -> std::uint8_t*
+    inline auto Emit(std::uint8_t*& m, const std::int16_t x) -> void
     {
         std::memcpy(m, &x, sizeof(x));
-        return m + sizeof(x);
+        m += sizeof(x);
     }
 
-    inline auto Emit(std::uint8_t* const m, const std::int32_t x) -> std::uint8_t*
+    inline auto Emit(std::uint8_t*& m, const std::int32_t x) -> void
     {
         std::memcpy(m, &x, sizeof(x));
-        return m + sizeof(x);
+        m += sizeof(x);
     }
 
-    inline auto Emit(std::uint8_t* const m, const std::int64_t x) -> std::uint8_t*
+    inline auto Emit(std::uint8_t*& m, const std::int64_t x) -> void
     {
         std::memcpy(m, &x, sizeof(x));
-        return m + sizeof(x);
+        m += sizeof(x);
     }
 
-    inline auto Emit(std::uint8_t* const m, const float x) -> std::uint8_t*
+    inline auto Emit(std::uint8_t*& m, const float x) -> void
     {
         std::memcpy(m, &x, sizeof(x));
-        return m + sizeof(x);
+        m += sizeof(x);
     }
 
-    inline auto Emit(std::uint8_t* const m, const double x) -> std::uint8_t*
+    inline auto Emit(std::uint8_t*& m, const double x) -> void
     {
         std::memcpy(m, &x, sizeof(x));
-        return m + sizeof(x);
+        m += sizeof(x);
     }
 
-    inline auto Emit(std::uint8_t* const m, const char x) -> std::uint8_t*
+    inline auto Emit(std::uint8_t*& m, const char x) -> void
     {
         std::memcpy(m, &x, sizeof(x));
-        return m + sizeof(x);
+        m += sizeof(x);
     }
 
-    inline auto Emit(std::uint8_t* const m, const char8_t x) -> std::uint8_t*
+    inline auto Emit(std::uint8_t*& m, const char8_t x) -> void
     {
         std::memcpy(m, &x, sizeof(x));
-        return m + sizeof(x);
+        m += sizeof(x);
     }
 
-    inline auto Emit(std::uint8_t* const m, const wchar_t x) -> std::uint8_t*
+    inline auto Emit(std::uint8_t*& m, const wchar_t x) -> void
     {
         std::memcpy(m, &x, sizeof(x));
-        return m + sizeof(x);
+        m += sizeof(x);
     }
 
-    inline auto Emit(std::uint8_t* const m, const char16_t x) -> std::uint8_t*
+    inline auto Emit(std::uint8_t*& m, const char16_t x) -> void
     {
         std::memcpy(m, &x, sizeof(x));
-        return m + sizeof(x);
+        m += sizeof(x);
     }
 
-    inline auto Emit(std::uint8_t* const m, const char32_t x) -> std::uint8_t*
+    inline auto Emit(std::uint8_t*& m, const char32_t x) -> void
     {
         std::memcpy(m, &x, sizeof(x));
-        return m + sizeof(x);
+        m += sizeof(x);
     }
 
-    constexpr auto EmitMultiByteNOPChain(std::uint8_t* m, std::uint8_t size) -> void
-    {
-        size = std::clamp<std::uint8_t>(size, 1, 15);
-        switch (size)
-        {
-            default:
-            case 1:
-                *m = 0x90;
-                return;
-
-            case 2:
-                *m = 0x40;
-                *++m = 0x90;
-                return;
-
-            case 3:
-                *m = 0x0F;
-                *++m = 0x1F;
-                *++m = 0x00;
-                return;
-
-            case 4:
-                *m = 0x0F;
-                *++m = 0x1F;
-                *++m = 0x40;
-                *++m = 0x00;
-                return;
-
-            case 5:
-                *m = 0x0F;
-                *++m = 0x1F;
-                *++m = 0x44;
-                *++m = 0x00;
-                *++m = 0x00;
-                return;
-
-            case 6:
-                *m = 0x66;
-                *++m = 0x0F;
-                *++m = 0x1F;
-                *++m = 0x44;
-                *++m = 0x00;
-                *++m = 0x00;
-                return;
-
-            case 7:
-                *m = 0x0F;
-                *++m = 0x1F;
-                *++m = 0x80;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                return;
-
-            case 8:
-                *m = 0x0F;
-                *++m = 0x1F;
-                *++m = 0x84;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                return;
-
-            case 9:
-                *m = 0x66;
-                *++m = 0x0F;
-                *++m = 0x1F;
-                *++m = 0x84;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                return;
-
-            case 10:
-                *m = 0x66;
-                *++m = 0x2E;
-                *++m = 0x0F;
-                *++m = 0x1F;
-                *++m = 0x84;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                return;
-
-            case 11:
-                *m = 0x66;
-                *++m = 0x66;
-                *++m = 0x2E;
-                *++m = 0x0F;
-                *++m = 0x1F;
-                *++m = 0x84;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                return;
-
-            case 12:
-                *m = 0x66;
-                *++m = 0x66;
-                *++m = 0x66;
-                *++m = 0x2E;
-                *++m = 0x0F;
-                *++m = 0x1F;
-                *++m = 0x84;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                return;
-
-            case 13:
-                *m = 0x66;
-                *++m = 0x66;
-                *++m = 0x66;
-                *++m = 0x66;
-                *++m = 0x2E;
-                *++m = 0x0F;
-                *++m = 0x1F;
-                *++m = 0x84;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                return;
-
-            case 14:
-                *m = 0x66;
-                *++m = 0x66;
-                *++m = 0x66;
-                *++m = 0x66;
-                *++m = 0x66;
-                *++m = 0x2E;
-                *++m = 0x0F;
-                *++m = 0x1F;
-                *++m = 0x84;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                return;
-
-            case 15:
-                *m = 0x66;
-                *++m = 0x66;
-                *++m = 0x66;
-                *++m = 0x66;
-                *++m = 0x66;
-                *++m = 0x66;
-                *++m = 0x2E;
-                *++m = 0x0F;
-                *++m = 0x1F;
-                *++m = 0x84;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                return;
-        }
-    }
+    extern auto EmitMultiByteNOPChain(std::uint8_t* m, std::uint8_t size) -> void;
 }

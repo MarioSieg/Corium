@@ -208,20 +208,18 @@
 #include "Register.hpp"
 #include "Emitter.hpp"
 
+#include "../../Foundation/PanicAssertions.hpp"
+
 namespace Nominax::Assembler::AMD64
 {
-    constexpr auto EncodeREX(const bool w, const bool r, const bool x, const bool b) -> std::uint8_t
-    {
-        return 0x40 | b | (x << 1) | (r << 2) | (w << 3);
-    }
-
-    constexpr auto EncodeREX2(const std::uint8_t rr, const std::uint8_t rb) -> std::uint8_t
-    {
-        return 0x40 | ((rr >> 1) & 4) | ((rb >> 3) & 1);
-    }
-
-    constexpr std::uint8_t REX64 { EncodeREX(true, false, false, false) };
-    static_assert(REX64 == 0x48);
+#if false
+    #define NOX_REX(w, r, x, b)             (0x40|(b)|((x)<<1)|((r)<<2)|((w)<<3))
+    #define NOX_REXM(rr, rb)                (0x40|(((rr)>>1)&4)|(((rb)>>3)&1))
+    #define NOX_MODRM(m, r1, r2)            ((m)|(((r1)&7)<<3)|((r2)&7))
+    #define NOX_SIB(s, i)                   ((s)|(((i)&7)<<3)|4)
+    #define NOX_CHECK_SIB(s, i)             (~(~((s)&~3)&~((i)&~7)))
+    #define NOX_CHECK_MODRM(m, r1, r2)      (~(~((m)&~3)&~((r1)&~7)&~((r2)&~7)))
+#endif
 
     enum class MODField : std::uint8_t
     {
@@ -235,28 +233,77 @@ namespace Nominax::Assembler::AMD64
         Scale8 = 0xC0
     };
 
-    constexpr auto EncodeModRM(const std::uint8_t mod, const std::uint8_t r1, const std::uint8_t r2) -> std::uint8_t
+    constexpr auto EncodeREX(const bool w, const bool r, const bool x, const bool b) -> std::uint8_t
     {
-        return mod + ((r1 & 7) << 3) + (r2 & 7);
+        return 0x40 | b | (x << 1) | (r << 2) | (w << 3);
+    }
+
+    constexpr auto EncodeREX2(const std::uint8_t rr, const std::uint8_t rb) -> std::uint8_t
+    {
+        return 0x40 | ((rr >> 1) & 4) | ((rb >> 3) & 1);
+    }
+
+    constexpr std::uint8_t REX64 { EncodeREX(true, false, false, false) };
+    static_assert(REX64 == 0x48);
+
+    constexpr auto CheckModRM(const MODField mod, const std::uint8_t r1, const std::uint8_t r2) -> bool
+    {
+        const std::uint8_t m { Foundation::ToUnderlying(mod) };
+        return !(~(m & ~3) & ~(r1 & ~7) & ~(r2 & ~7));
     }
 
     constexpr auto EncodeModRM(const MODField mod, const std::uint8_t r1, const std::uint8_t r2) -> std::uint8_t
     {
-        return EncodeModRM(Foundation::ToUnderlying(mod), r1, r2);
+        NOX_DBG_PAS_TRUE(CheckModRM(mod, r1, r2), "Invalid ModRM byte.");
+        const std::uint8_t m { Foundation::ToUnderlying(mod) };
+        return m + ((r1 & 7) << 3) + (r2 & 7);
     }
 
-    constexpr auto EncodeSIB(const std::uint8_t scale, const std::uint8_t index) -> std::uint8_t
+    constexpr auto CheckSIB(const std::uint8_t scale, const std::uint8_t index) -> bool
     {
-        return EncodeModRM(scale, index, 4);
+        return !(~(scale & ~3) & ~(index & ~7));
     }
 
-    constexpr auto CheckModRM(const std::uint8_t mod, const std::uint8_t r1, const std::uint8_t r2) -> bool
+    inline auto EncodeSIB(const std::uint8_t scale, const std::uint8_t index) -> std::uint8_t
     {
-        return !(~(mod & ~3) & ~(r1 & ~7) & ~(r2 & ~7));
+        NOX_DBG_PAS_TRUE(heckSIB(scale, index), "Invalid SIB byte.");
+        return scale + ((index & 7) << 3) + 4;
     }
 
-    constexpr auto CheckModRM(const MODField mod, const std::uint8_t r1, const std::uint8_t r2) -> bool
+    // Encode instruction with MOD/RM.
+    inline auto EncodeREX64_MODRM(std::uint8_t*& m, const std::uint8_t opcode, const GPR64& dst, const GPR64& src) -> void
     {
-        return CheckModRM(Foundation::ToUnderlying(mod), r1, r2);
+        Emit(m, REX64);
+        Emit(m, opcode);
+        Emit(m, EncodeModRM(MODField::Register, src.PhysicalID, dst.PhysicalID));
+    }
+
+    // Encode instruction with opcode and register value.
+    inline auto EncodeREX64_OpcodePlusRegister(std::uint8_t*& m, const std::uint8_t opcode, const std::uint8_t reg) -> void
+    {
+        Emit(m, REX64);
+        Emit(m, opcode | reg & 7);
+    }
+
+    inline auto FunctionPrologue(std::uint8_t*& m) -> void
+    {
+
+    }
+
+    inline auto FunctionEpilogue(std::uint8_t*& m) -> void
+    {
+
+    }
+
+    // Move from register64 to register64
+    inline auto MOV(std::uint8_t*& m, const GPR64& dst, const GPR64& src) -> void
+    {
+        EncodeREX64_MODRM(m, 0x89, dst, src);
+    }
+
+    inline auto MOV(std::uint8_t*& m, const GPR64& dst, const std::uint64_t imm) -> void
+    {
+        EncodeREX64_OpcodePlusRegister(m, 0xB8, dst.PhysicalID);
+        Emit(m, imm);
     }
 }

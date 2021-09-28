@@ -215,57 +215,29 @@ namespace Nominax::Assembler::AMD64
 {
     struct GPR64 final
     {
-        enum RegID : std::uint8_t
-        {
-            RAX, RBX, RCX, RDX,
-            RSP, RBP, RSI, RDI,
-            R8 , R9 , R10, R11,
-            R12, R13, R14, R15,
-            Count_
-        };
+        static constexpr std::uint8_t COUNT { 16 };
 
-        const RegID ID;
-
-        constexpr auto VirtualID() const -> std::uint8_t;
-        constexpr auto PhysicalID() const -> std::uint8_t;
-        constexpr auto Size() const -> std::uint8_t;
-        constexpr auto Name() const -> std::string_view;
-
-    private:
-        static constexpr std::array<const std::uint8_t, Foundation::ToUnderlying(Count_)> PHYSICAL_ID_TABLE
-        {
-            0x00, 0x03, 0x01, 0x02,
-            0x04, 0x05, 0x06, 0x07,
-            0x00, 0x01, 0x02, 0x03,
-            0x04, 0x05, 0x06, 0x07
-        };
-
-        static constexpr std::array<const std::string_view, Foundation::ToUnderlying(Count_)> NAME_TABLE
-        {
-            "%rax", "%rbx", "%rcx", "%rdx",
-            "%rsp", "%rbp", "%rsi", "%rdi",
-            "%r8 ", "%r9 ", "%r10", "%r11",
-            "%r12", "%r13", "%r14", "%r15"
-        };
+        const std::string_view Name;
+        const std::uint8_t VirtualID;
+        const std::uint8_t PhysicalID;
+        const std::uint8_t Size;
     };
 
-    constexpr auto GPR64::VirtualID() const -> std::uint8_t
-    {
-        return this->ID;
-    }
+    constexpr GPR64 RAX { "rax", 0x00, 0x00, 8 };
+    constexpr GPR64 RBX { "rbx", 0x01, 0x03, 8 };
+    constexpr GPR64 RCX { "rcx", 0x02, 0x01, 8 };
+    constexpr GPR64 RDX { "rdx", 0x03, 0x02, 8 };
+    constexpr GPR64 RSP { "rsp", 0x04, 0x04, 8 };
+    constexpr GPR64 RBP { "rbp", 0x05, 0x05, 8 };
+    constexpr GPR64 RSI { "rsi", 0x06, 0x06, 8 };
+    constexpr GPR64 RDI { "rdi", 0x07, 0x07, 8 };
+    constexpr GPR64 R8  { "r8 ", 0x08, 0x00, 8 };
+    constexpr GPR64 R9  { "r9 ", 0x09, 0x01, 8 };
+    constexpr GPR64 R10 { "r10", 0x0A, 0x02, 8 };
+    constexpr GPR64 R11 { "r11", 0x0B, 0x03, 8 };
+    constexpr GPR64 R12 { "r12", 0x0C, 0x04, 8 };
+    constexpr GPR64 R13 { "r13", 0x0D, 0x05, 8 };
+    constexpr GPR64 R14 { "r14", 0x0E, 0x06, 8 };
+    constexpr GPR64 R15 { "r15", 0x0F, 0x07, 8 };
 
-    constexpr auto GPR64::PhysicalID() const -> std::uint8_t
-    {
-        return PHYSICAL_ID_TABLE[Foundation::ToUnderlying(this->ID)];
-    }
-
-    constexpr auto GPR64::Size() const -> std::uint8_t
-    {
-        return 8;
-    }
-
-    constexpr auto GPR64::Name() const -> std::string_view
-    {
-        return NAME_TABLE[Foundation::ToUnderlying(this->ID)];
-    }
 }

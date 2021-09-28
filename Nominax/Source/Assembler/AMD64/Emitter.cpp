@@ -203,24 +203,180 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "Encoder.hpp"
-
-#include "../../Foundation/Platform.hpp"
-#include "../../Foundation/PanicAssertions.hpp"
+#include "../../../Include/Nominax/Assembler/AMD64/Emitter.hpp"
 
 namespace Nominax::Assembler::AMD64
 {
-    inline auto BaseEncode64(std::uint8_t* m, const std::uint8_t opcode, const GPR64 src, const GPR64 dst) -> std::uint8_t*
+    auto EmitMultiByteNOPChain(std::uint8_t* m, std::uint8_t size) -> void
     {
-        m = Emit(m, REX64);
-        m = Emit(m, opcode);
-        m = Emit(m, EncodeModRM(MODField::Register, src.PhysicalID(), dst.PhysicalID()));
-        NOX_DBG_PAS_TRUE(CheckModRM(MODField::Register, src.PhysicalID(), dst.PhysicalID()), "Machine encoding error!");
-        return m;
-    }
+        size = std::clamp<std::uint8_t>(size, 1, 15);
+        switch (size)
+        {
+            default:
+            case 1:
+                *m = 0x90;
+                return;
 
-    inline auto ADDQ(std::uint8_t* const m, const GPR64 src, const GPR64 dst) -> std::uint8_t*
-    {
-        return BaseEncode64(m, 0x1, src, dst);
+            case 2:
+                *m = 0x40;
+                *++m = 0x90;
+                return;
+
+            case 3:
+                *m = 0x0F;
+                *++m = 0x1F;
+                *++m = 0x00;
+                return;
+
+            case 4:
+                *m = 0x0F;
+                *++m = 0x1F;
+                *++m = 0x40;
+                *++m = 0x00;
+                return;
+
+            case 5:
+                *m = 0x0F;
+                *++m = 0x1F;
+                *++m = 0x44;
+                *++m = 0x00;
+                *++m = 0x00;
+                return;
+
+            case 6:
+                *m = 0x66;
+                *++m = 0x0F;
+                *++m = 0x1F;
+                *++m = 0x44;
+                *++m = 0x00;
+                *++m = 0x00;
+                return;
+
+            case 7:
+                *m = 0x0F;
+                *++m = 0x1F;
+                *++m = 0x80;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                return;
+
+            case 8:
+                *m = 0x0F;
+                *++m = 0x1F;
+                *++m = 0x84;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                return;
+
+            case 9:
+                *m = 0x66;
+                *++m = 0x0F;
+                *++m = 0x1F;
+                *++m = 0x84;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                return;
+
+            case 10:
+                *m = 0x66;
+                *++m = 0x2E;
+                *++m = 0x0F;
+                *++m = 0x1F;
+                *++m = 0x84;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                return;
+
+            case 11:
+                *m = 0x66;
+                *++m = 0x66;
+                *++m = 0x2E;
+                *++m = 0x0F;
+                *++m = 0x1F;
+                *++m = 0x84;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                return;
+
+            case 12:
+                *m = 0x66;
+                *++m = 0x66;
+                *++m = 0x66;
+                *++m = 0x2E;
+                *++m = 0x0F;
+                *++m = 0x1F;
+                *++m = 0x84;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                return;
+
+            case 13:
+                *m = 0x66;
+                *++m = 0x66;
+                *++m = 0x66;
+                *++m = 0x66;
+                *++m = 0x2E;
+                *++m = 0x0F;
+                *++m = 0x1F;
+                *++m = 0x84;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                return;
+
+            case 14:
+                *m = 0x66;
+                *++m = 0x66;
+                *++m = 0x66;
+                *++m = 0x66;
+                *++m = 0x66;
+                *++m = 0x2E;
+                *++m = 0x0F;
+                *++m = 0x1F;
+                *++m = 0x84;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                return;
+
+            case 15:
+                *m = 0x66;
+                *++m = 0x66;
+                *++m = 0x66;
+                *++m = 0x66;
+                *++m = 0x66;
+                *++m = 0x66;
+                *++m = 0x2E;
+                *++m = 0x0F;
+                *++m = 0x1F;
+                *++m = 0x84;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                return;
+        }
     }
 }

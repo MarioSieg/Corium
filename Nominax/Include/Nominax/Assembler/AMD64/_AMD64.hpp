@@ -206,7 +206,6 @@
 #pragma once
 
 #include "Emitter.hpp"
-#include "EncodePrecomputed.hpp"
 #include "Encoder.hpp"
 #include "ISAExtension.hpp"
 #include "Register.hpp"
