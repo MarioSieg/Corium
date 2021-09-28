@@ -24,8 +24,8 @@ option(NOMINAX_BUILD_BENCHMARKS "Build the benchmarks for all projects" OFF)
 file(GLOB_RECURSE NOMINAX_SOURCES Source/*.cpp Source/*.c Source/*.h Source/*.S Include/*.hpp Include/*.inl)
 
 # Set more optimizations for special reactors:
-SET_SOURCE_FILES_PROPERTIES(Source/Core/VM_Impl_AVX.cpp PROPERTIES COMPILE_FLAGS -mavx)
-SET_SOURCE_FILES_PROPERTIES(Source/Core/VM_Impl_AVX512F.cpp PROPERTIES COMPILE_FLAGS -mavx512f)
+SET_SOURCE_FILES_PROPERTIES(Source/Core/VMHypervisor_Impl_AVX.cpp PROPERTIES COMPILE_FLAGS -mavx)
+SET_SOURCE_FILES_PROPERTIES(Source/Core/VMHypervisor_Impl_AVX512F.cpp PROPERTIES COMPILE_FLAGS -mavx512f)
 
 add_library(NominaxRuntime STATIC "${NOMINAX_SOURCES}")
 
@@ -48,6 +48,7 @@ target_compile_options(NominaxRuntime PRIVATE -Wall)
 target_compile_options(NominaxRuntime PRIVATE -Werror)
 target_compile_options(NominaxRuntime PRIVATE -Wextra)
 target_compile_options(NominaxRuntime PRIVATE -Wno-error=unused-function)
+target_compile_options(NominaxRuntime PRIVATE -Wno-error=unused-macros)
 
 if (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang" AND "x${CMAKE_CXX_SIMULATE_ID}" STREQUAL "xMSVC")
     set(COM_CLANG_CL TRUE)

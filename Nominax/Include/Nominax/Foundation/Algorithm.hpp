@@ -215,29 +215,26 @@
 #include "Platform.hpp"
 #include <cstdint>
 
-namespace Nominax
-{
-	/// <summary>
-	/// Converts the enum into the underlying type.
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="x"></param>
-	/// <returns></returns>
-	template <typename T> requires std::is_enum_v<T>
-	constexpr auto ToUnderlying(const T x) -> auto
-	{
-		return static_cast<std::underlying_type_t<std::decay_t<T>>>(x);
-	}
-}
-
 namespace Nominax::Foundation
 {
+    /// <summary>
+    /// Converts the enum into the underlying type.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="x"></param>
+    /// <returns></returns>
+    template <typename T> requires std::is_enum_v<T>
+    constexpr auto ToUnderlying(const T x) -> auto
+    {
+        return static_cast<std::underlying_type_t<std::decay_t<T>>>(x);
+    }
+
 	/// <summary>
-		/// Generic bit rotation left.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <param name="shift"></param>
-		/// <returns>The bit shifted value.</returns>
+    /// Generic bit rotation left.
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="shift"></param>
+    /// <returns>The bit shifted value.</returns>
 	template <typename T> requires std::is_unsigned_v<T>
 	[[nodiscard]]
 	NOX_FORCE_INLINE NOX_PURE constexpr auto RolGeneric(const T value, const std::uint8_t shift) -> T

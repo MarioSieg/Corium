@@ -247,7 +247,7 @@ namespace Nominax::JIT
         /// 3. Protect with Read | Exec, Lock?
         /// </summary>
         /// <param name="source"></param>
-        ExecutableImageBuffer(std::span<const std::uint8_t> source);
+        ExecutableImageBuffer(std::span<const MachCode> source);
 
         /// <summary>
         /// No copy.

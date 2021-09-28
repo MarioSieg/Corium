@@ -205,4 +205,4 @@
 
 #pragma once
 
-#include "X86_64/_X86_64.hpp"
+#include "AMD64/_AMD64.hpp"
