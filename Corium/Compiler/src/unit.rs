@@ -206,14 +206,10 @@
 use crate::ast::mapper::ParseTreeMapper;
 use crate::ast::CompilationUnit;
 use crate::error::list::ErrorList;
-use crate::error::Error;
 use crate::parser::parse_source;
 use colored::Colorize;
-use humantime::Duration;
 use std::fs;
-use std::mem::replace;
 use std::path::PathBuf;
-use std::time::Instant;
 use uuid::Uuid;
 
 /// Represents a compilation unit.
@@ -223,26 +219,11 @@ pub struct FileCompilationUnit<'a> {
     file_name: PathBuf,
     id: Uuid,
     error_list: ErrorList,
-    root: Option<Result<CompilationUnit<'a>, Error>>,
+    root: Option<CompilationUnit<'a>>,
     ast_mapper: ParseTreeMapper<'a>,
 }
 
 impl<'a> FileCompilationUnit<'a> {
-    pub fn new(source_code: String, file_name: PathBuf) -> Self {
-        let id = Uuid::new_v4();
-        let error_list = ErrorList::new();
-        let root = None;
-        let ast_processor = ParseTreeMapper::new();
-        Self {
-            source_code,
-            file_name,
-            id,
-            error_list,
-            root,
-            ast_mapper: ast_processor,
-        }
-    }
-
     pub fn load_from_file(path: PathBuf) -> Self {
         let source_code = fs::read_to_string(&path)
             .unwrap_or_else(|_| panic!("Failed to read source file: {:?}", path));
@@ -255,45 +236,34 @@ impl<'a> FileCompilationUnit<'a> {
         let id = Uuid::new_v4();
         let error_list = ErrorList::new();
         let root = None;
-        let ast_processor = ParseTreeMapper::new();
+        let ast_mapper = ParseTreeMapper::new();
         Self {
             source_code,
             file_name,
             id,
             error_list,
             root,
-            ast_mapper: ast_processor,
+            ast_mapper,
         }
     }
 
     /// Compiles this compilation unit.
-    pub fn compile(&'a mut self) -> Result<(), ErrorList> {
+    pub fn compile(&'a mut self) -> Result<(), &ErrorList> {
         let src: &'a str = &self.source_code;
-        self.root = Some(parse_source(src));
-        match replace(&mut self.root, None) {
-            Some(root) => match root {
-                Ok(root) => {
-                    let clock = Instant::now();
-                    //self.ast_mapper.map(root);
-                    todo!();
-                    print!("{}", self.ast_mapper);
-                    if !self.error_list.0.is_empty() {
-                        print!("{}", self.error_list);
-                    }
-                    println!(
-                        "{}",
-                        format!(
-                            "Compiled \"{}\" in {}",
-                            self.ast_mapper.module,
-                            Duration::from(clock.elapsed())
-                        )
-                        .green()
-                    );
-                    Ok(())
-                }
-                Err(e) => Err(e.into()),
-            },
-            None => panic!("Missing AST root!"),
+        let result = parse_source(src);
+        match result {
+            Ok(com_unit) => {
+                println!(
+                    "{}",
+                    format!("Compiled `{} in {:?}", com_unit.module.0, self.file_name).green()
+                );
+                self.root = Some(com_unit);
+                Ok(())
+            }
+            Err(errors) => {
+                self.error_list.push(errors);
+                Err(&self.error_list)
+            }
         }
     }
 

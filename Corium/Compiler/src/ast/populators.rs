@@ -222,6 +222,7 @@ pub trait AstPopulator<'a>: AstComponent {
 impl<'a> AstPopulator<'a> for CompilationUnit<'a> {
     fn populate(rule: RulePair<'a>) -> Self {
         let mut rule = rule.into_inner();
+
         let module = Module::map(rule.clone());
         let mut statements = Vec::new();
 
@@ -231,9 +232,10 @@ impl<'a> AstPopulator<'a> for CompilationUnit<'a> {
         'fetch: while let Some(inner) = rule.peek() {
             if inner.as_rule() == Rule::EOI {
                 break 'fetch;
+            } else if inner.as_rule() == Rule::GlobalStatement {
+                statements.push(GlobalStatement::map(rule.clone()));
+                rule.next();
             }
-            statements.push(GlobalStatement::map(rule.clone()));
-            rule.next();
         }
 
         Self { module, statements }
@@ -470,14 +472,21 @@ impl<'a> AstPopulator<'a> for Expression<'a> {
 impl<'a> AstPopulator<'a> for Literal<'a> {
     fn populate(rule: RulePair<'a>) -> Self {
         let rule = rule.into_inner().next().unwrap();
+        let kind = rule.as_rule();
         let text = rule.as_str();
-        match rule.as_rule() {
+        match kind {
             Rule::FloatLiteral => Self::Float(Float::from_str(text).unwrap()),
             Rule::IntLiteral => Self::Int(Int::from_str(text).unwrap()),
             Rule::BoolLiteral => Self::Bool(Bool::from_str(text).unwrap()),
             Rule::CharLiteral => {
                 let text = &text[1..text.len() - 1]; // skip ''
-                Self::Char(Char::from_str(text).unwrap())
+                let mut text = text.to_string();
+                text = text.replace(r#"\""#, "\"");
+                text = text.replace(r#"\\"#, "\\");
+                text = text.replace(r#"\n"#, "\n");
+                text = text.replace(r#"\r"#, "\r");
+                text = text.replace(r#"\t"#, "\t");
+                Self::Char(Char::from_str(&text).unwrap())
             }
             Rule::StringLiteral => {
                 let text = &text[1..text.len() - 1]; // skip ""

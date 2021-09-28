@@ -1,11 +1,10 @@
 CompilationUnit = {
-    SOI ~ Module ~ GlobalStatement* ~ EOI
+    SOI ~ Module ~ (GlobalStatement | StatementSeparator)* ~ EOI
 }
 
 GlobalStatement = {
     Function |
-    NativeFunction |
-    StatementSeparator
+    NativeFunction
 }
 
 Function = {
@@ -91,7 +90,7 @@ Identifier = @{
 
 Char = @{
     !("\"" | "\\") ~ ANY
-    | "\\" ~ ("\"" | "\\" | "/" | "b" | "f" | "n" | "r" | "t" | "v")
+    | "\\" ~ ("\"" | "\\" | "n" | "r" | "t")
     | "\\" ~ ("u" ~ ASCII_HEX_DIGIT{8})
 }
 

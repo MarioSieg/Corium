@@ -231,13 +231,10 @@ impl<'a> CompilerContext<'a> {
     pub fn compile(&'a mut self) -> usize {
         let mut count = 0;
         for compilation_unit in &mut self.queue {
-            match compilation_unit.compile() {
-                Ok(()) => {
-                    count += 1;
-                }
-                Err(errors) => {
-                    eprintln!("{}", errors)
-                }
+            if let Err(errors) = compilation_unit.compile() {
+                eprintln!("{}", errors);
+            } else {
+                count += 1;
             }
         }
         count
@@ -265,12 +262,10 @@ mod tests {
         assert!(ctx.has_compilation_units());
     }
 
-    /*
     #[test]
     fn compile() {
         let mut ctx = CompilerContext::new();
         ctx.enqueue_file(Path::new(TEST_FILE_PATH));
         assert_eq!(ctx.compile(), 1);
     }
-    */
 }
