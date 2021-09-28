@@ -470,17 +470,3 @@ TEST(Assembler_AMD64, InjectNopChain_15)
 		ASSERT_EQ(buffer[++i], x);
 	}
 }
-
-TEST(Assembler_AMD64, MOV_Reg_Imm)
-{
-    std::array<std::uint8_t, 15> buffer { };
-    std::uint8_t* m { std::data(buffer) };
-    MOV(m, RBX, 0);
-
-    for (const auto x : buffer)
-    {
-        Print("{:02X} ", x);
-    }
-
-    Print('\n');
-}

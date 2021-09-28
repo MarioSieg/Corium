@@ -270,6 +270,8 @@ namespace Nominax::Assembler::AMD64
         return scale + ((index & 7) << 3) + 4;
     }
 
+#if 0
+
     // Encode instruction with MOD/RM.
     inline auto EncodeREX64_MODRM(std::uint8_t*& m, const std::uint8_t opcode, const GPR64& dst, const GPR64& src) -> void
     {
@@ -306,4 +308,6 @@ namespace Nominax::Assembler::AMD64
         EncodeREX64_OpcodePlusRegister(m, 0xB8, dst.PhysicalID);
         Emit(m, imm);
     }
+
+#endif
 }
