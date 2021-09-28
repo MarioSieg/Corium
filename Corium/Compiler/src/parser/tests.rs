@@ -2508,10 +2508,62 @@ mod rules {
 
         mod valid {
             use super::*;
+
+            #[test]
+            fn module() {
+                let mut result =
+                    CoriumParser::parse(Rule::CompilationUnit, "module test\n").unwrap();
+                assert_eq!(result.as_str(), "module test\n");
+                let module = result.next().unwrap().into_inner().next().unwrap();
+                assert_eq!(module.as_rule(), Rule::Module);
+                assert!(result.peek().is_none());
+            }
+
+            #[test]
+            fn module_functions() {
+                let src = concat!(
+                    "module test\n",
+                    "native fun f()\n",
+                    "fun y() {\n",
+                    "let x = 10\n",
+                    "}\n",
+                    "native fun z()\n"
+                );
+                let mut result = CoriumParser::parse(Rule::CompilationUnit, src).unwrap();
+                assert_eq!(result.as_str(), src);
+                let mut result = result.next().unwrap().into_inner();
+                let module = result.next().unwrap();
+                assert_eq!(module.as_rule(), Rule::Module);
+                assert_eq!(module.into_inner().next().unwrap().as_str(), "test");
+
+                let native_fun = result.next().unwrap();
+                assert_eq!(native_fun.as_rule(), Rule::GlobalStatement);
+                assert_eq!(
+                    native_fun.into_inner().next().unwrap().as_rule(),
+                    Rule::NativeFunction
+                );
+
+                let fun = result.next().unwrap();
+                assert_eq!(fun.as_rule(), Rule::GlobalStatement);
+                assert_eq!(fun.into_inner().next().unwrap().as_rule(), Rule::Function);
+
+                let native_fun2 = result.next().unwrap();
+                assert_eq!(native_fun2.as_rule(), Rule::GlobalStatement);
+                assert_eq!(
+                    native_fun2.into_inner().next().unwrap().as_rule(),
+                    Rule::NativeFunction
+                );
+            }
         }
 
         mod invalid {
             use super::*;
+
+            #[test]
+            fn multiple_modules() {
+                let result = CoriumParser::parse(Rule::CompilationUnit, "module a\nmodule b\n");
+                assert!(result.is_err());
+            }
         }
     }
 }

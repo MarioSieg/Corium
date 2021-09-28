@@ -1236,4 +1236,68 @@ mod populators {
             assert!(result.is_err());
         }
     }
+
+    mod compilation_unit {
+        use super::*;
+
+        #[test]
+        fn module() {
+            let result = CoriumParser::parse(Rule::CompilationUnit, "module x\n").unwrap();
+            let ast = CompilationUnit::map(result);
+            assert_eq!(ast.module.0.full, "x");
+        }
+
+        #[test]
+        fn module_functions() {
+            let src = concat!(
+                "module test\n",
+                "native fun f()\n",
+                "fun y() {\n",
+                "let x int = 10\n",
+                "}\n",
+                "native fun get() char\n"
+            );
+            let result = CoriumParser::parse(Rule::CompilationUnit, src).unwrap();
+            let ast = CompilationUnit::map(result);
+            assert_eq!(ast.module.0.full, "test");
+            assert_eq!(ast.statements.len(), 3);
+            assert!(matches!(
+                &ast.statements[0],
+                GlobalStatement::NativeFunction(NativeFunction {
+                    signature: FunctionSignature {
+                        name: Identifier("f"),
+                        parameters: None,
+                        return_type: None
+                    }
+                })
+            ));
+            let block = Block(vec![FunctionStatement::LocalVariable(LocalVariable {
+                name: Identifier("x"),
+                type_hint: Some(QualifiedName::from("int")),
+                value: Expression::Literal(Literal::Int(10)),
+            })]);
+            assert!(matches!(
+                &ast.statements[1],
+                GlobalStatement::Function(Function {
+                    signature: FunctionSignature {
+                        name: Identifier("y"),
+                        parameters: None,
+                        return_type: None
+                    },
+                    block: block
+                })
+            ));
+            let name = QualifiedName::from("char");
+            assert!(matches!(
+                &ast.statements[2],
+                GlobalStatement::NativeFunction(NativeFunction {
+                    signature: FunctionSignature {
+                        name: Identifier("get"),
+                        parameters: None,
+                        return_type: Some(name)
+                    }
+                })
+            ));
+        }
+    }
 }

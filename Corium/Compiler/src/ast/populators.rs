@@ -214,8 +214,29 @@ pub trait AstPopulator<'a>: AstComponent {
         let rule = rule
             .next()
             .unwrap_or_else(|| panic!("Expected another inner rule, but rule was empty!"));
-        debug_assert_eq!(rule.as_rule(), Self::CORRESPONDING_RULE);
+        debug_assert_eq!(Self::CORRESPONDING_RULE, rule.as_rule());
         Self::populate(rule)
+    }
+}
+
+impl<'a> AstPopulator<'a> for CompilationUnit<'a> {
+    fn populate(rule: RulePair<'a>) -> Self {
+        let mut rule = rule.into_inner();
+        let module = Module::map(rule.clone());
+        let mut statements = Vec::new();
+
+        rule.next();
+
+        // GlobalStatement*
+        'fetch: while let Some(inner) = rule.peek() {
+            if inner.as_rule() == Rule::EOI {
+                break 'fetch;
+            }
+            statements.push(GlobalStatement::map(rule.clone()));
+            rule.next();
+        }
+
+        Self { module, statements }
     }
 }
 
@@ -305,9 +326,8 @@ impl<'a> AstPopulator<'a> for Block<'a> {
     fn populate(rule: RulePair<'a>) -> Self {
         let mut rule = rule.into_inner();
         let mut result = Vec::new();
-        // params*
-        while let Some(inner) = rule.peek() {
-            debug_assert_eq!(inner.as_rule(), Rule::FunctionStatement);
+        // FunctionStatement*
+        while rule.peek().is_some() {
             result.push(FunctionStatement::map(rule.clone()));
             rule.next();
         }
