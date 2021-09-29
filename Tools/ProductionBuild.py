@@ -245,12 +245,12 @@ def mk_exe_name(raw: str) -> str:
     osname = platform.system()
     return raw + ".exe" if osname == "Windows" else raw
 
-def first_dir(path: str) -> str:
-    dirs = [x[0] for x in os.walk(directory)]
+def first_dir_name(path: str) -> str:
+    dirs = [x[0] for x in os.walk(path)]
     if len(dirs) == 0:
         print("Expected at least one directory here: " + path)
         exit(-1)
-    return dirs[0]
+    return os.path.basename(dirs[1])
 
 class Toolchain:
     def __init__(self, prerequisites: list, working_dir: str):
@@ -300,8 +300,8 @@ with open(info_path, "r") as infofile:
 print("Beginning setup...")
 
 osname = platform.system()
-arch = os.uname()[4]
-if arch == "x86_64":
+arch = platform.uname()[4]
+if arch == "x86_64" or arch == "AMD64":
     arch = "x86_64"
 elif arch == "aarch64":
     arch = "AArch64"
@@ -416,11 +416,14 @@ def build_nominax_runtime():
         cc = "clang-cl"
         cxx = "clang-cl"
         make = "ninja"
-        subdir = first_dir("C:/Program Files (x86)/Windows Kits/10/Lib/")
+        subdir = first_dir_name("C:/Program Files (x86)/Windows Kits/10/Lib/")
         ldir1 = f"C:/Program Files (x86)/Windows Kits/10/Lib/{subdir}/um/x64"
         ldir2 = f"C:/Program Files (x86)/Windows Kits/10/Lib/{subdir}/ucrt/x64"
-        subdir = first_dir("C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/")
+        subdir = first_dir_name("C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/")
         ldir3 = f"C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/{subdir}/lib/onecore/x64"
+        print("Linkdir1: " + ldir1)
+        print("Linkdir2: " + ldir2)
+        print("Linkdir3: " + ldir3)
         if not os.path.isdir(ldir1):
             print(f"Missing link dir: {ldir1}! Make sure Windows 10 SDK is installed!")
         if not os.path.isdir(ldir2):
