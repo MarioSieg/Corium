@@ -204,40 +204,40 @@
 //    limitations under the License.
 
 use crate::unit::FileCompilationUnit;
-use std::path::{Path, PathBuf};
+use std::collections::VecDeque;
+use std::path::PathBuf;
 
 pub struct CompilerContext<'a> {
-    queue: Vec<FileCompilationUnit<'a>>,
+    queue: VecDeque<Box<FileCompilationUnit<'a>>>,
 }
 
 impl<'a> CompilerContext<'a> {
     pub fn new() -> Self {
-        Self { queue: Vec::new() }
+        Self {
+            queue: VecDeque::new(),
+        }
     }
 
-    pub fn enqueue_file<P: AsRef<Path>>(&mut self, path: P) {
-        let unit = FileCompilationUnit::load_from_file(PathBuf::from(path.as_ref()));
-        self.queue.push(unit);
+    #[inline]
+    pub fn enqueue_file(&mut self, path: PathBuf) -> &mut FileCompilationUnit<'a> {
+        self.queue.push_front(FileCompilationUnit::load(path));
+        self.queue.front_mut().unwrap()
     }
 
-    pub fn get_queue(&self) -> &Vec<FileCompilationUnit> {
+    #[inline]
+    pub fn get_queue(&self) -> &VecDeque<Box<FileCompilationUnit>> {
         &self.queue
     }
 
+    #[inline]
     pub fn has_compilation_units(&self) -> bool {
         !self.queue.is_empty()
     }
 
-    pub fn compile(&'a mut self) -> usize {
-        let mut count = 0;
-        for compilation_unit in &mut self.queue {
-            if let Err(errors) = compilation_unit.compile() {
-                eprintln!("{}", errors);
-            } else {
-                count += 1;
-            }
+    pub fn compile(&'a mut self) {
+        while let Some(mut unit) = self.queue.pop_front() {
+            unit.compile();
         }
-        count
     }
 }
 
@@ -257,7 +257,7 @@ mod tests {
     #[test]
     fn enqueue_file() {
         let mut ctx = CompilerContext::new();
-        ctx.enqueue_file(Path::new(TEST_FILE_PATH));
+        ctx.enqueue_file(PathBuf::from(TEST_FILE_PATH));
         assert_eq!(ctx.get_queue().len(), 1);
         assert!(ctx.has_compilation_units());
     }
@@ -265,7 +265,6 @@ mod tests {
     #[test]
     fn compile() {
         let mut ctx = CompilerContext::new();
-        ctx.enqueue_file(Path::new(TEST_FILE_PATH));
-        assert_eq!(ctx.compile(), 1);
+        ctx.enqueue_file(PathBuf::from(TEST_FILE_PATH));
     }
 }

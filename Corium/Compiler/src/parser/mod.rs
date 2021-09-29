@@ -203,14 +203,14 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::{populators::*, *};
-use crate::error::*;
 pub use pest::Parser;
 use pest_derive::*;
 
 #[cfg(test)]
 mod tests;
 
+use crate::ast::populator::AstPopulator;
+use crate::ast::CompilationUnit;
 use pest::iterators::{Pair, Pairs};
 
 pub type RulePair<'a> = Pair<'a, Rule>;
@@ -221,9 +221,12 @@ pub type RulePairs<'a> = Pairs<'a, Rule>;
 #[grammar = "parser/corium.pest"]
 pub struct CoriumParser;
 
-pub fn parse_source(src: &str) -> Result<CompilationUnit, Error> {
+pub fn parse_and_map(src: &str) -> Option<CompilationUnit> {
     match CoriumParser::parse(Rule::CompilationUnit, src) {
-        Ok(com_unit) => Ok(CompilationUnit::map(com_unit)),
-        Err(err) => Err(Error::Parse(format!("{}", err))),
+        Ok(com_unit) => Some(CompilationUnit::map(com_unit)),
+        Err(err) => {
+            eprintln!("{}", err);
+            None
+        }
     }
 }

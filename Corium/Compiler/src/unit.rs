@@ -203,68 +203,96 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::mapper::ParseTreeMapper;
 use crate::ast::CompilationUnit;
-use crate::error::list::ErrorList;
-use crate::parser::parse_source;
+use crate::parser::parse_and_map;
 use colored::Colorize;
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
+use std::time::{Duration, Instant};
 use uuid::Uuid;
 
 /// Represents a compilation unit.
 /// Each file contains a single compilation unit.
 pub struct FileCompilationUnit<'a> {
     source_code: String,
-    file_name: PathBuf,
+    file: PathBuf,
+    file_name: String,
     id: Uuid,
-    error_list: ErrorList,
     root: Option<CompilationUnit<'a>>,
-    ast_mapper: ParseTreeMapper<'a>,
+    file_load_time: Duration,
+    compile_time: Duration,
+
+    pub dump_ast: bool,
+    pub dump_asm: bool,
+    pub opt_level: u8,
 }
 
 impl<'a> FileCompilationUnit<'a> {
-    pub fn load_from_file(path: PathBuf) -> Self {
-        let source_code = fs::read_to_string(&path)
-            .unwrap_or_else(|_| panic!("Failed to read source file: {:?}", path));
-        let file_name = path
-            .file_name()
-            .unwrap_or_else(|| panic!("Missing file name: {:?}", path))
-            .to_str()
-            .unwrap_or_else(|| panic!("Failed to convert path: {:?}", path))
-            .into();
+    pub fn load(file: PathBuf) -> Box<Self> {
+        let clock = Instant::now();
+        let source_code = fs::read_to_string(&file)
+            .unwrap_or_else(|_| panic!("Failed to read source file: {:?}", &file));
+        let file_name = Self::extract_file_name(&file);
         let id = Uuid::new_v4();
-        let error_list = ErrorList::new();
         let root = None;
-        let ast_mapper = ParseTreeMapper::new();
-        Self {
+        let file_load_time = clock.elapsed();
+        let compile_time = Duration::from_secs(0);
+        Box::new(Self {
             source_code,
+            file,
             file_name,
             id,
-            error_list,
             root,
-            ast_mapper,
+            file_load_time,
+            compile_time,
+            dump_ast: false,
+            dump_asm: false,
+            opt_level: 0,
+        })
+    }
+
+    pub fn compile(&'a mut self) {
+        let clock = Instant::now();
+        self.root = parse_and_map(&self.source_code);
+        if self.dump_ast {
+            self.dump_ast();
+        }
+        self.compile_time = clock.elapsed();
+        let processing_time = self
+            .file_load_time
+            .checked_add(self.compile_time)
+            .unwrap_or_else(|| Duration::from_secs(0));
+        println!(
+            "{}",
+            format!(
+                "{} {} in {}",
+                "Compiled".bold().green(),
+                self.file_name,
+                humantime::Duration::from(processing_time)
+            )
+        );
+    }
+
+    #[inline]
+    pub fn ast(&self) -> &CompilationUnit {
+        self.root.as_ref().unwrap()
+    }
+
+    pub fn dump_ast(&self) {
+        let mut target = self.file.clone();
+        target.set_file_name(format!("{}.AST.txt", self.file_name));
+        let ast = format!("{:#?}", self.ast());
+        if fs::write(&target, ast).is_err() {
+            eprintln!("Failed to dump AST for file: {:?}", target);
         }
     }
 
-    /// Compiles this compilation unit.
-    pub fn compile(&'a mut self) -> Result<(), &ErrorList> {
-        let src: &'a str = &self.source_code;
-        let result = parse_source(src);
-        match result {
-            Ok(com_unit) => {
-                println!(
-                    "{}",
-                    format!("Compiled `{} in {:?}", com_unit.module.0, self.file_name).green()
-                );
-                self.root = Some(com_unit);
-                Ok(())
-            }
-            Err(errors) => {
-                self.error_list.push(errors);
-                Err(&self.error_list)
-            }
-        }
+    fn extract_file_name(file: &Path) -> String {
+        file.file_name()
+            .unwrap_or_else(|| panic!("Missing file name: {:?}", file))
+            .to_str()
+            .unwrap_or_else(|| panic!("Failed to convert path: {:?}", file))
+            .into()
     }
 
     #[inline]
@@ -273,22 +301,12 @@ impl<'a> FileCompilationUnit<'a> {
     }
 
     #[inline]
-    pub fn get_file_name(&self) -> &PathBuf {
+    pub fn get_file_name(&self) -> &String {
         &self.file_name
     }
 
     #[inline]
     pub fn get_id(&self) -> &Uuid {
         &self.id
-    }
-
-    #[inline]
-    pub fn get_error_list(&self) -> &ErrorList {
-        &self.error_list
-    }
-
-    #[inline]
-    pub fn get_ast_processor_context(&'a self) -> &'a ParseTreeMapper {
-        &self.ast_mapper
     }
 }

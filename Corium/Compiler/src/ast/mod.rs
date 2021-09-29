@@ -208,8 +208,7 @@ use std::convert;
 use std::default;
 use std::fmt;
 
-pub mod mapper;
-pub mod populators;
+pub mod populator;
 pub mod table;
 
 #[cfg(test)]
