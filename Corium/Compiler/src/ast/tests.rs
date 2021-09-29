@@ -85,7 +85,8 @@ mod populators {
         fn float() {
             let result = CoriumParser::parse(Rule::Literal, "2.5").unwrap();
             let ast = Literal::map(result);
-            assert!(matches!(ast, Literal::Float(2.5)));
+            let _f = Literal::Float(2.5);
+            assert!(matches!(ast, _f));
         }
 
         #[test]
@@ -131,7 +132,8 @@ mod populators {
         fn float_literal() {
             let result = CoriumParser::parse(Rule::Expression, "2.5").unwrap();
             let ast = Expression::map(result);
-            assert!(matches!(ast, Expression::Literal(Literal::Float(2.5))));
+            let _f = Literal::Float(2.5);
+            assert!(matches!(ast, Expression::Literal(_f)));
         }
 
         #[test]
@@ -180,7 +182,7 @@ mod populators {
 
         #[test]
         fn float() {
-            let mut result = CoriumParser::parse(Rule::Parameter, "myParam float").unwrap();
+            let result = CoriumParser::parse(Rule::Parameter, "myParam float").unwrap();
             let ast = Parameter::map(result);
             assert_eq!(ast.name.0, "myParam");
             assert_eq!(ast.type_hint.full, "float");
@@ -189,7 +191,7 @@ mod populators {
 
         #[test]
         fn class() {
-            let mut result = CoriumParser::parse(Rule::Parameter, "myParam MyClass").unwrap();
+            let result = CoriumParser::parse(Rule::Parameter, "myParam MyClass").unwrap();
             let ast = Parameter::map(result);
             assert_eq!(ast.name.0, "myParam");
             assert_eq!(ast.type_hint.full, "MyClass");
@@ -198,8 +200,7 @@ mod populators {
 
         #[test]
         fn package_class() {
-            let mut result =
-                CoriumParser::parse(Rule::Parameter, "myParam MyPackage.MyClass").unwrap();
+            let result = CoriumParser::parse(Rule::Parameter, "myParam MyPackage.MyClass").unwrap();
             let ast = Parameter::map(result);
             assert_eq!(ast.name.0, "myParam");
             assert_eq!(ast.type_hint.full, "MyPackage.MyClass");
@@ -208,7 +209,7 @@ mod populators {
 
         #[test]
         fn int_with_default_value() {
-            let mut result = CoriumParser::parse(Rule::Parameter, "myParam int = 10").unwrap();
+            let result = CoriumParser::parse(Rule::Parameter, "myParam int = 10").unwrap();
             let ast = Parameter::map(result);
             assert_eq!(ast.name.0, "myParam");
             assert_eq!(ast.type_hint.full, "int");
@@ -221,20 +222,18 @@ mod populators {
 
         #[test]
         fn float_with_default_value() {
-            let mut result = CoriumParser::parse(Rule::Parameter, "myParam float = 0.999").unwrap();
+            let result = CoriumParser::parse(Rule::Parameter, "myParam float = 0.999").unwrap();
             let ast = Parameter::map(result);
             assert_eq!(ast.name.0, "myParam");
             assert_eq!(ast.type_hint.full, "float");
             assert!(ast.value.is_some());
-            assert!(matches!(
-                ast.value.unwrap(),
-                Expression::Literal(Literal::Float(0.999))
-            ));
+            let _f = Literal::Float(0.999);
+            assert!(matches!(ast.value.unwrap(), Expression::Literal(_f)));
         }
 
         #[test]
         fn bool_with_default_value() {
-            let mut result = CoriumParser::parse(Rule::Parameter, "myParam bool = true").unwrap();
+            let result = CoriumParser::parse(Rule::Parameter, "myParam bool = true").unwrap();
             let ast = Parameter::map(result);
             assert_eq!(ast.name.0, "myParam");
             assert_eq!(ast.type_hint.full, "bool");
@@ -247,7 +246,7 @@ mod populators {
 
         #[test]
         fn char_with_default_value() {
-            let mut result = CoriumParser::parse(Rule::Parameter, "myParam char = 'x'").unwrap();
+            let result = CoriumParser::parse(Rule::Parameter, "myParam char = 'x'").unwrap();
             let ast = Parameter::map(result);
             assert_eq!(ast.name.0, "myParam");
             assert_eq!(ast.type_hint.full, "char");
@@ -260,7 +259,7 @@ mod populators {
 
         #[test]
         fn string_with_default_value() {
-            let mut result =
+            let result =
                 CoriumParser::parse(Rule::Parameter, "myParam string = \"I luv u :3\"").unwrap();
             let ast = Parameter::map(result);
             assert_eq!(ast.name.0, "myParam");
@@ -355,9 +354,10 @@ mod populators {
             assert_eq!(ast.0[1].name.0, "y");
             assert_eq!(ast.0[1].type_hint.full, "float");
             assert!(ast.0[1].value.is_some());
+            let _f = Literal::Float(2.4);
             assert!(matches!(
                 ast.0[1].value.as_ref().unwrap(),
-                Expression::Literal(Literal::Float(2.4))
+                Expression::Literal(_f)
             ));
         }
 
@@ -393,7 +393,7 @@ mod populators {
 
         #[test]
         fn return_int() {
-            let mut result = CoriumParser::parse(Rule::ReturnStatement, "return 10\n").unwrap();
+            let result = CoriumParser::parse(Rule::ReturnStatement, "return 10\n").unwrap();
             let ast = ReturnStatement::map(result);
             assert!(ast.0.is_some());
             assert!(matches!(
@@ -404,13 +404,11 @@ mod populators {
 
         #[test]
         fn return_float() {
-            let mut result = CoriumParser::parse(Rule::ReturnStatement, "return -0.51\n").unwrap();
+            let result = CoriumParser::parse(Rule::ReturnStatement, "return -0.51\n").unwrap();
             let ast = ReturnStatement::map(result);
             assert!(ast.0.is_some());
-            assert!(matches!(
-                ast.0.unwrap(),
-                Expression::Literal(Literal::Float(-0.51))
-            ));
+            let _f = Literal::Float(-0.51);
+            assert!(matches!(ast.0.unwrap(), Expression::Literal(_f)));
         }
     }
 
@@ -428,19 +426,17 @@ mod populators {
 
         #[test]
         fn float() {
-            let mut result = CoriumParser::parse(Rule::LocalVariable, "let x = 10.0\n").unwrap();
+            let result = CoriumParser::parse(Rule::LocalVariable, "let x = 10.0\n").unwrap();
             let ast = LocalVariable::map(result);
             assert_eq!(ast.name.0, "x");
-            assert!(matches!(
-                ast.value,
-                Expression::Literal(Literal::Float(10.0))
-            ));
+            let _f = Literal::Float(10.0);
+            assert!(matches!(ast.value, Expression::Literal(_f)));
             assert!(ast.type_hint.is_none());
         }
 
         #[test]
         fn char() {
-            let mut result = CoriumParser::parse(Rule::LocalVariable, "let x = 'x'\n").unwrap();
+            let result = CoriumParser::parse(Rule::LocalVariable, "let x = 'x'\n").unwrap();
             let ast = LocalVariable::map(result);
             assert_eq!(ast.name.0, "x");
             assert!(matches!(ast.value, Expression::Literal(Literal::Char('x'))));
@@ -449,7 +445,7 @@ mod populators {
 
         #[test]
         fn bool() {
-            let mut result = CoriumParser::parse(Rule::LocalVariable, "let x = true\n").unwrap();
+            let result = CoriumParser::parse(Rule::LocalVariable, "let x = true\n").unwrap();
             let ast = LocalVariable::map(result);
             assert_eq!(ast.name.0, "x");
             assert!(matches!(
@@ -461,8 +457,7 @@ mod populators {
 
         #[test]
         fn string() {
-            let mut result =
-                CoriumParser::parse(Rule::LocalVariable, "let x = \"Name\"\n").unwrap();
+            let result = CoriumParser::parse(Rule::LocalVariable, "let x = \"Name\"\n").unwrap();
             let ast = LocalVariable::map(result);
             assert_eq!(ast.name.0, "x");
             assert!(matches!(
@@ -474,7 +469,7 @@ mod populators {
 
         #[test]
         fn type_int() {
-            let mut result = CoriumParser::parse(Rule::LocalVariable, "let x int = 10\n").unwrap();
+            let result = CoriumParser::parse(Rule::LocalVariable, "let x int = 10\n").unwrap();
             let ast = LocalVariable::map(result);
             assert_eq!(ast.name.0, "x");
             assert!(matches!(ast.value, Expression::Literal(Literal::Int(10))));
@@ -484,22 +479,18 @@ mod populators {
 
         #[test]
         fn type_float() {
-            let mut result =
-                CoriumParser::parse(Rule::LocalVariable, "let x float = 10.0\n").unwrap();
+            let result = CoriumParser::parse(Rule::LocalVariable, "let x float = 10.0\n").unwrap();
             let ast = LocalVariable::map(result);
             assert_eq!(ast.name.0, "x");
-            assert!(matches!(
-                ast.value,
-                Expression::Literal(Literal::Float(10.0))
-            ));
+            let _f = Literal::Float(10.0);
+            assert!(matches!(ast.value, Expression::Literal(_f)));
             assert!(ast.type_hint.is_some());
             assert_eq!(ast.type_hint.unwrap().full, "float");
         }
 
         #[test]
         fn type_char() {
-            let mut result =
-                CoriumParser::parse(Rule::LocalVariable, "let x char = 'x'\n").unwrap();
+            let result = CoriumParser::parse(Rule::LocalVariable, "let x char = 'x'\n").unwrap();
             let ast = LocalVariable::map(result);
             assert_eq!(ast.name.0, "x");
             assert!(matches!(ast.value, Expression::Literal(Literal::Char('x'))));
@@ -509,8 +500,7 @@ mod populators {
 
         #[test]
         fn type_bool() {
-            let mut result =
-                CoriumParser::parse(Rule::LocalVariable, "let x bool = true\n").unwrap();
+            let result = CoriumParser::parse(Rule::LocalVariable, "let x bool = true\n").unwrap();
             let ast = LocalVariable::map(result);
             assert_eq!(ast.name.0, "x");
             assert!(matches!(
@@ -523,7 +513,7 @@ mod populators {
 
         #[test]
         fn type_string() {
-            let mut result =
+            let result =
                 CoriumParser::parse(Rule::LocalVariable, "let x string = \"Name\"\n").unwrap();
             let ast = LocalVariable::map(result);
             assert_eq!(ast.name.0, "x");
@@ -650,13 +640,13 @@ mod populators {
                 })
             ));
 
-            let name = QualifiedName::from("bool");
+            let _name = QualifiedName::from("bool");
             assert!(matches!(
                 &ast.0[1],
                 FunctionStatement::LocalVariable(LocalVariable {
                     name: Identifier("y"),
                     value: Expression::Literal(Literal::Bool(true)),
-                    type_hint: Some(name)
+                    type_hint: Some(_name)
                 })
             ));
 
@@ -669,23 +659,24 @@ mod populators {
                 })
             ));
 
-            let name = QualifiedName::from("char");
+            let _name = QualifiedName::from("char");
             assert!(matches!(
                 &ast.0[3],
                 FunctionStatement::LocalVariable(LocalVariable {
                     name: Identifier("z"),
                     value: Expression::Literal(Literal::Char('y')),
-                    type_hint: Some(name)
+                    type_hint: Some(_name)
                 })
             ));
 
-            let name = QualifiedName::from("float");
+            let _name = QualifiedName::from("float");
+            let _f = Literal::Float(2.33225);
             assert!(matches!(
                 &ast.0[4],
                 FunctionStatement::LocalVariable(LocalVariable {
                     name: Identifier("zw"),
-                    value: Expression::Literal(Literal::Float(2.33225)),
-                    type_hint: Some(name)
+                    value: Expression::Literal(_f),
+                    type_hint: Some(_name)
                 })
             ));
         }
@@ -717,11 +708,10 @@ mod populators {
                     Literal::String("Hey")
                 ))))
             ));
+            let _f = Literal::Float(2.33225);
             assert!(matches!(
                 &ast.0[3],
-                FunctionStatement::ReturnStatement(ReturnStatement(Some(Expression::Literal(
-                    Literal::Float(2.33225)
-                ))))
+                FunctionStatement::ReturnStatement(ReturnStatement(Some(Expression::Literal(_f))))
             ));
         }
 
@@ -757,22 +747,23 @@ mod populators {
                     Literal::String("Hey")
                 ))))
             ));
-            let name = QualifiedName::from("bool");
+            let _name = QualifiedName::from("bool");
             assert!(matches!(
                 &ast.0[3],
                 FunctionStatement::LocalVariable(LocalVariable {
                     name: Identifier("z"),
                     value: Expression::Literal(Literal::Bool(true)),
-                    type_hint: Some(name)
+                    type_hint: Some(_name)
                 })
             ));
-            let name = QualifiedName::from("float");
+            let _name = QualifiedName::from("float");
+            let _f = Literal::Float(2.33225);
             assert!(matches!(
                 &ast.0[4],
                 FunctionStatement::LocalVariable(LocalVariable {
                     name: Identifier("z"),
-                    value: Expression::Literal(Literal::Float(2.33225)),
-                    type_hint: Some(name)
+                    value: Expression::Literal(_f),
+                    type_hint: Some(_name)
                 })
             ));
         }
@@ -797,8 +788,8 @@ mod populators {
             assert_eq!(ast.name.0, "f");
             assert!(ast.parameters.is_none());
             assert!(ast.return_type.is_some());
-            let name = QualifiedName::from("int");
-            assert!(matches!(ast.return_type.unwrap(), name));
+            let _name = QualifiedName::from("int");
+            assert!(matches!(ast.return_type.unwrap(), _name));
         }
 
         #[test]
@@ -809,12 +800,12 @@ mod populators {
             assert!(ast.parameters.is_some());
             assert_eq!(ast.parameters.as_ref().unwrap().0.len(), 1);
             assert!(ast.return_type.is_none());
-            let name = QualifiedName::from("float");
+            let _name = QualifiedName::from("float");
             assert!(matches!(
                 &ast.parameters.as_ref().unwrap().0[0],
                 Parameter {
                     name: Identifier("x"),
-                    type_hint: name,
+                    type_hint: _name,
                     value: None
                 }
             ));
@@ -832,30 +823,30 @@ mod populators {
             assert!(ast.parameters.is_some());
             assert_eq!(ast.parameters.as_ref().unwrap().0.len(), 3);
             assert!(ast.return_type.is_none());
-            let name = QualifiedName::from("float");
+            let _name = QualifiedName::from("float");
             assert!(matches!(
                 &ast.parameters.as_ref().unwrap().0[0],
                 Parameter {
                     name: Identifier("x"),
-                    type_hint: name,
+                    type_hint: _name,
                     value: None
                 }
             ));
-            let name = QualifiedName::from("string");
+            let _name = QualifiedName::from("string");
             assert!(matches!(
                 &ast.parameters.as_ref().unwrap().0[1],
                 Parameter {
                     name: Identifier("name"),
-                    type_hint: name,
+                    type_hint: _name,
                     value: None
                 }
             ));
-            let name = QualifiedName::from("bool");
+            let _name = QualifiedName::from("bool");
             assert!(matches!(
                 &ast.parameters.as_ref().unwrap().0[2],
                 Parameter {
                     name: Identifier("ok"),
-                    type_hint: name,
+                    type_hint: _name,
                     value: Some(Expression::Literal(Literal::Bool(true)))
                 }
             ));
@@ -870,14 +861,14 @@ mod populators {
             assert!(ast.parameters.is_some());
             assert_eq!(ast.parameters.as_ref().unwrap().0.len(), 1);
             assert!(ast.return_type.is_some());
-            let name = QualifiedName::from("float");
-            assert!(matches!(ast.return_type.unwrap(), name));
-            let name = QualifiedName::from("float");
+            let _name = QualifiedName::from("float");
+            assert!(matches!(ast.return_type.unwrap(), _name));
+            let _name = QualifiedName::from("float");
             assert!(matches!(
                 &ast.parameters.as_ref().unwrap().0[0],
                 Parameter {
                     name: Identifier("x"),
-                    type_hint: name,
+                    type_hint: _name,
                     value: None
                 }
             ));
@@ -903,8 +894,8 @@ mod populators {
             assert_eq!(ast.signature.name.0, "f");
             assert!(ast.signature.parameters.is_none());
             assert!(ast.signature.return_type.is_some());
-            let name = QualifiedName::from("int");
-            assert!(matches!(ast.signature.return_type.unwrap(), name));
+            let _name = QualifiedName::from("int");
+            assert!(matches!(ast.signature.return_type.unwrap(), _name));
         }
 
         #[test]
@@ -916,12 +907,12 @@ mod populators {
             assert!(ast.signature.parameters.is_some());
             assert_eq!(ast.signature.parameters.as_ref().unwrap().0.len(), 1);
             assert!(ast.signature.return_type.is_none());
-            let name = QualifiedName::from("float");
+            let _name = QualifiedName::from("float");
             assert!(matches!(
                 &ast.signature.parameters.as_ref().unwrap().0[0],
                 Parameter {
                     name: Identifier("x"),
-                    type_hint: name,
+                    type_hint: _name,
                     value: None
                 }
             ));
@@ -939,30 +930,30 @@ mod populators {
             assert!(ast.signature.parameters.is_some());
             assert_eq!(ast.signature.parameters.as_ref().unwrap().0.len(), 3);
             assert!(ast.signature.return_type.is_none());
-            let name = QualifiedName::from("float");
+            let _name = QualifiedName::from("float");
             assert!(matches!(
                 &ast.signature.parameters.as_ref().unwrap().0[0],
                 Parameter {
                     name: Identifier("x"),
-                    type_hint: name,
+                    type_hint: _name,
                     value: None
                 }
             ));
-            let name = QualifiedName::from("string");
+            let _name = QualifiedName::from("string");
             assert!(matches!(
                 &ast.signature.parameters.as_ref().unwrap().0[1],
                 Parameter {
                     name: Identifier("name"),
-                    type_hint: name,
+                    type_hint: _name,
                     value: None
                 }
             ));
-            let name = QualifiedName::from("bool");
+            let _name = QualifiedName::from("bool");
             assert!(matches!(
                 &ast.signature.parameters.as_ref().unwrap().0[2],
                 Parameter {
                     name: Identifier("ok"),
-                    type_hint: name,
+                    type_hint: _name,
                     value: Some(Expression::Literal(Literal::Bool(true)))
                 }
             ));
@@ -977,14 +968,14 @@ mod populators {
             assert!(ast.signature.parameters.is_some());
             assert_eq!(ast.signature.parameters.as_ref().unwrap().0.len(), 1);
             assert!(ast.signature.return_type.is_some());
-            let name = QualifiedName::from("float");
-            assert!(matches!(ast.signature.return_type.unwrap(), name));
-            let name = QualifiedName::from("float");
+            let _name = QualifiedName::from("float");
+            assert!(matches!(ast.signature.return_type.unwrap(), _name));
+            let _name = QualifiedName::from("float");
             assert!(matches!(
                 &ast.signature.parameters.as_ref().unwrap().0[0],
                 Parameter {
                     name: Identifier("x"),
-                    type_hint: name,
+                    type_hint: _name,
                     value: None
                 }
             ));
@@ -1010,8 +1001,8 @@ mod populators {
             let ast = Function::map(result);
             assert_eq!(ast.signature.name, Identifier("f"));
             assert!(ast.signature.return_type.is_some());
-            let name = QualifiedName::from("int");
-            assert!(matches!(ast.signature.return_type.as_ref().unwrap(), name));
+            let _name = QualifiedName::from("int");
+            assert!(matches!(ast.signature.return_type.as_ref().unwrap(), _name));
             assert!(ast.signature.parameters.is_none());
             assert!(ast.block.0.is_empty());
         }
@@ -1025,12 +1016,12 @@ mod populators {
             assert!(ast.signature.parameters.is_some());
             assert_eq!(ast.signature.parameters.as_ref().unwrap().0.len(), 1);
             assert!(ast.signature.return_type.is_none());
-            let name = QualifiedName::from("float");
+            let _name = QualifiedName::from("float");
             assert!(matches!(
                 &ast.signature.parameters.as_ref().unwrap().0[0],
                 Parameter {
                     name: Identifier("x"),
-                    type_hint: name,
+                    type_hint: _name,
                     value: None
                 }
             ));
@@ -1049,30 +1040,30 @@ mod populators {
             assert!(ast.signature.parameters.is_some());
             assert_eq!(ast.signature.parameters.as_ref().unwrap().0.len(), 3);
             assert!(ast.signature.return_type.is_none());
-            let name = QualifiedName::from("float");
+            let _name = QualifiedName::from("float");
             assert!(matches!(
                 &ast.signature.parameters.as_ref().unwrap().0[0],
                 Parameter {
                     name: Identifier("x"),
-                    type_hint: name,
+                    type_hint: _name,
                     value: None
                 }
             ));
-            let name = QualifiedName::from("string");
+            let _name = QualifiedName::from("string");
             assert!(matches!(
                 &ast.signature.parameters.as_ref().unwrap().0[1],
                 Parameter {
                     name: Identifier("name"),
-                    type_hint: name,
+                    type_hint: _name,
                     value: None
                 }
             ));
-            let name = QualifiedName::from("bool");
+            let _name = QualifiedName::from("bool");
             assert!(matches!(
                 &ast.signature.parameters.as_ref().unwrap().0[2],
                 Parameter {
                     name: Identifier("ok"),
-                    type_hint: name,
+                    type_hint: _name,
                     value: Some(Expression::Literal(Literal::Bool(true)))
                 }
             ));
@@ -1088,14 +1079,14 @@ mod populators {
             assert!(ast.signature.parameters.is_some());
             assert_eq!(ast.signature.parameters.as_ref().unwrap().0.len(), 1);
             assert!(ast.signature.return_type.is_some());
-            let name = QualifiedName::from("float");
-            assert!(matches!(ast.signature.return_type.unwrap(), name));
-            let name = QualifiedName::from("float");
+            let _name = QualifiedName::from("float");
+            assert!(matches!(ast.signature.return_type.unwrap(), _name));
+            let _name = QualifiedName::from("float");
             assert!(matches!(
                 &ast.signature.parameters.as_ref().unwrap().0[0],
                 Parameter {
                     name: Identifier("x"),
-                    type_hint: name,
+                    type_hint: _name,
                     value: None
                 }
             ));
@@ -1131,12 +1122,12 @@ mod populators {
             assert!(ast.signature.parameters.is_some());
             assert!(ast.signature.return_type.is_some());
             assert_eq!(ast.block.0.len(), 2);
-            let name = QualifiedName::from("int");
+            let _name = QualifiedName::from("int");
             assert!(matches!(
                 &ast.signature.parameters.as_ref().unwrap().0[0],
                 Parameter {
                     name: Identifier("x"),
-                    type_hint: name,
+                    type_hint: _name,
                     value: Some(Expression::Literal(Literal::Int(0)))
                 }
             ));
@@ -1164,9 +1155,9 @@ mod populators {
         #[test]
         fn function() {
             let src = "fun f() {\nlet x = 10\n}\n";
-            let mut result = CoriumParser::parse(Rule::GlobalStatement, src).unwrap();
+            let result = CoriumParser::parse(Rule::GlobalStatement, src).unwrap();
             let ast = GlobalStatement::map(result);
-            let block = vec![FunctionStatement::LocalVariable(LocalVariable {
+            let _block = vec![FunctionStatement::LocalVariable(LocalVariable {
                 name: Identifier("x"),
                 type_hint: None,
                 value: Expression::Literal(Literal::Int(10)),
@@ -1179,7 +1170,7 @@ mod populators {
                         return_type: None,
                         parameters: None
                     },
-                    block: Block(block)
+                    block: Block(_block)
                 })
             ));
         }
@@ -1187,7 +1178,7 @@ mod populators {
         #[test]
         fn native_function() {
             let src = "native fun f()\n";
-            let mut result = CoriumParser::parse(Rule::GlobalStatement, src).unwrap();
+            let result = CoriumParser::parse(Rule::GlobalStatement, src).unwrap();
             let ast = GlobalStatement::map(result);
             assert!(matches!(
                 ast,
@@ -1199,13 +1190,6 @@ mod populators {
                     }
                 })
             ));
-        }
-
-        #[test]
-        fn empty() {
-            let src = " \t \n \t   ";
-            let mut result = CoriumParser::parse(Rule::GlobalStatement, src).unwrap();
-            assert!(result.next().unwrap().into_inner().next().is_none());
         }
 
         #[test]
@@ -1271,7 +1255,7 @@ mod populators {
                     }
                 })
             ));
-            let block = Block(vec![FunctionStatement::LocalVariable(LocalVariable {
+            let _block = Block(vec![FunctionStatement::LocalVariable(LocalVariable {
                 name: Identifier("x"),
                 type_hint: Some(QualifiedName::from("int")),
                 value: Expression::Literal(Literal::Int(10)),
@@ -1284,17 +1268,17 @@ mod populators {
                         parameters: None,
                         return_type: None
                     },
-                    block: block
+                    block: _block
                 })
             ));
-            let name = QualifiedName::from("char");
+            let _name = QualifiedName::from("char");
             assert!(matches!(
                 &ast.statements[2],
                 GlobalStatement::NativeFunction(NativeFunction {
                     signature: FunctionSignature {
                         name: Identifier("get"),
                         parameters: None,
-                        return_type: Some(name)
+                        return_type: Some(_name)
                     }
                 })
             ));

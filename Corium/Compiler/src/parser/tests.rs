@@ -64,18 +64,6 @@ mod rules {
             }
 
             #[test]
-            fn backspace() {
-                let result = CoriumParser::parse(Rule::Char, r#"\b"#).unwrap().as_str();
-                assert_eq!(result, r#"\b"#);
-            }
-
-            #[test]
-            fn formfeed_page_break() {
-                let result = CoriumParser::parse(Rule::Char, r#"\f"#).unwrap().as_str();
-                assert_eq!(result, r#"\f"#);
-            }
-
-            #[test]
             fn newline() {
                 let result = CoriumParser::parse(Rule::Char, r#"\n"#).unwrap().as_str();
                 assert_eq!(result, r#"\n"#);
@@ -91,12 +79,6 @@ mod rules {
             fn horizontal_tab() {
                 let result = CoriumParser::parse(Rule::Char, r#"\t"#).unwrap().as_str();
                 assert_eq!(result, r#"\t"#);
-            }
-
-            #[test]
-            fn vertical_tab() {
-                let result = CoriumParser::parse(Rule::Char, r#"\v"#).unwrap().as_str();
-                assert_eq!(result, r#"\v"#);
             }
 
             #[test]
@@ -359,17 +341,6 @@ mod rules {
             }
 
             #[test]
-            fn escapes() {
-                let result = CoriumParser::parse(
-                    Rule::StringLiteral,
-                    r#""Hallo :) \" \\ \" / \b \f \n \r \t \v""#,
-                )
-                .unwrap()
-                .as_str();
-                assert_eq!(result, r#""Hallo :) \" \\ \" / \b \f \n \r \t \v""#);
-            }
-
-            #[test]
             fn char_scalars() {
                 let result = CoriumParser::parse(
                     Rule::StringLiteral,
@@ -500,22 +471,6 @@ mod rules {
             }
 
             #[test]
-            fn backspace() {
-                let result = CoriumParser::parse(Rule::CharLiteral, r#"'\b'"#)
-                    .unwrap()
-                    .as_str();
-                assert_eq!(result, r#"'\b'"#);
-            }
-
-            #[test]
-            fn formfeed_page_break() {
-                let result = CoriumParser::parse(Rule::CharLiteral, r#"'\f'"#)
-                    .unwrap()
-                    .as_str();
-                assert_eq!(result, r#"'\f'"#);
-            }
-
-            #[test]
             fn newline() {
                 let result = CoriumParser::parse(Rule::CharLiteral, r#"'\n'"#)
                     .unwrap()
@@ -537,14 +492,6 @@ mod rules {
                     .unwrap()
                     .as_str();
                 assert_eq!(result, r#"'\t'"#);
-            }
-
-            #[test]
-            fn vertical_tab() {
-                let result = CoriumParser::parse(Rule::CharLiteral, r#"'\v'"#)
-                    .unwrap()
-                    .as_str();
-                assert_eq!(result, r#"'\v'"#);
             }
 
             #[test]
@@ -2474,13 +2421,6 @@ mod rules {
                 assert_eq!(result.as_str(), src);
                 let inner = result.next().unwrap().into_inner().next().unwrap();
                 assert_eq!(inner.as_rule(), Rule::NativeFunction);
-            }
-
-            #[test]
-            fn empty() {
-                let src = " \t \n \t   ";
-                let mut result = CoriumParser::parse(Rule::GlobalStatement, src).unwrap();
-                assert!(result.next().unwrap().into_inner().next().is_none());
             }
         }
 
