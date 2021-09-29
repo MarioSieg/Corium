@@ -234,15 +234,23 @@ def mkdir(path: str):
         return
     try:
         print("Creating dir: " + path)
-        os.mkdir(path)
+        os.makedirs(path, exist_ok=True)
     except Exception as e:
         print("Failed to create dir: " + path)
+        print("Because " + str(e))
         print("Exiting...")
         exit(-1)
 
 def mk_exe_name(raw: str) -> str:
     osname = platform.system()
     return raw + ".exe" if osname == "Windows" else raw
+
+def first_dir(path: str) -> str:
+    dirs = [x[0] for x in os.walk(directory)]
+    if len(dirs) == 0:
+        print("Expected at least one directory here: " + path)
+        exit(-1)
+    return dirs[0]
 
 class Toolchain:
     def __init__(self, prerequisites: list, working_dir: str):
@@ -292,13 +300,20 @@ with open(info_path, "r") as infofile:
 print("Beginning setup...")
 
 osname = platform.system()
+arch = os.uname()[4]
+if arch == "x86_64":
+    arch = "x86_64"
+elif arch == "aarch64":
+    arch = "AArch64"
+else:
+    print(f"Unknown architecture {arch}! Expected x86_64 or aarch64, errors expected but trying anyways...")
 wk_dir = os.getcwd()
 print("Running on: " + osname)
+print("Arch: " + arch)
 print("Working directory: " + str(wk_dir))
 print("Build dir: " + build_dir)
 print("Base output dir: " + out_dir)
-print("OS suffix: " + osname.capitalize())
-out_dir = f"{out_dir}/{osname.capitalize()}"
+out_dir = f"{out_dir}/{osname.capitalize()}/{arch}"
 print("Final out dir: " + out_dir)
 
 print("Checking if the correct prerequisites are installed and inside $PATH...\n")
@@ -341,15 +356,10 @@ if is_missing_toolchain:
     exit(-1)
 
 print("Great, required toolchains and prerequisites are installed!")
-
-#print("Cleaning build artifact dir...")
-#if os.path.isdir(build_dir):
-    #shutil.rmtree(build_dir)
-
 print("Creating build directories...")
 
-compiler_build_dir = f"{build_dir}/Corium/"
-nominax_build_dir = f"{build_dir}/Nominax/"
+compiler_build_dir = f"{build_dir}/Corium/{arch}/"
+nominax_build_dir = f"{build_dir}/Nominax/{arch}/"
 
 mkdir(build_dir)
 mkdir(out_dir_base)
@@ -406,9 +416,11 @@ def build_nominax_runtime():
         cc = "clang-cl"
         cxx = "clang-cl"
         make = "ninja"
-        ldir1 = "C:/Program Files (x86)/Windows Kits/10/Lib/10.0.19041.0/um/x64"
-        ldir2 = "C:/Program Files (x86)/Windows Kits/10/Lib/10.0.19041.0/ucrt/x64"
-        ldir3 = "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.29.30133/lib/onecore/x64"
+        subdir = first_dir("C:/Program Files (x86)/Windows Kits/10/Lib/")
+        ldir1 = f"C:/Program Files (x86)/Windows Kits/10/Lib/{subdir}/um/x64"
+        ldir2 = f"C:/Program Files (x86)/Windows Kits/10/Lib/{subdir}/ucrt/x64"
+        subdir = first_dir("C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/")
+        ldir3 = f"C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/{subdir}/lib/onecore/x64"
         if not os.path.isdir(ldir1):
             print(f"Missing link dir: {ldir1}! Make sure Windows 10 SDK is installed!")
         if not os.path.isdir(ldir2):

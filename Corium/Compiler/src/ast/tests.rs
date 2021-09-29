@@ -296,9 +296,9 @@ mod populators {
 
         #[test]
         fn int() {
-            let result = CoriumParser::parse(Rule::Literal, "-10").unwrap();
+            let result = CoriumParser::parse(Rule::Literal, "3").unwrap();
             let ast = Literal::map(result);
-            assert!(matches!(ast, Literal::Int(-10)));
+            assert!(matches!(ast, Literal::Int(3)));
         }
 
         #[test]
@@ -609,10 +609,10 @@ mod populators {
 
         #[test]
         fn return_float() {
-            let result = CoriumParser::parse(Rule::ReturnStatement, "return -0.51\n").unwrap();
+            let result = CoriumParser::parse(Rule::ReturnStatement, "return 0.51\n").unwrap();
             let ast = ReturnStatement::map(result);
             assert!(ast.0.is_some());
-            let _f = Literal::Float(-0.51);
+            let _f = Literal::Float(0.51);
             assert!(matches!(ast.0.unwrap(), Expression::Literal(_f)));
         }
     }

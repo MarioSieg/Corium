@@ -609,22 +609,6 @@ mod rules {
             }
 
             #[test]
-            fn zero_negative() {
-                let result = CoriumParser::parse(Rule::IntLiteral, "-0")
-                    .unwrap()
-                    .as_str();
-                assert_eq!(result, "-0");
-            }
-
-            #[test]
-            fn zero_positive() {
-                let result = CoriumParser::parse(Rule::IntLiteral, "+0")
-                    .unwrap()
-                    .as_str();
-                assert_eq!(result, "+0");
-            }
-
-            #[test]
             fn simple() {
                 let result = CoriumParser::parse(Rule::IntLiteral, "10")
                     .unwrap()
@@ -642,18 +626,10 @@ mod rules {
 
             #[test]
             fn simple_positive() {
-                let result = CoriumParser::parse(Rule::IntLiteral, "+10")
+                let result = CoriumParser::parse(Rule::IntLiteral, "10")
                     .unwrap()
                     .as_str();
-                assert_eq!(result, "+10");
-            }
-
-            #[test]
-            fn simple_negative() {
-                let result = CoriumParser::parse(Rule::IntLiteral, "-10")
-                    .unwrap()
-                    .as_str();
-                assert_eq!(result, "-10");
+                assert_eq!(result, "10");
             }
 
             #[test]
@@ -674,18 +650,18 @@ mod rules {
 
             #[test]
             fn simple_separated3() {
-                let result = CoriumParser::parse(Rule::IntLiteral, "-0_2_4_20203_2200_22")
+                let result = CoriumParser::parse(Rule::IntLiteral, "0_2_4_20203_2200_22")
                     .unwrap()
                     .as_str();
-                assert_eq!(result, "-0_2_4_20203_2200_22");
+                assert_eq!(result, "0_2_4_20203_2200_22");
             }
 
             #[test]
             fn simple_separated4() {
-                let result = CoriumParser::parse(Rule::IntLiteral, "+0_2_4_20203_2200_22")
+                let result = CoriumParser::parse(Rule::IntLiteral, "0_2_4_20203_2200_22")
                     .unwrap()
                     .as_str();
-                assert_eq!(result, "+0_2_4_20203_2200_22");
+                assert_eq!(result, "0_2_4_20203_2200_22");
             }
         }
 
@@ -703,30 +679,6 @@ mod rules {
             #[test]
             fn char() {
                 let result = CoriumParser::parse(Rule::IntLiteral, "'0'");
-                assert!(result.is_err());
-            }
-
-            #[test]
-            fn double_minus() {
-                let result = CoriumParser::parse(Rule::IntLiteral, "--2233-2");
-                assert!(result.is_err());
-            }
-
-            #[test]
-            fn double_plus() {
-                let result = CoriumParser::parse(Rule::IntLiteral, "++2233+2");
-                assert!(result.is_err());
-            }
-
-            #[test]
-            fn minus_within() {
-                let result = CoriumParser::parse(Rule::IntLiteral, "+-3-3-2");
-                assert!(result.is_err());
-            }
-
-            #[test]
-            fn plus_within() {
-                let result = CoriumParser::parse(Rule::IntLiteral, "-+2+3+3+2");
                 assert!(result.is_err());
             }
         }
@@ -747,22 +699,6 @@ mod rules {
             }
 
             #[test]
-            fn zero_negative() {
-                let result = CoriumParser::parse(Rule::FloatLiteral, "-0.0")
-                    .unwrap()
-                    .as_str();
-                assert_eq!(result, "-0.0");
-            }
-
-            #[test]
-            fn zero_positive() {
-                let result = CoriumParser::parse(Rule::FloatLiteral, "+0.0")
-                    .unwrap()
-                    .as_str();
-                assert_eq!(result, "+0.0");
-            }
-
-            #[test]
             fn simple() {
                 let result = CoriumParser::parse(Rule::FloatLiteral, "10.0")
                     .unwrap()
@@ -780,18 +716,10 @@ mod rules {
 
             #[test]
             fn simple_positive() {
-                let result = CoriumParser::parse(Rule::FloatLiteral, "+1.6")
+                let result = CoriumParser::parse(Rule::FloatLiteral, "1.6")
                     .unwrap()
                     .as_str();
-                assert_eq!(result, "+1.6");
-            }
-
-            #[test]
-            fn simple_negative() {
-                let result = CoriumParser::parse(Rule::FloatLiteral, "-1.5")
-                    .unwrap()
-                    .as_str();
-                assert_eq!(result, "-1.5");
+                assert_eq!(result, "1.6");
             }
 
             #[test]
@@ -812,18 +740,18 @@ mod rules {
 
             #[test]
             fn simple_separated3() {
-                let result = CoriumParser::parse(Rule::FloatLiteral, "-0_2_4_20.203_2200_22")
+                let result = CoriumParser::parse(Rule::FloatLiteral, "0_2_4_20.203_2200_22")
                     .unwrap()
                     .as_str();
-                assert_eq!(result, "-0_2_4_20.203_2200_22");
+                assert_eq!(result, "0_2_4_20.203_2200_22");
             }
 
             #[test]
             fn simple_separated4() {
-                let result = CoriumParser::parse(Rule::FloatLiteral, "+0.0_2_4_20203_2200_22")
+                let result = CoriumParser::parse(Rule::FloatLiteral, "0.0_2_4_20203_2200_22")
                     .unwrap()
                     .as_str();
-                assert_eq!(result, "+0.0_2_4_20203_2200_22");
+                assert_eq!(result, "0.0_2_4_20203_2200_22");
             }
         }
 
@@ -1004,6 +932,124 @@ mod rules {
                 let result = result.into_inner().next().unwrap();
                 assert_eq!(result.as_rule(), Rule::StringLiteral);
             }
+
+            #[test]
+            fn identifier() {
+                let mut result = CoriumParser::parse(Rule::Expression, "variable").unwrap();
+                let result = result.next().unwrap().into_inner().next().unwrap();
+                assert_eq!(result.as_rule(), Rule::Identifier);
+            }
+
+            #[test]
+            fn parentheses() {
+                let mut result = CoriumParser::parse(Rule::Expression, "(10)").unwrap();
+                let result = result.next().unwrap().into_inner().next().unwrap();
+                assert_eq!(result.as_rule(), Rule::Expression);
+                let result = result.into_inner().next().unwrap();
+                assert_eq!(result.as_rule(), Rule::Literal);
+            }
+
+            #[test]
+            fn nested_parentheses() {
+                let mut result = CoriumParser::parse(Rule::Expression, "(((10)))").unwrap();
+                let result = result.next().unwrap().into_inner().next().unwrap();
+                assert_eq!(result.as_rule(), Rule::Expression);
+                let result = result.into_inner().next().unwrap();
+                assert_eq!(result.as_rule(), Rule::Expression);
+                let result = result.into_inner().next().unwrap();
+                assert_eq!(result.as_rule(), Rule::Expression);
+                let result = result.into_inner().next().unwrap();
+                assert_eq!(result.as_rule(), Rule::Literal);
+                assert_eq!(result.as_str(), "10");
+            }
+
+            #[test]
+            fn unary_plus_literal() {
+                let mut result = CoriumParser::parse(Rule::Expression, "+2.5").unwrap();
+                let mut result = result.next().unwrap().into_inner();
+
+                let operator = result.next().unwrap();
+                assert_eq!(operator.as_rule(), Rule::UnaryOperator);
+                assert_eq!(operator.as_str(), "+");
+
+                let inner = result.next().unwrap();
+                assert_eq!(inner.as_rule(), Rule::Expression);
+                assert_eq!(inner.as_str(), "2.5");
+
+                let literal = inner.into_inner().next().unwrap();
+                assert_eq!(literal.as_rule(), Rule::Literal);
+                assert_eq!(literal.as_str(), "2.5");
+
+                let float = literal.into_inner().next().unwrap();
+                assert_eq!(float.as_rule(), Rule::FloatLiteral);
+                assert_eq!(float.as_str(), "2.5");
+            }
+
+            #[test]
+            fn unary_minus_literal() {
+                let mut result = CoriumParser::parse(Rule::Expression, "-30").unwrap();
+                let mut result = result.next().unwrap().into_inner();
+
+                let operator = result.next().unwrap();
+                assert_eq!(operator.as_rule(), Rule::UnaryOperator);
+                assert_eq!(operator.as_str(), "-");
+
+                let inner = result.next().unwrap();
+                assert_eq!(inner.as_rule(), Rule::Expression);
+                assert_eq!(inner.as_str(), "30");
+
+                let literal = inner.into_inner().next().unwrap();
+                assert_eq!(literal.as_rule(), Rule::Literal);
+                assert_eq!(literal.as_str(), "30");
+
+                let float = literal.into_inner().next().unwrap();
+                assert_eq!(float.as_rule(), Rule::IntLiteral);
+                assert_eq!(float.as_str(), "30");
+            }
+
+            #[test]
+            fn unary_not_literal() {
+                let mut result = CoriumParser::parse(Rule::Expression, "!true").unwrap();
+                let mut result = result.next().unwrap().into_inner();
+
+                let operator = result.next().unwrap();
+                assert_eq!(operator.as_rule(), Rule::UnaryOperator);
+                assert_eq!(operator.as_str(), "!");
+
+                let inner = result.next().unwrap();
+                assert_eq!(inner.as_rule(), Rule::Expression);
+                assert_eq!(inner.as_str(), "true");
+
+                let literal = inner.into_inner().next().unwrap();
+                assert_eq!(literal.as_rule(), Rule::Literal);
+                assert_eq!(literal.as_str(), "true");
+
+                let float = literal.into_inner().next().unwrap();
+                assert_eq!(float.as_rule(), Rule::BoolLiteral);
+                assert_eq!(float.as_str(), "true");
+            }
+
+            #[test]
+            fn unary_complement_literal() {
+                let mut result = CoriumParser::parse(Rule::Expression, "~7").unwrap();
+                let mut result = result.next().unwrap().into_inner();
+
+                let operator = result.next().unwrap();
+                assert_eq!(operator.as_rule(), Rule::UnaryOperator);
+                assert_eq!(operator.as_str(), "~");
+
+                let inner = result.next().unwrap();
+                assert_eq!(inner.as_rule(), Rule::Expression);
+                assert_eq!(inner.as_str(), "7");
+
+                let literal = inner.into_inner().next().unwrap();
+                assert_eq!(literal.as_rule(), Rule::Literal);
+                assert_eq!(literal.as_str(), "7");
+
+                let float = literal.into_inner().next().unwrap();
+                assert_eq!(float.as_rule(), Rule::IntLiteral);
+                assert_eq!(float.as_str(), "7");
+            }
         }
 
         mod invalid {
@@ -1012,12 +1058,6 @@ mod rules {
             #[test]
             fn empty() {
                 let result = CoriumParser::parse(Rule::Expression, "");
-                assert!(result.is_err());
-            }
-
-            #[test]
-            fn text() {
-                let result = CoriumParser::parse(Rule::Expression, "Trololo");
                 assert!(result.is_err());
             }
 

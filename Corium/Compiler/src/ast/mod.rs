@@ -441,7 +441,17 @@ impl<'a> fmt::Display for LocalVariable<'a> {
 /// Represents an expression.
 #[derive(Clone, Debug)]
 pub enum Expression<'a> {
+    /// Constant literal.
     Literal(Literal<'a>),
+
+    /// Sub expression.
+    Sub(Box<Expression<'a>>),
+
+    /// Unary operation (operation with one operand).
+    UnaryOperation {
+        op: UnaryOperator,
+        sub: Box<Expression<'a>>,
+    },
 }
 
 impl<'a> AstComponent for Expression<'a> {
@@ -451,7 +461,43 @@ impl<'a> AstComponent for Expression<'a> {
 impl<'a> fmt::Display for Expression<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Self::Literal(lit) => write!(f, "{}", lit),
+            Self::Literal(x) => write!(f, "{}", x),
+            Self::Sub(x) => write!(f, "{}", x),
+            Self::UnaryOperation { op, sub } => {
+                write!(f, "{}{}", op, sub)
+            }
+        }
+    }
+}
+
+/// Represents an unary operator having one operand. E.g. +10 or -0.5 or !x
+#[repr(u8)]
+#[derive(Clone, Eq, PartialEq, Debug)]
+pub enum UnaryOperator {
+    /// +
+    Plus,
+
+    /// -
+    Minus,
+
+    /// ! -> logical not
+    Not,
+
+    /// ~ -> bitwise not
+    Complement,
+}
+
+impl AstComponent for UnaryOperator {
+    const CORRESPONDING_RULE: Rule = Rule::UnaryOperator;
+}
+
+impl fmt::Display for UnaryOperator {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Self::Plus => write!(f, "+"),
+            Self::Minus => write!(f, "-"),
+            Self::Not => write!(f, "!"),
+            Self::Complement => write!(f, "~"),
         }
     }
 }

@@ -49,7 +49,17 @@ Parameter = {
 }
 
 Expression = {
-    Literal
+    Literal |
+    Identifier |
+    "(" ~ Expression ~ ")" |
+    UnaryOperator ~ Expression
+}
+
+UnaryOperator = @{
+    "+" |
+    "-" |
+    "!" |
+    "~"
 }
 
 Literal = {
@@ -60,12 +70,16 @@ Literal = {
     StringLiteral
 }
 
+QualifiedName = {
+    Identifier ~ ("." ~ Identifier)*
+}
+
 FloatLiteral = @{
-    ("+" | "-")? ~ (("_"? ~ ASCII_DIGIT)+ ~ "." ~ ("_"? ~ ASCII_DIGIT)+)
+    (("_"? ~ ASCII_DIGIT)+ ~ "." ~ ("_"? ~ ASCII_DIGIT)+)
 }
 
 IntLiteral = @{
-    ("+" | "-")? ~ (("_"? ~ ASCII_DIGIT)+)
+    (("_"? ~ ASCII_DIGIT)+)
 }
 
 BoolLiteral = @{
@@ -78,10 +92,6 @@ CharLiteral = @{
 
 StringLiteral = @{
     "\"" ~ Char* ~ "\""
-}
-
-QualifiedName = {
-    Identifier ~ ("." ~ Identifier)*
 }
 
 Identifier = @{

@@ -211,6 +211,7 @@ mod context;
 mod error;
 mod literal;
 mod parser;
+mod semantic;
 mod unit;
 
 fn main() {
