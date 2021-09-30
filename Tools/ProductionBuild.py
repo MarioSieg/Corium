@@ -205,6 +205,7 @@
 
 import os
 import os.path
+import sys
 import platform
 import shutil
 import shlex
@@ -227,6 +228,7 @@ def exec(cmd: str, use_pipe = False):
         for line in iter(p.stdout.readline, b''):
             print(str(line).replace("\n\'", "").replace("b'", ""))
         p.stdout.close()
+        p.stderr.close()
         p.wait()
 
 def mkdir(path: str):
@@ -411,6 +413,11 @@ def build_nominax_runtime():
         exit(-1)
     print("Configuring CMake...")
     cmd = None
+    full = len(sys.argv) > 1 and sys.argv[1] == "full"
+    test_flags = ""
+    if full:
+        print("Requested full build - building benchmarks and tests too!")
+        test_flags = "-DNOMINAX_BUILD_UNIT_TESTS=ON -DNOMINAX_BUILD_BENCHMARKS=ON"
     if osname == "Windows":
         print("Expecting Visual Studio 16 2019 is installed!")
         cc = "clang-cl"
@@ -433,17 +440,18 @@ def build_nominax_runtime():
         lflags1 = f"/LIBPATH:\\\"{ldir1}\\\""
         lflags2 = f"/LIBPATH:\\\"{ldir2}\\\""
         lflags3 = f"/LIBPATH:\\\"{ldir3}\\\""
-        cmd = f"cmake -DCMAKE_MAKE_PROGRAM=\"{make}\" -G Ninja -DCMAKE_C_COMPILER=\"{cc}\" -DCMAKE_CXX_COMPILER=\"{cxx}\" -B ../{nominax_build_dir} -DCMAKE_EXE_LINKER_FLAGS=\"{lflags1} {lflags2} {lflags3}\" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=20 -DRUN_HAVE_STD_REGEX=0 -DRUN_HAVE_POSIX_REGEX=0"
+        cmd = f"cmake -DCMAKE_MAKE_PROGRAM=\"{make}\" -G Ninja -DCMAKE_C_COMPILER=\"{cc}\" -DCMAKE_CXX_COMPILER=\"{cxx}\" -B ../{nominax_build_dir} -DCMAKE_EXE_LINKER_FLAGS=\"{lflags1} {lflags2} {lflags3}\" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=20 -DRUN_HAVE_STD_REGEX=0 -DRUN_HAVE_POSIX_REGEX=0 {test_flags}"
     else:
         cc = "gcc-11"
         cxx = "g++-11"
-        cmd = f"cmake -DCMAKE_C_COMPILER={cc} -DCMAKE_CXX_COMPILER={cxx} -B ../{nominax_build_dir} -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=20"
+        cmd = f"cmake -DCMAKE_C_COMPILER={cc} -DCMAKE_CXX_COMPILER={cxx} -B ../{nominax_build_dir} -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=20 {test_flags}"
     exec(cmd, osname == "Windows")
     print("Invoking compiler services...")
     print("Comiling Nominax... This might take a long time depending on your hardware")
     print(f"Using {threads} threads for C++ compilation")
-    cmd = f"cmake --build ../{nominax_build_dir} --config Release --target Nominax -j{threads}"
-    exec(cmd)
+    full_targets = "--target NominaxUnitTest --target NominaxBenchmark" if full else ""
+    cmd = f"cmake --build ../{nominax_build_dir} --config Release --target Nominax {full_targets} -j{threads}"
+    exec(cmd, True)
     target_file = mk_exe_name("Nominax")
     print("Target file: " + target_file)
     target_file_path = f"../{nominax_build_dir}{target_file}"

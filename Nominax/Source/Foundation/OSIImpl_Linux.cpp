@@ -256,12 +256,18 @@ namespace Nominax::Foundation
 				if (!cpuinfo)
 				{
 					[[unlikely]]
-						return "Unknown";
+					return "Unknown";
 				}
 
 				for (std::string line; std::getline(cpuinfo, line);)
 				{
 					if (line.find("model name") == 0)
+					{
+						const auto colonId { line.find_first_of(':') };
+						const auto nonspaceId { line.find_first_not_of(" \t", colonId + 1) };
+						return line.c_str() + nonspaceId;
+					}
+					else if (line.find("Model") == 0)
 					{
 						const auto colonId { line.find_first_of(':') };
 						const auto nonspaceId { line.find_first_not_of(" \t", colonId + 1) };

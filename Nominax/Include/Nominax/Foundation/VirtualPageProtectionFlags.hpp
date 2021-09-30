@@ -220,22 +220,22 @@ namespace Nominax::Foundation
 		NoAccess,
 
 		/// <summary>
-		/// Read only.
+		/// R -> Read only.
 		/// </summary>
 		Read,
 
 		/// <summary>
-		/// Read and write.
+		/// RW -> Read and write.
 		/// </summary>
 		ReadWrite,
 
 		/// <summary>
-		/// Read and execute.
+		/// RX -> Read and execute.
 		/// </summary>
 		ReadExecute,
 
 		/// <summary>
-		/// Read, write and execute (very unsafe).
+		/// RWX -> Read, write and execute (very unsafe).
 		/// </summary>
 		ReadWriteExecute
 	};

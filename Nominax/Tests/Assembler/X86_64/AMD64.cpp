@@ -205,6 +205,8 @@
 
 #include "../../TestBase.hpp"
 
+#if NOX_ARCH_X86_64
+
 using namespace AMD64;
 
 TEST(Assembler_AMD64, PackRex_Empty)
@@ -470,3 +472,5 @@ TEST(Assembler_AMD64, InjectNopChain_15)
 		ASSERT_EQ(buffer[++i], x);
 	}
 }
+
+#endif

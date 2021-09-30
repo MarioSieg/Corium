@@ -214,9 +214,16 @@ namespace Nominax::Foundation
 
     NOX_COLD auto Panic(const std::string_view message, const Foundation::SourceLocation& srcLoc) -> void
 	{
-        const Assembler::AMD64::RegisterCache regCache { };
+        #if NOX_ARCH_X86_64
+            const Assembler::AMD64::RegisterCache regCache { };
+        #endif
+
         PrintPanicMessage(message, srcLoc);
-        regCache.DisplayToConsole();
+
+        #if NOX_ARCH_X86_64
+            regCache.DisplayToConsole();
+        #endif
+
         std::fflush(stdout);
         std::fflush(stderr);
 		std::flush(std::cout);

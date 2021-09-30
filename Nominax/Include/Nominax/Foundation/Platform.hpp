@@ -299,7 +299,7 @@
 #		define NOX_OS_IOS true
 #		define NOX_OS_NAME "iOS"
 #	else
-#		error "platform.hpp: Unknown Apple OS!"
+#		error "Platform.hpp: Unknown Apple OS!"
 #	endif
 #elif defined(__linux__)
 #	ifdef __ANDROID__
@@ -312,7 +312,7 @@
 #	define NOX_OS_NAME "Linux"
 #	endif
 #else
-#	error "platform.hpp: Unknown operating system!"
+#	error "Platform.hpp: Unknown operating system!"
 #endif
 
 #if defined(__amd64__) || defined(__amd64) || defined(__x86_64__) || defined(__x86_64) || defined(_M_X64) || defined(_M_AMD64)
@@ -320,22 +320,21 @@
 #	define NOX_ARCH_X86_64 true
 #	define NOX_ARCH_NAME "x86-64"
 #elif defined(i386)			\
-			|| defined(__i386)		\
-			|| defined(__i386__)	\
-			|| defined(_M_IX86)
-#       error "32 bit is not supported - neither x86-32 or ARM 32!"
+	|| defined(__i386)		\
+	|| defined(__i386__)	\
+	|| defined(_M_IX86)
+# 	error "32 bit is not supported - neither x86-32 or ARM 32!"
 #elif (defined(__arm__) || defined(_M_ARM)) && !defined(__aarch64__)
-#       error "32 bit is not supported - neither x86-32 or ARM 32"
+# 	error "32 bit is not supported - neither x86-32 or ARM 32"
 #elif defined(__aarch64__)
 #	undef NOX_ARCH_ARM_64
 #	define NOX_ARCH_ARM_64 true
-#	define NOX_ARCH_NAME "ARM-64"
+#	define NOX_ARCH_NAME "AArch64"
 #else
-#	error "platform.hpp: Unknown architecture!"
+#	error "Platform.hpp: Unknown architecture!"
 #endif
 
-#	define NOX_ARCH_SIZE_NAME "64-Bit"
-
+#define NOX_ARCH_SIZE_NAME "64-Bit"
 #define NOX_IS_POSIX (NOX_OS_LINUX || NOX_OS_ANDROID || NOX_OS_MAC || NOX_OS_IOS)
 
 #if defined(__GNUC__) && !defined(__clang__)

@@ -211,6 +211,7 @@ namespace Nominax::Foundation
 	CPUFeatureDetector::CPUFeatureDetector() : FeatureBits_ { }
 	{
 		#if NOX_ARCH_X86_64
+        
             using namespace Assembler::AMD64::Routines;
             using Cfb = CPUFeatureBits;
 
@@ -220,7 +221,7 @@ namespace Nominax::Foundation
             // extract gathered CPU feature bits:
             CpuFeatureMaskBuffer buffer { };
             std::array<std::uint64_t, 3> merged { };
-            const std::uint32_t result {CPUID(&merged[0], &merged[1], &merged[2]) };
+            const std::uint32_t result { CPUID(&merged[0], &merged[1], &merged[2]) };
             std::uint8_t* const needle { std::data(buffer) };
             std::memcpy(needle, std::data(merged), sizeof merged);
             std::memcpy(needle + sizeof merged, &result, sizeof result);
@@ -268,8 +269,7 @@ namespace Nominax::Foundation
             (*this)[Cfb::AVX512VNNIW4]          &= avx512OsSupport;
             (*this)[Cfb::AVX512FMAPS4]          &= avx512OsSupport;
             (*this)[Cfb::AVX512VP2Intersect]    &= avx512OsSupport;
-		#else
-            #error "Unimplemented architecture!"
+
 		#endif
 	}
 

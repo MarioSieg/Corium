@@ -266,7 +266,7 @@ namespace Nominax::Assembler::AMD64
 
     inline auto EncodeSIB(const std::uint8_t scale, const std::uint8_t index) -> std::uint8_t
     {
-        NOX_DBG_PAS_TRUE(heckSIB(scale, index), "Invalid SIB byte.");
+        NOX_DBG_PAS_TRUE(CheckSIB(scale, index), "Invalid SIB byte.");
         return scale + ((index & 7) << 3) + 4;
     }
 

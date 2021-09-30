@@ -10,12 +10,12 @@ This script will help you to compile follow components from source:
 +-----------------------+--------------+-----------+-----------+
 |    CoriumCompiler     |     Rust     |   Cargo   |   RustC   |
 +-----------------------+--------------+-----------+-----------+
-|    NominaxRuntime     |   C++, ASM   |    CMake  | GCC,Clang |
+|    NominaxRuntime     |   C++, ASM   |   CMake   | GCC,Clang |
 +-----------------------+--------------+-----------+-----------+
 
 This script will NOT install the build environment for you!
 On Linux it's possible to automatically install the build environment.
-See Tools/LinuxBuildEnv.sh
+See Tools/BootstrapSDKSetup_Linux.sh
 
 Minimum prerequisites for all platforms:
 

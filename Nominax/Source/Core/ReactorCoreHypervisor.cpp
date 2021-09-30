@@ -225,37 +225,35 @@ namespace Nominax::Core
 		return output;
 	}
 
-	static constexpr std::array<ReactorCoreExecutionRoutine*, static_cast<std::uint64_t>(ReactorCoreSpecialization::Count)> REACTOR_REGISTRY
+	static constexpr std::array<ReactorCoreExecutionRoutine*, Foundation::ToUnderlying(ReactorCoreSpecialization::Count)> REACTOR_REGISTRY
 	{
 		&ReactorCore_Fallback,
 		&ReactorCore_Debug,
 
 		#if NOX_ARCH_X86_64
 
-		&ReactorCore_Avx,
-		&ReactorCore_Avx512F,
+			&ReactorCore_Avx,
+			&ReactorCore_Avx512F,
 
 		#endif
 	};
 
-	auto HyperVisor::SmartSelectReactor(const Foundation::CPUFeatureDetector& cpuFeatureDetector) -> ReactorCoreSpecialization
+	auto HyperVisor::SmartSelectReactor([[maybe_unused]] const Foundation::CPUFeatureDetector& cpuFeatureDetector) -> ReactorCoreSpecialization
 	{
 		#if NOX_ARCH_X86_64
 
-		// if we have AVX 512, use AVX 512:
-		if (cpuFeatureDetector[Foundation::CPUFeatureBits::AVX512F])
-		{
-			return ReactorCoreSpecialization::X86_64_AVX512F;
-		}
+			// if we have AVX 512, use AVX 512:
+			if (cpuFeatureDetector[Foundation::CPUFeatureBits::AVX512F])
+			{
+				return ReactorCoreSpecialization::X86_64_AVX512F;
+			}
 
-		// if we have AVX, use AVX:
-		if (cpuFeatureDetector[Foundation::CPUFeatureBits::AVX])
-		{
-			return ReactorCoreSpecialization::X86_64_AVX;
-		}
+			// if we have AVX, use AVX:
+			if (cpuFeatureDetector[Foundation::CPUFeatureBits::AVX])
+			{
+				return ReactorCoreSpecialization::X86_64_AVX;
+			}
 
-		#elif NOX_ARCH_ARM_64
-#	error "ARM64 not yet supported!"
 		#endif
 
 		return ReactorCoreSpecialization::Fallback;
