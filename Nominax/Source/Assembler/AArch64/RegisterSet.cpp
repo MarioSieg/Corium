@@ -13,7 +13,7 @@ namespace Nominax::Assembler::AArch64
             {
                 Print(stream, '\n');
             }
-            Print(stream, "%v{} = {:016X} ", i, regset[i].AsU64);
+            Print(stream, "%v{}{} = {:016X} ", i, i < 10 ? " " : "", regset[i].AsU64);
         }
         Print(stream, '\n');
     }

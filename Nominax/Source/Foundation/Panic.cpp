@@ -210,11 +210,13 @@
 
 namespace Nominax::Foundation
 {
+    using ::Nominax::Assembler::RegisterCache;
+
     static auto PrintPanicMessage(std::string_view message, const Foundation::SourceLocation& srcLoc) -> void;
 
     NOX_COLD auto Panic(const std::string_view message, const Foundation::SourceLocation& srcLoc) -> void
 	{
-        const Assembler::RegisterCache regCache { };
+        const RegisterCache regCache { };
         PrintPanicMessage(message, srcLoc);
         regCache.DisplayToConsole();
         std::fflush(stdout);

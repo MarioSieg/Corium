@@ -205,4 +205,7 @@
 
 #pragma once
 
+#include "RegisterCache.hpp"
 #include "RegisterLayout.hpp"
+#include "RegisterSet.hpp"
+#include "Routines.hpp"

@@ -231,7 +231,7 @@ namespace Nominax::Assembler::AArch64::Routines
     inline auto QueryPC() -> const void*
     {
         std::uintptr_t pc;
-        asm volatile("mov %0, pc" : "=r"(pc));
+        asm volatile("adr %0, ." : "=r"(pc));
         return std::bit_cast<const void*>(pc);
     }
 }
