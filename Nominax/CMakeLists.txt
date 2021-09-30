@@ -58,7 +58,10 @@ file(GLOB_RECURSE NOMINAX_SOURCES
 if (${CPU_IS_X86_64})
     set_source_files_properties(Source/Core/VMHypervisor_Impl_AVX.cpp PROPERTIES COMPILE_FLAGS -mavx)
     set_source_files_properties(Source/Core/VMHypervisor_Impl_AVX512F.cpp PROPERTIES COMPILE_FLAGS -mavx512f)
-    file(GLOB_RECURSE NOMINAX_ASM_SOURCES Source/Assembler/AMD64/*.cpp Source/Assembler/AMD64/*.S)
+    file(GLOB_RECURSE NOMINAX_ASM_SOURCES Source/Assembler/X86_64/*.cpp Source/Assembler/X86_64/*.S)
+    set(NOMINAX_SOURCES ${NOMINAX_SOURCES} ${NOMINAX_ASM_SOURCES})
+elseif (${CPU_IS_AARCH64})
+    file(GLOB_RECURSE NOMINAX_ASM_SOURCES Source/Assembler/AArch64/*.cpp Source/Assembler/AArch64/*.S)
     set(NOMINAX_SOURCES ${NOMINAX_SOURCES} ${NOMINAX_ASM_SOURCES})
 endif()
 

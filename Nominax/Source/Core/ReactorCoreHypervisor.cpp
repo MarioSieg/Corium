@@ -348,7 +348,7 @@ namespace Nominax::Core
 	) -> const ReactorState&
 	{
 		const bool result { HyperVisor::GetOptimalReactorRoutine(target).ExecutionRoutine(&input, &output, outJumpTable) };
-		NOX_PAS_TRUE(result, "Singleton execution proxy execution routine returned false!");
+		NOX_PAS(result, "Singleton execution proxy execution routine returned false!");
 		return output;
 	}
 

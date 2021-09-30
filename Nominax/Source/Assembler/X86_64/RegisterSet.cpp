@@ -203,10 +203,10 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../../Include/Nominax/Assembler/AMD64/RegisterSet.hpp"
-#include "../../../Include/Nominax/Assembler/AMD64/Routines.hpp"
+#include "../../../Include/Nominax/Assembler/X86_64/RegisterSet.hpp"
+#include "../../../Include/Nominax/Assembler/X86_64/Routines.hpp"
 
-namespace Nominax::Assembler::AMD64
+namespace Nominax::Assembler::X86_64
 {
     using Foundation::Print;
 

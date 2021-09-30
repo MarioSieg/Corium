@@ -203,10 +203,10 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../../Include/Nominax/Assembler/AMD64/RegisterCache.hpp"
-#include "../../../Include/Nominax/Assembler/AMD64/Routines.hpp"
+#include "../../../Include/Nominax/Assembler/AArch64/RegisterCache.hpp"
+#include "../../../Include/Nominax/Assembler/AArch64/Routines.hpp"
 
-namespace Nominax::Assembler::AMD64
+namespace Nominax::Assembler::AArch64
 {
     RegisterCache::RegisterCache()
     {
@@ -215,39 +215,9 @@ namespace Nominax::Assembler::AMD64
 
     auto RegisterCache::Fetch() -> void
     {
-        using Foundation::CPUFeatureBits;
-
         Routines::QueryRegSet_GPR(std::data(this->GPRSet));
-        Routines::QueryRegSet_SSE(std::data(this->SSESet));
-        const Foundation::CPUFeatureDetector features { };
-        if (features[CPUFeatureBits::AVX])
-        {
-            AVXRegisterSet out { };
-            Routines::QueryRegSet_AVX(std::data(out));
-            this->AVXSet = { out };
-        }
-        if (features[CPUFeatureBits::AVX512F])
-        {
-            AVX512RegisterSet out { };
-            Routines::QueryRegSet_AVX512(std::data(out));
-            this->AVX512Set = { out };
-            if (features[CPUFeatureBits::AVX512BW])
-            {
-                // BW -> 64 bit %k masks
-                AVX512BWMaskRegisterSet kout { };
-                Routines::QueryRegSet_AVX512BWMasks(std::data(kout));
-                this->AVX512MaskSet = { kout };
-            }
-            else
-            {
-                // no BW -> 16 bit %k masks
-                AVX512MaskRegisterSet kout { };
-                Routines::QueryRegSet_AVX512Masks(std::data(kout));
-                this->AVX512MaskSet = { kout };
-            }
-        }
-        // Fetch rip afterwards because it clobbers %rax
-        this->RIP = std::bit_cast<GPRRegister64Layout>(Routines::QueryRIP());
+        Routines::QueryRegSet_Neon(std::data(this->NeonSet));
+        this->RIP = std::bit_cast<GPRRegister64Layout>(Routines::QueryPC());
     }
 
     auto RegisterCache::Display(std::FILE& stream) const -> void
@@ -256,28 +226,6 @@ namespace Nominax::Assembler::AMD64
 
         Print(stream, "%rip = {:016X}", this->RIP.AsU64);
         DumpRegisterSet(stream, this->GPRSet);
-        if (this->AVXSet)
-        {
-            DumpRegisterSet(stream, *this->AVXSet);
-        }
-        else if (this->AVX512Set)
-        {
-            DumpRegisterSet(stream, *this->AVX512Set);
-            if (this->AVX512MaskSet)
-            {
-                if (const AVX512MaskRegisterSet* const masks = std::get_if<AVX512MaskRegisterSet>(&*this->AVX512MaskSet))
-                {
-                    DumpRegisterSet(stream, *masks);
-                }
-                else if (const AVX512BWMaskRegisterSet* const wideMasks = std::get_if<AVX512BWMaskRegisterSet>(&*this->AVX512MaskSet))
-                {
-                    DumpRegisterSet(stream, *wideMasks);
-                }
-            }
-        }
-        else
-        {
-            DumpRegisterSet(stream, this->SSESet);
-        }
+        DumpRegisterSet(stream, this->NeonSet);
     }
 }

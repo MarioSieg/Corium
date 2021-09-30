@@ -231,14 +231,14 @@
 #define NOX_OS_IOS		false
 
 /// <summary>
-///True if we are compiling for x86-64 (AMD 64) (CISC)
+/// True if we are compiling for x86-64 (AMD 64) (CISC)
 /// </summary>
 #define NOX_ARCH_X86_64	false
 
 /// <summary>
-///True if we are compiling for ARM 64 (RISC)
+/// True if we are compiling for AArch64 (A64) ARM 64 (RISC)
 /// </summary>
-#define NOX_ARCH_ARM_64	false
+#define NOX_ARCH_AARCH64	false
 
 /// <summary>
 ///True if we are compiling in release mode
@@ -327,8 +327,8 @@
 #elif (defined(__arm__) || defined(_M_ARM)) && !defined(__aarch64__)
 # 	error "32 bit is not supported - neither x86-32 or ARM 32"
 #elif defined(__aarch64__)
-#	undef NOX_ARCH_ARM_64
-#	define NOX_ARCH_ARM_64 true
+#	undef NOX_ARCH_AARCH64
+#	define NOX_ARCH_AARCH64 true
 #	define NOX_ARCH_NAME "AArch64"
 #else
 #	error "Platform.hpp: Unknown architecture!"

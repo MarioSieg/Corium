@@ -214,7 +214,7 @@ namespace Nominax::Foundation
 {
     auto AlignedMalloc(const std::uint64_t size, const std::uint64_t alignment) -> void*
     {
-        NOX_DBG_PAS_TRUE(IsPowerOfTwo(alignment), "Alignment must be a power of two!");
+        NOX_DBG_PAS(IsPowerOfTwo(alignment), "Alignment must be a power of two!");
         const std::uint64_t offset { alignment - 1 + sizeof(void*) };
         void* const origin { std::malloc(size + offset) };
         if (!origin)

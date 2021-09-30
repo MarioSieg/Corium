@@ -205,12 +205,96 @@
 
 #pragma once
 
-#include <algorithm>
-#include <cstdint>
-#include <cstring>
-#include <type_traits>
+#include "RegisterSet.hpp"
+#include "../../Foundation/IDisplay.hpp"
 
-namespace Nominax::Assembler::AMD64
+namespace Nominax::Assembler::X86_64
 {
-    extern auto EmitMultiByteNOPChain(std::uint8_t* m, std::uint8_t size) -> void;
+    /// <summary>
+    /// Contains all register set values.
+    /// All registers values are queried when the instance is constructed,
+    /// or .Fetch() is called.
+    /// Some register sets are only available if CPU supports it (AVX, AVX-512).
+    /// Of course %zmm shadows %ymm and %ymm shadows %xmm so they all could be in one register set - but it's simple for now and
+    /// the memory overhead is not that much.
+    /// </summary>
+    struct RegisterCache final : public Foundation::IDisplay
+    {
+        /// <summary>
+        /// Instruction pointer.
+        /// </summary>
+        GPRRegister64Layout RIP { };
+
+        /// <summary>
+        /// GPR set.
+        /// </summary>
+        GPRRegisterSet GPRSet { };
+
+        /// <summary>
+        /// SSE SIMD set.
+        /// </summary>
+        SSERegisterSet SSESet { };
+
+        /// <summary>
+        /// AVX SIMD set.
+        /// </summary>
+        std::optional<AVXRegisterSet> AVXSet { };
+
+        /// <summary>
+        /// AVX-512 SIMD set.
+        /// </summary>
+        std::optional<AVX512RegisterSet> AVX512Set { };
+
+        /// <summary>
+        /// AVX-512 SIMD mask set.
+        /// </summary>
+        std::optional<std::variant<AVX512MaskRegisterSet, AVX512BWMaskRegisterSet>> AVX512MaskSet { };
+
+        /// <summary>
+        /// Construct and fetch values.
+        /// </summary>
+        RegisterCache();
+
+        /// <summary>
+        /// Copy constructor.
+        /// </summary>
+        /// <param name="other"></param>
+        RegisterCache(const RegisterCache& other) = default;
+
+        /// <summary>
+        /// Move constructor.
+        /// </summary>
+        /// <param name="other"></param>
+        RegisterCache(RegisterCache&& other) = default;
+
+        /// <summary>
+        /// Copy assignment operator.
+        /// </summary>
+        /// <param name="other"></param>
+        auto operator =(const RegisterCache& other) -> RegisterCache& = default;
+
+        /// <summary>
+        /// Move assignment operator.
+        /// </summary>
+        /// <param name="other"></param>
+        auto operator =(RegisterCache&& other) -> RegisterCache& = default;
+
+        /// <summary>
+        /// Destructor.
+        /// </summary>
+        ~RegisterCache() override = default;
+
+        /// <summary>
+        /// Fetches all the values from the registers into this instance.
+        /// Is also called from the constructor.
+        /// </summary>
+        auto Fetch() -> void;
+
+        /// <summary>
+        /// Dumps all registers based on availability.
+        /// If there are shadowing SIMD registers, it only prints the largest union.
+        /// Like if the is AVX it will print all %ymm instead of %xmm and %ymm because %ymm contain %xmm (lower 128-bit).
+        /// </summary>
+        virtual auto Display(std::FILE& stream) const -> void override;
+    };
 }

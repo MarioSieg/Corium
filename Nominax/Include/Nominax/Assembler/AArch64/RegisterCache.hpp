@@ -203,180 +203,83 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../../Include/Nominax/Assembler/AMD64/Emitter.hpp"
+#pragma once
 
-namespace Nominax::Assembler::AMD64
+#include "RegisterSet.hpp"
+#include "../../Foundation/IDisplay.hpp"
+
+namespace Nominax::Assembler::AArch64
 {
-    auto EmitMultiByteNOPChain(std::uint8_t* m, std::uint8_t size) -> void
+    /// <summary>
+    /// Contains all register set values.
+    /// All registers values are queried when the instance is constructed,
+    /// or .Fetch() is called.
+    /// Some register sets are only available if CPU supports it (AVX, AVX-512).
+    /// Of course %zmm shadows %ymm and %ymm shadows %xmm so they all could be in one register set - but it's simple for now and
+    /// the memory overhead is not that much.
+    /// </summary>
+    struct RegisterCache final : public Foundation::IDisplay
     {
-        size = std::clamp<std::uint8_t>(size, 1, 15);
-        switch (size)
-        {
-            default:
-            case 1:
-                *m = 0x90;
-                return;
+        /// <summary>
+        /// Instruction pointer.
+        /// </summary>
+        GPRRegister64Layout RIP { };
 
-            case 2:
-                *m = 0x40;
-                *++m = 0x90;
-                return;
+        /// <summary>
+        /// GPR set.
+        /// </summary>
+        GPRRegisterSet GPRSet { };
 
-            case 3:
-                *m = 0x0F;
-                *++m = 0x1F;
-                *++m = 0x00;
-                return;
+        /// <summary>
+        /// Neon SIMD set.
+        /// </summary>
+        NeonRegisterSet NeonSet { };
 
-            case 4:
-                *m = 0x0F;
-                *++m = 0x1F;
-                *++m = 0x40;
-                *++m = 0x00;
-                return;
+        /// <summary>
+        /// Construct and fetch values.
+        /// </summary>
+        RegisterCache();
 
-            case 5:
-                *m = 0x0F;
-                *++m = 0x1F;
-                *++m = 0x44;
-                *++m = 0x00;
-                *++m = 0x00;
-                return;
+        /// <summary>
+        /// Copy constructor.
+        /// </summary>
+        /// <param name="other"></param>
+        RegisterCache(const RegisterCache& other) = default;
 
-            case 6:
-                *m = 0x66;
-                *++m = 0x0F;
-                *++m = 0x1F;
-                *++m = 0x44;
-                *++m = 0x00;
-                *++m = 0x00;
-                return;
+        /// <summary>
+        /// Move constructor.
+        /// </summary>
+        /// <param name="other"></param>
+        RegisterCache(RegisterCache&& other) = default;
 
-            case 7:
-                *m = 0x0F;
-                *++m = 0x1F;
-                *++m = 0x80;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                return;
+        /// <summary>
+        /// Copy assignment operator.
+        /// </summary>
+        /// <param name="other"></param>
+        auto operator =(const RegisterCache& other) -> RegisterCache& = default;
 
-            case 8:
-                *m = 0x0F;
-                *++m = 0x1F;
-                *++m = 0x84;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                return;
+        /// <summary>
+        /// Move assignment operator.
+        /// </summary>
+        /// <param name="other"></param>
+        auto operator =(RegisterCache&& other) -> RegisterCache& = default;
 
-            case 9:
-                *m = 0x66;
-                *++m = 0x0F;
-                *++m = 0x1F;
-                *++m = 0x84;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                return;
+        /// <summary>
+        /// Destructor.
+        /// </summary>
+        ~RegisterCache() override = default;
 
-            case 10:
-                *m = 0x66;
-                *++m = 0x2E;
-                *++m = 0x0F;
-                *++m = 0x1F;
-                *++m = 0x84;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                return;
+        /// <summary>
+        /// Fetches all the values from the registers into this instance.
+        /// Is also called from the constructor.
+        /// </summary>
+        auto Fetch() -> void;
 
-            case 11:
-                *m = 0x66;
-                *++m = 0x66;
-                *++m = 0x2E;
-                *++m = 0x0F;
-                *++m = 0x1F;
-                *++m = 0x84;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                return;
-
-            case 12:
-                *m = 0x66;
-                *++m = 0x66;
-                *++m = 0x66;
-                *++m = 0x2E;
-                *++m = 0x0F;
-                *++m = 0x1F;
-                *++m = 0x84;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                return;
-
-            case 13:
-                *m = 0x66;
-                *++m = 0x66;
-                *++m = 0x66;
-                *++m = 0x66;
-                *++m = 0x2E;
-                *++m = 0x0F;
-                *++m = 0x1F;
-                *++m = 0x84;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                return;
-
-            case 14:
-                *m = 0x66;
-                *++m = 0x66;
-                *++m = 0x66;
-                *++m = 0x66;
-                *++m = 0x66;
-                *++m = 0x2E;
-                *++m = 0x0F;
-                *++m = 0x1F;
-                *++m = 0x84;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                return;
-
-            case 15:
-                *m = 0x66;
-                *++m = 0x66;
-                *++m = 0x66;
-                *++m = 0x66;
-                *++m = 0x66;
-                *++m = 0x66;
-                *++m = 0x2E;
-                *++m = 0x0F;
-                *++m = 0x1F;
-                *++m = 0x84;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                *++m = 0x00;
-                return;
-        }
-    }
+        /// <summary>
+        /// Dumps all registers based on availability.
+        /// If there are shadowing SIMD registers, it only prints the largest union.
+        /// Like if the is AVX it will print all %ymm instead of %xmm and %ymm because %ymm contain %xmm (lower 128-bit).
+        /// </summary>
+        virtual auto Display(std::FILE& stream) const -> void override;
+    };
 }

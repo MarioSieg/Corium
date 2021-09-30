@@ -205,7 +205,7 @@
 
 .globl CPUID
 
-# Header: Include/Assembler/AMD64/Routines.hpp
+# Header: Include/Assembler/X86_64/Routines.hpp
 CPUID:
     pushq   %rbp                # stack frame prologue
     movq    %rsp, %rbp          # stack frame prologue

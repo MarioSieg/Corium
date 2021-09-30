@@ -203,156 +203,180 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "../../../Include/Nominax/Assembler/X86_64/Emitter.hpp"
 
-#include <array>
-#include <cstdint>
-
-namespace Nominax::Assembler::AMD64
+namespace Nominax::Assembler::X86_64
 {
-    /// <summary>
-    /// Represents the inner layout of a 64-bit GPR register such as %rax or %rbx.
-    /// </summary>
-    union alignas(alignof(std::uint64_t)) GPRRegister64Layout
+    auto EmitMultiByteNOPChain(std::uint8_t* m, std::uint8_t size) -> void
     {
-        std::uint64_t AsU64;
-        std::int64_t AsI64;
-        double AsF64;
-        void* AsPtr;
-        std::array<std::uint16_t, sizeof(std::uint64_t) / sizeof(std::uint32_t)> AsU32S;
-        std::array<std::uint16_t, sizeof(std::uint64_t) / sizeof(std::uint16_t)> AsU16S;
-        std::array<std::uint8_t, sizeof(std::uint64_t)> AsU8S;
-        class alignas(alignof(std::uint32_t)) GPR32Layout final
+        size = std::clamp<std::uint8_t>(size, 1, 15);
+        switch (size)
         {
-            [[maybe_unused]]
-            std::uint32_t Unused;
-        public:
-           union alignas(alignof(std::uint32_t))
-           {
-               std::uint32_t AsU32;
-               std::int32_t AsI32;
-               float AsF32;
-               char32_t AsChar32;
-               std::array<std::uint8_t, sizeof(std::uint32_t)> AsU8S;
-               std::array<std::uint16_t , sizeof(std::uint32_t) / sizeof(std::uint16_t)> AsU16S;
-               class alignas(alignof(std::uint16_t)) GPR16Layout final
-               {
-                   [[maybe_unused]]
-                   std::uint16_t Unused;
-               public:
-                   union alignas(alignof(std::uint16_t))
-                   {
-                       std::uint16_t AsU16;
-                       std::int16_t AsI16;
-                       char16_t AsChar16;
-                       std::array<std::uint8_t, sizeof(std::uint16_t)> AsU8S;
-                       struct alignas(alignof(std::uint16_t))
-                       {
-                           union alignas(alignof(std::uint8_t)) GPR8Layout
-                           {
-                               std::uint8_t AsU8;
-                               std::int8_t AsI8;
-                               char8_t AsChar8;
-                               char AsChar;
-                           } Hi8, Lo8;
-                           static_assert(sizeof(GPR8Layout) == sizeof(std::uint8_t));
-                       } HiLo;
-                       static_assert(sizeof(HiLo) == sizeof(std::uint16_t));
-                   } Inner;
-               } Lo16;
-               static_assert(sizeof(GPR16Layout) == sizeof(std::uint32_t));
-           } Inner;
-        } Lo32;
-        static_assert(sizeof(GPR32Layout) == sizeof(std::uint64_t));
-    };
+            default:
+            case 1:
+                *m = 0x90;
+                return;
 
-    static_assert(sizeof(GPRRegister64Layout) == sizeof(std::uint64_t));
-    static_assert(std::is_trivial_v<GPRRegister64Layout>);
+            case 2:
+                *m = 0x40;
+                *++m = 0x90;
+                return;
 
-    /// <summary>
-    /// Represents the inner layout of a 128-bit SSE SIMD register such as %xmm0 oder %xmm15.
-    /// </summary>
-    union alignas(alignof(std::uint64_t)) SSERegister128Layout
-    {
-        struct alignas(alignof(std::uint64_t))
-        {
-            union alignas(alignof(std::uint64_t)) SSEWord64
-            {
-                std::uint64_t AsU64;
-                std::int64_t AsI64;
-                float AsF32;    /* SS -> scalar single precision */
-                double AsF64;   /* SD -> scalar double precision */
-                void* AsPtr;
-                std::array<std::uint16_t, sizeof(std::uint64_t) / sizeof(std::uint32_t)> AsU32S;
-                std::array<std::uint16_t, sizeof(std::uint64_t) / sizeof(std::uint16_t)> AsU16S;
-                std::array<std::uint8_t, sizeof(std::uint64_t)> AsU8S;
-            } Lo, Hi;
-            static_assert(sizeof(SSEWord64) == sizeof(std::uint64_t));
-        } Inner;
-        static_assert(sizeof(Inner) == sizeof(std::uint64_t) << 1);
-        std::array<std::int8_t, (sizeof(std::uint64_t) << 1) / sizeof(std::int8_t)> AsEPI8;
-        std::array<std::uint8_t, (sizeof(std::uint64_t) << 1) / sizeof(std::uint8_t)> AsEPU8;
-        std::array<std::int32_t, (sizeof(std::uint64_t) << 1) / sizeof(std::int32_t)> AsEPI32;
-        std::array<std::uint32_t, (sizeof(std::uint64_t) << 1) / sizeof(std::uint32_t)> AsEPU32;
-        std::array<float, (sizeof(std::uint64_t) << 1) / sizeof(float)> AsPS;
-        std::array<double, (sizeof(std::uint64_t) << 1) / sizeof(double)> AsPD;
-        std::array<std::uint64_t, (sizeof(std::uint64_t) << 1) / sizeof(std::uint64_t)> AsU64S;
-    };
+            case 3:
+                *m = 0x0F;
+                *++m = 0x1F;
+                *++m = 0x00;
+                return;
 
-    static_assert(sizeof(SSERegister128Layout) == sizeof(std::uint64_t) << 1);
-    static_assert(std::is_trivial_v<SSERegister128Layout>);
+            case 4:
+                *m = 0x0F;
+                *++m = 0x1F;
+                *++m = 0x40;
+                *++m = 0x00;
+                return;
 
-    /// <summary>
-    /// Represents the inner layout of a 256-bit AVX SIMD register such as %ymm0 oder %ymm15.
-    /// </summary>
-    union alignas(alignof(std::uint64_t)) AVXRegister256Layout
-    {
-        struct alignas(alignof(std::uint64_t))
-        {
-            SSERegister128Layout Hi, Lo;
-        } Inner;
-        static_assert(sizeof(Inner) == sizeof(std::uint64_t) << 2);
-        std::array<std::int8_t, (sizeof(std::uint64_t) << 2) / sizeof(std::int8_t)> AsEPI8;
-        std::array<std::uint8_t, (sizeof(std::uint64_t) << 2) / sizeof(std::uint8_t)> AsEPU8;
-        std::array<std::int32_t, (sizeof(std::uint64_t) << 2) / sizeof(std::int32_t)> AsEPI32;
-        std::array<std::uint32_t, (sizeof(std::uint64_t) << 2) / sizeof(std::uint32_t)> AsEPU32;
-        std::array<float, (sizeof(std::uint64_t) << 2) / sizeof(float)> AsPS;
-        std::array<double, (sizeof(std::uint64_t) << 2) / sizeof(double)> AsPD;
-        std::array<std::uint64_t, (sizeof(std::uint64_t) << 2) / sizeof(std::uint64_t)> AsU64S;
-    };
+            case 5:
+                *m = 0x0F;
+                *++m = 0x1F;
+                *++m = 0x44;
+                *++m = 0x00;
+                *++m = 0x00;
+                return;
 
-    static_assert(sizeof(AVXRegister256Layout) == sizeof(std::uint64_t) << 2);
-    static_assert(std::is_trivial_v<AVXRegister256Layout>);
+            case 6:
+                *m = 0x66;
+                *++m = 0x0F;
+                *++m = 0x1F;
+                *++m = 0x44;
+                *++m = 0x00;
+                *++m = 0x00;
+                return;
 
-    /// <summary>
-    /// Represents the inner layout of a 512-bit AVX-512F SIMD register such as %zmm0 oder %zmm15.
-    /// </summary>
-    union alignas(alignof(std::uint64_t)) AVX512Register512Layout
-    {
-        struct alignas(alignof(std::uint64_t))
-        {
-            AVXRegister256Layout Hi, Lo;
-        } Inner;
-        static_assert(sizeof(Inner) == sizeof(std::uint64_t) << 3);
-        std::array<std::int8_t, (sizeof(std::uint64_t) << 3) / sizeof(std::int8_t)> AsEPI8;
-        std::array<std::uint8_t, (sizeof(std::uint64_t) << 3) / sizeof(std::uint8_t)> AsEPU8;
-        std::array<std::int32_t, (sizeof(std::uint64_t) << 3) / sizeof(std::int32_t)> AsEPI32;
-        std::array<std::uint32_t, (sizeof(std::uint64_t) << 3) / sizeof(std::uint32_t)> AsEPU32;
-        std::array<float, (sizeof(std::uint64_t) << 3) / sizeof(float)> AsPS;
-        std::array<double, (sizeof(std::uint64_t) << 3) / sizeof(double)> AsPD;
-        std::array<std::uint64_t, (sizeof(std::uint64_t) << 3) / sizeof(std::uint64_t)> AsU64S;
-    };
+            case 7:
+                *m = 0x0F;
+                *++m = 0x1F;
+                *++m = 0x80;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                return;
 
-    static_assert(sizeof(AVX512Register512Layout) == sizeof(std::uint64_t) << 3);
-    static_assert(std::is_trivial_v<AVX512Register512Layout>);
+            case 8:
+                *m = 0x0F;
+                *++m = 0x1F;
+                *++m = 0x84;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                return;
 
-    /// <summary>
-    /// Represents the inner layout of a 16-bit AVX-512-F mask register such as %k0 oder %k7.
-    /// </summary>
-    using AVX512MaskRegister16Layout = std::uint16_t;
+            case 9:
+                *m = 0x66;
+                *++m = 0x0F;
+                *++m = 0x1F;
+                *++m = 0x84;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                return;
 
-    /// <summary>
-    /// Represents the inner layout of a 64-bit AVX-512-BW mask register such as %k0 oder %k7.
-    /// </summary>
-    using AVX512BWMaskRegister64Layout = std::uint64_t;
+            case 10:
+                *m = 0x66;
+                *++m = 0x2E;
+                *++m = 0x0F;
+                *++m = 0x1F;
+                *++m = 0x84;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                return;
+
+            case 11:
+                *m = 0x66;
+                *++m = 0x66;
+                *++m = 0x2E;
+                *++m = 0x0F;
+                *++m = 0x1F;
+                *++m = 0x84;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                return;
+
+            case 12:
+                *m = 0x66;
+                *++m = 0x66;
+                *++m = 0x66;
+                *++m = 0x2E;
+                *++m = 0x0F;
+                *++m = 0x1F;
+                *++m = 0x84;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                return;
+
+            case 13:
+                *m = 0x66;
+                *++m = 0x66;
+                *++m = 0x66;
+                *++m = 0x66;
+                *++m = 0x2E;
+                *++m = 0x0F;
+                *++m = 0x1F;
+                *++m = 0x84;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                return;
+
+            case 14:
+                *m = 0x66;
+                *++m = 0x66;
+                *++m = 0x66;
+                *++m = 0x66;
+                *++m = 0x66;
+                *++m = 0x2E;
+                *++m = 0x0F;
+                *++m = 0x1F;
+                *++m = 0x84;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                return;
+
+            case 15:
+                *m = 0x66;
+                *++m = 0x66;
+                *++m = 0x66;
+                *++m = 0x66;
+                *++m = 0x66;
+                *++m = 0x66;
+                *++m = 0x2E;
+                *++m = 0x0F;
+                *++m = 0x1F;
+                *++m = 0x84;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                *++m = 0x00;
+                return;
+        }
+    }
 }

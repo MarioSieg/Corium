@@ -1,20 +1,20 @@
 # Author: Mario
 # Project: Nominax
-# 
+#
 #                                  Apache License
 #                            Version 2.0, January 2004
 #                         http:#www.apache.org/licenses/
-# 
+#
 #    TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
-# 
+#
 #    1. Definitions.
-# 
+#
 #       "License" shall mean the terms and conditions for use, reproduction,
 #       and distribution as defined by Sections 1 through 9 of this document.
-# 
+#
 #       "Licensor" shall mean the copyright owner or entity authorized by
 #       the copyright owner that is granting the License.
-# 
+#
 #       "Legal Entity" shall mean the union of the acting entity and all
 #       other entities that control, are controlled by, or are under common
 #       control with that entity. For the purposes of this definition,
@@ -22,24 +22,24 @@
 #       direction or management of such entity, whether by contract or
 #       otherwise, or (ii) ownership of fifty percent (50%) or more of the
 #       outstanding shares, or (iii) beneficial ownership of such entity.
-# 
+#
 #       "You" (or "Your") shall mean an individual or Legal Entity
 #       exercising permissions granted by this License.
-# 
+#
 #       "Source" form shall mean the preferred form for making modifications,
 #       including but not limited to software source code, documentation
 #       source, and configuration files.
-# 
+#
 #       "Object" form shall mean any form resulting from mechanical
 #       transformation or translation of a Source form, including but
 #       not limited to compiled object code, generated documentation,
 #       and conversions to other media types.
-# 
+#
 #       "Work" shall mean the work of authorship, whether in Source or
 #       Object form, made available under the License, as indicated by a
 #       copyright notice that is included in or attached to the work
 #       (an example is provided in the Appendix below).
-# 
+#
 #       "Derivative Works" shall mean any work, whether in Source or Object
 #       form, that is based on (or derived from) the Work and for which the
 #       editorial revisions, annotations, elaborations, or other modifications
@@ -47,7 +47,7 @@
 #       of this License, Derivative Works shall not include works that remain
 #       separable from, or merely link (or bind by name) to the interfaces of,
 #       the Work and Derivative Works thereof.
-# 
+#
 #       "Contribution" shall mean any work of authorship, including
 #       the original version of the Work and any modifications or additions
 #       to that Work or Derivative Works thereof, that is intentionally
@@ -61,18 +61,18 @@
 #       Licensor for the purpose of discussing and improving the Work, but
 #       excluding communication that is conspicuously marked or otherwise
 #       designated in writing by the copyright owner as "Not a Contribution."
-# 
+#
 #       "Contributor" shall mean Licensor and any individual or Legal Entity
 #       on behalf of whom a Contribution has been received by Licensor and
 #       subsequently incorporated within the Work.
-# 
+#
 #    2. Grant of Copyright License. Subject to the terms and conditions of
 #       this License, each Contributor hereby grants to You a perpetual,
 #       worldwide, non-exclusive, no-charge, royalty-free, irrevocable
 #       copyright license to reproduce, prepare Derivative Works of,
 #       publicly display, publicly perform, sublicense, and distribute the
 #       Work and such Derivative Works in Source or Object form.
-# 
+#
 #    3. Grant of Patent License. Subject to the terms and conditions of
 #       this License, each Contributor hereby grants to You a perpetual,
 #       worldwide, non-exclusive, no-charge, royalty-free, irrevocable
@@ -88,24 +88,24 @@
 #       or contributory patent infringement, then any patent licenses
 #       granted to You under this License for that Work shall terminate
 #       as of the date such litigation is filed.
-# 
+#
 #    4. Redistribution. You may reproduce and distribute copies of the
 #       Work or Derivative Works thereof in any medium, with or without
 #       modifications, and in Source or Object form, provided that You
 #       meet the following conditions:
-# 
+#
 #       (a) You must give any other recipients of the Work or
 #           Derivative Works a copy of this License; and
-# 
+#
 #       (b) You must cause any modified files to carry prominent notices
 #           stating that You changed the files; and
-# 
+#
 #       (c) You must retain, in the Source form of any Derivative Works
 #           that You distribute, all copyright, patent, trademark, and
 #           attribution notices from the Source form of the Work,
 #           excluding those notices that do not pertain to any part of
 #           the Derivative Works; and
-# 
+#
 #       (d) If the Work includes a "NOTICE" text file as part of its
 #           distribution, then any Derivative Works that You distribute must
 #          _include a readable copy of the attribution notices contained
@@ -122,14 +122,14 @@
 #           or as an addendum to the NOTICE text from the Work, provided
 #           that such additional attribution notices cannot be construed
 #           as modifying the License.
-# 
+#
 #       You may add Your own copyright statement to Your modifications and
 #       may provide additional or different license terms and conditions
 #       for use, reproduction, or distribution of Your modifications, or
 #       for any such Derivative Works as a whole, provided Your use,
 #       reproduction, and distribution of the Work otherwise complies with
 #       the conditions stated in this License.
-# 
+#
 #    5. Submission of Contributions. Unless You explicitly state otherwise,
 #       any Contribution intentionally submitted for inclusion in the Work
 #       by You to the Licensor shall be under the terms and conditions of
@@ -137,12 +137,12 @@
 #       Notwithstanding the above, nothing herein shall supersede or modify
 #       the terms of any separate license agreement you may have executed
 #       with Licensor regarding such Contributions.
-# 
+#
 #    6. Trademarks. This License does not grant permission to use the trade
 #       names, trademarks, service marks, or product names of the Licensor,
 #       except as required for reasonable and customary use in describing the
 #       origin of the Work and reproducing the content of the NOTICE file.
-# 
+#
 #    7. Disclaimer of Warranty. Unless required by applicable law or
 #       agreed to in writing, Licensor provides the Work (and each
 #       Contributor provides its Contributions) on an "AS IS" BASIS,
@@ -152,7 +152,7 @@
 #       PARTICULAR PURPOSE. You are solely responsible for determining the
 #       appropriateness of using or redistributing the Work and assume any
 #       risks associated with Your exercise of permissions under this License.
-# 
+#
 #    8. Limitation of Liability. In no event and under no legal theory,
 #       whether in tort (including negligence), contract, or otherwise,
 #       unless required by applicable law (such as deliberate and grossly
@@ -164,7 +164,7 @@
 #       work stoppage, computer failure or malfunction, or any and all
 #       other commercial damages or losses), even if such Contributor
 #       has been advised of the possibility of such damages.
-# 
+#
 #    9. Accepting Warranty or Additional Liability. While redistributing
 #       the Work or Derivative Works thereof, You may choose to offer,
 #       and charge a fee for, acceptance of support, warranty, indemnity,
@@ -175,11 +175,11 @@
 #       defend, and hold each Contributor harmless for any liability
 #       incurred by, or claims asserted against, such Contributor by reason
 #       of your accepting any such warranty or additional liability.
-# 
+#
 #    END OF TERMS AND CONDITIONS
-# 
+#
 #    APPENDIX: How to apply the Apache License to your work.
-# 
+#
 #       To apply the Apache License to your work, attach the following
 #       boilerplate notice, with the fields enclosed by brackets "[]"
 #       replaced with your own identifying information. (Don't include
@@ -188,29 +188,93 @@
 #       file or class name and description of purpose be included on the
 #       same "printed page" as the copyright notice for easier
 #       identification within third-party archives.
-# 
+#
 #    Copyright 2021 Mario Sieg "pinsrq" <mt3000@gmx.de>
-# 
+#
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
 #    You may obtain a copy of the License at
-# 
+#
 #        http:#www.apache.org/licenses/LICENSE-2.0
-# 
+#
 #    Unless required by applicable law or agreed to in writing, software
 #    distributed under the License is distributed on an "AS IS" BASIS,
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-.globl IsAVXSupportedByOS
+.globl QueryRegSet_GPR
+.globl QueryRegSet_Neon
 
-# extern "C" NOX_ASM_ROUTINE auto IsAVXSupportedByOS() -> bool;
-# Header: Arch/AMD64/CpuId.hpp
-IsAVXSupportedByOS:
-    xorl    %ecx, %ecx              # clear ecx
-    xgetbv                          # read value from extended control register into %edx:%eax
-    andb    $0b00000110, %al        # mask out avx bits
-    cmpb    $0b00000110, %al        # compare value
-    seteb   %al                     # if equals & supported, set al to 1 else 0
-    retq                            # return
+# extern "C" NOX_ASM_ROUTINE auto QueryRegSet_GPR(GPRRegister64Layout* out) -> void;
+# Query general purpose registers (%x0 - %x30). (%pc) does not count as GPR!
+QueryRegSet_GPR:
+    str x0,  [x0]
+    str x1,  [x0, 8*1]
+    str x2,  [x0, 8*2]
+    str x3,  [x0, 8*3]
+    str x4,  [x0, 8*4]
+    str x5,  [x0, 8*5]
+    str x6,  [x0, 8*6]
+    str x7,  [x0, 8*7]
+    str x8,  [x0, 8*8]
+    str x9,  [x0, 8*9]
+    str x10, [x0, 8*10]
+    str x11, [x0, 8*11]
+    str x12, [x0, 8*12]
+    str x13, [x0, 8*13]
+    str x14, [x0, 8*14]
+    str x15, [x0, 8*15]
+    str x16, [x0, 8*16]
+    str x17, [x0, 8*17]
+    str x18, [x0, 8*18]
+    str x19, [x0, 8*19]
+    str x20, [x0, 8*20]
+    str x21, [x0, 8*21]
+    str x22, [x0, 8*22]
+    str x23, [x0, 8*23]
+    str x24, [x0, 8*24]
+    str x25, [x0, 8*25]
+    str x26, [x0, 8*26]
+    str x27, [x0, 8*27]
+    str x28, [x0, 8*28]
+    str x29, [x0, 8*29]
+    str x30, [x0, 8*30]
+    ret
+
+# extern "C" NOX_ASM_ROUTINE auto QueryRegSet_Neon(NeonRegister128Layout* out) -> void;
+# Query all Neon registers (%v0 - %v31)
+QueryRegSet_Neon:
+    vst1.64 {d0, d1}, [x0]
+    vst1.64 {d2, d3}, [x0, 16*1]
+    vst1.64 {d4, d5}, [x0, 16*2]
+    vst1.64 {d6, d7}, [x0, 16*3]
+    vst1.64 {d8, d9}, [x0, 16*4]
+    vst1.64 {d10, d11}, [x0, 16*5]
+    vst1.64 {d12, d13}, [x0, 16*6]
+    vst1.64 {d14, d15}, [x0, 16*7]
+    vst1.64 {d16, d17}, [x0, 16*8]
+    vst1.64 {d18, d19}, [x0, 16*9]
+    vst1.64 {d20, d21}, [x0, 16*10]
+    vst1.64 {d22, d23}, [x0, 16*11]
+    vst1.64 {d24, d25}, [x0, 16*12]
+    vst1.64 {d26, d27}, [x0, 16*13]
+    vst1.64 {d28, d29}, [x0, 16*14]
+    vst1.64 {d30, d31}, [x0, 16*15]
+    vst1.64 {d32, d33}, [x0, 16*16]
+    vst1.64 {d34, d35}, [x0, 16*17]
+    vst1.64 {d36, d37}, [x0, 16*18]
+    vst1.64 {d38, d39}, [x0, 16*19]
+    vst1.64 {d40, d41}, [x0, 16*20]
+    vst1.64 {d42, d43}, [x0, 16*21]
+    vst1.64 {d44, d45}, [x0, 16*22]
+    vst1.64 {d46, d47}, [x0, 16*23]
+    vst1.64 {d48, d49}, [x0, 16*24]
+    vst1.64 {d50, d51}, [x0, 16*25]
+    vst1.64 {d52, d53}, [x0, 16*26]
+    vst1.64 {d54, d55}, [x0, 16*27]
+    vst1.64 {d56, d57}, [x0, 16*28]
+    vst1.64 {d58, d59}, [x0, 16*29]
+    vst1.64 {d60, d61}, [x0, 16*30]
+    vst1.64 {d62, d64}, [x0, 16*31]
+    ret

@@ -214,28 +214,13 @@ namespace Nominax::Foundation
 	/// Checks the condition and panics with the specified message,
 	/// if the condition is not true.
 	/// </summary>
-	#define NOX_PAS_TRUE(x, msg)							                    \
+	#define NOX_PAS(x, msg)							                            \
 	do														                    \
 	{														                    \
 		if (!( x ))                 						                    \
 		{													                    \
 		      [[unlikely]]									                    \
-              ::Nominax::Foundation::Panic(msg);	                                                    \
-		}													                    \
-	}														                    \
-	while(false)
-
-	/// <summary>
-	/// Checks the condition and panics with the specified message,
-	/// if the condition is not true.
-	/// </summary>
-	#define NOX_PAS_FALSE(x, msg)							                    \
-	do														                    \
-	{														                    \
-		if (( x ))											                    \
-		{													                    \
-		      [[unlikely]]									                    \
-              ::Nominax::Foundation::Panic(msg);	                                                    \
+              ::Nominax::Foundation::Panic(msg);	                            \
 		}													                    \
 	}														                    \
 	while(false)
@@ -250,7 +235,7 @@ namespace Nominax::Foundation
 	/// Checks the condition and panics with the specified message,
 	/// if the condition is not true.
 	/// </summary>
-	#define NOX_PAS_NOT_NULL(x, msg) NOX_PAS_TRUE(x, msg)
+	#define NOX_PAS_NOT_NULL(x, msg) NOX_PAS(x, msg)
 
 	/// <summary>
 	/// Checks the condition and panics with the specified message,
@@ -262,7 +247,7 @@ namespace Nominax::Foundation
 	/// Checks the condition and panics with the specified message,
 	/// if the condition is not true.
 	/// </summary>
-	#define NOX_PAS_NOT_ZERO(x, msg) NOX_PAS_TRUE(x, msg)
+	#define NOX_PAS_NOT_ZERO(x, msg) NOX_PAS(x, msg)
 
 	/// <summary>
 	/// Checks the condition and panics with the specified message,
@@ -361,14 +346,7 @@ namespace Nominax::Foundation
         /// Checks the condition and panics with the specified message,
         /// if the condition is not true.
         /// </summary>
-        #define NOX_DBG_PAS_TRUE(x, msg)		NOX_PAS_TRUE(x, msg)
-
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_FALSE(x, msg)		NOX_PAS_FALSE(x, msg)
+        #define NOX_DBG_PAS(x, msg)		NOX_PAS(x, msg)
 
         /// <summary>
         /// Only active when building for DEBUG.
@@ -447,7 +425,7 @@ namespace Nominax::Foundation
         /// Checks the condition and panics with the specified message,
         /// if the condition is not true.
         /// </summary>
-        #define NOX_DBG_PAS_TRUE(x, msg)
+        #define NOX_DBG_PAS(x, msg)
 
         /// <summary>
         /// Only active when building for DEBUG.

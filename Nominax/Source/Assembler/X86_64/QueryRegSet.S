@@ -203,14 +203,159 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-.globl IsAVX512SupportedByOS
+.globl QueryRegSet_GPR
+.globl QueryRegSet_SSE
+.globl QueryRegSet_AVX
+.globl QueryRegSet_AVX512
+.globl QueryRegSet_AVX512Masks
+.globl QueryRegSet_AVX512BWMasks
 
-# extern "C" NOX_ASM_ROUTINE auto IsAVX512SupportedByOS() -> bool;
-# Header: Arch/AMD64/CpuId.hpp
-IsAVX512SupportedByOS:
-    xorl    %ecx, %ecx          # clear ecx
-    xgetbv                      # read value from extended control register into %edx:%eax
-    andb    $0b11100000, %al    # mask out avx512 bit
-    cmpb    $0b11100000, %al    # compare bits
-    seteb   %al                 # if equals & supported, set al to 1 else 0
-    retq                        # return
+#ifdef __WIN__
+#define AR0 rcx
+#else
+#define AR0 rdi
+#endif
+
+# extern "C" NOX_ASM_ROUTINE auto QueryRegSet_GPR(GPRRegister64Layout* out) -> void;
+# Query general purpose registers (%rax - %r15). (%rip) does not count as GPR!
+QueryRegSet_GPR:
+    movq    %rax,   (%AR0)
+    movq    %rbx,   8*1(%AR0)
+    movq    %rcx,   8*2(%AR0)
+    movq    %rdx,   8*3(%AR0)
+    movq    %rsi,   8*4(%AR0)
+    movq    %rdi,   8*5(%AR0)
+    movq    %rsp,   8*6(%AR0)
+    movq    %rbp,   8*7(%AR0)
+    movq    %r8,    8*8(%AR0)
+    movq    %r9,    8*9(%AR0)
+    movq    %r10,   8*10(%AR0)
+    movq    %r11,   8*11(%AR0)
+    movq    %r12,   8*12(%AR0)
+    movq    %r13,   8*13(%AR0)
+    movq    %r14,   8*14(%AR0)
+    movq    %r15,   8*15(%AR0)
+    retq
+
+# extern "C" NOX_ASM_ROUTINE auto QueryRegSet_SSE(SSERegister128Layout* out) -> void;
+# Query all SSE registers (%xmm0 - %xmm15)
+QueryRegSet_SSE:
+    movdqu  %xmm0,  (%AR0)
+    movdqu  %xmm1,  16*1(%AR0)
+    movdqu  %xmm2,  16*2(%AR0)
+    movdqu  %xmm3,  16*3(%AR0)
+    movdqu  %xmm4,  16*4(%AR0)
+    movdqu  %xmm5,  16*5(%AR0)
+    movdqu  %xmm6,  16*6(%AR0)
+    movdqu  %xmm7,  16*7(%AR0)
+    movdqu  %xmm8,  16*8(%AR0)
+    movdqu  %xmm9,  16*9(%AR0)
+    movdqu  %xmm10, 16*10(%AR0)
+    movdqu  %xmm11, 16*11(%AR0)
+    movdqu  %xmm12, 16*12(%AR0)
+    movdqu  %xmm13, 16*13(%AR0)
+    movdqu  %xmm14, 16*14(%AR0)
+    movdqu  %xmm15, 16*15(%AR0)
+    retq
+
+# extern "C" NOX_ASM_ROUTINE auto QueryRegSet_AVX(AVXRegister256Layout* out) -> void;
+# Query all AVX registers (%ymm0 - %ymm15)
+QueryRegSet_AVX:
+    vmovdqu  %ymm0,  (%AR0)
+    vmovdqu  %ymm1,  32*1(%AR0)
+    vmovdqu  %ymm2,  32*2(%AR0)
+    vmovdqu  %ymm3,  32*3(%AR0)
+    vmovdqu  %ymm4,  32*4(%AR0)
+    vmovdqu  %ymm5,  32*5(%AR0)
+    vmovdqu  %ymm6,  32*6(%AR0)
+    vmovdqu  %ymm7,  32*7(%AR0)
+    vmovdqu  %ymm8,  32*8(%AR0)
+    vmovdqu  %ymm9,  32*9(%AR0)
+    vmovdqu  %ymm10, 32*10(%AR0)
+    vmovdqu  %ymm11, 32*11(%AR0)
+    vmovdqu  %ymm12, 32*12(%AR0)
+    vmovdqu  %ymm13, 32*13(%AR0)
+    vmovdqu  %ymm14, 32*14(%AR0)
+    vmovdqu  %ymm15, 32*15(%AR0)
+    retq
+
+# extern "C" NOX_ASM_ROUTINE auto QueryRegSet_AVX512(AVX512Register512Layout* out) -> void;
+# Query all AVX-512 registers (%zmm0 - %zmm31)
+QueryRegSet_AVX512:
+    vmovdqu64  %zmm0,  (%AR0)
+    vmovdqu64  %zmm1,  64*1(%AR0)
+    vmovdqu64  %zmm2,  64*2(%AR0)
+    vmovdqu64  %zmm3,  64*3(%AR0)
+    vmovdqu64  %zmm4,  64*4(%AR0)
+    vmovdqu64  %zmm5,  64*5(%AR0)
+    vmovdqu64  %zmm6,  64*6(%AR0)
+    vmovdqu64  %zmm7,  64*7(%AR0)
+    vmovdqu64  %zmm8,  64*8(%AR0)
+    vmovdqu64  %zmm9,  64*9(%AR0)
+    vmovdqu64  %zmm10, 64*10(%AR0)
+    vmovdqu64  %zmm11, 64*11(%AR0)
+    vmovdqu64  %zmm12, 64*12(%AR0)
+    vmovdqu64  %zmm13, 64*13(%AR0)
+    vmovdqu64  %zmm14, 64*14(%AR0)
+    vmovdqu64  %zmm15, 64*15(%AR0)
+    vmovdqu64  %zmm16, 64*16(%AR0)
+    vmovdqu64  %zmm17, 64*17(%AR0)
+    vmovdqu64  %zmm18, 64*18(%AR0)
+    vmovdqu64  %zmm19, 64*19(%AR0)
+    vmovdqu64  %zmm20, 64*20(%AR0)
+    vmovdqu64  %zmm21, 64*21(%AR0)
+    vmovdqu64  %zmm22, 64*22(%AR0)
+    vmovdqu64  %zmm23, 64*23(%AR0)
+    vmovdqu64  %zmm24, 64*24(%AR0)
+    vmovdqu64  %zmm25, 64*25(%AR0)
+    vmovdqu64  %zmm26, 64*26(%AR0)
+    vmovdqu64  %zmm27, 64*27(%AR0)
+    vmovdqu64  %zmm28, 64*28(%AR0)
+    vmovdqu64  %zmm29, 64*29(%AR0)
+    vmovdqu64  %zmm30, 64*30(%AR0)
+    vmovdqu64  %zmm31, 64*31(%AR0)
+    retq
+
+# extern "C" NOX_ASM_ROUTINE auto QueryRegSet_AVX512Masks(AVX512MaskRegister16Layout* out) -> void;
+# Query all AVX-512 mask registers (%k0 - %k7)
+# By default AVX-512 mask registers are 16-bit wide.
+QueryRegSet_AVX512Masks:
+    kmovw   %k0,    %eax
+    movw    %ax,    (%AR0)
+    kmovw   %k1,    %eax
+    movw    %ax,    2*1(%AR0)
+    kmovw   %k2,    %eax
+    movw    %ax,    2*2(%AR0)
+    kmovw   %k3,    %eax
+    movw    %ax,    2*3(%AR0)
+    kmovw   %k4,    %eax
+    movw    %ax,    2*4(%AR0)
+    kmovw   %k5,    %eax
+    movw    %ax,    2*5(%AR0)
+    kmovw   %k6,    %eax
+    movw    %ax,    2*6(%AR0)
+    kmovw   %k7,    %eax
+    movw    %ax,    2*7(%AR0)
+    retq
+
+# extern "C" NOX_ASM_ROUTINE auto QueryRegSet_AVX512BWMasks(AVX512BWMaskRegister64Layout* out) -> void;
+# If we have AVX-512 BW the mask registers are 64-bits wide instead of 16-bits
+# Query all AVX-512 mask registers (%k0 - %k7)
+QueryRegSet_AVX512BWMasks:
+    kmovq   %k0,    %rax
+    movq    %rax,   (%AR0)
+    kmovq   %k1,    %rax
+    movq    %rax,   8*1(%AR0)
+    kmovq   %k2,    %rax
+    movq    %rax,   8*2(%AR0)
+    kmovq   %k3,    %rax
+    movq    %rax,   8*3(%AR0)
+    kmovq   %k4,    %rax
+    movq    %rax,   8*4(%AR0)
+    kmovq   %k5,    %rax
+    movq    %rax,   8*5(%AR0)
+    kmovq   %k6,    %rax
+    movq    %rax,   8*6(%AR0)
+    kmovq   %k7,    %rax
+    movq    %rax,   8*7(%AR0)
+    retq

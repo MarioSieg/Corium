@@ -210,7 +210,7 @@
 
 #if NOX_ARCH_X86_64 && NOX_USE_ARCH_OPT
 #	include <immintrin.h>
-#elif NOX_ARCH_ARM_64 && NOX_USE_ARCH_OPT && defined(__ARM_NEON)
+#elif NOX_ARCH_AARCH64 && NOX_USE_ARCH_OPT && defined(__ARM_NEON)
 #	include <arm_neon.h>
 #endif
 

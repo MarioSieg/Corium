@@ -218,7 +218,7 @@ namespace Nominax::Foundation
 	{
 		#if NOX_ARCH_X86_64
 			asm("int3");
-		#elif NOX_ARCH_ARM_64
+		#elif NOX_ARCH_AARCH64
 			#if NOX_OS_MAC || NOX_OS_IOS
 				asm("trap");
 			#else

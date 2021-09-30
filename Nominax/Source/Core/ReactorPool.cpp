@@ -278,9 +278,9 @@ namespace Nominax::Core
 
     auto ReactorPool::QueryAlphaReactor() -> Reactor&
     {
-        NOX_PAS_FALSE(std::empty(this->Pool_), "Reactor pool must at least contain one reactor! (Alpha reactor)");
+        NOX_PAS(!std::empty(this->Pool_), "Reactor pool must at least contain one reactor! (Alpha reactor)");
         std::optional<std::unique_ptr<Reactor>>& alpha { this->Pool_.front() };
-        NOX_PAS_TRUE(alpha.has_value(), "Alpha reactor must be initialized!");
+        NOX_PAS(alpha.has_value(), "Alpha reactor must be initialized!");
         return **alpha;
     }
 

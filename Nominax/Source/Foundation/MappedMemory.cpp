@@ -220,6 +220,6 @@ namespace Nominax::Foundation
 	{
         [[maybe_unused]]
 		const bool result { VMM::VirtualDealloc(this->Region_) };
-		NOX_DBG_PAS_TRUE(result, "Virtual memory deallocation failed!");
+		NOX_DBG_PAS(result, "Virtual memory deallocation failed!");
 	}
 }

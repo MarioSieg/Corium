@@ -219,6 +219,6 @@ namespace Nominax::JIT
         };
         std::copy(std::begin(source), std::end(source), std::begin(region));
         const bool prot { this->Protect(SECURITY_FLAGS, LOCK_PROTECTION) };
-        NOX_PAS_TRUE(prot, "Protection of execbuf failed!");
+        NOX_PAS(prot, "Protection of execbuf failed!");
     }
 }

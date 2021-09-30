@@ -269,7 +269,7 @@ namespace Nominax::Core
 	{
 		// ARM-64 is a low power device (probably mobile) so we enable power
 		// safe mode by default:
-		#if NOX_ARCH_ARM_64
+		#if NOX_ARCH_AARCH64
 		return PowerPreference::LowPowerUsage;
 		#else
 		return PowerPreference::HighPerformance;

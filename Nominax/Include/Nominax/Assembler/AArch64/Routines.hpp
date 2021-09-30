@@ -205,96 +205,33 @@
 
 #pragma once
 
-#include "RegisterSet.hpp"
-#include "../../Foundation/IDisplay.hpp"
+#include "../../Foundation/_Foundation.hpp"
 
-namespace Nominax::Assembler::AMD64
+#include "RegisterLayout.hpp"
+
+namespace Nominax::Assembler::AArch64::Routines
 {
     /// <summary>
-    /// Contains all register set values.
-    /// All registers values are queried when the instance is constructed,
-    /// or .Fetch() is called.
-    /// Some register sets are only available if CPU supports it (AVX, AVX-512).
-    /// Of course %zmm shadows %ymm and %ymm shadows %xmm so they all could be in one register set - but it's simple for now and
-    /// the memory overhead is not that much.
+    /// Queries the 31 64-bit GPR registers (%x0 - %x30).
     /// </summary>
-    struct RegisterCache final : public Foundation::IDisplay
+    /// <param name="REG_STORAGE_GPR">A pointer to the data of GPRRegisterSet.</param>
+    extern "C" NOX_ASM_ROUTINE auto QueryRegSet_GPR(GPRRegister64Layout* out) -> void;
+
+    /// <summary>
+    /// Queries the 32 128-bit Neon registers (%v0 - %v31).
+    /// </summary>
+    /// <param name="REG_STORAGE_GPR">A pointer to the data of SSERegisterSet.</param>
+    extern "C" NOX_ASM_ROUTINE auto QueryRegSet_Neon(NeonRegister128Layout* out) -> void;
+
+    /// <summary>
+    /// Queries the value of the %pc instruction pointer.
+    /// </summary>
+    /// <returns>The %pc instruction pointer.</returns>
+    [[nodiscard]]
+    inline auto QueryPC() -> const void*
     {
-        /// <summary>
-        /// Instruction pointer.
-        /// </summary>
-        GPRRegister64Layout RIP { };
-
-        /// <summary>
-        /// GPR set.
-        /// </summary>
-        GPRRegisterSet GPRSet { };
-
-        /// <summary>
-        /// SSE SIMD set.
-        /// </summary>
-        SSERegisterSet SSESet { };
-
-        /// <summary>
-        /// AVX SIMD set.
-        /// </summary>
-        std::optional<AVXRegisterSet> AVXSet { };
-
-        /// <summary>
-        /// AVX-512 SIMD set.
-        /// </summary>
-        std::optional<AVX512RegisterSet> AVX512Set { };
-
-        /// <summary>
-        /// AVX-512 SIMD mask set.
-        /// </summary>
-        std::optional<std::variant<AVX512MaskRegisterSet, AVX512BWMaskRegisterSet>> AVX512MaskSet { };
-
-        /// <summary>
-        /// Construct and fetch values.
-        /// </summary>
-        RegisterCache();
-
-        /// <summary>
-        /// Copy constructor.
-        /// </summary>
-        /// <param name="other"></param>
-        RegisterCache(const RegisterCache& other) = default;
-
-        /// <summary>
-        /// Move constructor.
-        /// </summary>
-        /// <param name="other"></param>
-        RegisterCache(RegisterCache&& other) = default;
-
-        /// <summary>
-        /// Copy assignment operator.
-        /// </summary>
-        /// <param name="other"></param>
-        auto operator =(const RegisterCache& other) -> RegisterCache& = default;
-
-        /// <summary>
-        /// Move assignment operator.
-        /// </summary>
-        /// <param name="other"></param>
-        auto operator =(RegisterCache&& other) -> RegisterCache& = default;
-
-        /// <summary>
-        /// Destructor.
-        /// </summary>
-        ~RegisterCache() override = default;
-
-        /// <summary>
-        /// Fetches all the values from the registers into this instance.
-        /// Is also called from the constructor.
-        /// </summary>
-        auto Fetch() -> void;
-
-        /// <summary>
-        /// Dumps all registers based on availability.
-        /// If there are shadowing SIMD registers, it only prints the largest union.
-        /// Like if the is AVX it will print all %ymm instead of %xmm and %ymm because %ymm contain %xmm (lower 128-bit).
-        /// </summary>
-        virtual auto Display(std::FILE& stream) const -> void override;
-    };
+        std::uintptr_t pc;
+        asm volatile("mov %0, pc" : "=r"(pc));
+        return std::bit_cast<const void*>(pc);
+    }
 }
