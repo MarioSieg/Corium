@@ -207,22 +207,21 @@ use crate::ast::*;
 use crate::parser::*;
 use std::str::FromStr;
 
-pub trait AstPopulator<'a>: AstComponent {
-    fn populate(rule: RulePair<'a>) -> Self;
+pub trait AstPopulator<'ast>: AstComponent {
+    fn populate(rule: RulePairs<'ast>, _sup: &'ast str) -> Self;
 
-    fn map(mut rule: RulePairs<'a>) -> Self {
+    fn map(mut rule: RulePairs<'ast>) -> Self {
         let rule = rule
             .next()
             .unwrap_or_else(|| panic!("Expected another inner rule, but rule was empty!"));
         debug_assert_eq!(Self::CORRESPONDING_RULE, rule.as_rule());
-        Self::populate(rule)
+        let super_txt = rule.as_str();
+        Self::populate(rule.into_inner(), super_txt)
     }
 }
 
-impl<'a> AstPopulator<'a> for CompilationUnit<'a> {
-    fn populate(rule: RulePair<'a>) -> Self {
-        let mut rule = rule.into_inner();
-
+impl<'ast> AstPopulator<'ast> for CompilationUnit<'ast> {
+    fn populate(mut rule: RulePairs<'ast>, _sup: &'ast str) -> Self {
         let module = Module::map(rule.clone());
         let mut statements = Vec::new();
 
@@ -242,9 +241,8 @@ impl<'a> AstPopulator<'a> for CompilationUnit<'a> {
     }
 }
 
-impl<'a> AstPopulator<'a> for GlobalStatement<'a> {
-    fn populate(rule: RulePair<'a>) -> Self {
-        let rule = rule.into_inner();
+impl<'ast> AstPopulator<'ast> for GlobalStatement<'ast> {
+    fn populate(rule: RulePairs<'ast>, _sup: &'ast str) -> Self {
         let nested = rule.clone().next().unwrap();
         match nested.as_rule() {
             Rule::Function => Self::Function(Function::map(rule)),
@@ -254,9 +252,8 @@ impl<'a> AstPopulator<'a> for GlobalStatement<'a> {
     }
 }
 
-impl<'a> AstPopulator<'a> for Function<'a> {
-    fn populate(rule: RulePair<'a>) -> Self {
-        let mut rule = rule.into_inner();
+impl<'ast> AstPopulator<'ast> for Function<'ast> {
+    fn populate(mut rule: RulePairs<'ast>, _sup: &'ast str) -> Self {
         let signature = {
             let inner = rule.clone().next().unwrap();
             debug_assert_eq!(inner.as_rule(), Rule::FunctionSignature);
@@ -272,9 +269,8 @@ impl<'a> AstPopulator<'a> for Function<'a> {
     }
 }
 
-impl<'a> AstPopulator<'a> for NativeFunction<'a> {
-    fn populate(rule: RulePair<'a>) -> Self {
-        let rule = rule.into_inner();
+impl<'ast> AstPopulator<'ast> for NativeFunction<'ast> {
+    fn populate(rule: RulePairs<'ast>, _sup: &'ast str) -> Self {
         let inner = rule.clone().next().unwrap();
         debug_assert_eq!(inner.as_rule(), Rule::FunctionSignature);
         Self {
@@ -283,10 +279,8 @@ impl<'a> AstPopulator<'a> for NativeFunction<'a> {
     }
 }
 
-impl<'a> AstPopulator<'a> for FunctionSignature<'a> {
-    fn populate(rule: RulePair<'a>) -> Self {
-        let mut rule = rule.into_inner();
-
+impl<'ast> AstPopulator<'ast> for FunctionSignature<'ast> {
+    fn populate(mut rule: RulePairs<'ast>, _sup: &'ast str) -> Self {
         // ehm yes this is not that beautiful - TODO make this nicer
         let name = {
             let inner = rule.clone().next().unwrap();
@@ -324,9 +318,8 @@ impl<'a> AstPopulator<'a> for FunctionSignature<'a> {
     }
 }
 
-impl<'a> AstPopulator<'a> for Block<'a> {
-    fn populate(rule: RulePair<'a>) -> Self {
-        let mut rule = rule.into_inner();
+impl<'ast> AstPopulator<'ast> for Block<'ast> {
+    fn populate(mut rule: RulePairs<'ast>, _sup: &'ast str) -> Self {
         let mut result = Vec::new();
         // FunctionStatement*
         while rule.peek().is_some() {
@@ -337,9 +330,8 @@ impl<'a> AstPopulator<'a> for Block<'a> {
     }
 }
 
-impl<'a> AstPopulator<'a> for FunctionStatement<'a> {
-    fn populate(rule: RulePair<'a>) -> Self {
-        let rule = rule.into_inner();
+impl<'ast> AstPopulator<'ast> for FunctionStatement<'ast> {
+    fn populate(rule: RulePairs<'ast>, _sup: &'ast str) -> Self {
         let nested = rule.clone().next().unwrap();
         match nested.as_rule() {
             Rule::LocalVariable => Self::LocalVariable(LocalVariable::map(rule)),
@@ -349,16 +341,14 @@ impl<'a> AstPopulator<'a> for FunctionStatement<'a> {
     }
 }
 
-impl<'a> AstPopulator<'a> for Module<'a> {
-    fn populate(rule: RulePair<'a>) -> Self {
-        Self(QualifiedName::map(rule.into_inner()))
+impl<'ast> AstPopulator<'ast> for Module<'ast> {
+    fn populate(rule: RulePairs<'ast>, _sup: &'ast str) -> Self {
+        Self(QualifiedName::map(rule))
     }
 }
 
-impl<'a> AstPopulator<'a> for LocalVariable<'a> {
-    fn populate(rule: RulePair<'a>) -> Self {
-        let mut rule = rule.into_inner();
-
+impl<'ast> AstPopulator<'ast> for LocalVariable<'ast> {
+    fn populate(mut rule: RulePairs<'ast>, _sup: &'ast str) -> Self {
         // ehm yes this is not that beautiful - TODO make this nicer
 
         let name = {
@@ -389,23 +379,22 @@ impl<'a> AstPopulator<'a> for LocalVariable<'a> {
     }
 }
 
-impl<'a> AstPopulator<'a> for ReturnStatement<'a> {
-    fn populate(rule: RulePair<'a>) -> Self {
-        if rule.clone().into_inner().next().is_some() {
-            Self(Some(Expression::map(rule.into_inner())))
+impl<'ast> AstPopulator<'ast> for ReturnStatement<'ast> {
+    fn populate(rule: RulePairs<'ast>, _sup: &'ast str) -> Self {
+        if rule.clone().next().is_some() {
+            Self(Some(Expression::map(rule)))
         } else {
             Self(None)
         }
     }
 }
 
-impl<'a> AstPopulator<'a> for ParameterList<'a> {
-    fn populate(rule: RulePair<'a>) -> Self {
+impl<'ast> AstPopulator<'ast> for ParameterList<'ast> {
+    fn populate(mut rule: RulePairs<'ast>, _sup: &'ast str) -> Self {
         let text = rule.as_str();
         if text.is_empty() {
             return Self(Vec::new());
         }
-        let mut rule = rule.into_inner();
         let mut result = Vec::new();
 
         // params*
@@ -418,10 +407,8 @@ impl<'a> AstPopulator<'a> for ParameterList<'a> {
     }
 }
 
-impl<'a> AstPopulator<'a> for Parameter<'a> {
-    fn populate(rule: RulePair<'a>) -> Self {
-        let mut rule = rule.into_inner();
-
+impl<'ast> AstPopulator<'ast> for Parameter<'ast> {
+    fn populate(mut rule: RulePairs<'ast>, _base: &'ast str) -> Self {
         // ehm yes this is not that beautiful - TODO make this nicer
 
         let name = {
@@ -458,15 +445,14 @@ impl<'a> AstPopulator<'a> for Parameter<'a> {
     }
 }
 
-impl<'a> AstPopulator<'a> for Expression<'a> {
-    fn populate(rule: RulePair<'a>) -> Self {
-        let rule = rule.into_inner();
-        let inner = rule.clone().next().unwrap();
+impl<'ast> AstPopulator<'ast> for Expression<'ast> {
+    fn populate(rule: RulePairs<'ast>, _sup: &'ast str) -> Self {
+        let inner = rule.peek().unwrap();
         match inner.as_rule() {
             Rule::Literal => Self::Literal(Literal::map(rule)),
             Rule::Expression => Self::Sub(Box::new(Self::map(rule))),
             Rule::UnaryOperator => {
-                let op = UnaryOperator::map(rule.clone());
+                let op = UnaryOperator::map(rule);
                 let sub = Box::new(Expression::Literal(Literal::Bool(true)));
                 Self::UnaryOperation { op, sub }
             }
@@ -475,9 +461,9 @@ impl<'a> AstPopulator<'a> for Expression<'a> {
     }
 }
 
-impl<'a> AstPopulator<'a> for UnaryOperator {
-    fn populate(rule: RulePair<'a>) -> Self {
-        match rule.as_str() {
+impl<'ast> AstPopulator<'ast> for UnaryOperator {
+    fn populate(_rule: RulePairs<'ast>, sup: &'ast str) -> Self {
+        match sup {
             "+" => UnaryOperator::Plus,
             "-" => UnaryOperator::Minus,
             "!" => UnaryOperator::Not,
@@ -487,9 +473,9 @@ impl<'a> AstPopulator<'a> for UnaryOperator {
     }
 }
 
-impl<'a> AstPopulator<'a> for Literal<'a> {
-    fn populate(rule: RulePair<'a>) -> Self {
-        let rule = rule.into_inner().next().unwrap();
+impl<'ast> AstPopulator<'ast> for Literal<'ast> {
+    fn populate(mut rule: RulePairs<'ast>, _sup: &'ast str) -> Self {
+        let rule = rule.next().unwrap();
         let kind = rule.as_rule();
         let text = rule.as_str();
         match kind {
@@ -515,8 +501,8 @@ impl<'a> AstPopulator<'a> for Literal<'a> {
     }
 }
 
-impl<'a> AstPopulator<'a> for QualifiedName<'a> {
-    fn populate(rule: RulePair<'a>) -> Self {
+impl<'ast> AstPopulator<'ast> for QualifiedName<'ast> {
+    fn populate(rule: RulePairs<'ast>, _sup: &'ast str) -> Self {
         Self {
             full: rule.as_str(),
             split: rule.as_str().split('.').collect(),
@@ -524,8 +510,8 @@ impl<'a> AstPopulator<'a> for QualifiedName<'a> {
     }
 }
 
-impl<'a> AstPopulator<'a> for Identifier<'a> {
-    fn populate(rule: RulePair<'a>) -> Self {
-        Self(rule.as_str())
+impl<'ast> AstPopulator<'ast> for Identifier<'ast> {
+    fn populate(_rule: RulePairs<'ast>, sup: &'ast str) -> Self {
+        Self(sup)
     }
 }

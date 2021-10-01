@@ -211,9 +211,8 @@ mod tests;
 
 use crate::ast::populator::AstPopulator;
 use crate::ast::CompilationUnit;
-use pest::iterators::{Pair, Pairs};
+use pest::iterators::Pairs;
 
-pub type RulePair<'a> = Pair<'a, Rule>;
 pub type RulePairs<'a> = Pairs<'a, Rule>;
 
 // Will be replaced by own parser implementation
