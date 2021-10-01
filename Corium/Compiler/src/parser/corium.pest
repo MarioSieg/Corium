@@ -56,10 +56,6 @@ Expression = {
 }
 
 UnaryOperator = {
-   UOps
-}
-
-UOps = {
     "+" |
     "-" |
     "!" |
@@ -99,10 +95,6 @@ StringLiteral = @{
 }
 
 Identifier = {
-    IdentCore
-}
-
-IdentCore = {
     ASCII_ALPHA ~ ASCII_ALPHANUMERIC*
 }
 

@@ -215,21 +215,21 @@ mod populators {
         #[test]
         fn alphanumeric() {
             let result = CoriumParser::parse(Rule::Identifier, "MyClass").unwrap();
-            let ast = Identifier::map(result);
+            let ast = Identifier::merge(result.as_str());
             assert_eq!(ast.0, "MyClass");
         }
 
         #[test]
         fn mixed() {
             let result = CoriumParser::parse(Rule::Identifier, "My2Class32LOl").unwrap();
-            let ast = Identifier::map(result);
+            let ast = Identifier::merge(result.as_str());
             assert_eq!(ast.0, "My2Class32LOl");
         }
 
         #[test]
         fn numeric() {
             let result = CoriumParser::parse(Rule::Identifier, "X278247842877284").unwrap();
-            let ast = Identifier::map(result);
+            let ast = Identifier::merge(result.as_str());
             assert_eq!(ast.0, "X278247842877284");
         }
     }
@@ -240,7 +240,7 @@ mod populators {
         #[test]
         fn simple() {
             let mut result = CoriumParser::parse(Rule::QualifiedName, "MyPackage").unwrap();
-            let ast = QualifiedName::map(result.next().unwrap().into_inner());
+            let ast = QualifiedName::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.full, "MyPackage");
             assert_eq!(ast.split.len(), 1);
             assert_eq!(ast.split[0], "MyPackage");
@@ -249,7 +249,7 @@ mod populators {
         #[test]
         fn nested() {
             let mut result = CoriumParser::parse(Rule::QualifiedName, "MyPackage.Class").unwrap();
-            let ast = QualifiedName::map(result.next().unwrap().into_inner());
+            let ast = QualifiedName::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.full, "MyPackage.Class");
             assert_eq!(ast.split.len(), 2);
             assert_eq!(ast.split[0], "MyPackage");
@@ -260,7 +260,7 @@ mod populators {
         fn nested2() {
             let mut result =
                 CoriumParser::parse(Rule::QualifiedName, "MyPackage.Class.StaticMember").unwrap();
-            let ast = QualifiedName::map(result.next().unwrap().into_inner());
+            let ast = QualifiedName::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.full, "MyPackage.Class.StaticMember");
             assert_eq!(ast.split.len(), 3);
             assert_eq!(ast.split[0], "MyPackage");
@@ -273,7 +273,7 @@ mod populators {
             let mut result =
                 CoriumParser::parse(Rule::QualifiedName, "MyPackage.Class.StaticMember.Field")
                     .unwrap();
-            let ast = QualifiedName::map(result.next().unwrap().into_inner());
+            let ast = QualifiedName::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.full, "MyPackage.Class.StaticMember.Field");
             assert_eq!(ast.split.len(), 4);
             assert_eq!(ast.split[0], "MyPackage");
@@ -289,7 +289,7 @@ mod populators {
         #[test]
         fn float() {
             let mut result = CoriumParser::parse(Rule::Literal, "2.5").unwrap();
-            let ast = Literal::map(result.next().unwrap().into_inner());
+            let ast = Literal::populate(result.next().unwrap().into_inner());
             let _f = Literal::Float(2.5);
             assert!(matches!(ast, _f));
         }
@@ -297,35 +297,35 @@ mod populators {
         #[test]
         fn int() {
             let mut result = CoriumParser::parse(Rule::Literal, "3").unwrap();
-            let ast = Literal::map(result.next().unwrap().into_inner());
+            let ast = Literal::populate(result.next().unwrap().into_inner());
             assert!(matches!(ast, Literal::Int(3)));
         }
 
         #[test]
         fn boolean() {
             let mut result = CoriumParser::parse(Rule::Literal, "true").unwrap();
-            let ast = Literal::map(result.next().unwrap().into_inner());
+            let ast = Literal::populate(result.next().unwrap().into_inner());
             assert!(matches!(ast, Literal::Bool(true)));
         }
 
         #[test]
         fn character() {
             let mut result = CoriumParser::parse(Rule::Literal, "'X'").unwrap();
-            let ast = Literal::map(result.next().unwrap().into_inner());
+            let ast = Literal::populate(result.next().unwrap().into_inner());
             assert!(matches!(ast, Literal::Char('X')));
         }
 
         #[test]
         fn string() {
             let mut result = CoriumParser::parse(Rule::Literal, "\"Hallo zusammen ;)\"").unwrap();
-            let ast = Literal::map(result.next().unwrap().into_inner());
+            let ast = Literal::populate(result.next().unwrap().into_inner());
             assert!(matches!(ast, Literal::String("Hallo zusammen ;)")));
         }
 
         #[test]
         fn string_empty() {
             let mut result = CoriumParser::parse(Rule::Literal, "\"\"").unwrap();
-            let ast = Literal::map(result.next().unwrap().into_inner());
+            let ast = Literal::populate(result.next().unwrap().into_inner());
             assert!(matches!(ast, Literal::String("")));
         }
     }
@@ -336,7 +336,7 @@ mod populators {
         #[test]
         fn float_literal() {
             let mut result = CoriumParser::parse(Rule::Expression, "2.5").unwrap();
-            let ast = Expression::map(result.next().unwrap().into_inner());
+            let ast = Expression::populate(result.next().unwrap().into_inner());
             let _f = Literal::Float(2.5);
             assert!(matches!(ast, Expression::Literal(_f)));
         }
@@ -344,21 +344,21 @@ mod populators {
         #[test]
         fn int_literal() {
             let mut result = CoriumParser::parse(Rule::Expression, "10").unwrap();
-            let ast = Expression::map(result.next().unwrap().into_inner());
+            let ast = Expression::populate(result.next().unwrap().into_inner());
             assert!(matches!(ast, Expression::Literal(Literal::Int(10))));
         }
 
         #[test]
         fn boolean_literal() {
             let mut result = CoriumParser::parse(Rule::Expression, "true").unwrap();
-            let ast = Expression::map(result.next().unwrap().into_inner());
+            let ast = Expression::populate(result.next().unwrap().into_inner());
             assert!(matches!(ast, Expression::Literal(Literal::Bool(true))));
         }
 
         #[test]
         fn character_literal() {
             let mut result = CoriumParser::parse(Rule::Expression, "'X'").unwrap();
-            let ast = Expression::map(result.next().unwrap().into_inner());
+            let ast = Expression::populate(result.next().unwrap().into_inner());
             assert!(matches!(ast, Expression::Literal(Literal::Char('X'))));
         }
 
@@ -366,7 +366,7 @@ mod populators {
         fn string_literal() {
             let mut result =
                 CoriumParser::parse(Rule::Expression, "\"Hallo zusammen ;)\"").unwrap();
-            let ast = Expression::map(result.next().unwrap().into_inner());
+            let ast = Expression::populate(result.next().unwrap().into_inner());
             assert!(matches!(
                 ast,
                 Expression::Literal(Literal::String("Hallo zusammen ;)"))
@@ -374,9 +374,16 @@ mod populators {
         }
 
         #[test]
+        fn ident() {
+            let mut result = CoriumParser::parse(Rule::Expression, "lololo").unwrap();
+            let ast = Expression::populate(result.next().unwrap().into_inner());
+            assert!(matches!(ast, Expression::Identifier(Identifier("lololo"))));
+        }
+
+        #[test]
         fn unary_minus_int_literal() {
             let mut result = CoriumParser::parse(Rule::Expression, "-10").unwrap();
-            let ast = Expression::map(result.next().unwrap().into_inner());
+            let ast = Expression::populate(result.next().unwrap().into_inner());
             let _sub = Box::new(Expression::Literal(Literal::Int(10)));
             assert!(matches!(
                 ast,
@@ -386,6 +393,75 @@ mod populators {
                 }
             ));
         }
+
+        #[test]
+        fn unary_plus_float_literal() {
+            let mut result = CoriumParser::parse(Rule::Expression, "+0.3").unwrap();
+            let ast = Expression::populate(result.next().unwrap().into_inner());
+            let _sub = Box::new(Expression::Literal(Literal::Float(0.3)));
+            assert!(matches!(
+                ast,
+                Expression::UnaryOperation {
+                    op: UnaryOperator::Plus,
+                    sub: _sub
+                }
+            ));
+        }
+
+        #[test]
+        fn unary_not_bool_literal() {
+            let mut result = CoriumParser::parse(Rule::Expression, "!false").unwrap();
+            let ast = Expression::populate(result.next().unwrap().into_inner());
+            let _sub = Box::new(Expression::Literal(Literal::Bool(false)));
+            assert!(matches!(
+                ast,
+                Expression::UnaryOperation {
+                    op: UnaryOperator::Not,
+                    sub: _sub
+                }
+            ));
+        }
+
+        #[test]
+        fn unary_complement_int_literal() {
+            let mut result = CoriumParser::parse(Rule::Expression, "~10").unwrap();
+            let ast = Expression::populate(result.next().unwrap().into_inner());
+            let _sub = Box::new(Expression::Literal(Literal::Int(10)));
+            assert!(matches!(
+                ast,
+                Expression::UnaryOperation {
+                    op: UnaryOperator::Complement,
+                    sub: _sub
+                }
+            ));
+        }
+
+        #[test]
+        fn nested1() {
+            let mut result = CoriumParser::parse(Rule::Expression, "(10)").unwrap();
+            let ast = Expression::populate(result.next().unwrap().into_inner());
+            let _n1 = Box::new(Expression::Literal(Literal::Int(10)));
+            assert!(matches!(ast, Expression::Sub(_n1)));
+        }
+
+        #[test]
+        fn nested2() {
+            let mut result = CoriumParser::parse(Rule::Expression, "((10))").unwrap();
+            let ast = Expression::populate(result.next().unwrap().into_inner());
+            let _n1 = Box::new(Expression::Literal(Literal::Int(10)));
+            let _n2 = Box::new(Expression::Sub(_n1));
+            assert!(matches!(ast, Expression::Sub(_n2)));
+        }
+
+        #[test]
+        fn nested3() {
+            let mut result = CoriumParser::parse(Rule::Expression, "(((10)))").unwrap();
+            let ast = Expression::populate(result.next().unwrap().into_inner());
+            let _n1 = Box::new(Expression::Literal(Literal::Int(10)));
+            let _n2 = Box::new(Expression::Sub(_n1));
+            let _n3 = Box::new(Expression::Sub(_n2));
+            assert!(matches!(ast, Expression::Sub(_n3)));
+        }
     }
 
     mod unary_operator {
@@ -394,28 +470,28 @@ mod populators {
         #[test]
         fn plus() {
             let result = CoriumParser::parse(Rule::UnaryOperator, "+").unwrap();
-            let ast = UnaryOperator::map(result);
+            let ast = UnaryOperator::merge(result.as_str());
             assert_eq!(ast, UnaryOperator::Plus);
         }
 
         #[test]
         fn minus() {
             let result = CoriumParser::parse(Rule::UnaryOperator, "-").unwrap();
-            let ast = UnaryOperator::map(result);
+            let ast = UnaryOperator::merge(result.as_str());
             assert_eq!(ast, UnaryOperator::Minus);
         }
 
         #[test]
         fn not() {
             let result = CoriumParser::parse(Rule::UnaryOperator, "!").unwrap();
-            let ast = UnaryOperator::map(result);
+            let ast = UnaryOperator::merge(result.as_str());
             assert_eq!(ast, UnaryOperator::Not);
         }
 
         #[test]
         fn complement() {
             let result = CoriumParser::parse(Rule::UnaryOperator, "~").unwrap();
-            let ast = UnaryOperator::map(result);
+            let ast = UnaryOperator::merge(result.as_str());
             assert_eq!(ast, UnaryOperator::Complement);
         }
     }
@@ -426,7 +502,7 @@ mod populators {
         #[test]
         fn int() {
             let mut result = CoriumParser::parse(Rule::Parameter, "myParam int").unwrap();
-            let ast = Parameter::map(result.next().unwrap().into_inner());
+            let ast = Parameter::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "myParam");
             assert_eq!(ast.type_hint.full, "int");
             assert!(ast.value.is_none());
@@ -435,7 +511,7 @@ mod populators {
         #[test]
         fn float() {
             let mut result = CoriumParser::parse(Rule::Parameter, "myParam float").unwrap();
-            let ast = Parameter::map(result.next().unwrap().into_inner());
+            let ast = Parameter::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "myParam");
             assert_eq!(ast.type_hint.full, "float");
             assert!(ast.value.is_none());
@@ -444,7 +520,7 @@ mod populators {
         #[test]
         fn class() {
             let mut result = CoriumParser::parse(Rule::Parameter, "myParam MyClass").unwrap();
-            let ast = Parameter::map(result.next().unwrap().into_inner());
+            let ast = Parameter::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "myParam");
             assert_eq!(ast.type_hint.full, "MyClass");
             assert!(ast.value.is_none());
@@ -454,7 +530,7 @@ mod populators {
         fn package_class() {
             let mut result =
                 CoriumParser::parse(Rule::Parameter, "myParam MyPackage.MyClass").unwrap();
-            let ast = Parameter::map(result.next().unwrap().into_inner());
+            let ast = Parameter::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "myParam");
             assert_eq!(ast.type_hint.full, "MyPackage.MyClass");
             assert!(ast.value.is_none());
@@ -463,7 +539,7 @@ mod populators {
         #[test]
         fn int_with_default_value() {
             let mut result = CoriumParser::parse(Rule::Parameter, "myParam int = 10").unwrap();
-            let ast = Parameter::map(result.next().unwrap().into_inner());
+            let ast = Parameter::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "myParam");
             assert_eq!(ast.type_hint.full, "int");
             assert!(ast.value.is_some());
@@ -476,7 +552,7 @@ mod populators {
         #[test]
         fn float_with_default_value() {
             let mut result = CoriumParser::parse(Rule::Parameter, "myParam float = 0.999").unwrap();
-            let ast = Parameter::map(result.next().unwrap().into_inner());
+            let ast = Parameter::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "myParam");
             assert_eq!(ast.type_hint.full, "float");
             assert!(ast.value.is_some());
@@ -487,7 +563,7 @@ mod populators {
         #[test]
         fn bool_with_default_value() {
             let mut result = CoriumParser::parse(Rule::Parameter, "myParam bool = true").unwrap();
-            let ast = Parameter::map(result.next().unwrap().into_inner());
+            let ast = Parameter::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "myParam");
             assert_eq!(ast.type_hint.full, "bool");
             assert!(ast.value.is_some());
@@ -500,7 +576,7 @@ mod populators {
         #[test]
         fn char_with_default_value() {
             let mut result = CoriumParser::parse(Rule::Parameter, "myParam char = 'x'").unwrap();
-            let ast = Parameter::map(result.next().unwrap().into_inner());
+            let ast = Parameter::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "myParam");
             assert_eq!(ast.type_hint.full, "char");
             assert!(ast.value.is_some());
@@ -514,7 +590,7 @@ mod populators {
         fn string_with_default_value() {
             let mut result =
                 CoriumParser::parse(Rule::Parameter, "myParam string = \"I luv u :3\"").unwrap();
-            let ast = Parameter::map(result.next().unwrap().into_inner());
+            let ast = Parameter::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "myParam");
             assert_eq!(ast.type_hint.full, "string");
             assert!(ast.value.is_some());
@@ -531,7 +607,7 @@ mod populators {
         #[test]
         fn one() {
             let mut result = CoriumParser::parse(Rule::ParameterList, "x int").unwrap();
-            let ast = ParameterList::map(result.next().unwrap().into_inner());
+            let ast = ParameterList::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.0.len(), 1);
 
             assert_eq!(ast.0[0].name.0, "x");
@@ -542,7 +618,7 @@ mod populators {
         #[test]
         fn two() {
             let mut result = CoriumParser::parse(Rule::ParameterList, "x int, y float").unwrap();
-            let ast = ParameterList::map(result.next().unwrap().into_inner());
+            let ast = ParameterList::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.0.len(), 2);
 
             assert_eq!(ast.0[0].name.0, "x");
@@ -558,7 +634,7 @@ mod populators {
         fn three() {
             let mut result =
                 CoriumParser::parse(Rule::ParameterList, "x int, y float, z string").unwrap();
-            let ast = ParameterList::map(result.next().unwrap().into_inner());
+            let ast = ParameterList::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.0.len(), 3);
 
             assert_eq!(ast.0[0].name.0, "x");
@@ -577,7 +653,7 @@ mod populators {
         #[test]
         fn one_with_default_value() {
             let mut result = CoriumParser::parse(Rule::ParameterList, "x int = 10").unwrap();
-            let ast = ParameterList::map(result.next().unwrap().into_inner());
+            let ast = ParameterList::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.0.len(), 1);
 
             assert_eq!(ast.0[0].name.0, "x");
@@ -593,7 +669,7 @@ mod populators {
         fn two_with_default_value() {
             let mut result =
                 CoriumParser::parse(Rule::ParameterList, "x int = 10, y float = 2.4").unwrap();
-            let ast = ParameterList::map(result.next().unwrap().into_inner());
+            let ast = ParameterList::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.0.len(), 2);
 
             assert_eq!(ast.0[0].name.0, "x");
@@ -618,7 +694,7 @@ mod populators {
         fn two_one_with_default_value() {
             let mut result =
                 CoriumParser::parse(Rule::ParameterList, "a char, x int = 10").unwrap();
-            let ast = ParameterList::map(result.next().unwrap().into_inner());
+            let ast = ParameterList::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.0.len(), 2);
 
             assert_eq!(ast.0[0].name.0, "a");
@@ -641,14 +717,14 @@ mod populators {
         #[test]
         fn return_none() {
             let mut result = CoriumParser::parse(Rule::ReturnStatement, "return\n").unwrap();
-            let ast = ReturnStatement::map(result.next().unwrap().into_inner());
+            let ast = ReturnStatement::populate(result.next().unwrap().into_inner());
             assert!(ast.0.is_none());
         }
 
         #[test]
         fn return_int() {
             let mut result = CoriumParser::parse(Rule::ReturnStatement, "return 10\n").unwrap();
-            let ast = ReturnStatement::map(result.next().unwrap().into_inner());
+            let ast = ReturnStatement::populate(result.next().unwrap().into_inner());
             assert!(ast.0.is_some());
             assert!(matches!(
                 ast.0.unwrap(),
@@ -657,9 +733,20 @@ mod populators {
         }
 
         #[test]
+        fn return_ident() {
+            let mut result = CoriumParser::parse(Rule::ReturnStatement, "return myVar\n").unwrap();
+            let ast = ReturnStatement::populate(result.next().unwrap().into_inner());
+            assert!(ast.0.is_some());
+            assert!(matches!(
+                ast.0.unwrap(),
+                Expression::Identifier(Identifier("myVar"))
+            ));
+        }
+
+        #[test]
         fn return_float() {
             let mut result = CoriumParser::parse(Rule::ReturnStatement, "return 0.51\n").unwrap();
-            let ast = ReturnStatement::map(result.next().unwrap().into_inner());
+            let ast = ReturnStatement::populate(result.next().unwrap().into_inner());
             assert!(ast.0.is_some());
             let _f = Literal::Float(0.51);
             assert!(matches!(ast.0.unwrap(), Expression::Literal(_f)));
@@ -672,7 +759,7 @@ mod populators {
         #[test]
         fn int() {
             let mut result = CoriumParser::parse(Rule::LocalVariable, "let x = 10\n").unwrap();
-            let ast = LocalVariable::map(result.next().unwrap().into_inner());
+            let ast = LocalVariable::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "x");
             assert!(matches!(ast.value, Expression::Literal(Literal::Int(10))));
             assert!(ast.type_hint.is_none());
@@ -681,7 +768,7 @@ mod populators {
         #[test]
         fn float() {
             let mut result = CoriumParser::parse(Rule::LocalVariable, "let x = 10.0\n").unwrap();
-            let ast = LocalVariable::map(result.next().unwrap().into_inner());
+            let ast = LocalVariable::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "x");
             let _f = Literal::Float(10.0);
             assert!(matches!(ast.value, Expression::Literal(_f)));
@@ -691,7 +778,7 @@ mod populators {
         #[test]
         fn char() {
             let mut result = CoriumParser::parse(Rule::LocalVariable, "let x = 'x'\n").unwrap();
-            let ast = LocalVariable::map(result.next().unwrap().into_inner());
+            let ast = LocalVariable::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "x");
             assert!(matches!(ast.value, Expression::Literal(Literal::Char('x'))));
             assert!(ast.type_hint.is_none());
@@ -700,7 +787,7 @@ mod populators {
         #[test]
         fn bool() {
             let mut result = CoriumParser::parse(Rule::LocalVariable, "let x = true\n").unwrap();
-            let ast = LocalVariable::map(result.next().unwrap().into_inner());
+            let ast = LocalVariable::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "x");
             assert!(matches!(
                 ast.value,
@@ -713,7 +800,7 @@ mod populators {
         fn string() {
             let mut result =
                 CoriumParser::parse(Rule::LocalVariable, "let x = \"Name\"\n").unwrap();
-            let ast = LocalVariable::map(result.next().unwrap().into_inner());
+            let ast = LocalVariable::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "x");
             assert!(matches!(
                 ast.value,
@@ -725,7 +812,7 @@ mod populators {
         #[test]
         fn type_int() {
             let mut result = CoriumParser::parse(Rule::LocalVariable, "let x int = 10\n").unwrap();
-            let ast = LocalVariable::map(result.next().unwrap().into_inner());
+            let ast = LocalVariable::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "x");
             assert!(matches!(ast.value, Expression::Literal(Literal::Int(10))));
             assert!(ast.type_hint.is_some());
@@ -736,7 +823,7 @@ mod populators {
         fn type_float() {
             let mut result =
                 CoriumParser::parse(Rule::LocalVariable, "let x float = 10.0\n").unwrap();
-            let ast = LocalVariable::map(result.next().unwrap().into_inner());
+            let ast = LocalVariable::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "x");
             let _f = Literal::Float(10.0);
             assert!(matches!(ast.value, Expression::Literal(_f)));
@@ -748,7 +835,7 @@ mod populators {
         fn type_char() {
             let mut result =
                 CoriumParser::parse(Rule::LocalVariable, "let x char = 'x'\n").unwrap();
-            let ast = LocalVariable::map(result.next().unwrap().into_inner());
+            let ast = LocalVariable::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "x");
             assert!(matches!(ast.value, Expression::Literal(Literal::Char('x'))));
             assert!(ast.type_hint.is_some());
@@ -759,7 +846,7 @@ mod populators {
         fn type_bool() {
             let mut result =
                 CoriumParser::parse(Rule::LocalVariable, "let x bool = true\n").unwrap();
-            let ast = LocalVariable::map(result.next().unwrap().into_inner());
+            let ast = LocalVariable::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "x");
             assert!(matches!(
                 ast.value,
@@ -773,7 +860,7 @@ mod populators {
         fn type_string() {
             let mut result =
                 CoriumParser::parse(Rule::LocalVariable, "let x string = \"Name\"\n").unwrap();
-            let ast = LocalVariable::map(result.next().unwrap().into_inner());
+            let ast = LocalVariable::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "x");
             assert!(matches!(
                 ast.value,
@@ -790,7 +877,7 @@ mod populators {
         #[test]
         fn simple() {
             let mut result = CoriumParser::parse(Rule::Module, "module MyPackage\n").unwrap();
-            let ast = Module::map(result.next().unwrap().into_inner());
+            let ast = Module::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.0.full, "MyPackage");
             assert_eq!(ast.0.split.len(), 1);
             assert_eq!(ast.0.split[0], "MyPackage");
@@ -799,7 +886,7 @@ mod populators {
         #[test]
         fn nested() {
             let mut result = CoriumParser::parse(Rule::Module, "module MyPackage.Class\n").unwrap();
-            let ast = Module::map(result.next().unwrap().into_inner());
+            let ast = Module::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.0.full, "MyPackage.Class");
             assert_eq!(ast.0.split.len(), 2);
             assert_eq!(ast.0.split[0], "MyPackage");
@@ -810,7 +897,7 @@ mod populators {
         fn nested2() {
             let mut result =
                 CoriumParser::parse(Rule::Module, "module MyPackage.Class.StaticMember\n").unwrap();
-            let ast = Module::map(result.next().unwrap().into_inner());
+            let ast = Module::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.0.full, "MyPackage.Class.StaticMember");
             assert_eq!(ast.0.split.len(), 3);
             assert_eq!(ast.0.split[0], "MyPackage");
@@ -823,7 +910,7 @@ mod populators {
             let mut result =
                 CoriumParser::parse(Rule::Module, "module MyPackage.Class.StaticMember.Field\n")
                     .unwrap();
-            let ast = Module::map(result.next().unwrap().into_inner());
+            let ast = Module::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.0.full, "MyPackage.Class.StaticMember.Field");
             assert_eq!(ast.0.split.len(), 4);
             assert_eq!(ast.0.split[0], "MyPackage");
@@ -839,7 +926,7 @@ mod populators {
         #[test]
         fn local_var() {
             let mut result = CoriumParser::parse(Rule::FunctionStatement, "let x = 10\n").unwrap();
-            let ast = FunctionStatement::map(result.next().unwrap().into_inner());
+            let ast = FunctionStatement::populate(result.next().unwrap().into_inner());
             assert!(matches!(
                 ast,
                 FunctionStatement::LocalVariable(LocalVariable {
@@ -853,7 +940,7 @@ mod populators {
         #[test]
         fn return_statement() {
             let mut result = CoriumParser::parse(Rule::FunctionStatement, "return\n").unwrap();
-            let ast = FunctionStatement::map(result.next().unwrap().into_inner());
+            let ast = FunctionStatement::populate(result.next().unwrap().into_inner());
             assert!(matches!(
                 ast,
                 FunctionStatement::ReturnStatement(ReturnStatement(None))
@@ -863,7 +950,7 @@ mod populators {
         #[test]
         fn return_statement2() {
             let mut result = CoriumParser::parse(Rule::FunctionStatement, "return true\n").unwrap();
-            let ast = FunctionStatement::map(result.next().unwrap().into_inner());
+            let ast = FunctionStatement::populate(result.next().unwrap().into_inner());
             assert!(matches!(
                 ast,
                 FunctionStatement::ReturnStatement(ReturnStatement(Some(Expression::Literal(
@@ -886,7 +973,7 @@ mod populators {
                 "let zw float = 2.33225\n"
             );
             let mut result = CoriumParser::parse(Rule::Block, source).unwrap();
-            let ast = Block::map(result.next().unwrap().into_inner());
+            let ast = Block::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.0.len(), 5);
 
             assert!(matches!(
@@ -948,7 +1035,7 @@ mod populators {
                 "return 2.33225\n"
             );
             let mut result = CoriumParser::parse(Rule::Block, source).unwrap();
-            let ast = Block::map(result.next().unwrap().into_inner());
+            let ast = Block::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.0.len(), 4);
             assert!(matches!(
                 &ast.0[0],
@@ -983,7 +1070,7 @@ mod populators {
                 "let z float = 2.33225\n"
             );
             let mut result = CoriumParser::parse(Rule::Block, source).unwrap();
-            let ast = Block::map(result.next().unwrap().into_inner());
+            let ast = Block::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.0.len(), 5);
             assert!(matches!(
                 &ast.0[0],
@@ -1033,7 +1120,7 @@ mod populators {
         #[test]
         fn simple() {
             let mut result = CoriumParser::parse(Rule::FunctionSignature, "fun f()").unwrap();
-            let ast = FunctionSignature::map(result.next().unwrap().into_inner());
+            let ast = FunctionSignature::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "f");
             assert!(ast.parameters.is_none());
             assert!(ast.return_type.is_none());
@@ -1042,7 +1129,7 @@ mod populators {
         #[test]
         fn return_type() {
             let mut result = CoriumParser::parse(Rule::FunctionSignature, "fun f() int").unwrap();
-            let ast = FunctionSignature::map(result.next().unwrap().into_inner());
+            let ast = FunctionSignature::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "f");
             assert!(ast.parameters.is_none());
             assert!(ast.return_type.is_some());
@@ -1054,7 +1141,7 @@ mod populators {
         fn param() {
             let mut result =
                 CoriumParser::parse(Rule::FunctionSignature, "fun f(x float)").unwrap();
-            let ast = FunctionSignature::map(result.next().unwrap().into_inner());
+            let ast = FunctionSignature::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "f");
             assert!(ast.parameters.is_some());
             assert_eq!(ast.parameters.as_ref().unwrap().0.len(), 1);
@@ -1077,7 +1164,7 @@ mod populators {
                 "fun proc(x float, name string, ok bool = true)",
             )
             .unwrap();
-            let ast = FunctionSignature::map(result.next().unwrap().into_inner());
+            let ast = FunctionSignature::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "proc");
             assert!(ast.parameters.is_some());
             assert_eq!(ast.parameters.as_ref().unwrap().0.len(), 3);
@@ -1115,7 +1202,7 @@ mod populators {
         fn param_ret() {
             let mut result =
                 CoriumParser::parse(Rule::FunctionSignature, "fun f(x float) float").unwrap();
-            let ast = FunctionSignature::map(result.next().unwrap().into_inner());
+            let ast = FunctionSignature::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "f");
             assert!(ast.parameters.is_some());
             assert_eq!(ast.parameters.as_ref().unwrap().0.len(), 1);
@@ -1140,7 +1227,7 @@ mod populators {
         #[test]
         fn simple() {
             let mut result = CoriumParser::parse(Rule::NativeFunction, "native fun f()\n").unwrap();
-            let ast = NativeFunction::map(result.next().unwrap().into_inner());
+            let ast = NativeFunction::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.signature.name.0, "f");
             assert!(ast.signature.parameters.is_none());
             assert!(ast.signature.return_type.is_none());
@@ -1150,7 +1237,7 @@ mod populators {
         fn return_type() {
             let mut result =
                 CoriumParser::parse(Rule::NativeFunction, "native fun f() int\n").unwrap();
-            let ast = NativeFunction::map(result.next().unwrap().into_inner());
+            let ast = NativeFunction::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.signature.name.0, "f");
             assert!(ast.signature.parameters.is_none());
             assert!(ast.signature.return_type.is_some());
@@ -1162,7 +1249,7 @@ mod populators {
         fn param() {
             let mut result =
                 CoriumParser::parse(Rule::NativeFunction, "native fun f(x float)\n").unwrap();
-            let ast = NativeFunction::map(result.next().unwrap().into_inner());
+            let ast = NativeFunction::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.signature.name.0, "f");
             assert!(ast.signature.parameters.is_some());
             assert_eq!(ast.signature.parameters.as_ref().unwrap().0.len(), 1);
@@ -1185,7 +1272,7 @@ mod populators {
                 "native fun proc(x float, name string, ok bool = true)\n",
             )
             .unwrap();
-            let ast = NativeFunction::map(result.next().unwrap().into_inner());
+            let ast = NativeFunction::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.signature.name.0, "proc");
             assert!(ast.signature.parameters.is_some());
             assert_eq!(ast.signature.parameters.as_ref().unwrap().0.len(), 3);
@@ -1223,7 +1310,7 @@ mod populators {
         fn param_ret() {
             let mut result =
                 CoriumParser::parse(Rule::NativeFunction, "native fun f(x float) float\n").unwrap();
-            let ast = NativeFunction::map(result.next().unwrap().into_inner());
+            let ast = NativeFunction::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.signature.name.0, "f");
             assert!(ast.signature.parameters.is_some());
             assert_eq!(ast.signature.parameters.as_ref().unwrap().0.len(), 1);
@@ -1248,7 +1335,7 @@ mod populators {
         #[test]
         fn simple() {
             let mut result = CoriumParser::parse(Rule::Function, "fun f() {\n}\n").unwrap();
-            let ast = Function::map(result.next().unwrap().into_inner());
+            let ast = Function::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.signature.name, Identifier("f"));
             assert!(ast.signature.return_type.is_none());
             assert!(ast.signature.parameters.is_none());
@@ -1258,7 +1345,7 @@ mod populators {
         #[test]
         fn return_type() {
             let mut result = CoriumParser::parse(Rule::Function, "fun f() int {\n}\n").unwrap();
-            let ast = Function::map(result.next().unwrap().into_inner());
+            let ast = Function::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.signature.name, Identifier("f"));
             assert!(ast.signature.return_type.is_some());
             let _name = QualifiedName::from("int");
@@ -1270,7 +1357,7 @@ mod populators {
         #[test]
         fn param() {
             let mut result = CoriumParser::parse(Rule::Function, "fun f(x float) {\n}\n").unwrap();
-            let ast = Function::map(result.next().unwrap().into_inner());
+            let ast = Function::populate(result.next().unwrap().into_inner());
             assert!(ast.block.0.is_empty());
             assert_eq!(ast.signature.name.0, "f");
             assert!(ast.signature.parameters.is_some());
@@ -1294,7 +1381,7 @@ mod populators {
                 "fun proc(x float, name string, ok bool = true) {\n}\n",
             )
             .unwrap();
-            let ast = Function::map(result.next().unwrap().into_inner());
+            let ast = Function::populate(result.next().unwrap().into_inner());
             assert!(ast.block.0.is_empty());
             assert_eq!(ast.signature.name.0, "proc");
             assert!(ast.signature.parameters.is_some());
@@ -1333,7 +1420,7 @@ mod populators {
         fn param_ret() {
             let mut result =
                 CoriumParser::parse(Rule::Function, "fun f(x float) float {\n}\n").unwrap();
-            let ast = Function::map(result.next().unwrap().into_inner());
+            let ast = Function::populate(result.next().unwrap().into_inner());
             assert!(ast.block.0.is_empty());
             assert_eq!(ast.signature.name.0, "f");
             assert!(ast.signature.parameters.is_some());
@@ -1356,7 +1443,7 @@ mod populators {
         fn return_statement() {
             let mut result =
                 CoriumParser::parse(Rule::Function, "fun f() {\nreturn 10\n}\n").unwrap();
-            let ast = Function::map(result.next().unwrap().into_inner());
+            let ast = Function::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.signature.name.0, "f");
             assert!(ast.signature.parameters.is_none());
             assert!(ast.signature.return_type.is_none());
@@ -1378,7 +1465,7 @@ mod populators {
                 "}\n"
             );
             let mut result = CoriumParser::parse(Rule::Function, src).unwrap();
-            let ast = Function::map(result.next().unwrap().into_inner());
+            let ast = Function::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.signature.name.0, "compute");
             assert!(ast.signature.parameters.is_some());
             assert!(ast.signature.return_type.is_some());
@@ -1417,7 +1504,7 @@ mod populators {
         fn function() {
             let src = "fun f() {\nlet x = 10\n}\n";
             let mut result = CoriumParser::parse(Rule::GlobalStatement, src).unwrap();
-            let ast = GlobalStatement::map(result.next().unwrap().into_inner());
+            let ast = GlobalStatement::populate(result.next().unwrap().into_inner());
             let _block = vec![FunctionStatement::LocalVariable(LocalVariable {
                 name: Identifier("x"),
                 type_hint: None,
@@ -1440,7 +1527,7 @@ mod populators {
         fn native_function() {
             let src = "native fun f()\n";
             let mut result = CoriumParser::parse(Rule::GlobalStatement, src).unwrap();
-            let ast = GlobalStatement::map(result.next().unwrap().into_inner());
+            let ast = GlobalStatement::populate(result.next().unwrap().into_inner());
             assert!(matches!(
                 ast,
                 GlobalStatement::NativeFunction(NativeFunction {
@@ -1488,7 +1575,7 @@ mod populators {
         #[test]
         fn module() {
             let mut result = CoriumParser::parse(Rule::CompilationUnit, "module x\n").unwrap();
-            let ast = CompilationUnit::map(result.next().unwrap().into_inner());
+            let ast = CompilationUnit::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.module.0.full, "x");
         }
 
@@ -1503,7 +1590,7 @@ mod populators {
                 "native fun get() char\n"
             );
             let mut result = CoriumParser::parse(Rule::CompilationUnit, src).unwrap();
-            let ast = CompilationUnit::map(result.next().unwrap().into_inner());
+            let ast = CompilationUnit::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.module.0.full, "test");
             assert_eq!(ast.statements.len(), 3);
             assert!(matches!(

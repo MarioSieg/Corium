@@ -444,6 +444,9 @@ pub enum Expression<'ast> {
     /// Constant literal.
     Literal(Literal<'ast>),
 
+    /// Some identifier.
+    Identifier(Identifier<'ast>),
+
     /// Sub expression.
     Sub(Box<Expression<'ast>>),
 
@@ -462,6 +465,7 @@ impl<'ast> fmt::Display for Expression<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Self::Literal(x) => write!(f, "{}", x),
+            Self::Identifier(x) => write!(f, "{}", x),
             Self::Sub(x) => write!(f, "{}", x),
             Self::UnaryOperation { op, sub } => {
                 write!(f, "{}{}", op, sub)

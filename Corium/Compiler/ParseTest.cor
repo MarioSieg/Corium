@@ -35,3 +35,24 @@ fun getPi() float {
 fun loop() int {
     return 10
 }
+
+fun retIdent() int {
+    let result = 10
+    return result
+}
+
+fun unaryPlus() int {
+    return +10
+}
+
+fun unaryMinus() float {
+    return -0.3
+}
+
+fun unaryNot(x bool) bool {
+    return !x
+}
+
+fun unaryCom(x int) int {
+    return ~x
+}

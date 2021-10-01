@@ -254,6 +254,11 @@ impl<'a> FileCompilationUnit<'a> {
     pub fn compile(&'a mut self) {
         let clock = Instant::now();
         self.root = parse_and_map(&self.source_code);
+        #[cfg(debug_assertions)]
+        {
+            self.dump_ast();
+        }
+        #[cfg(not(debug_assertions))]
         if self.dump_ast {
             self.dump_ast();
         }
@@ -282,6 +287,10 @@ impl<'a> FileCompilationUnit<'a> {
         let mut target = self.file.clone();
         target.set_file_name(format!("{}.AST.txt", self.file_name));
         let ast = format!("{:#?}", self.ast());
+        #[cfg(debug_assertions)]
+        {
+            println!("{}", ast);
+        }
         if fs::write(&target, ast).is_err() {
             eprintln!("Failed to dump AST for file: {:?}", target);
         }

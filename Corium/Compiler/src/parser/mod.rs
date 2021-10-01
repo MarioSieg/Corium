@@ -209,7 +209,7 @@ use pest_derive::*;
 #[cfg(test)]
 mod tests;
 
-use crate::ast::populator::AstPopulator;
+use crate::ast::populator::NestedAstPopulator;
 use crate::ast::CompilationUnit;
 use pest::iterators::Pairs;
 
@@ -222,7 +222,9 @@ pub struct CoriumParser;
 
 pub fn parse_and_map(src: &str) -> Option<CompilationUnit> {
     match CoriumParser::parse(Rule::CompilationUnit, src) {
-        Ok(com_unit) => Some(CompilationUnit::map(com_unit)),
+        Ok(mut com_unit) => Some(CompilationUnit::populate(
+            com_unit.next().unwrap().into_inner(),
+        )),
         Err(err) => {
             eprintln!("{}", err);
             None
