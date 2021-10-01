@@ -209,7 +209,7 @@
 #include "../Foundation/Record.hpp"
 #include "../Foundation/VariadicMacroHelper.hpp"
 
-#define NOX_SYSCALL_ATTRIBS NOX_HOT NOX_FORCE_INLINE
+#define NOX_SYSCALL_ATTRIBS NOX_HOT NOX_FORCE_INLINE static inline
 #define NOX_SYSCALL_PROXY(name) NOX_SYSCALL_ATTRIBS auto name (Foundation::Record* NOX_RESTRICT sp) noexcept -> void
 
 #define NOX_SYSCALL_ARG1()  (*sp)
