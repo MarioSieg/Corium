@@ -1,0 +1,712 @@
+CompilationUnit {
+    module: Module(
+        QualifiedName {
+            full: "test",
+            split: [
+                "test",
+            ],
+        },
+    ),
+    statements: [
+        NativeFunction(
+            NativeFunction {
+                signature: FunctionSignature {
+                    name: Identifier(
+                        "test",
+                    ),
+                    parameters: Some(
+                        ParameterList(
+                            [
+                                Parameter {
+                                    name: Identifier(
+                                        "x",
+                                    ),
+                                    type_hint: QualifiedName {
+                                        full: "int",
+                                        split: [
+                                            "int",
+                                        ],
+                                    },
+                                    value: None,
+                                },
+                                Parameter {
+                                    name: Identifier(
+                                        "y",
+                                    ),
+                                    type_hint: QualifiedName {
+                                        full: "int",
+                                        split: [
+                                            "int",
+                                        ],
+                                    },
+                                    value: None,
+                                },
+                            ],
+                        ),
+                    ),
+                    return_type: Some(
+                        QualifiedName {
+                            full: "float",
+                            split: [
+                                "float",
+                            ],
+                        },
+                    ),
+                },
+            },
+        ),
+        NativeFunction(
+            NativeFunction {
+                signature: FunctionSignature {
+                    name: Identifier(
+                        "print",
+                    ),
+                    parameters: Some(
+                        ParameterList(
+                            [
+                                Parameter {
+                                    name: Identifier(
+                                        "value",
+                                    ),
+                                    type_hint: QualifiedName {
+                                        full: "bool",
+                                        split: [
+                                            "bool",
+                                        ],
+                                    },
+                                    value: None,
+                                },
+                                Parameter {
+                                    name: Identifier(
+                                        "end",
+                                    ),
+                                    type_hint: QualifiedName {
+                                        full: "char",
+                                        split: [
+                                            "char",
+                                        ],
+                                    },
+                                    value: Some(
+                                        Literal(
+                                            Char(
+                                                '\n',
+                                            ),
+                                        ),
+                                    ),
+                                },
+                            ],
+                        ),
+                    ),
+                    return_type: None,
+                },
+            },
+        ),
+        Function(
+            Function {
+                signature: FunctionSignature {
+                    name: Identifier(
+                        "test",
+                    ),
+                    parameters: None,
+                    return_type: None,
+                },
+                block: Block(
+                    [
+                        LocalVariable(
+                            LocalVariable {
+                                name: Identifier(
+                                    "a",
+                                ),
+                                type_hint: None,
+                                value: Literal(
+                                    Int(
+                                        10,
+                                    ),
+                                ),
+                            },
+                        ),
+                        LocalVariable(
+                            LocalVariable {
+                                name: Identifier(
+                                    "b",
+                                ),
+                                type_hint: None,
+                                value: Literal(
+                                    Float(
+                                        2.5,
+                                    ),
+                                ),
+                            },
+                        ),
+                        LocalVariable(
+                            LocalVariable {
+                                name: Identifier(
+                                    "c",
+                                ),
+                                type_hint: None,
+                                value: Literal(
+                                    Bool(
+                                        true,
+                                    ),
+                                ),
+                            },
+                        ),
+                        LocalVariable(
+                            LocalVariable {
+                                name: Identifier(
+                                    "d",
+                                ),
+                                type_hint: None,
+                                value: Literal(
+                                    Char(
+                                        'x',
+                                    ),
+                                ),
+                            },
+                        ),
+                        LocalVariable(
+                            LocalVariable {
+                                name: Identifier(
+                                    "e",
+                                ),
+                                type_hint: None,
+                                value: Literal(
+                                    String(
+                                        "Hey",
+                                    ),
+                                ),
+                            },
+                        ),
+                        LocalVariable(
+                            LocalVariable {
+                                name: Identifier(
+                                    "a2",
+                                ),
+                                type_hint: Some(
+                                    QualifiedName {
+                                        full: "int",
+                                        split: [
+                                            "int",
+                                        ],
+                                    },
+                                ),
+                                value: Literal(
+                                    Int(
+                                        10,
+                                    ),
+                                ),
+                            },
+                        ),
+                        LocalVariable(
+                            LocalVariable {
+                                name: Identifier(
+                                    "b2",
+                                ),
+                                type_hint: Some(
+                                    QualifiedName {
+                                        full: "float",
+                                        split: [
+                                            "float",
+                                        ],
+                                    },
+                                ),
+                                value: Literal(
+                                    Float(
+                                        2.5,
+                                    ),
+                                ),
+                            },
+                        ),
+                        LocalVariable(
+                            LocalVariable {
+                                name: Identifier(
+                                    "c2",
+                                ),
+                                type_hint: Some(
+                                    QualifiedName {
+                                        full: "bool",
+                                        split: [
+                                            "bool",
+                                        ],
+                                    },
+                                ),
+                                value: Literal(
+                                    Bool(
+                                        true,
+                                    ),
+                                ),
+                            },
+                        ),
+                        LocalVariable(
+                            LocalVariable {
+                                name: Identifier(
+                                    "d2",
+                                ),
+                                type_hint: Some(
+                                    QualifiedName {
+                                        full: "char",
+                                        split: [
+                                            "char",
+                                        ],
+                                    },
+                                ),
+                                value: Literal(
+                                    Char(
+                                        'x',
+                                    ),
+                                ),
+                            },
+                        ),
+                        LocalVariable(
+                            LocalVariable {
+                                name: Identifier(
+                                    "e2",
+                                ),
+                                type_hint: Some(
+                                    QualifiedName {
+                                        full: "string",
+                                        split: [
+                                            "string",
+                                        ],
+                                    },
+                                ),
+                                value: Literal(
+                                    String(
+                                        "Hey",
+                                    ),
+                                ),
+                            },
+                        ),
+                    ],
+                ),
+            },
+        ),
+        Function(
+            Function {
+                signature: FunctionSignature {
+                    name: Identifier(
+                        "compute",
+                    ),
+                    parameters: Some(
+                        ParameterList(
+                            [
+                                Parameter {
+                                    name: Identifier(
+                                        "x",
+                                    ),
+                                    type_hint: QualifiedName {
+                                        full: "int",
+                                        split: [
+                                            "int",
+                                        ],
+                                    },
+                                    value: None,
+                                },
+                                Parameter {
+                                    name: Identifier(
+                                        "y",
+                                    ),
+                                    type_hint: QualifiedName {
+                                        full: "int",
+                                        split: [
+                                            "int",
+                                        ],
+                                    },
+                                    value: None,
+                                },
+                                Parameter {
+                                    name: Identifier(
+                                        "normalize",
+                                    ),
+                                    type_hint: QualifiedName {
+                                        full: "bool",
+                                        split: [
+                                            "bool",
+                                        ],
+                                    },
+                                    value: None,
+                                },
+                            ],
+                        ),
+                    ),
+                    return_type: Some(
+                        QualifiedName {
+                            full: "int",
+                            split: [
+                                "int",
+                            ],
+                        },
+                    ),
+                },
+                block: Block(
+                    [
+                        LocalVariable(
+                            LocalVariable {
+                                name: Identifier(
+                                    "result",
+                                ),
+                                type_hint: None,
+                                value: Literal(
+                                    Int(
+                                        10,
+                                    ),
+                                ),
+                            },
+                        ),
+                        ReturnStatement(
+                            ReturnStatement(
+                                Some(
+                                    Literal(
+                                        Int(
+                                            2,
+                                        ),
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ],
+                ),
+            },
+        ),
+        Function(
+            Function {
+                signature: FunctionSignature {
+                    name: Identifier(
+                        "setValue",
+                    ),
+                    parameters: Some(
+                        ParameterList(
+                            [
+                                Parameter {
+                                    name: Identifier(
+                                        "name",
+                                    ),
+                                    type_hint: QualifiedName {
+                                        full: "string",
+                                        split: [
+                                            "string",
+                                        ],
+                                    },
+                                    value: None,
+                                },
+                            ],
+                        ),
+                    ),
+                    return_type: None,
+                },
+                block: Block(
+                    [
+                        LocalVariable(
+                            LocalVariable {
+                                name: Identifier(
+                                    "result",
+                                ),
+                                type_hint: None,
+                                value: Literal(
+                                    Int(
+                                        5,
+                                    ),
+                                ),
+                            },
+                        ),
+                        ReturnStatement(
+                            ReturnStatement(
+                                None,
+                            ),
+                        ),
+                    ],
+                ),
+            },
+        ),
+        Function(
+            Function {
+                signature: FunctionSignature {
+                    name: Identifier(
+                        "getPi",
+                    ),
+                    parameters: None,
+                    return_type: Some(
+                        QualifiedName {
+                            full: "float",
+                            split: [
+                                "float",
+                            ],
+                        },
+                    ),
+                },
+                block: Block(
+                    [
+                        ReturnStatement(
+                            ReturnStatement(
+                                Some(
+                                    Literal(
+                                        Float(
+                                            2.6,
+                                        ),
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ],
+                ),
+            },
+        ),
+        Function(
+            Function {
+                signature: FunctionSignature {
+                    name: Identifier(
+                        "loop",
+                    ),
+                    parameters: None,
+                    return_type: Some(
+                        QualifiedName {
+                            full: "int",
+                            split: [
+                                "int",
+                            ],
+                        },
+                    ),
+                },
+                block: Block(
+                    [
+                        ReturnStatement(
+                            ReturnStatement(
+                                Some(
+                                    Literal(
+                                        Int(
+                                            10,
+                                        ),
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ],
+                ),
+            },
+        ),
+        Function(
+            Function {
+                signature: FunctionSignature {
+                    name: Identifier(
+                        "retIdent",
+                    ),
+                    parameters: None,
+                    return_type: Some(
+                        QualifiedName {
+                            full: "int",
+                            split: [
+                                "int",
+                            ],
+                        },
+                    ),
+                },
+                block: Block(
+                    [
+                        LocalVariable(
+                            LocalVariable {
+                                name: Identifier(
+                                    "result",
+                                ),
+                                type_hint: None,
+                                value: Literal(
+                                    Int(
+                                        10,
+                                    ),
+                                ),
+                            },
+                        ),
+                        ReturnStatement(
+                            ReturnStatement(
+                                Some(
+                                    Identifier(
+                                        Identifier(
+                                            "result",
+                                        ),
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ],
+                ),
+            },
+        ),
+        Function(
+            Function {
+                signature: FunctionSignature {
+                    name: Identifier(
+                        "unaryPlus",
+                    ),
+                    parameters: None,
+                    return_type: Some(
+                        QualifiedName {
+                            full: "int",
+                            split: [
+                                "int",
+                            ],
+                        },
+                    ),
+                },
+                block: Block(
+                    [
+                        ReturnStatement(
+                            ReturnStatement(
+                                Some(
+                                    UnaryOperation {
+                                        op: Plus,
+                                        sub: Literal(
+                                            Int(
+                                                10,
+                                            ),
+                                        ),
+                                    },
+                                ),
+                            ),
+                        ),
+                    ],
+                ),
+            },
+        ),
+        Function(
+            Function {
+                signature: FunctionSignature {
+                    name: Identifier(
+                        "unaryMinus",
+                    ),
+                    parameters: None,
+                    return_type: Some(
+                        QualifiedName {
+                            full: "float",
+                            split: [
+                                "float",
+                            ],
+                        },
+                    ),
+                },
+                block: Block(
+                    [
+                        ReturnStatement(
+                            ReturnStatement(
+                                Some(
+                                    UnaryOperation {
+                                        op: Minus,
+                                        sub: Literal(
+                                            Float(
+                                                0.3,
+                                            ),
+                                        ),
+                                    },
+                                ),
+                            ),
+                        ),
+                    ],
+                ),
+            },
+        ),
+        Function(
+            Function {
+                signature: FunctionSignature {
+                    name: Identifier(
+                        "unaryNot",
+                    ),
+                    parameters: Some(
+                        ParameterList(
+                            [
+                                Parameter {
+                                    name: Identifier(
+                                        "x",
+                                    ),
+                                    type_hint: QualifiedName {
+                                        full: "bool",
+                                        split: [
+                                            "bool",
+                                        ],
+                                    },
+                                    value: None,
+                                },
+                            ],
+                        ),
+                    ),
+                    return_type: Some(
+                        QualifiedName {
+                            full: "bool",
+                            split: [
+                                "bool",
+                            ],
+                        },
+                    ),
+                },
+                block: Block(
+                    [
+                        ReturnStatement(
+                            ReturnStatement(
+                                Some(
+                                    UnaryOperation {
+                                        op: Not,
+                                        sub: Identifier(
+                                            Identifier(
+                                                "x",
+                                            ),
+                                        ),
+                                    },
+                                ),
+                            ),
+                        ),
+                    ],
+                ),
+            },
+        ),
+        Function(
+            Function {
+                signature: FunctionSignature {
+                    name: Identifier(
+                        "unaryCom",
+                    ),
+                    parameters: Some(
+                        ParameterList(
+                            [
+                                Parameter {
+                                    name: Identifier(
+                                        "x",
+                                    ),
+                                    type_hint: QualifiedName {
+                                        full: "int",
+                                        split: [
+                                            "int",
+                                        ],
+                                    },
+                                    value: None,
+                                },
+                            ],
+                        ),
+                    ),
+                    return_type: Some(
+                        QualifiedName {
+                            full: "int",
+                            split: [
+                                "int",
+                            ],
+                        },
+                    ),
+                },
+                block: Block(
+                    [
+                        ReturnStatement(
+                            ReturnStatement(
+                                Some(
+                                    UnaryOperation {
+                                        op: Complement,
+                                        sub: Identifier(
+                                            Identifier(
+                                                "x",
+                                            ),
+                                        ),
+                                    },
+                                ),
+                            ),
+                        ),
+                    ],
+                ),
+            },
+        ),
+    ],
+}

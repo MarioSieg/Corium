@@ -207,7 +207,7 @@
 
 #if NOX_ARCH_X86_64
 #	if !defined(__AVX__) || !__AVX__
-#		error "This reactore core requires AVX!"
+#		error "This reactor core requires AVX!"
 #	endif
 #	define NOX_REACTOR_IMPL_NAME ReactorCore_Avx
 #		include "VMHypervisor.hpp"

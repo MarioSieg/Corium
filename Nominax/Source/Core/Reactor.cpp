@@ -283,7 +283,7 @@ namespace Nominax::Core
 		NOX_PAS_NOT_NULL(routine, "Reactor execution routine is null!");
 		this->Output_.Input = &this->Input_;
 		const bool result { (*routine)(&this->Input_, &this->Output_, nullptr) };
-		NOX_PAS_TRUE(result, "Reactor routine execution return false!");
+		NOX_PAS(result, "Reactor routine execution return false!");
         return this->Output_;
 	}
 }

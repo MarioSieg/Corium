@@ -208,8 +208,7 @@ use std::convert;
 use std::default;
 use std::fmt;
 
-pub mod mapper;
-pub mod populators;
+pub mod populator;
 pub mod table;
 
 #[cfg(test)]
@@ -220,16 +219,16 @@ pub trait AstComponent: Clone + fmt::Display + fmt::Debug {
 }
 
 #[derive(Clone, Debug)]
-pub struct CompilationUnit<'a> {
-    pub module: Module<'a>,
-    pub statements: Vec<GlobalStatement<'a>>,
+pub struct CompilationUnit<'ast> {
+    pub module: Module<'ast>,
+    pub statements: Vec<GlobalStatement<'ast>>,
 }
 
-impl<'a> AstComponent for CompilationUnit<'a> {
+impl<'ast> AstComponent for CompilationUnit<'ast> {
     const CORRESPONDING_RULE: Rule = Rule::CompilationUnit;
 }
 
-impl<'a> fmt::Display for CompilationUnit<'a> {
+impl<'ast> fmt::Display for CompilationUnit<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.module)?;
         for smt in &self.statements {
@@ -241,16 +240,16 @@ impl<'a> fmt::Display for CompilationUnit<'a> {
 
 /// Represents a file scope statement.
 #[derive(Clone, Debug)]
-pub enum GlobalStatement<'a> {
-    Function(Function<'a>),
-    NativeFunction(NativeFunction<'a>),
+pub enum GlobalStatement<'ast> {
+    Function(Function<'ast>),
+    NativeFunction(NativeFunction<'ast>),
 }
 
-impl<'a> AstComponent for GlobalStatement<'a> {
+impl<'ast> AstComponent for GlobalStatement<'ast> {
     const CORRESPONDING_RULE: Rule = Rule::GlobalStatement;
 }
 
-impl<'a> fmt::Display for GlobalStatement<'a> {
+impl<'ast> fmt::Display for GlobalStatement<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Function(x) => write!(f, "{}", x),
@@ -261,16 +260,16 @@ impl<'a> fmt::Display for GlobalStatement<'a> {
 
 /// Represents a function.
 #[derive(Clone, Debug)]
-pub struct Function<'a> {
-    pub signature: FunctionSignature<'a>,
-    pub block: Block<'a>,
+pub struct Function<'ast> {
+    pub signature: FunctionSignature<'ast>,
+    pub block: Block<'ast>,
 }
 
-impl<'a> AstComponent for Function<'a> {
+impl<'ast> AstComponent for Function<'ast> {
     const CORRESPONDING_RULE: Rule = Rule::Function;
 }
 
-impl<'a> fmt::Display for Function<'a> {
+impl<'ast> fmt::Display for Function<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.signature)?;
         writeln!(f, " {{")?;
@@ -287,32 +286,32 @@ impl<'a> fmt::Display for Function<'a> {
 }
 
 #[derive(Clone, Debug)]
-pub struct NativeFunction<'a> {
-    pub signature: FunctionSignature<'a>,
+pub struct NativeFunction<'ast> {
+    pub signature: FunctionSignature<'ast>,
 }
 
-impl<'a> AstComponent for NativeFunction<'a> {
+impl<'ast> AstComponent for NativeFunction<'ast> {
     const CORRESPONDING_RULE: Rule = Rule::NativeFunction;
 }
 
-impl<'a> fmt::Display for NativeFunction<'a> {
+impl<'ast> fmt::Display for NativeFunction<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "native {}", self.signature)
     }
 }
 
 #[derive(Clone, Debug)]
-pub struct FunctionSignature<'a> {
-    pub name: Identifier<'a>,
-    pub parameters: Option<ParameterList<'a>>,
-    pub return_type: Option<QualifiedName<'a>>,
+pub struct FunctionSignature<'ast> {
+    pub name: Identifier<'ast>,
+    pub parameters: Option<ParameterList<'ast>>,
+    pub return_type: Option<QualifiedName<'ast>>,
 }
 
-impl<'a> AstComponent for FunctionSignature<'a> {
+impl<'ast> AstComponent for FunctionSignature<'ast> {
     const CORRESPONDING_RULE: Rule = Rule::FunctionSignature;
 }
 
-impl<'a> fmt::Display for FunctionSignature<'a> {
+impl<'ast> fmt::Display for FunctionSignature<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}(", self.name)?;
         for param in &self.parameters {
@@ -327,13 +326,13 @@ impl<'a> fmt::Display for FunctionSignature<'a> {
 }
 
 #[derive(Clone, Debug)]
-pub struct Block<'a>(pub Vec<FunctionStatement<'a>>);
+pub struct Block<'ast>(pub Vec<FunctionStatement<'ast>>);
 
-impl<'a> AstComponent for Block<'a> {
+impl<'ast> AstComponent for Block<'ast> {
     const CORRESPONDING_RULE: Rule = Rule::Block;
 }
 
-impl<'a> fmt::Display for Block<'a> {
+impl<'ast> fmt::Display for Block<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for smt in &self.0 {
             write!(f, "{}", smt)?;
@@ -343,16 +342,16 @@ impl<'a> fmt::Display for Block<'a> {
 }
 
 #[derive(Clone, Debug)]
-pub enum FunctionStatement<'a> {
-    LocalVariable(LocalVariable<'a>),
-    ReturnStatement(ReturnStatement<'a>),
+pub enum FunctionStatement<'ast> {
+    LocalVariable(LocalVariable<'ast>),
+    ReturnStatement(ReturnStatement<'ast>),
 }
 
-impl<'a> AstComponent for FunctionStatement<'a> {
+impl<'ast> AstComponent for FunctionStatement<'ast> {
     const CORRESPONDING_RULE: Rule = Rule::FunctionStatement;
 }
 
-impl<'a> fmt::Display for FunctionStatement<'a> {
+impl<'ast> fmt::Display for FunctionStatement<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::LocalVariable(x) => write!(f, "{}", x),
@@ -362,13 +361,13 @@ impl<'a> fmt::Display for FunctionStatement<'a> {
 }
 
 #[derive(Clone, Debug)]
-pub struct ReturnStatement<'a>(pub Option<Expression<'a>>);
+pub struct ReturnStatement<'ast>(pub Option<Expression<'ast>>);
 
-impl<'a> AstComponent for ReturnStatement<'a> {
+impl<'ast> AstComponent for ReturnStatement<'ast> {
     const CORRESPONDING_RULE: Rule = Rule::ReturnStatement;
 }
 
-impl<'a> fmt::Display for ReturnStatement<'a> {
+impl<'ast> fmt::Display for ReturnStatement<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if let Some(expr) = &self.0 {
             write!(f, "return {}", expr)
@@ -379,13 +378,13 @@ impl<'a> fmt::Display for ReturnStatement<'a> {
 }
 
 #[derive(Clone, Debug)]
-pub struct ParameterList<'a>(pub Vec<Parameter<'a>>);
+pub struct ParameterList<'ast>(pub Vec<Parameter<'ast>>);
 
-impl<'a> AstComponent for ParameterList<'a> {
+impl<'ast> AstComponent for ParameterList<'ast> {
     const CORRESPONDING_RULE: Rule = Rule::ParameterList;
 }
 
-impl<'a> fmt::Display for ParameterList<'a> {
+impl<'ast> fmt::Display for ParameterList<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for param in &self.0 {
             write!(f, "{}", param)?;
@@ -395,17 +394,17 @@ impl<'a> fmt::Display for ParameterList<'a> {
 }
 
 #[derive(Clone, Debug)]
-pub struct Parameter<'a> {
-    pub name: Identifier<'a>,
-    pub type_hint: QualifiedName<'a>,
-    pub value: Option<Expression<'a>>,
+pub struct Parameter<'ast> {
+    pub name: Identifier<'ast>,
+    pub type_hint: QualifiedName<'ast>,
+    pub value: Option<Expression<'ast>>,
 }
 
-impl<'a> AstComponent for Parameter<'a> {
+impl<'ast> AstComponent for Parameter<'ast> {
     const CORRESPONDING_RULE: Rule = Rule::Parameter;
 }
 
-impl<'a> fmt::Display for Parameter<'a> {
+impl<'ast> fmt::Display for Parameter<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.name)?;
         write!(f, " {}", self.type_hint)?;
@@ -418,17 +417,17 @@ impl<'a> fmt::Display for Parameter<'a> {
 
 /// Represents a local variable
 #[derive(Clone, Debug)]
-pub struct LocalVariable<'a> {
-    pub name: Identifier<'a>,
-    pub type_hint: Option<QualifiedName<'a>>,
-    pub value: Expression<'a>,
+pub struct LocalVariable<'ast> {
+    pub name: Identifier<'ast>,
+    pub type_hint: Option<QualifiedName<'ast>>,
+    pub value: Expression<'ast>,
 }
 
-impl<'a> AstComponent for LocalVariable<'a> {
+impl<'ast> AstComponent for LocalVariable<'ast> {
     const CORRESPONDING_RULE: Rule = Rule::LocalVariable;
 }
 
-impl<'a> fmt::Display for LocalVariable<'a> {
+impl<'ast> fmt::Display for LocalVariable<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "let {}", self.name)?;
         if let Some(typename) = &self.type_hint {
@@ -441,25 +440,75 @@ impl<'a> fmt::Display for LocalVariable<'a> {
 
 /// Represents an expression.
 #[derive(Clone, Debug)]
-pub enum Expression<'a> {
-    Literal(Literal<'a>),
+pub enum Expression<'ast> {
+    /// Constant literal.
+    Literal(Literal<'ast>),
+
+    /// Some identifier.
+    Identifier(Identifier<'ast>),
+
+    /// Sub expression.
+    Sub(Box<Expression<'ast>>),
+
+    /// Unary operation (operation with one operand).
+    UnaryOperation {
+        op: UnaryOperator,
+        sub: Box<Expression<'ast>>,
+    },
 }
 
-impl<'a> AstComponent for Expression<'a> {
+impl<'ast> AstComponent for Expression<'ast> {
     const CORRESPONDING_RULE: Rule = Rule::Expression;
 }
 
-impl<'a> fmt::Display for Expression<'a> {
+impl<'ast> fmt::Display for Expression<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Self::Literal(lit) => write!(f, "{}", lit),
+            Self::Literal(x) => write!(f, "{}", x),
+            Self::Identifier(x) => write!(f, "{}", x),
+            Self::Sub(x) => write!(f, "{}", x),
+            Self::UnaryOperation { op, sub } => {
+                write!(f, "{}{}", op, sub)
+            }
+        }
+    }
+}
+
+/// Represents an unary operator having one operand. E.g. +10 or -0.5 or !x
+#[repr(u8)]
+#[derive(Clone, Eq, PartialEq, Debug)]
+pub enum UnaryOperator {
+    /// +
+    Plus,
+
+    /// -
+    Minus,
+
+    /// ! -> logical not
+    Not,
+
+    /// ~ -> bitwise not
+    Complement,
+}
+
+impl AstComponent for UnaryOperator {
+    const CORRESPONDING_RULE: Rule = Rule::UnaryOperator;
+}
+
+impl fmt::Display for UnaryOperator {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Self::Plus => write!(f, "+"),
+            Self::Minus => write!(f, "-"),
+            Self::Not => write!(f, "!"),
+            Self::Complement => write!(f, "~"),
         }
     }
 }
 
 /// Represents a literal.
 #[derive(Clone, PartialEq, Debug)]
-pub enum Literal<'a> {
+pub enum Literal<'ast> {
     /// An integer literal. E.g. 5
     Int(Int),
 
@@ -473,14 +522,14 @@ pub enum Literal<'a> {
     Bool(Bool),
 
     /// A string literal. E.g. "Hello"
-    String(&'a str),
+    String(&'ast str),
 }
 
-impl<'a> AstComponent for Literal<'a> {
+impl<'ast> AstComponent for Literal<'ast> {
     const CORRESPONDING_RULE: Rule = Rule::Literal;
 }
 
-impl<'a> fmt::Display for Literal<'a> {
+impl<'ast> fmt::Display for Literal<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Self::Float(x) => write!(f, "{}", x),
@@ -494,19 +543,19 @@ impl<'a> fmt::Display for Literal<'a> {
 
 /// Represents a module definition.
 #[derive(Clone, Debug)]
-pub struct Module<'a>(pub QualifiedName<'a>);
+pub struct Module<'ast>(pub QualifiedName<'ast>);
 
-impl<'a> AstComponent for Module<'a> {
+impl<'ast> AstComponent for Module<'ast> {
     const CORRESPONDING_RULE: Rule = Rule::Module;
 }
 
-impl<'a> fmt::Display for Module<'a> {
+impl<'ast> fmt::Display for Module<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.0)
     }
 }
 
-impl<'a> default::Default for Module<'a> {
+impl<'ast> default::Default for Module<'ast> {
     fn default() -> Self {
         Self(QualifiedName::from("default"))
     }
@@ -518,23 +567,23 @@ impl<'a> default::Default for Module<'a> {
 /// E. g. Module.TestClass
 /// E. g. Module.TestClass.Function
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
-pub struct QualifiedName<'a> {
-    pub full: &'a str,
-    pub split: Vec<&'a str>,
+pub struct QualifiedName<'ast> {
+    pub full: &'ast str,
+    pub split: Vec<&'ast str>,
 }
 
-impl<'a> fmt::Display for QualifiedName<'a> {
+impl<'ast> fmt::Display for QualifiedName<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.full)
     }
 }
 
-impl<'a> AstComponent for QualifiedName<'a> {
+impl<'ast> AstComponent for QualifiedName<'ast> {
     const CORRESPONDING_RULE: Rule = Rule::QualifiedName;
 }
 
-impl<'a> convert::From<&'a str> for QualifiedName<'a> {
-    fn from(x: &'a str) -> Self {
+impl<'ast> convert::From<&'ast str> for QualifiedName<'ast> {
+    fn from(x: &'ast str) -> Self {
         assert!(!x.is_empty());
         Self {
             full: x,
@@ -545,13 +594,13 @@ impl<'a> convert::From<&'a str> for QualifiedName<'a> {
 
 /// Represents an identifier such as a class or variable name.
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
-pub struct Identifier<'a>(pub &'a str);
+pub struct Identifier<'ast>(pub &'ast str);
 
-impl<'a> AstComponent for Identifier<'a> {
+impl<'ast> AstComponent for Identifier<'ast> {
     const CORRESPONDING_RULE: Rule = Rule::Identifier;
 }
 
-impl<'a> fmt::Display for Identifier<'a> {
+impl<'ast> fmt::Display for Identifier<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.0)
     }

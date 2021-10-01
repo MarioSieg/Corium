@@ -218,7 +218,7 @@ namespace Nominax::Core
         do															\
         {															\
             Foundation::Print("Dispatching hook: " #method "\n");	\
-            NOX_PAS_TRUE											\
+            NOX_PAS											\
             (														\
                 this-> method (__VA_ARGS__),						\
                 "\" "#method "\" returned false!"					\
@@ -226,7 +226,7 @@ namespace Nominax::Core
         }															\
         while(false)
 
-    #define VALIDATE_ONLINE_BOOT_STATE() NOX_PAS_TRUE(this->IsOnline(), "Environment is offline!")
+    #define VALIDATE_ONLINE_BOOT_STATE() NOX_PAS(this->IsOnline(), "Environment is offline!")
 
 	/// <summary>
 	/// Checks if the byte stack size is divisible by sizeof(Common::Record) and panics if not.

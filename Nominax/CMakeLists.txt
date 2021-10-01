@@ -4,6 +4,8 @@ set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
 # Set project name:
 project(NominaxRuntime C CXX ASM)
 
+message("Configuring Nominax runtime...")
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 set(CMAKE_C_COMPILER_WORKS TRUE)
@@ -20,12 +22,48 @@ option(NOMINAX_FAST_MATH "Use fast but IEEE incompatible math" ON)
 option(NOMINAX_BUILD_UNIT_TESTS "Build the unit tests for all projects" OFF)
 option(NOMINAX_BUILD_BENCHMARKS "Build the benchmarks for all projects" OFF)
 
-# runtime library:
-file(GLOB_RECURSE NOMINAX_SOURCES Source/*.cpp Source/*.c Source/*.h Source/*.S Include/*.hpp Include/*.inl)
+# CPU arch detection:
+set(CPU_IS_MIPS FALSE)
+set(CPU_IS_AARCH64 FALSE)
+set(CPU_IS_X86_64 FALSE)
+set(CPU_IS_POWER_PC FALSE)
 
-# Set more optimizations for special reactors:
-SET_SOURCE_FILES_PROPERTIES(Source/Core/VMHypervisor_Impl_AVX.cpp PROPERTIES COMPILE_FLAGS -mavx)
-SET_SOURCE_FILES_PROPERTIES(Source/Core/VMHypervisor_Impl_AVX512F.cpp PROPERTIES COMPILE_FLAGS -mavx512f)
+message("CMAKE_SYSTEM_PROCESSOR: ${CMAKE_SYSTEM_PROCESSOR}")
+
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "^mips")
+  set(CPU_IS_MIPS TRUE)
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^aarch64")
+  set(CPU_IS_AARCH64 TRUE)
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^(x86_64|AMD64|amd64)")
+  set(CPU_IS_X86_64 TRUE)
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^(powerpc|ppc)")
+  set(CPU_IS_POWER_PC TRUE)
+endif()
+
+message("CPU_IS_MIPS: ${CPU_IS_MIPS}")
+message("CPU_IS_AARCH64: ${CPU_IS_AARCH64}")
+message("CPU_IS_X86_64: ${CPU_IS_X86_64}")
+message("CPU_IS_POWER_PC: ${CPU_IS_POWER_PC}")
+
+# runtime library:
+file(GLOB_RECURSE NOMINAX_SOURCES
+    Include/*.hpp
+    Include/*.inl
+    Source/ByteCode/*.cpp
+    Source/Core/*.cpp
+    Source/Foundation/*.cpp
+    Source/JIT/*.cpp
+)
+
+if (${CPU_IS_X86_64})
+    set_source_files_properties(Source/Core/VMHypervisor_Impl_AVX.cpp PROPERTIES COMPILE_FLAGS -mavx)
+    set_source_files_properties(Source/Core/VMHypervisor_Impl_AVX512F.cpp PROPERTIES COMPILE_FLAGS -mavx512f)
+    file(GLOB_RECURSE NOMINAX_ASM_SOURCES Source/Assembler/X86_64/*.cpp Source/Assembler/X86_64/*.S)
+    set(NOMINAX_SOURCES ${NOMINAX_SOURCES} ${NOMINAX_ASM_SOURCES})
+elseif (${CPU_IS_AARCH64})
+    file(GLOB_RECURSE NOMINAX_ASM_SOURCES Source/Assembler/AArch64/*.cpp Source/Assembler/AArch64/*.S)
+    set(NOMINAX_SOURCES ${NOMINAX_SOURCES} ${NOMINAX_ASM_SOURCES})
+endif()
 
 add_library(NominaxRuntime STATIC "${NOMINAX_SOURCES}")
 
@@ -37,13 +75,17 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
     message("Release build, using all optimization flags")
 endif()
 
-target_compile_options(NominaxRuntime PRIVATE -mmmx)
-target_compile_options(NominaxRuntime PRIVATE -msse)
-target_compile_options(NominaxRuntime PRIVATE -msse2)
-target_compile_options(NominaxRuntime PRIVATE -msse3)
-target_compile_options(NominaxRuntime PRIVATE -mssse3)
-target_compile_options(NominaxRuntime PRIVATE -msahf)
-target_compile_options(NominaxRuntime PRIVATE -mcx16)
+if (${CPU_IS_X86_64})
+    target_compile_options(NominaxRuntime PRIVATE -mmmx)
+    target_compile_options(NominaxRuntime PRIVATE -msse)
+    target_compile_options(NominaxRuntime PRIVATE -msse2)
+    target_compile_options(NominaxRuntime PRIVATE -msse3)
+    target_compile_options(NominaxRuntime PRIVATE -mssse3)
+    target_compile_options(NominaxRuntime PRIVATE -msahf)
+    target_compile_options(NominaxRuntime PRIVATE -mcx16)
+endif()
+
+
 target_compile_options(NominaxRuntime PRIVATE -Wall)
 target_compile_options(NominaxRuntime PRIVATE -Werror)
 target_compile_options(NominaxRuntime PRIVATE -Wextra)

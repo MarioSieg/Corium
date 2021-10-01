@@ -229,15 +229,19 @@ namespace Nominax::Core
 		/// </summary>
 		Debug,
 
-		/// <summary>
-		/// AMD 64 optimized implementation for advanced vector extensions -> 256-bit (YMM* registers) -> VEX
-		/// </summary>
-		X86_64_AVX,
+		#if NOX_ARCH_X86_64
 
-		/// <summary>
-		/// AMD 64 optimized implementation for advanced vector extensions 512 -> 512-bit (ZMM* registers, K* mask registers) -> EVEX
-		/// </summary>
-		X86_64_AVX512F,
+			/// <summary>
+			/// AMD 64 optimized implementation for advanced vector extensions -> 256-bit (YMM* registers) -> VEX
+			/// </summary>
+			X86_64_AVX,
+
+			/// <summary>
+			/// AMD 64 optimized implementation for advanced vector extensions 512 -> 512-bit (ZMM* registers, K* mask registers) -> EVEX
+			/// </summary>
+			X86_64_AVX512F,
+
+		#endif
 
 		Count
 	};
@@ -251,21 +255,22 @@ namespace Nominax::Core
 	{
 		switch (target)
 		{
+			default:
 			case ReactorCoreSpecialization::Fallback:
 				return "Fallback";
 
 			case ReactorCoreSpecialization::Debug:
 				return "UseSandboxVM";
 
-			case ReactorCoreSpecialization::X86_64_AVX:
-				return "X86-64 AVX";
+			#if NOX_ARCH_X86_64
 
-			case ReactorCoreSpecialization::X86_64_AVX512F:
-				return "X86-64 AVX512F";
+				case ReactorCoreSpecialization::X86_64_AVX:
+					return "X86-64 AVX";
 
-				[[unlikely]]
-			default:
-				return { };
+				case ReactorCoreSpecialization::X86_64_AVX512F:
+					return "X86-64 AVX512F";
+
+			#endif
 		}
 	}
 

@@ -211,16 +211,17 @@ namespace Nominax::Foundation
 	CPUFeatureDetector::CPUFeatureDetector() : FeatureBits_ { }
 	{
 		#if NOX_ARCH_X86_64
-            using namespace Assembler::AMD64::Routines;
-            using Cfb = CPUFeatureBits;
+        
+            using namespace Assembler::X86_64::Routines;
+            using CFB = CPUFeatureBits;
 
             // check if cpuid is supported on system
-            NOX_PAS_TRUE(IsCPUIDSupported(), "CPUID instruction is not supported on system!");
+            NOX_PAS(IsCPUIDSupported(), "CPUID instruction is not supported on system!");
 
             // extract gathered CPU feature bits:
             CpuFeatureMaskBuffer buffer { };
             std::array<std::uint64_t, 3> merged { };
-            const std::uint32_t result {CPUID(&merged[0], &merged[1], &merged[2]) };
+            const std::uint32_t result { CPUID(&merged[0], &merged[1], &merged[2]) };
             std::uint8_t* const needle { std::data(buffer) };
             std::memcpy(needle, std::data(merged), sizeof merged);
             std::memcpy(needle + sizeof merged, &result, sizeof result);
@@ -235,7 +236,7 @@ namespace Nominax::Foundation
             }
 
             // Check if CPU and OS supports XSave
-            const bool xSaveSupport { (*this)[Cfb::XSave] && (*this)[Cfb::OSXSave] };
+            const bool xSaveSupport {(*this)[CFB::XSave] && (*this)[CFB::OSXSave] };
             if (!xSaveSupport)
             {
                 // XSave is required for AVX and AVX 512
@@ -245,31 +246,30 @@ namespace Nominax::Foundation
 
             // Validate OS support and update flags for AVX:
             const bool avxOsSupport {IsAVXSupportedByOS() };
-            (*this)[Cfb::AVX]   &= avxOsSupport;
-            (*this)[Cfb::AVX2]  &= avxOsSupport;
-            (*this)[Cfb::F16C]  &= avxOsSupport;
+            (*this)[CFB::AVX]   &= avxOsSupport;
+            (*this)[CFB::AVX2]  &= avxOsSupport;
+            (*this)[CFB::F16C]  &= avxOsSupport;
 
             // Validate OS support and update flags for AVX-512 F:
             const bool avx512OsSupport {avxOsSupport && IsAVX512SupportedByOS() };
-            (*this)[Cfb::AVX512F]               &= avx512OsSupport;
-            (*this)[Cfb::AVX512DQ]              &= avx512OsSupport;
-            (*this)[Cfb::AVX512IFMA]            &= avx512OsSupport;
-            (*this)[Cfb::AVX512PF]              &= avx512OsSupport;
-            (*this)[Cfb::AVX512ER]              &= avx512OsSupport;
-            (*this)[Cfb::AVX512CD]              &= avx512OsSupport;
-            (*this)[Cfb::AVX512BW]              &= avx512OsSupport;
-            (*this)[Cfb::AVX512VL]              &= avx512OsSupport;
-            (*this)[Cfb::AVX512VBMI]            &= avx512OsSupport;
-            (*this)[Cfb::AVX512VBMI2]           &= avx512OsSupport;
-            (*this)[Cfb::AVX512GFNI]            &= avx512OsSupport;
-            (*this)[Cfb::AVX512VNNI]            &= avx512OsSupport;
-            (*this)[Cfb::AVX512Bitalg]          &= avx512OsSupport;
-            (*this)[Cfb::AVX512PopCNTDQ]        &= avx512OsSupport;
-            (*this)[Cfb::AVX512VNNIW4]          &= avx512OsSupport;
-            (*this)[Cfb::AVX512FMAPS4]          &= avx512OsSupport;
-            (*this)[Cfb::AVX512VP2Intersect]    &= avx512OsSupport;
-		#else
-            #error "Unimplemented architecture!"
+            (*this)[CFB::AVX512F]               &= avx512OsSupport;
+            (*this)[CFB::AVX512DQ]              &= avx512OsSupport;
+            (*this)[CFB::AVX512IFMA]            &= avx512OsSupport;
+            (*this)[CFB::AVX512PF]              &= avx512OsSupport;
+            (*this)[CFB::AVX512ER]              &= avx512OsSupport;
+            (*this)[CFB::AVX512CD]              &= avx512OsSupport;
+            (*this)[CFB::AVX512BW]              &= avx512OsSupport;
+            (*this)[CFB::AVX512VL]              &= avx512OsSupport;
+            (*this)[CFB::AVX512VBMI]            &= avx512OsSupport;
+            (*this)[CFB::AVX512VBMI2]           &= avx512OsSupport;
+            (*this)[CFB::AVX512GFNI]            &= avx512OsSupport;
+            (*this)[CFB::AVX512VNNI]            &= avx512OsSupport;
+            (*this)[CFB::AVX512Bitalg]          &= avx512OsSupport;
+            (*this)[CFB::AVX512PopCNTDQ]        &= avx512OsSupport;
+            (*this)[CFB::AVX512VNNIW4]          &= avx512OsSupport;
+            (*this)[CFB::AVX512FMAPS4]          &= avx512OsSupport;
+            (*this)[CFB::AVX512VP2Intersect]    &= avx512OsSupport;
+
 		#endif
 	}
 

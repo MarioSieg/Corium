@@ -1,11 +1,10 @@
-CompilationUnit = _{
-    SOI ~ Module ~ GlobalStatement* ~ EOI
+CompilationUnit = {
+    SOI ~ Module ~ (GlobalStatement | StatementSeparator)* ~ EOI
 }
 
 GlobalStatement = {
     Function |
-    NativeFunction |
-    StatementSeparator
+    NativeFunction
 }
 
 Function = {
@@ -50,7 +49,17 @@ Parameter = {
 }
 
 Expression = {
-    Literal
+    Literal |
+    Identifier |
+    "(" ~ Expression ~ ")" |
+    UnaryOperator ~ Expression
+}
+
+UnaryOperator = {
+    "+" |
+    "-" |
+    "!" |
+    "~"
 }
 
 Literal = {
@@ -61,12 +70,16 @@ Literal = {
     StringLiteral
 }
 
+QualifiedName = {
+    Identifier ~ ("." ~ Identifier)*
+}
+
 FloatLiteral = @{
-    ("+" | "-")? ~ (("_"? ~ ASCII_DIGIT)+ ~ "." ~ ("_"? ~ ASCII_DIGIT)+)
+    (("_"? ~ ASCII_DIGIT)+ ~ "." ~ ("_"? ~ ASCII_DIGIT)+)
 }
 
 IntLiteral = @{
-    ("+" | "-")? ~ (("_"? ~ ASCII_DIGIT)+)
+    (("_"? ~ ASCII_DIGIT)+)
 }
 
 BoolLiteral = @{
@@ -81,17 +94,13 @@ StringLiteral = @{
     "\"" ~ Char* ~ "\""
 }
 
-QualifiedName = {
-    Identifier ~ ("." ~ Identifier)*
-}
-
-Identifier = @{
+Identifier = {
     ASCII_ALPHA ~ ASCII_ALPHANUMERIC*
 }
 
 Char = @{
     !("\"" | "\\") ~ ANY
-    | "\\" ~ ("\"" | "\\" | "/" | "b" | "f" | "n" | "r" | "t" | "v")
+    | "\\" ~ ("\"" | "\\" | "n" | "r" | "t")
     | "\\" ~ ("u" ~ ASCII_HEX_DIGIT{8})
 }
 

@@ -219,19 +219,19 @@ TEST(ReactorExecution, IntrinsicRoutine_Cos)
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::cos(0.35));
-	ASSERT_EQ(o.Status, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
+	const auto output {SingletonExecutionProxy(input)};
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, std::cos(0.35));
+	ASSERT_EQ(output.Status, -12345);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, IntrinsicRoutine_Sin)
 {
-	std::array code = {
+	constexpr std::array code {
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
@@ -242,19 +242,19 @@ TEST(ReactorExecution, IntrinsicRoutine_Sin)
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::sin(0.35));
-	ASSERT_EQ(o.Status, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
+	const auto output {SingletonExecutionProxy(input)};
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, std::sin(0.35));
+	ASSERT_EQ(output.Status, -12345);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, IntrinsicRoutine_Tan)
 {
-	std::array code = {
+	constexpr std::array code {
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
@@ -265,19 +265,19 @@ TEST(ReactorExecution, IntrinsicRoutine_Tan)
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::tan(0.35));
-	ASSERT_EQ(o.Status, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
+	const auto output {SingletonExecutionProxy(input)};
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, std::tan(0.35));
+	ASSERT_EQ(output.Status, -12345);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, IntrinsicRoutine_ACos)
 {
-	std::array code = {
+	constexpr std::array code {
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
@@ -288,19 +288,19 @@ TEST(ReactorExecution, IntrinsicRoutine_ACos)
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::acos(0.35));
-	ASSERT_EQ(o.Status, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
+	const auto output {SingletonExecutionProxy(input)};
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, std::acos(0.35));
+	ASSERT_EQ(output.Status, -12345);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, IntrinsicRoutine_ASin)
 {
-	std::array code = {
+	constexpr std::array code {
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
@@ -311,19 +311,19 @@ TEST(ReactorExecution, IntrinsicRoutine_ASin)
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::asin(0.35));
-	ASSERT_EQ(o.Status, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
+	const auto output {SingletonExecutionProxy(input)};
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, std::asin(0.35));
+	ASSERT_EQ(output.Status, -12345);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, IntrinsicRoutine_ATan)
 {
-	std::array code = {
+	constexpr std::array code {
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
@@ -334,19 +334,19 @@ TEST(ReactorExecution, IntrinsicRoutine_ATan)
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::atan(0.35));
-	ASSERT_EQ(o.Status, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
+	const auto output {SingletonExecutionProxy(input)};
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, std::atan(0.35));
+	ASSERT_EQ(output.Status, -12345);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, IntrinsicRoutine_ATan2)
 {
-	std::array code = {
+	constexpr std::array code {
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
@@ -359,20 +359,20 @@ TEST(ReactorExecution, IntrinsicRoutine_ATan2)
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::atan2(0.35, 0.15));
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 0.15);
-	ASSERT_EQ(o.Status, -12345);
-	ASSERT_EQ(o.SpDiff, 2);
+	const auto output {SingletonExecutionProxy(input)};
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, std::atan2(0.35, 0.15));
+	ASSERT_DOUBLE_EQ(output.Input->Stack[2].AsF64, 0.15);
+	ASSERT_EQ(output.Status, -12345);
+	ASSERT_EQ(output.SpDiff, 2);
 }
 
 TEST(ReactorExecution, IntrinsicRoutine_CosH)
 {
-	std::array code = {
+	constexpr std::array code {
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
@@ -383,19 +383,19 @@ TEST(ReactorExecution, IntrinsicRoutine_CosH)
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::cosh(0.35));
-	ASSERT_EQ(o.Status, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
+	const auto output {SingletonExecutionProxy(input)};
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, std::cosh(0.35));
+	ASSERT_EQ(output.Status, -12345);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, IntrinsicRoutine_SinH)
 {
-	std::array code = {
+	constexpr std::array code {
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
@@ -406,19 +406,19 @@ TEST(ReactorExecution, IntrinsicRoutine_SinH)
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::sinh(0.35));
-	ASSERT_EQ(o.Status, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
+	const auto output {SingletonExecutionProxy(input)};
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, std::sinh(0.35));
+	ASSERT_EQ(output.Status, -12345);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, IntrinsicRoutine_TanH)
 {
-	std::array code = {
+	constexpr std::array code {
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
@@ -429,19 +429,19 @@ TEST(ReactorExecution, IntrinsicRoutine_TanH)
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::tanh(0.35));
-	ASSERT_EQ(o.Status, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
+	const auto output {SingletonExecutionProxy(input)};
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, std::tanh(0.35));
+	ASSERT_EQ(output.Status, -12345);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, IntrinsicRoutine_ACosH)
 {
-	std::array code = {
+	constexpr std::array code {
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {1.6},
@@ -452,19 +452,19 @@ TEST(ReactorExecution, IntrinsicRoutine_ACosH)
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::acosh(1.6));
-	ASSERT_EQ(o.Status, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
+	const auto output {SingletonExecutionProxy(input)};
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, std::acosh(1.6));
+	ASSERT_EQ(output.Status, -12345);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, IntrinsicRoutine_ASinH)
 {
-	std::array code = {
+	constexpr std::array code {
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
@@ -475,19 +475,19 @@ TEST(ReactorExecution, IntrinsicRoutine_ASinH)
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::asinh(0.35));
-	ASSERT_EQ(o.Status, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
+	const auto output {SingletonExecutionProxy(input)};
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, std::asinh(0.35));
+	ASSERT_EQ(output.Status, -12345);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, IntrinsicRoutine_ATanH)
 {
-	std::array code = {
+	constexpr std::array code {
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
@@ -498,19 +498,19 @@ TEST(ReactorExecution, IntrinsicRoutine_ATanH)
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::atanh(0.35));
-	ASSERT_EQ(o.Status, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
+	const auto output {SingletonExecutionProxy(input)};
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, std::atanh(0.35));
+	ASSERT_EQ(output.Status, -12345);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, IntrinsicRoutine_Exp)
 {
-	std::array code = {
+	constexpr std::array code {
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
@@ -521,19 +521,19 @@ TEST(ReactorExecution, IntrinsicRoutine_Exp)
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::exp(0.35));
-	ASSERT_EQ(o.Status, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
+	const auto output {SingletonExecutionProxy(input)};
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, std::exp(0.35));
+	ASSERT_EQ(output.Status, -12345);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, IntrinsicRoutine_Log)
 {
-	std::array code = {
+	constexpr std::array code {
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
@@ -544,19 +544,19 @@ TEST(ReactorExecution, IntrinsicRoutine_Log)
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::log(0.35));
-	ASSERT_EQ(o.Status, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
+	const auto output {SingletonExecutionProxy(input)};
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, std::log(0.35));
+	ASSERT_EQ(output.Status, -12345);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, IntrinsicRoutine_Log10)
 {
-	std::array code = {
+	constexpr std::array code {
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
@@ -567,19 +567,19 @@ TEST(ReactorExecution, IntrinsicRoutine_Log10)
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::log10(0.35));
-	ASSERT_EQ(o.Status, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
+	const auto output {SingletonExecutionProxy(input)};
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, std::log10(0.35));
+	ASSERT_EQ(output.Status, -12345);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, IntrinsicRoutine_Exp2)
 {
-	std::array code = {
+	constexpr std::array code {
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
@@ -590,19 +590,19 @@ TEST(ReactorExecution, IntrinsicRoutine_Exp2)
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::exp2(0.35));
-	ASSERT_EQ(o.Status, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
+	const auto output {SingletonExecutionProxy(input)};
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, std::exp2(0.35));
+	ASSERT_EQ(output.Status, -12345);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, IntrinsicRoutine_ILogB)
 {
-	std::array code = {
+	constexpr std::array code {
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {1.332},
@@ -613,19 +613,19 @@ TEST(ReactorExecution, IntrinsicRoutine_ILogB)
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::ilogb(1.332));
-	ASSERT_EQ(o.Status, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
+	const auto output {SingletonExecutionProxy(input)};
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, std::ilogb(1.332));
+	ASSERT_EQ(output.Status, -12345);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, IntrinsicRoutine_Log2)
 {
-	std::array code = {
+	constexpr std::array code {
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
@@ -636,19 +636,19 @@ TEST(ReactorExecution, IntrinsicRoutine_Log2)
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::log2(0.35));
-	ASSERT_EQ(o.Status, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
+	const auto output {SingletonExecutionProxy(input)};
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, std::log2(0.35));
+	ASSERT_EQ(output.Status, -12345);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, IntrinsicRoutine_Pow)
 {
-	std::array code = {
+	constexpr std::array code {
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
@@ -661,21 +661,21 @@ TEST(ReactorExecution, IntrinsicRoutine_Pow)
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::pow(0.35, 0.15));
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 0.15);
-	ASSERT_EQ(o.Status, -12345);
-	ASSERT_EQ(o.SpDiff, 2);
+	const auto output {SingletonExecutionProxy(input)};
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, std::pow(0.35, 0.15));
+	ASSERT_DOUBLE_EQ(output.Input->Stack[2].AsF64, 0.15);
+	ASSERT_EQ(output.Status, -12345);
+	ASSERT_EQ(output.SpDiff, 2);
 }
 
 
 TEST(ReactorExecution, IntrinsicRoutine_Sqrt)
 {
-	std::array code = {
+	constexpr std::array code {
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
@@ -686,19 +686,19 @@ TEST(ReactorExecution, IntrinsicRoutine_Sqrt)
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::sqrt(0.35));
-	ASSERT_EQ(o.Status, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
+	const auto output {SingletonExecutionProxy(input)};
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, std::sqrt(0.35));
+	ASSERT_EQ(output.Status, -12345);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, IntrinsicRoutine_Cbrt)
 {
-	std::array code = {
+	constexpr std::array code {
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
@@ -709,19 +709,19 @@ TEST(ReactorExecution, IntrinsicRoutine_Cbrt)
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::cbrt(0.35));
-	ASSERT_EQ(o.Status, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
+	const auto output {SingletonExecutionProxy(input)};
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, std::cbrt(0.35));
+	ASSERT_EQ(output.Status, -12345);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, IntrinsicRoutine_Hypot)
 {
-	std::array code = {
+	constexpr std::array code {
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
@@ -734,20 +734,20 @@ TEST(ReactorExecution, IntrinsicRoutine_Hypot)
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::hypot(0.35, 0.15));
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 0.15);
-	ASSERT_EQ(o.Status, -12345);
-	ASSERT_EQ(o.SpDiff, 2);
+	const auto output {SingletonExecutionProxy(input)};
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, std::hypot(0.35, 0.15));
+	ASSERT_DOUBLE_EQ(output.Input->Stack[2].AsF64, 0.15);
+	ASSERT_EQ(output.Status, -12345);
+	ASSERT_EQ(output.SpDiff, 2);
 }
 
 TEST(ReactorExecution, IntrinsicRoutine_Ceil)
 {
-	std::array code = {
+	constexpr std::array code {
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
@@ -758,19 +758,19 @@ TEST(ReactorExecution, IntrinsicRoutine_Ceil)
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::ceil(0.35));
-	ASSERT_EQ(o.Status, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
+	const auto output {SingletonExecutionProxy(input)};
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, std::ceil(0.35));
+	ASSERT_EQ(output.Status, -12345);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, IntrinsicRoutine_Floor)
 {
-	std::array code = {
+	constexpr std::array code {
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
@@ -781,19 +781,19 @@ TEST(ReactorExecution, IntrinsicRoutine_Floor)
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::floor(0.35));
-	ASSERT_EQ(o.Status, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
+	const auto output {SingletonExecutionProxy(input)};
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, std::floor(0.35));
+	ASSERT_EQ(output.Status, -12345);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, IntrinsicRoutine_Round)
 {
-	std::array code = {
+	constexpr std::array code {
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
@@ -804,19 +804,19 @@ TEST(ReactorExecution, IntrinsicRoutine_Round)
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::round(0.35));
-	ASSERT_EQ(o.Status, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
+	const auto output {SingletonExecutionProxy(input)};
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, std::round(0.35));
+	ASSERT_EQ(output.Status, -12345);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, IntrinsicRoutine_RInt)
 {
-	std::array code = {
+	constexpr std::array code {
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
@@ -827,19 +827,19 @@ TEST(ReactorExecution, IntrinsicRoutine_RInt)
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::rint(0.35));
-	ASSERT_EQ(o.Status, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
+	const auto output {SingletonExecutionProxy(input)};
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, std::rint(0.35));
+	ASSERT_EQ(output.Status, -12345);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, IntrinsicRoutine_IMax)
 {
-	std::array code = {
+	constexpr std::array code {
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {INT64_C(4)},
@@ -852,20 +852,20 @@ TEST(ReactorExecution, IntrinsicRoutine_IMax)
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsI64, std::max<std::int64_t>(4, 7));
-	ASSERT_EQ(o.Input->Stack[2].AsI64, 7);
-	ASSERT_EQ(o.Status, -12345);
-	ASSERT_EQ(o.SpDiff, 2);
+	const auto output {SingletonExecutionProxy(input)};
+	ASSERT_EQ(output.Input->Stack[1].AsI64, std::max<std::int64_t>(4, 7));
+	ASSERT_EQ(output.Input->Stack[2].AsI64, 7);
+	ASSERT_EQ(output.Status, -12345);
+	ASSERT_EQ(output.SpDiff, 2);
 }
 
 TEST(ReactorExecution, IntrinsicRoutine_IMin)
 {
-	std::array code = {
+	constexpr std::array code {
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {INT64_C(4)},
@@ -878,20 +878,20 @@ TEST(ReactorExecution, IntrinsicRoutine_IMin)
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsI64, std::min<std::int64_t>(4, 7));
-	ASSERT_EQ(o.Input->Stack[2].AsI64, 7);
-	ASSERT_EQ(o.Status, -12345);
-	ASSERT_EQ(o.SpDiff, 2);
+	const auto output {SingletonExecutionProxy(input)};
+	ASSERT_EQ(output.Input->Stack[1].AsI64, std::min<std::int64_t>(4, 7));
+	ASSERT_EQ(output.Input->Stack[2].AsI64, 7);
+	ASSERT_EQ(output.Status, -12345);
+	ASSERT_EQ(output.SpDiff, 2);
 }
 
 TEST(ReactorExecution, IntrinsicRoutine_FMax)
 {
-	std::array code = {
+	constexpr std::array code {
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
@@ -904,20 +904,20 @@ TEST(ReactorExecution, IntrinsicRoutine_FMax)
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::max(0.35, 0.15));
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 0.15);
-	ASSERT_EQ(o.Status, -12345);
-	ASSERT_EQ(o.SpDiff, 2);
+	const auto output {SingletonExecutionProxy(input)};
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, std::max(0.35, 0.15));
+	ASSERT_DOUBLE_EQ(output.Input->Stack[2].AsF64, 0.15);
+	ASSERT_EQ(output.Status, -12345);
+	ASSERT_EQ(output.SpDiff, 2);
 }
 
 TEST(ReactorExecution, IntrinsicRoutine_FMin)
 {
-	std::array code = {
+	constexpr std::array code {
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
@@ -930,20 +930,20 @@ TEST(ReactorExecution, IntrinsicRoutine_FMin)
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::fmin(0.35, 0.15));
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 0.15);
-	ASSERT_EQ(o.Status, -12345);
-	ASSERT_EQ(o.SpDiff, 2);
+	const auto output {SingletonExecutionProxy(input)};
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, std::fmin(0.35, 0.15));
+	ASSERT_DOUBLE_EQ(output.Input->Stack[2].AsF64, 0.15);
+	ASSERT_EQ(output.Status, -12345);
+	ASSERT_EQ(output.SpDiff, 2);
 }
 
 TEST(ReactorExecution, IntrinsicRoutine_Dim)
 {
-	std::array code = {
+	constexpr std::array code {
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
@@ -956,21 +956,21 @@ TEST(ReactorExecution, IntrinsicRoutine_Dim)
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::fdim(0.35, 0.15));
-	ASSERT_DOUBLE_EQ(o.Input->Stack[2].AsF64, 0.15);
-	ASSERT_EQ(o.Status, -12345);
-	ASSERT_EQ(o.SpDiff, 2);
+	const auto output {SingletonExecutionProxy(input)};
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, std::fdim(0.35, 0.15));
+	ASSERT_DOUBLE_EQ(output.Input->Stack[2].AsF64, 0.15);
+	ASSERT_EQ(output.Status, -12345);
+	ASSERT_EQ(output.SpDiff, 2);
 }
 
 
 TEST(ReactorExecution, IntrinsicRoutine_IAbs)
 {
-	std::array code = {
+	constexpr std::array code {
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {INT64_C(223233)},
@@ -981,19 +981,19 @@ TEST(ReactorExecution, IntrinsicRoutine_IAbs)
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_EQ(o.Input->Stack[1].AsI64, std::abs(223233));
-	ASSERT_EQ(o.Status, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
+	const auto output {SingletonExecutionProxy(input)};
+	ASSERT_EQ(output.Input->Stack[1].AsI64, std::abs(223233));
+	ASSERT_EQ(output.Status, -12345);
+	ASSERT_EQ(output.SpDiff, 1);
 }
 
 TEST(ReactorExecution, IntrinsicRoutine_FAbs)
 {
-	std::array code = {
+	constexpr std::array code {
 		Signal {Instruction::NOP}, // first padding
 		Signal {Instruction::PUSH},
 		Signal {0.35},
@@ -1004,12 +1004,108 @@ TEST(ReactorExecution, IntrinsicRoutine_FAbs)
 	};
 
 	auto input {MOCK_REACTOR_INPUT};
-	input.CodeChunk     = code.data();
-	input.CodeChunkSize = code.size();
+	input.CodeChunk     = std::data(code);
+	input.CodeChunkSize = std::size(code);
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
-	const auto o {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(o.Input->Stack[1].AsF64, std::fabs(0.35));
-	ASSERT_EQ(o.Status, -12345);
-	ASSERT_EQ(o.SpDiff, 1);
+	const auto output {SingletonExecutionProxy(input)};
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, std::fabs(0.35));
+	ASSERT_EQ(output.Status, -12345);
+	ASSERT_EQ(output.SpDiff, 1);
+}
+
+TEST(ReactorExecution, PrintInt)
+{
+    constexpr std::array code
+    {
+        Signal {Instruction::NOP}, // first padding
+        Signal {Instruction::PUSH},
+        Signal {INT64_C(287162)},
+        Signal {Instruction::SYSCALL},
+        Signal {SysCall::PRINT_INT},
+        Signal {Instruction::INT},
+        Signal {INT64_C(-12345)},
+    };
+
+    auto input {MOCK_REACTOR_INPUT};
+    input.CodeChunk  = std::data(code);
+    input.CodeChunkSize = std::size(code);
+    ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
+
+    const auto output {SingletonExecutionProxy(input)};
+    ASSERT_EQ(output.Input->Stack[1].AsI64, INT64_C(287162));
+    ASSERT_EQ(output.Status, -12345);
+    ASSERT_EQ(output.SpDiff, 1);
+}
+
+TEST(ReactorExecution, PrintFloat)
+{
+    constexpr std::array code
+    {
+        Signal {Instruction::NOP}, // first padding
+        Signal {Instruction::PUSH},
+        Signal {2.0053},
+        Signal {Instruction::SYSCALL},
+        Signal {SysCall::PRINT_FLOAT},
+        Signal {Instruction::INT},
+        Signal {INT64_C(-12345)},
+    };
+
+    auto input {MOCK_REACTOR_INPUT};
+    input.CodeChunk  = std::data(code);
+    input.CodeChunkSize = std::size(code);
+    ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
+
+    const auto output {SingletonExecutionProxy(input)};
+    ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, 2.0053);
+    ASSERT_EQ(output.Status, -12345);
+    ASSERT_EQ(output.SpDiff, 1);
+}
+
+TEST(ReactorExecution, PrintChar)
+{
+    constexpr std::array code
+    {
+        Signal {Instruction::NOP}, // first padding
+        Signal {Instruction::PUSH},
+        Signal {INT64_C(287162)},
+        Signal {Instruction::SYSCALL},
+        Signal {SysCall::PRINT_CHAR},
+        Signal {Instruction::INT},
+        Signal {INT64_C(-12345)},
+    };
+
+    auto input {MOCK_REACTOR_INPUT};
+    input.CodeChunk  = std::data(code);
+    input.CodeChunkSize = std::size(code);
+    ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
+
+    const auto output {SingletonExecutionProxy(input)};
+    ASSERT_EQ(output.Input->Stack[1].AsI64, INT64_C(287162));
+    ASSERT_EQ(output.Status, -12345);
+    ASSERT_EQ(output.SpDiff, 1);
+}
+
+TEST(ReactorExecution, PrintBool)
+{
+    constexpr std::array code
+    {
+        Signal {Instruction::NOP}, // first padding
+        Signal {Instruction::PUSH},
+        Signal {INT64_C(1)},
+        Signal {Instruction::SYSCALL},
+        Signal {SysCall::PRINT_BOOL},
+        Signal {Instruction::INT},
+        Signal {INT64_C(-12345)},
+    };
+
+    auto input {MOCK_REACTOR_INPUT};
+    input.CodeChunk  = std::data(code);
+    input.CodeChunkSize = std::size(code);
+    ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
+
+    const auto output {SingletonExecutionProxy(input)};
+    ASSERT_EQ(output.Input->Stack[1].AsBool, true);
+    ASSERT_EQ(output.Status, -12345);
+    ASSERT_EQ(output.SpDiff, 1);
 }

@@ -981,7 +981,7 @@ namespace Nominax::Foundation
 
 	NOX_FLATTEN inline auto IMMUTATOR Object::QueryRawHeader() const -> BlobBlockType*
 	{
-		NOX_DBG_PAS_TRUE(this->Blob_ != nullptr, "Blob is null");
+		NOX_DBG_PAS(this->Blob_ != nullptr, "Blob is null");
 		return this->Blob_;
 	}
 
@@ -994,13 +994,13 @@ namespace Nominax::Foundation
 
 	NOX_FLATTEN inline auto IMMUTATOR Object::LookupObjectBlock() const -> BlobBlockType*
 	{
-		NOX_DBG_PAS_TRUE(this->Blob_ != nullptr, "Blob is null");
+		NOX_DBG_PAS(this->Blob_ != nullptr, "Blob is null");
 		return this->Blob_ + ObjectHeader::RECORD_OFFSET;
 	}
 
 	NOX_FLATTEN inline auto IMMUTATOR Object::LookupObjectBlockEnd() const -> BlobBlockType*
 	{
-		NOX_DBG_PAS_TRUE(this->HeaderRead_BlockSize() > 0, "Invalid header block size");
+		NOX_DBG_PAS(this->HeaderRead_BlockSize() > 0, "Invalid header block size");
 		return this->LookupObjectBlock() + this->HeaderRead_BlockSize();
 	}
 

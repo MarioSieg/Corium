@@ -213,22 +213,11 @@
 
 namespace Nominax::Core
 {
-    #define NOX_SYSCALL_ARG1()  (*sp)
-    #define NOX_SYSCALL_ARG2()  (*(sp-1))
-    #define NOX_SYSCALL_ARG3()  (*(sp-2))
-    #define NOX_SYSCALL_ARG4()  (*(sp-3))
-    #define NOX_SYSCALL_ARG5()  (*(sp-4))
-    #define NOX_SYSCALL_ARG6()  (*(sp-5))
-    #define NOX_SYSCALL_ARG7()  (*(sp-6))
-    #define NOX_SYSCALL_ARG8()  (*(sp-7))
-    #define NOX_SYSCALL_ARG9()  (*(sp-8))
-    #define NOX_SYSCALL_ARG10() (*(sp-9))
-
     #define NOX_SYSCALL_GATE_ID(name) __##name##__
     #define NOX_SYSCALL_GATE(name, hot, impl)   \
         NOX_SYSCALL_GATE_ID(name):              \
         hot;                                    \
-        impl                                    \
+        impl(sp);                               \
         return
 
     NOX_HOT extern auto SysCallIntrin(Foundation::Record* NOX_RESTRICT sp, std::uint64_t gate) -> void;

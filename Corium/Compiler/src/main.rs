@@ -211,14 +211,20 @@ mod context;
 mod error;
 mod literal;
 mod parser;
+mod semantic;
 mod unit;
 
 fn main() {
     let options = cli::Options::parse_and_validate();
-    println!("{:#?}", options);
+
     let mut context = context::CompilerContext::new();
-    for file in &options.input_files {
-        context.enqueue_file(file);
+
+    for file in options.input_files {
+        let com_unit = context.enqueue_file(file);
+        com_unit.dump_ast = options.dump_ast;
+        com_unit.dump_asm = options.dump_asm;
+        com_unit.opt_level = options.opt_level;
     }
+
     context.compile();
 }

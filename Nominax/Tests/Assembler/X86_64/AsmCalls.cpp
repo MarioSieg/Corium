@@ -207,11 +207,11 @@
 #include <iostream>
 
 #include "../../TestBase.hpp"
-#include "../../../Include/Nominax/Assembler/AMD64/_AMD64.hpp"
+#include "../../../Include/Nominax/Assembler/X86_64/_X86_64.hpp"
 
 #if NOX_ARCH_X86_64
 
-using namespace AMD64;
+using namespace X86_64;
 using namespace Routines;
 
 TEST(AssemblyCalls, IsCpudIdSupported)

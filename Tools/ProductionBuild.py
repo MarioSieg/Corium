@@ -205,6 +205,7 @@
 
 import os
 import os.path
+import sys
 import platform
 import shutil
 import shlex
@@ -227,6 +228,7 @@ def exec(cmd: str, use_pipe = False):
         for line in iter(p.stdout.readline, b''):
             print(str(line).replace("\n\'", "").replace("b'", ""))
         p.stdout.close()
+        p.stderr.close()
         p.wait()
 
 def mkdir(path: str):
@@ -234,15 +236,23 @@ def mkdir(path: str):
         return
     try:
         print("Creating dir: " + path)
-        os.mkdir(path)
+        os.makedirs(path, exist_ok=True)
     except Exception as e:
         print("Failed to create dir: " + path)
+        print("Because " + str(e))
         print("Exiting...")
         exit(-1)
 
 def mk_exe_name(raw: str) -> str:
     osname = platform.system()
     return raw + ".exe" if osname == "Windows" else raw
+
+def first_dir_name(path: str) -> str:
+    dirs = [x[0] for x in os.walk(path)]
+    if len(dirs) == 0:
+        print("Expected at least one directory here: " + path)
+        exit(-1)
+    return os.path.basename(dirs[1])
 
 class Toolchain:
     def __init__(self, prerequisites: list, working_dir: str):
@@ -292,13 +302,20 @@ with open(info_path, "r") as infofile:
 print("Beginning setup...")
 
 osname = platform.system()
+arch = platform.uname()[4]
+if arch == "x86_64" or arch == "AMD64":
+    arch = "x86_64"
+elif arch == "aarch64":
+    arch = "AArch64"
+else:
+    print(f"Unknown architecture {arch}! Expected x86_64 or aarch64, errors expected but trying anyways...")
 wk_dir = os.getcwd()
 print("Running on: " + osname)
+print("Arch: " + arch)
 print("Working directory: " + str(wk_dir))
 print("Build dir: " + build_dir)
 print("Base output dir: " + out_dir)
-print("OS suffix: " + osname.capitalize())
-out_dir = f"{out_dir}/{osname.capitalize()}"
+out_dir = f"{out_dir}/{osname.capitalize()}/{arch}"
 print("Final out dir: " + out_dir)
 
 print("Checking if the correct prerequisites are installed and inside $PATH...\n")
@@ -341,15 +358,10 @@ if is_missing_toolchain:
     exit(-1)
 
 print("Great, required toolchains and prerequisites are installed!")
-
-#print("Cleaning build artifact dir...")
-#if os.path.isdir(build_dir):
-    #shutil.rmtree(build_dir)
-
 print("Creating build directories...")
 
-compiler_build_dir = f"{build_dir}/Corium/"
-nominax_build_dir = f"{build_dir}/Nominax/"
+compiler_build_dir = f"{build_dir}/Corium/{arch}/"
+nominax_build_dir = f"{build_dir}/Nominax/{arch}/"
 
 mkdir(build_dir)
 mkdir(out_dir_base)
@@ -401,14 +413,24 @@ def build_nominax_runtime():
         exit(-1)
     print("Configuring CMake...")
     cmd = None
+    full = len(sys.argv) > 1 and sys.argv[1] == "full"
+    test_flags = ""
+    if full:
+        print("Requested full build - building benchmarks and tests too!")
+        test_flags = "-DNOMINAX_BUILD_UNIT_TESTS=ON -DNOMINAX_BUILD_BENCHMARKS=ON"
     if osname == "Windows":
         print("Expecting Visual Studio 16 2019 is installed!")
         cc = "clang-cl"
         cxx = "clang-cl"
         make = "ninja"
-        ldir1 = "C:/Program Files (x86)/Windows Kits/10/Lib/10.0.19041.0/um/x64"
-        ldir2 = "C:/Program Files (x86)/Windows Kits/10/Lib/10.0.19041.0/ucrt/x64"
-        ldir3 = "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.29.30133/lib/onecore/x64"
+        subdir = first_dir_name("C:/Program Files (x86)/Windows Kits/10/Lib/")
+        ldir1 = f"C:/Program Files (x86)/Windows Kits/10/Lib/{subdir}/um/x64"
+        ldir2 = f"C:/Program Files (x86)/Windows Kits/10/Lib/{subdir}/ucrt/x64"
+        subdir = first_dir_name("C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/")
+        ldir3 = f"C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/{subdir}/lib/onecore/x64"
+        print("Linkdir1: " + ldir1)
+        print("Linkdir2: " + ldir2)
+        print("Linkdir3: " + ldir3)
         if not os.path.isdir(ldir1):
             print(f"Missing link dir: {ldir1}! Make sure Windows 10 SDK is installed!")
         if not os.path.isdir(ldir2):
@@ -418,17 +440,18 @@ def build_nominax_runtime():
         lflags1 = f"/LIBPATH:\\\"{ldir1}\\\""
         lflags2 = f"/LIBPATH:\\\"{ldir2}\\\""
         lflags3 = f"/LIBPATH:\\\"{ldir3}\\\""
-        cmd = f"cmake -DCMAKE_MAKE_PROGRAM=\"{make}\" -G Ninja -DCMAKE_C_COMPILER=\"{cc}\" -DCMAKE_CXX_COMPILER=\"{cxx}\" -B ../{nominax_build_dir} -DCMAKE_EXE_LINKER_FLAGS=\"{lflags1} {lflags2} {lflags3}\" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=20 -DRUN_HAVE_STD_REGEX=0 -DRUN_HAVE_POSIX_REGEX=0"
+        cmd = f"cmake -DCMAKE_MAKE_PROGRAM=\"{make}\" -G Ninja -DCMAKE_C_COMPILER=\"{cc}\" -DCMAKE_CXX_COMPILER=\"{cxx}\" -B ../{nominax_build_dir} -DCMAKE_EXE_LINKER_FLAGS=\"{lflags1} {lflags2} {lflags3}\" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=20 -DRUN_HAVE_STD_REGEX=0 -DRUN_HAVE_POSIX_REGEX=0 {test_flags}"
     else:
         cc = "gcc-11"
         cxx = "g++-11"
-        cmd = f"cmake -DCMAKE_C_COMPILER={cc} -DCMAKE_CXX_COMPILER={cxx} -B ../{nominax_build_dir} -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=20"
+        cmd = f"cmake -DCMAKE_C_COMPILER={cc} -DCMAKE_CXX_COMPILER={cxx} -B ../{nominax_build_dir} -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=20 {test_flags}"
     exec(cmd, osname == "Windows")
     print("Invoking compiler services...")
     print("Comiling Nominax... This might take a long time depending on your hardware")
     print(f"Using {threads} threads for C++ compilation")
-    cmd = f"cmake --build ../{nominax_build_dir} --config Release --target Nominax -j{threads}"
-    exec(cmd)
+    full_targets = "--target NominaxUnitTest --target NominaxBenchmark" if full else ""
+    cmd = f"cmake --build ../{nominax_build_dir} --config Release --target Nominax {full_targets} -j{threads}"
+    exec(cmd, True)
     target_file = mk_exe_name("Nominax")
     print("Target file: " + target_file)
     target_file_path = f"../{nominax_build_dir}{target_file}"
