@@ -283,6 +283,11 @@ namespace Nominax::Foundation
 		/// </summary>
 		std::array<float, 2> AsF32S;
 
+        /// <summary>
+        /// Use as boolean.
+        /// </summary>
+        bool AsBool;
+
 		/// <summary>
 		/// Default construct.
 		/// </summary>

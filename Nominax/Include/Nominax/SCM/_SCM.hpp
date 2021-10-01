@@ -205,20 +205,5 @@
 
 #pragma once
 
-#include "../../Include/Nominax/Foundation/Platform.hpp"
-#include "../../Include/Nominax/Foundation/Record.hpp"
-#include "../../Include/Nominax/Foundation/VariadicMacroHelper.hpp"
-#include "../../Include/Nominax/ByteCode/Instruction.hpp"
-#include "../../Include/Nominax/Core/ReactorValidator.hpp"
-
-namespace Nominax::Core
-{
-    #define NOX_SYSCALL_GATE_ID(name) __##name##__
-    #define NOX_SYSCALL_GATE(name, hot, impl)   \
-        NOX_SYSCALL_GATE_ID(name):              \
-        hot;                                    \
-        impl(sp);                               \
-        return
-
-    NOX_HOT extern auto SysCallIntrin(Foundation::Record* NOX_RESTRICT sp, std::uint64_t gate) -> void;
-}
+#include "LibIO.hpp"
+#include "LibMath.hpp"

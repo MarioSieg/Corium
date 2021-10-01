@@ -205,20 +205,32 @@
 
 #pragma once
 
-#include "../../Include/Nominax/Foundation/Platform.hpp"
-#include "../../Include/Nominax/Foundation/Record.hpp"
-#include "../../Include/Nominax/Foundation/VariadicMacroHelper.hpp"
-#include "../../Include/Nominax/ByteCode/Instruction.hpp"
-#include "../../Include/Nominax/Core/ReactorValidator.hpp"
+#include "../Foundation/Platform.hpp"
+#include "../Foundation/Record.hpp"
+#include "../Foundation/VariadicMacroHelper.hpp"
 
-namespace Nominax::Core
-{
-    #define NOX_SYSCALL_GATE_ID(name) __##name##__
-    #define NOX_SYSCALL_GATE(name, hot, impl)   \
-        NOX_SYSCALL_GATE_ID(name):              \
-        hot;                                    \
-        impl(sp);                               \
-        return
+#define NOX_SYSCALL_ATTRIBS NOX_HOT NOX_FORCE_INLINE
+#define NOX_SYSCALL_PROXY(name) NOX_SYSCALL_ATTRIBS auto name (Foundation::Record* NOX_RESTRICT sp) noexcept -> void
 
-    NOX_HOT extern auto SysCallIntrin(Foundation::Record* NOX_RESTRICT sp, std::uint64_t gate) -> void;
-}
+#define NOX_SYSCALL_ARG1()  (*sp)
+#define NOX_SYSCALL_ARG2()  (*(sp-1))
+#define NOX_SYSCALL_ARG3()  (*(sp-2))
+#define NOX_SYSCALL_ARG4()  (*(sp-3))
+#define NOX_SYSCALL_ARG5()  (*(sp-4))
+#define NOX_SYSCALL_ARG6()  (*(sp-5))
+#define NOX_SYSCALL_ARG7()  (*(sp-6))
+#define NOX_SYSCALL_ARG8()  (*(sp-7))
+#define NOX_SYSCALL_ARG9()  (*(sp-8))
+#define NOX_SYSCALL_ARG10() (*(sp-9)
+
+// Should only be included from implementation for implementation:
+#define ARG1    NOX_SYSCALL_ARG1()
+#define ARG2    NOX_SYSCALL_ARG2()
+#define ARG3    NOX_SYSCALL_ARG3()
+#define ARG4    NOX_SYSCALL_ARG4()
+#define ARG5    NOX_SYSCALL_ARG5()
+#define ARG6    NOX_SYSCALL_ARG6()
+#define ARG7    NOX_SYSCALL_ARG7()
+#define ARG8    NOX_SYSCALL_ARG8()
+#define ARG9    NOX_SYSCALL_ARG9()
+#define ARG10   NOX_SYSCALL_ARG10()

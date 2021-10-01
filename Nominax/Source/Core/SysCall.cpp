@@ -206,20 +206,12 @@
 #include <cmath>
 
 #include "SysCall.hpp"
+#include "../../Include/Nominax/SCM/_SCM.hpp"
 
 namespace Nominax::Core
 {
-    #define ARG1 NOX_SYSCALL_ARG1()
-    #define ARG2 NOX_SYSCALL_ARG2()
-    #define ARG3 NOX_SYSCALL_ARG3()
-    #define ARG4 NOX_SYSCALL_ARG4()
-    #define ARG5 NOX_SYSCALL_ARG5()
-    #define ARG6 NOX_SYSCALL_ARG6()
-    #define ARG7 NOX_SYSCALL_ARG7()
-    #define ARG8 NOX_SYSCALL_ARG8()
-    #define ARG9 NOX_SYSCALL_ARG9()
-    #define ARG10 NOX_SYSCALL_ARG10()
-
+    using namespace SCM;
+    
     /// <summary>
     /// Implementation for the "syscall" instruction.
     /// This contains a jump table with the implementation of all system intrinsic routines.
@@ -283,6 +275,10 @@ namespace Nominax::Core
             &&NOX_SYSCALL_GATE_ID(fdim),
             &&NOX_SYSCALL_GATE_ID(iabs),
             &&NOX_SYSCALL_GATE_ID(fabs),
+            &&NOX_SYSCALL_GATE_ID(print_int),
+            &&NOX_SYSCALL_GATE_ID(print_float),
+            &&NOX_SYSCALL_GATE_ID(print_char),
+            &&NOX_SYSCALL_GATE_ID(print_bool),
         };
 
         static_assert(ValidateJumpTable(std::data(JUMP_TABLE), std::size(JUMP_TABLE)), "Instruction count in enum does not match jump table entry count!");
@@ -295,306 +291,266 @@ namespace Nominax::Core
         (
             cos,
             NOX_HOT_LABEL,
-            {
-                ARG1.AsF64 = std::cos(ARG1.AsF64);
-            }
+            COS
         );
 
         NOX_SYSCALL_GATE
         (
             sin,
             NOX_HOT_LABEL,
-            {
-                ARG1.AsF64 = std::sin(ARG1.AsF64);
-            }
+            SIN
         );
 
         NOX_SYSCALL_GATE
         (
             tan,
             NOX_HOT_LABEL,
-            {
-                ARG1.AsF64 = std::tan(ARG1.AsF64);
-            }
+            TAN
         );
 
         NOX_SYSCALL_GATE
         (
             acos,
             NOX_HOT_LABEL,
-            {
-                ARG1.AsF64 = std::acos(ARG1.AsF64);
-            }
+            ACOS
         );
 
         NOX_SYSCALL_GATE
         (
             asin,
             NOX_HOT_LABEL,
-            {
-                ARG1.AsF64 = std::asin(ARG1.AsF64);
-            }
+            ASIN
         );
 
         NOX_SYSCALL_GATE
         (
             atan,
             NOX_HOT_LABEL,
-            {
-                ARG1.AsF64 = std::atan(ARG1.AsF64);
-            }
+            ATAN
         );
 
         NOX_SYSCALL_GATE
         (
             atan2,
             NOX_HOT_LABEL,
-            {
-                ARG2.AsF64 = std::atan2(NOX_REVERSE(2, ARG1.AsF64, ARG2.AsF64));
-            }
+            ATAN2
         );
 
         NOX_SYSCALL_GATE
         (
             cosh,
             NOX_HOT_LABEL,
-            {
-                ARG1.AsF64 = std::cosh(ARG1.AsF64);
-            }
+            COSH
         );
 
         NOX_SYSCALL_GATE
         (
             sinh,
             NOX_HOT_LABEL,
-            {
-                ARG1.AsF64 = std::sinh(ARG1.AsF64);
-            }
+            SINH
         );
 
         NOX_SYSCALL_GATE
         (
             tanh,
             NOX_HOT_LABEL,
-            {
-                ARG1.AsF64 = std::tanh(ARG1.AsF64);
-            }
+            TANH
         );
 
         NOX_SYSCALL_GATE
         (
             acosh,
             NOX_HOT_LABEL,
-            {
-                ARG1.AsF64 = std::acosh(ARG1.AsF64);
-            }
+            ACOSH
         );
 
         NOX_SYSCALL_GATE
         (
             asinh,
             NOX_HOT_LABEL,
-            {
-                ARG1.AsF64 = std::asinh(ARG1.AsF64);
-            }
+            ASINH
         );
 
         NOX_SYSCALL_GATE
         (
             atanh,
             NOX_HOT_LABEL,
-            {
-                ARG1.AsF64 = std::atanh(ARG1.AsF64);
-            }
+            ATANH
         );
 
         NOX_SYSCALL_GATE
         (
             exp,
             NOX_HOT_LABEL,
-            {
-                ARG1.AsF64 = std::exp(ARG1.AsF64);
-            }
+            EXP
         );
 
         NOX_SYSCALL_GATE
         (
             log,
             NOX_HOT_LABEL,
-            {
-                ARG1.AsF64 = std::log(ARG1.AsF64);
-            }
+            LOG
         );
 
-       NOX_SYSCALL_GATE
+        NOX_SYSCALL_GATE
         (
             log10,
             NOX_HOT_LABEL,
-            {
-                ARG1.AsF64 = std::log10(ARG1.AsF64);
-            }
+            LOG10
         );
 
         NOX_SYSCALL_GATE
         (
             exp2,
             NOX_HOT_LABEL,
-            {
-                ARG1.AsF64 = std::exp2(ARG1.AsF64);
-            }
+            EXP2
         );
 
         NOX_SYSCALL_GATE
         (
             ilogb,
             NOX_HOT_LABEL,
-            {
-                ARG1.AsF64 = std::ilogb(ARG1.AsF64);
-            }
+            ILOGB
         );
 
         NOX_SYSCALL_GATE
         (
             log2,
             NOX_HOT_LABEL,
-            {
-                ARG1.AsF64 = std::log2(ARG1.AsF64);
-            }
+            LOG2
         );
         
         NOX_SYSCALL_GATE
         (
             pow,
             NOX_HOT_LABEL,
-            {
-                ARG2.AsF64 = std::pow(NOX_REVERSE(2, ARG1.AsF64, ARG2.AsF64));
-            }
+            POW
         );
 
         NOX_SYSCALL_GATE
         (
             sqrt,
             NOX_HOT_LABEL,
-            {
-                ARG1.AsF64 = std::sqrt(ARG1.AsF64);
-            }
+            SQRT
         );
 
         NOX_SYSCALL_GATE
         (
             cbrt,
             NOX_HOT_LABEL,
-            {
-                ARG1.AsF64 = std::cbrt(ARG1.AsF64);
-            }
+            CBRT
         );
 
         NOX_SYSCALL_GATE
         (
             hypot,
             NOX_HOT_LABEL,
-            {
-                ARG2.AsF64 = std::hypot(NOX_REVERSE(2, ARG1.AsF64, ARG2.AsF64));
-            }
+            HYPOT
         );
 
         NOX_SYSCALL_GATE
         (
             ceil,
             NOX_HOT_LABEL,
-            {
-                ARG1.AsF64 = std::ceil(ARG1.AsF64);
-            }
+            CEIL
         );
 
        NOX_SYSCALL_GATE
         (
             floor,
             NOX_HOT_LABEL,
-            {
-                ARG1.AsF64 = std::floor(ARG1.AsF64);
-            }
+            FLOOR
         );
 
        NOX_SYSCALL_GATE
         (
             round,
             NOX_HOT_LABEL,
-            {
-                ARG1.AsF64 = std::round(ARG1.AsF64);
-            }
+            ROUND
         );
 
         NOX_SYSCALL_GATE
         (
             rint,
             NOX_HOT_LABEL,
-            {
-                ARG1.AsF64 = std::rint(ARG1.AsF64);
-            }
+            RINT
         );
 
         NOX_SYSCALL_GATE
         (
             imax,
             NOX_HOT_LABEL,
-            {
-                ARG2.AsI64 = std::max(NOX_REVERSE(2, ARG1.AsI64, ARG2.AsI64));
-            }
+            IMAX
         );
 
         NOX_SYSCALL_GATE
         (
             imin,
             NOX_HOT_LABEL,
-            {
-                ARG2.AsI64 = std::min(NOX_REVERSE(2, ARG1.AsI64, ARG2.AsI64));
-            }
+            IMIN
         );
 
         NOX_SYSCALL_GATE
         (
             fmax,
             NOX_HOT_LABEL,
-            {
-                ARG2.AsF64 = std::max(NOX_REVERSE(2, ARG1.AsF64, ARG2.AsF64));
-            }
+            FMAX
         );
 
         NOX_SYSCALL_GATE
         (
             fmin,
             NOX_HOT_LABEL,
-            {
-                ARG2.AsF64 = std::min(NOX_REVERSE(2, ARG1.AsF64, ARG2.AsF64));
-            }
+            FMIN
         );
 
         NOX_SYSCALL_GATE
         (
             fdim,
             NOX_HOT_LABEL,
-            {
-                ARG2.AsF64 = std::fdim(NOX_REVERSE(2, ARG1.AsF64, ARG2.AsF64));
-            }
+            FDIM
         );
 
         NOX_SYSCALL_GATE
         (
             iabs,
             NOX_HOT_LABEL,
-            {
-                ARG1.AsI64 = std::abs(ARG1.AsI64);
-            }
+            IABS
         );
 
         NOX_SYSCALL_GATE
         (
             fabs,
             NOX_HOT_LABEL,
-            {
-                ARG1.AsF64 = std::abs(ARG1.AsF64);
-            }
+            FABS
+        );
+
+        NOX_SYSCALL_GATE
+        (
+            print_int,
+            NOX_HOT_LABEL,
+            PRINT_INT
+        );
+
+        NOX_SYSCALL_GATE
+        (
+            print_float,
+            NOX_HOT_LABEL,
+            PRINT_FLOAT
+        );
+
+        NOX_SYSCALL_GATE
+        (
+            print_char,
+            NOX_HOT_LABEL,
+            PRINT_CHAR
+        );
+
+        NOX_SYSCALL_GATE
+        (
+            print_bool,
+            NOX_HOT_LABEL,
+            PRINT_BOOL
         );
     }
 }
