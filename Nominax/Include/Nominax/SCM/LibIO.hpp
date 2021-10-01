@@ -214,7 +214,7 @@
 
 namespace Nominax::SCM
 {
-    NOX_SYSCALL_ATTRIBS inline auto PrintNative(const char* const data, const std::uint64_t len) -> void
+    NOX_SYSCALL_ATTRIBS auto PrintNative(const char* const data, const std::uint64_t len) -> void
     {
         std::fwrite(data, sizeof(char), len, stdout);
     }
@@ -239,8 +239,8 @@ namespace Nominax::SCM
     NOX_SYSCALL_PROXY(PRINT_INT)
     {
         std::array<char, std::numeric_limits<std::int64_t>::digits10> scratchBuf { };
-        const auto* const end { std::to_chars(std::begin(scratchBuf), std::end(scratchBuf), ARG1.AsI64).ptr };
-        PrintNative(std::begin(scratchBuf), end - std::data(scratchBuf));
+        const auto* const end { std::to_chars(&*std::begin(scratchBuf), &*std::end(scratchBuf), ARG1.AsI64).ptr };
+        PrintNative(std::data(scratchBuf), end - std::data(scratchBuf));
     }
 
     /// <summary>
@@ -263,8 +263,8 @@ namespace Nominax::SCM
     NOX_SYSCALL_PROXY(PRINT_FLOAT)
     {
         std::array<char, std::numeric_limits<double>::digits10> scratchBuf { };
-        const auto* const end { std::to_chars(std::begin(scratchBuf), std::end(scratchBuf), ARG1.AsF64).ptr };
-        PrintNative(std::begin(scratchBuf), end - std::data(scratchBuf));
+        const auto* const end { std::to_chars(&*std::begin(scratchBuf), &*std::end(scratchBuf), ARG1.AsF64).ptr };
+        PrintNative(std::data(scratchBuf), end - std::data(scratchBuf));
     }
 
     /// <summary>
@@ -287,8 +287,8 @@ namespace Nominax::SCM
     NOX_SYSCALL_PROXY(PRINT_CHAR)
     {
         std::array<char, std::numeric_limits<char32_t>::digits10> scratchBuf { };
-        const auto* const end { std::to_chars(std::begin(scratchBuf), std::end(scratchBuf), ARG1.AsChar32).ptr };
-        PrintNative(std::begin(scratchBuf), end - std::data(scratchBuf));
+        const auto* const end { std::to_chars(&*std::begin(scratchBuf),&*std::end(scratchBuf), ARG1.AsU64).ptr };
+        PrintNative(std::data(scratchBuf), end - std::data(scratchBuf));
     }
 
     /// <summary>
@@ -311,6 +311,6 @@ namespace Nominax::SCM
     NOX_SYSCALL_PROXY(PRINT_BOOL)
     {
         const std::string_view scratchBuf { ARG1.AsBool ? "true" : "false" };
-        PrintNative(std::begin(scratchBuf), std::size(scratchBuf));
+        PrintNative(std::data(scratchBuf), std::size(scratchBuf));
     }
 }
