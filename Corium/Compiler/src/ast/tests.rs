@@ -371,6 +371,52 @@ mod populators {
                 Expression::Literal(Literal::String("Hallo zusammen ;)"))
             ));
         }
+
+        #[test]
+        fn unary_minus_int_literal() {
+            let result = CoriumParser::parse(Rule::Expression, "-10").unwrap();
+            let ast = Expression::map(result);
+            let _sub = Box::new(Expression::Literal(Literal::Int(10)));
+            assert!(matches!(
+                ast,
+                Expression::UnaryOperation {
+                    op: UnaryOperator::Minus,
+                    sub: _sub
+                }
+            ));
+        }
+    }
+
+    mod unary_operator {
+        use super::*;
+
+        #[test]
+        fn plus() {
+            let result = CoriumParser::parse(Rule::UnaryOperator, "+").unwrap();
+            let ast = UnaryOperator::map(result);
+            assert_eq!(ast, UnaryOperator::Plus);
+        }
+
+        #[test]
+        fn minus() {
+            let result = CoriumParser::parse(Rule::UnaryOperator, "-").unwrap();
+            let ast = UnaryOperator::map(result);
+            assert_eq!(ast, UnaryOperator::Minus);
+        }
+
+        #[test]
+        fn not() {
+            let result = CoriumParser::parse(Rule::UnaryOperator, "!").unwrap();
+            let ast = UnaryOperator::map(result);
+            assert_eq!(ast, UnaryOperator::Not);
+        }
+
+        #[test]
+        fn complement() {
+            let result = CoriumParser::parse(Rule::UnaryOperator, "~").unwrap();
+            let ast = UnaryOperator::map(result);
+            assert_eq!(ast, UnaryOperator::Complement);
+        }
     }
 
     mod parameter {

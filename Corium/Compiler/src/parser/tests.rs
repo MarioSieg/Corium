@@ -1069,6 +1069,62 @@ mod rules {
         }
     }
 
+    mod unary_operator {
+        use super::*;
+
+        mod valid {
+            use super::*;
+
+            #[test]
+            fn plus() {
+                let mut result = CoriumParser::parse(Rule::UnaryOperator, "+").unwrap();
+                let result = result.next().unwrap();
+                assert_eq!(result.as_rule(), Rule::UnaryOperator);
+                assert_eq!(result.as_str(), "+");
+            }
+
+            #[test]
+            fn minus() {
+                let mut result = CoriumParser::parse(Rule::UnaryOperator, "-").unwrap();
+                let result = result.next().unwrap();
+                assert_eq!(result.as_rule(), Rule::UnaryOperator);
+                assert_eq!(result.as_str(), "-");
+            }
+
+            #[test]
+            fn not() {
+                let mut result = CoriumParser::parse(Rule::UnaryOperator, "!").unwrap();
+                let result = result.next().unwrap();
+                assert_eq!(result.as_rule(), Rule::UnaryOperator);
+                assert_eq!(result.as_str(), "!");
+            }
+
+            #[test]
+            fn complement() {
+                let mut result = CoriumParser::parse(Rule::UnaryOperator, "~").unwrap();
+                let result = result.next().unwrap();
+                assert_eq!(result.as_rule(), Rule::UnaryOperator);
+                assert_eq!(result.as_str(), "~");
+            }
+        }
+
+        mod invalid {
+            use super::*;
+
+            #[test]
+            fn ampersand() {
+                let result = CoriumParser::parse(Rule::UnaryOperator, "&");
+                assert!(result.is_err());
+            }
+
+            #[test]
+            fn dollar() {
+                let result = CoriumParser::parse(Rule::UnaryOperator, "$");
+                assert!(result.is_err());
+            }
+        }
+    }
+
     mod parameter {
         use super::*;
 

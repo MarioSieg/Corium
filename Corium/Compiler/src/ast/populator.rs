@@ -461,11 +461,15 @@ impl<'a> AstPopulator<'a> for Parameter<'a> {
 impl<'a> AstPopulator<'a> for Expression<'a> {
     fn populate(rule: RulePair<'a>) -> Self {
         let rule = rule.into_inner();
-        let kind = rule.clone().next().unwrap().as_rule();
-        match kind {
+        let inner = rule.clone().next().unwrap();
+        match inner.as_rule() {
             Rule::Literal => Self::Literal(Literal::map(rule)),
             Rule::Expression => Self::Sub(Box::new(Self::map(rule))),
-            // TODO unary
+            Rule::UnaryOperator => {
+                let op = UnaryOperator::map(rule.clone());
+                let sub = Box::new(Expression::Literal(Literal::Bool(true)));
+                Self::UnaryOperation { op, sub }
+            }
             _ => unreachable!(),
         }
     }
@@ -473,9 +477,7 @@ impl<'a> AstPopulator<'a> for Expression<'a> {
 
 impl<'a> AstPopulator<'a> for UnaryOperator {
     fn populate(rule: RulePair<'a>) -> Self {
-        let rule = rule.into_inner();
-        let str = rule.clone().next().unwrap().as_str();
-        match str {
+        match rule.as_str() {
             "+" => UnaryOperator::Plus,
             "-" => UnaryOperator::Minus,
             "!" => UnaryOperator::Not,

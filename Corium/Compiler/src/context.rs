@@ -245,7 +245,7 @@ impl<'a> CompilerContext<'a> {
 mod tests {
     use super::*;
 
-    const TEST_FILE_PATH: &str = "../Docs/ParseTest.cor";
+    const TEST_FILE_PATH: &str = "ParseTest.cor";
 
     #[test]
     fn new() {
