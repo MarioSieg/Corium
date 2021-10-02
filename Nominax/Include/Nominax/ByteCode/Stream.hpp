@@ -593,6 +593,11 @@ namespace Nominax::ByteCode
         /// </summary>
         NOX_COLD virtual auto Display(std::FILE& stream) const -> void override;
 
+        /// <summary>
+        /// Emit a syscall instruction with correct parameter.
+        /// </summary>
+        auto SysCall(SysCall sysCall) -> Stream&;
+
 		/// <summary>
 		/// Index lookup.
 		///Slow! O(i)
@@ -823,7 +828,7 @@ namespace Nominax::ByteCode
 		return *this;
 	}
 
-	inline auto Stream::operator <<(const SysCall intrin) -> Stream&
+	inline auto Stream::operator <<(const enum SysCall intrin) -> Stream&
 	{
 		NOX_DBG_PAS(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal { intrin });
@@ -875,4 +880,11 @@ namespace Nominax::ByteCode
 	{
 		return *this << static_cast<std::int64_t>(value);
 	}
+
+    inline auto Stream::SysCall(const enum SysCall sysCall) -> Stream&
+    {
+        *this << Instruction::SYSCALL;
+        *this << Foundation::ToUnderlying(sysCall);
+        return *this;
+    }
 }

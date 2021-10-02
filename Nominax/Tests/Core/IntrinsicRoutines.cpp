@@ -1109,3 +1109,29 @@ TEST(ReactorExecution, PrintBool)
     ASSERT_EQ(output.Status, -12345);
     ASSERT_EQ(output.SpDiff, 1);
 }
+
+TEST(ReactorExecution, Flush)
+{
+    constexpr std::array code
+    {
+        Signal {Instruction::NOP}, // first padding
+        Signal {Instruction::PUSH},
+        Signal {INT64_C(1)},
+        Signal {Instruction::SYSCALL},
+        Signal {SysCall::PRINT_BOOL},
+        Signal {Instruction::SYSCALL},
+        Signal {SysCall::FLUSH},
+        Signal {Instruction::INT},
+        Signal {INT64_C(-12345)},
+    };
+
+    auto input {MOCK_REACTOR_INPUT};
+    input.CodeChunk  = std::data(code);
+    input.CodeChunkSize = std::size(code);
+    ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
+
+    const auto output {SingletonExecutionProxy(input)};
+    ASSERT_EQ(output.Input->Stack[1].AsBool, true);
+    ASSERT_EQ(output.Status, -12345);
+    ASSERT_EQ(output.SpDiff, 1);
+}

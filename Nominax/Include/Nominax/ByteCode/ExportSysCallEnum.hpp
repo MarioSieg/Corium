@@ -246,6 +246,7 @@ PRINT_INT   = 0x22,
 PRINT_FLOAT = 0x23,
 PRINT_CHAR  = 0x24,
 PRINT_BOOL  = 0x25,
+FLUSH       = 0x26,
 
 /* !no intrinsic routine - count of total intrinsic routines! */
 Count_

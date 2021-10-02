@@ -204,6 +204,7 @@
 //    limitations under the License.
 
 #pragma once
+
 #define NOX_ARG_TUPLE_1(p1, ...) p1
 #define NOX_ARG_TUPLE_2(p1, p2, ...) p1, p2
 #define NOX_ARG_TUPLE_3(p1, p2, p3, ...) p1, p2, p3

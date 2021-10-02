@@ -214,9 +214,19 @@
 
 namespace Nominax::SCM
 {
-    NOX_SYSCALL_ATTRIBS auto PrintNative(const char* const data, const std::uint64_t len) -> void
+    NOX_SYSCALL_LIB_ATTRIBS auto GetNativeRuntimeOutputStream() -> std::FILE*
     {
-        std::fwrite(data, sizeof(char), len, stdout);
+        return stdout;
+    }
+
+    NOX_SYSCALL_LIB_ATTRIBS auto PrintNative(const char* const data, const std::uint64_t len) -> void
+    {
+        std::fwrite(data, sizeof(char), len, GetNativeRuntimeOutputStream());
+    }
+
+    NOX_SYSCALL_LIB_ATTRIBS auto PrintNL() -> void
+    {
+        std::putc('\n', GetNativeRuntimeOutputStream());
     }
 
     /// <summary>
@@ -239,8 +249,10 @@ namespace Nominax::SCM
     NOX_SYSCALL_PROXY(PRINT_INT)
     {
         std::array<char, std::numeric_limits<std::int64_t>::digits10> scratchBuf { };
-        const auto* const end { std::to_chars(&*std::begin(scratchBuf), &*std::end(scratchBuf), ARG1.AsI64).ptr };
-        PrintNative(std::data(scratchBuf), end - std::data(scratchBuf));
+        char* const bufBegin { &*std::begin(scratchBuf) };
+        char* const bufEnd { &*std::end(scratchBuf) };
+        const char* const end { std::to_chars(bufBegin, bufEnd, ARG1.AsI64).ptr };
+        PrintNative(bufBegin, end - bufBegin);
     }
 
     /// <summary>
@@ -262,9 +274,11 @@ namespace Nominax::SCM
     /// <returns>None.</returns>
     NOX_SYSCALL_PROXY(PRINT_FLOAT)
     {
-        std::array<char, std::numeric_limits<double>::digits10> scratchBuf { };
-        const auto* const end { std::to_chars(&*std::begin(scratchBuf), &*std::end(scratchBuf), ARG1.AsF64).ptr };
-        PrintNative(std::data(scratchBuf), end - std::data(scratchBuf));
+        std::array<char, std::numeric_limits<std::int64_t>::digits10> scratchBuf { };
+        char* const bufBegin { &*std::begin(scratchBuf) };
+        char* const bufEnd { &*std::end(scratchBuf) };
+        const char* const end { std::to_chars(bufBegin, bufEnd, ARG1.AsF64).ptr };
+        PrintNative(bufBegin, end - bufBegin);
     }
 
     /// <summary>
@@ -286,9 +300,11 @@ namespace Nominax::SCM
     /// <returns>None.</returns>
     NOX_SYSCALL_PROXY(PRINT_CHAR)
     {
-        std::array<char, std::numeric_limits<char32_t>::digits10> scratchBuf { };
-        const auto* const end { std::to_chars(&*std::begin(scratchBuf),&*std::end(scratchBuf), ARG1.AsU64).ptr };
-        PrintNative(std::data(scratchBuf), end - std::data(scratchBuf));
+        std::array<char, std::numeric_limits<std::int64_t>::digits10> scratchBuf { };
+        char* const bufBegin { &*std::begin(scratchBuf) };
+        char* const bufEnd { &*std::end(scratchBuf) };
+        const char* const end { std::to_chars(bufBegin, bufEnd, ARG1.AsU64).ptr };
+        PrintNative(bufBegin, end - bufBegin);
     }
 
     /// <summary>
@@ -312,5 +328,27 @@ namespace Nominax::SCM
     {
         const std::string_view scratchBuf { ARG1.AsBool ? "true" : "false" };
         PrintNative(std::data(scratchBuf), std::size(scratchBuf));
+    }
+
+    /// <summary>
+    /// ++ NOMINAX SYSCALL INTERFACE ++
+    /// %SP[0] ARG1  | ?? |  ?  |  -> UNUSED
+    /// %SP[1] ARG2  | ?? |  ?  |  -> UNUSED
+    /// %SP[2] ARG3  | ?? |  ?  |  -> UNUSED
+    /// %SP[3] ARG4  | ?? |  ?  |  -> UNUSED
+    /// %SP[4] ARG5  | ?? |  ?  |  -> UNUSED
+    /// %SP[5] ARG6  | ?? |  ?  |  -> UNUSED
+    /// %SP[6] ARG7  | ?? |  ?  |  -> UNUSED
+    /// %SP[7] ARG8  | ?? |  ?  |  -> UNUSED
+    /// %SP[8] ARG9  | ?? |  ?  |  -> UNUSED
+    /// %SP[0] ARG10 | ?? |  ?  |  -> UNUSED
+    /// Syscall description: Flushes the output stream.
+    /// Syscall gate: 0x26
+    /// </summary>
+    /// <param name="sp">Stack pointer of the current VM reactor.</param>
+    /// <returns>None.</returns>
+    NOX_SYSCALL_PROXY(FLUSH)
+    {
+        std::fflush(GetNativeRuntimeOutputStream());
     }
 }
