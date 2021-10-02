@@ -232,12 +232,11 @@ constexpr VerboseReactorDescriptor MOCK_REACTOR_INPUT
 {
 	.CodeChunk = nullptr,
 	.CodeChunkSize = 0,
-	.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
-	.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),
+	.IntrinsicTable = std::data(MOCK_INTRINSIC_ROUTINE_TABLE),
+	.IntrinsicTableSize = std::size(MOCK_INTRINSIC_ROUTINE_TABLE),
 	.InterruptHandler = MOCK_INTERRUPT_HANDLER,
-	.Stack = MockStack.data(),
-	.StackSize = MockStack.size(),
-
+	.Stack = std::data(MockStack),
+	.StackSize = std::size(MockStack),
 };
 
 inline std::array MockCode

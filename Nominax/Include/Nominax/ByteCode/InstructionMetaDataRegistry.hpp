@@ -205,8 +205,10 @@
 
 #pragma once
 
-#include <iterator>
-#include <vector>
+#include <array>
+#include <cstdint>
+#include <string_view>
+#include <initializer_list>
 
 #include "Signal.hpp"
 
@@ -225,11 +227,12 @@ namespace Nominax::ByteCode
     [[nodiscard]]
     constexpr auto ComputeDiscBit(const Signal::Discriminator discriminator) -> TypeIndexBitFlagVector
     {
-        return 1 << static_cast<TypeIndexBitFlagVector>(Foundation::ToUnderlying(discriminator));
+        static_assert(sizeof(discriminator) < sizeof(TypeIndexBitFlagVector));
+        return 1 << static_cast<TypeIndexBitFlagVector>(discriminator);
     }
 
     /// <summary>
-    /// Contains operand type information for all instructions.
+    /// Contains meta data for all instructions.
     /// </summary>
 	struct InstructionMetaDataRegistry final
     {

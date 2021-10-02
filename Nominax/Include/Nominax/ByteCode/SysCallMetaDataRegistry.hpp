@@ -205,35 +205,111 @@
 
 #pragma once
 
-#include "../Foundation/Platform.hpp"
-#include "../Foundation/Record.hpp"
-#include "../Foundation/VariadicMacroHelper.hpp"
+#include <array>
+#include <cstdint>
+#include <string_view>
 
-#define NOX_SYSCALL_SPT [[maybe_unused]] Foundation::Record
-#define NOX_SYSCALL_SPT_ATTRIBS const NOX_RESTRICT
-#define NOX_SYSCALL_LIB_ATTRIBS NOX_FORCE_INLINE static inline
-#define NOX_SYSCALL_ATTRIBS NOX_HOT NOX_SYSCALL_LIB_ATTRIBS
-#define NOX_SYSCALL_PROXY(name) NOX_SYSCALL_ATTRIBS auto name (NOX_SYSCALL_SPT* NOX_SYSCALL_SPT_ATTRIBS sp) noexcept -> void
+#include "SysCall.hpp"
+#include "../Foundation/Algorithm.hpp"
 
-#define NOX_SYSCALL_ARG1()  (*sp)
-#define NOX_SYSCALL_ARG2()  (*(sp-1))
-#define NOX_SYSCALL_ARG3()  (*(sp-2))
-#define NOX_SYSCALL_ARG4()  (*(sp-3))
-#define NOX_SYSCALL_ARG5()  (*(sp-4))
-#define NOX_SYSCALL_ARG6()  (*(sp-5))
-#define NOX_SYSCALL_ARG7()  (*(sp-6))
-#define NOX_SYSCALL_ARG8()  (*(sp-7))
-#define NOX_SYSCALL_ARG9()  (*(sp-8))
-#define NOX_SYSCALL_ARG10() (*(sp-9)
+namespace Nominax::ByteCode
+{
+    /// <summary>
+    /// Contains meta data for all syscalls.
+    /// </summary>
+    struct SysCallMetaDataRegistry final
+    {
+        /// <summary>
+        /// Static class.
+        /// </summary>
+        SysCallMetaDataRegistry() = delete;
 
-// Should only be included from implementation for implementation:
-#define ARG1    NOX_SYSCALL_ARG1()
-#define ARG2    NOX_SYSCALL_ARG2()
-#define ARG3    NOX_SYSCALL_ARG3()
-#define ARG4    NOX_SYSCALL_ARG4()
-#define ARG5    NOX_SYSCALL_ARG5()
-#define ARG6    NOX_SYSCALL_ARG6()
-#define ARG7    NOX_SYSCALL_ARG7()
-#define ARG8    NOX_SYSCALL_ARG8()
-#define ARG9    NOX_SYSCALL_ARG9()
-#define ARG10   NOX_SYSCALL_ARG10()
+        /// <summary>
+        /// Static class.
+        /// </summary>
+        SysCallMetaDataRegistry(const SysCallMetaDataRegistry& other) = delete;
+
+        /// <summary>
+        /// Static class.
+        /// </summary>
+        SysCallMetaDataRegistry(SysCallMetaDataRegistry&& other) = delete;
+
+        /// <summary>
+        /// Static class.
+        /// </summary>
+        auto operator =(const SysCallMetaDataRegistry& other) -> SysCallMetaDataRegistry& = delete;
+
+        /// <summary>
+        /// Static class.
+        /// </summary>
+        auto operator =(SysCallMetaDataRegistry&& other) -> SysCallMetaDataRegistry& = delete;
+
+        /// <summary>
+        /// Static class.
+        /// </summary>
+        ~SysCallMetaDataRegistry() = delete;
+
+        /// <summary>
+        /// Contains all syscall mnemonics.
+        /// </summary>
+        [[maybe_unused]]
+        static constexpr std::array<const std::string_view, Foundation::ToUnderlying(SysCall::Count_)> MNEMONIC_TABLE
+        {
+            #include "ExportSysCallMnemonicTable.hpp"
+        };
+
+        /// <summary>
+        /// Contains all syscall descriptions.
+        /// </summary>
+        [[maybe_unused]]
+        static constexpr std::array<const std::string_view, Foundation::ToUnderlying(SysCall::Count_)> DESCRIPTOR_TABLE
+        {
+            #include "ExportSysCallDescriptorTable.hpp"
+        };
+
+        /// <summary>
+        /// Contains all syscall module descriptions.
+        /// </summary>
+        [[maybe_unused]]
+        static constexpr std::array<const std::string_view, Foundation::ToUnderlying(SysCall::Count_)> MODULE_TABLE
+        {
+            #include "ExportSysCallModuleTable.hpp"
+        };
+
+        /// <summary>
+        /// Contains all syscall push counts.
+        /// </summary>
+        [[maybe_unused]]
+        static constexpr std::array<const std::uint8_t , Foundation::ToUnderlying(SysCall::Count_)> PUSH_RECORD_TABLE
+        {
+            #include "ExportSysCallPushRecordTable.hpp"
+        };
+
+        /// <summary>
+        /// Contains all syscall pop counts.
+        /// </summary>
+        [[maybe_unused]]
+        static constexpr std::array<const std::uint8_t , Foundation::ToUnderlying(SysCall::Count_)> POP_RECORD_TABLE
+        {
+            #include "ExportSysCallPopRecordTable.hpp"
+        };
+
+        /// <summary>
+        /// Contains the stack difference after the syscall was executed.
+        /// Automatically computed from the push and pop table.
+        /// </summary>
+        [[maybe_unused]]
+        static constexpr std::array<std::int8_t, Foundation::ToUnderlying(SysCall::Count_)> STACK_DIFF_TABLE
+        {
+            []
+            {
+                std::array<std::int8_t, Foundation::ToUnderlying(SysCall::Count_)> result { };
+                for (std::uint64_t i { 0 }; i < Foundation::ToUnderlying(SysCall::Count_); ++i)
+                {
+                    result[i] = static_cast<std::int8_t>(PUSH_RECORD_TABLE[i] - POP_RECORD_TABLE[i]);
+                }
+                return result;
+            }()
+        };
+    };
+}

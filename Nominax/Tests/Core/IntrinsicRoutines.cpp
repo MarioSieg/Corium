@@ -221,6 +221,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Cos)
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto output {SingletonExecutionProxy(input)};
@@ -244,6 +245,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Sin)
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto output {SingletonExecutionProxy(input)};
@@ -267,6 +269,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Tan)
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto output {SingletonExecutionProxy(input)};
@@ -290,6 +293,7 @@ TEST(ReactorExecution, IntrinsicRoutine_ACos)
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto output {SingletonExecutionProxy(input)};
@@ -313,6 +317,7 @@ TEST(ReactorExecution, IntrinsicRoutine_ASin)
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto output {SingletonExecutionProxy(input)};
@@ -336,6 +341,7 @@ TEST(ReactorExecution, IntrinsicRoutine_ATan)
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto output {SingletonExecutionProxy(input)};
@@ -361,6 +367,7 @@ TEST(ReactorExecution, IntrinsicRoutine_ATan2)
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto output {SingletonExecutionProxy(input)};
@@ -385,6 +392,7 @@ TEST(ReactorExecution, IntrinsicRoutine_CosH)
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto output {SingletonExecutionProxy(input)};
@@ -408,6 +416,7 @@ TEST(ReactorExecution, IntrinsicRoutine_SinH)
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto output {SingletonExecutionProxy(input)};
@@ -431,6 +440,7 @@ TEST(ReactorExecution, IntrinsicRoutine_TanH)
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto output {SingletonExecutionProxy(input)};
@@ -454,6 +464,7 @@ TEST(ReactorExecution, IntrinsicRoutine_ACosH)
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto output {SingletonExecutionProxy(input)};
@@ -477,6 +488,7 @@ TEST(ReactorExecution, IntrinsicRoutine_ASinH)
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto output {SingletonExecutionProxy(input)};
@@ -500,6 +512,7 @@ TEST(ReactorExecution, IntrinsicRoutine_ATanH)
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto output {SingletonExecutionProxy(input)};
@@ -523,6 +536,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Exp)
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto output {SingletonExecutionProxy(input)};
@@ -546,6 +560,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Log)
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto output {SingletonExecutionProxy(input)};
@@ -569,6 +584,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Log10)
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto output {SingletonExecutionProxy(input)};
@@ -592,6 +608,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Exp2)
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto output {SingletonExecutionProxy(input)};
@@ -615,6 +632,7 @@ TEST(ReactorExecution, IntrinsicRoutine_ILogB)
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto output {SingletonExecutionProxy(input)};
@@ -638,6 +656,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Log2)
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto output {SingletonExecutionProxy(input)};
@@ -663,6 +682,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Pow)
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto output {SingletonExecutionProxy(input)};
@@ -688,6 +708,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Sqrt)
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto output {SingletonExecutionProxy(input)};
@@ -711,6 +732,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Cbrt)
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto output {SingletonExecutionProxy(input)};
@@ -736,6 +758,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Hypot)
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto output {SingletonExecutionProxy(input)};
@@ -760,6 +783,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Ceil)
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto output {SingletonExecutionProxy(input)};
@@ -783,6 +807,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Floor)
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto output {SingletonExecutionProxy(input)};
@@ -806,6 +831,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Round)
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto output {SingletonExecutionProxy(input)};
@@ -829,6 +855,7 @@ TEST(ReactorExecution, IntrinsicRoutine_RInt)
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto output {SingletonExecutionProxy(input)};
@@ -854,6 +881,7 @@ TEST(ReactorExecution, IntrinsicRoutine_IMax)
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto output {SingletonExecutionProxy(input)};
@@ -880,6 +908,7 @@ TEST(ReactorExecution, IntrinsicRoutine_IMin)
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto output {SingletonExecutionProxy(input)};
@@ -906,6 +935,7 @@ TEST(ReactorExecution, IntrinsicRoutine_FMax)
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto output {SingletonExecutionProxy(input)};
@@ -932,6 +962,7 @@ TEST(ReactorExecution, IntrinsicRoutine_FMin)
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto output {SingletonExecutionProxy(input)};
@@ -958,6 +989,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Dim)
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto output {SingletonExecutionProxy(input)};
@@ -983,6 +1015,7 @@ TEST(ReactorExecution, IntrinsicRoutine_IAbs)
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto output {SingletonExecutionProxy(input)};
@@ -1006,10 +1039,11 @@ TEST(ReactorExecution, IntrinsicRoutine_FAbs)
 	auto input {MOCK_REACTOR_INPUT};
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const auto output {SingletonExecutionProxy(input)};
-	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, std::fabs(0.35));
+	ASSERT_DOUBLE_EQ(output.Input->Stack[1].AsF64, std::abs(0.35));
 	ASSERT_EQ(output.Status, -12345);
 	ASSERT_EQ(output.SpDiff, 1);
 }
@@ -1030,6 +1064,7 @@ TEST(ReactorExecution, PrintInt)
     auto input {MOCK_REACTOR_INPUT};
     input.CodeChunk  = std::data(code);
     input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
     ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
     const auto output {SingletonExecutionProxy(input)};
@@ -1054,6 +1089,7 @@ TEST(ReactorExecution, PrintFloat)
     auto input {MOCK_REACTOR_INPUT};
     input.CodeChunk  = std::data(code);
     input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
     ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
     const auto output {SingletonExecutionProxy(input)};
@@ -1078,6 +1114,7 @@ TEST(ReactorExecution, PrintChar)
     auto input {MOCK_REACTOR_INPUT};
     input.CodeChunk  = std::data(code);
     input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
     ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
     const auto output {SingletonExecutionProxy(input)};
@@ -1102,6 +1139,7 @@ TEST(ReactorExecution, PrintBool)
     auto input {MOCK_REACTOR_INPUT};
     input.CodeChunk  = std::data(code);
     input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
     ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
     const auto output {SingletonExecutionProxy(input)};
@@ -1128,6 +1166,7 @@ TEST(ReactorExecution, Flush)
     auto input {MOCK_REACTOR_INPUT};
     input.CodeChunk  = std::data(code);
     input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
     ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
     const auto output {SingletonExecutionProxy(input)};
