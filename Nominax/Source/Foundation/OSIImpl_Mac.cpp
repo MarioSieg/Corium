@@ -203,313 +203,177 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "../../../Nominax/Include/Nominax/Foundation/_Foundation.hpp"
 
-#include <cstring>
-#include <memory>
+#if NOX_OS_MAC
 
-#include <cstdint>
-#include "Platform.hpp"
-#include "PanicAssertions.hpp"
+#include <cstdio>
+#include <fstream>
+#include <string>
+
+#include <sys/mman.h>
+#include <dlfcn.h>
+#include <unistd.h>
 
 namespace Nominax::Foundation
 {
+	auto OSI::QuerySystemMemoryTotal() -> std::uint64_t
+	{
+		static const std::uint64_t SYS_MEM
+		{
+			[]
+			{
+				const long pages { ::sysconf(_SC_PHYS_PAGES) };
+				const long page_size { ::sysconf(_SC_PAGE_SIZE) };
+				return static_cast<std::uint64_t>(pages * page_size);
+			}()
+		};
+		return SYS_MEM;
+	}
+
+	auto OSI::QueryProcessMemoryUsed() -> std::uint64_t
+	{
+		std::FILE* const file { std::fopen("/proc/self/statm", "r") };
+		if (!file)
+		{
+			[[unlikely]]
+            return 0;
+		}
+		long pages { 0 };
+		const int items { std::fscanf(file, "%*s%ld", &pages) };
+		std::fclose(file);
+		return static_cast<std::uint64_t>(items == 1 ? pages * sysconf(_SC_PAGESIZE) : 0);
+	}
+
+	auto OSI::QueryCpuName() -> const std::string&
+	{
+		static const std::string CPU_NAME
+		{
+			[]() -> std::string
+			{
+				std::ifstream cpuinfo { "/proc/cpuinfo" };
+
+				if (!cpuinfo)
+				{
+					[[unlikely]]
+					return "Unknown";
+				}
+
+				for (std::string line; std::getline(cpuinfo, line);)
+				{
+					if (line.find("model name") == 0)
+					{
+						const auto colonId { line.find_first_of(':') };
+						const auto nonspaceId { line.find_first_not_of(" \t", colonId + 1) };
+						return line.c_str() + nonspaceId;
+					}
+					else if (line.find("Model") == 0)
+					{
+						const auto colonId { line.find_first_of(':') };
+						const auto nonspaceId { line.find_first_not_of(" \t", colonId + 1) };
+						return line.c_str() + nonspaceId;
+					}
+				}
+
+				return "Unknown";
+			}
+			()
+		};
+
+		return CPU_NAME;
+	}
+
+	auto OSI::QueryPageSize() -> std::uint64_t
+	{
+		static const std::uint64_t PAGE_SIZE
+		{
+			[]
+			{
+				return static_cast<std::uint64_t>(::sysconf(_SC_PAGE_SIZE));
+			}()
+		};
+		return PAGE_SIZE;
+	}
+
+	auto OSI::DylibOpen(const std::string_view file_) -> void*
+	{
+		return ::dlopen(std::data(file_), RTLD_LOCAL | RTLD_LAZY);
+	}
+
+	auto OSI::DylibLookupSymbol(void* const handle_, const std::string_view symbol_) -> void*
+	{
+		return ::dlsym(handle_, std::data(symbol_));
+	}
+
+	auto OSI::DylibClose(void*& handle_) -> void
+	{
+		::dlclose(handle_);
+		handle_ = nullptr;
+	}
+
 	/// <summary>
-		/// Generic system allocation routines.
-		/// </summary>
-	struct SystemAllocator final
+	/// Helper to map the Nominax page protection flags to OS specific ones.
+	/// </summary>
+	/// <param name="protectionFlags">The Nominax protection flags.</param>
+	/// <returns>The OS specific flags.</returns>
+	[[nodiscard]]
+	static constexpr auto MapOsPageProtectionFlags(const MemoryPageProtectionFlags protectionFlags) -> int
 	{
-		/// <summary>
-		/// Static class.
-		/// </summary>
-		SystemAllocator() = delete;
+		switch (protectionFlags)
+		{
+			case MemoryPageProtectionFlags::Read:
+				return PROT_READ;
 
-		/// <summary>
-		/// Static class.
-		/// </summary>
-		/// <param name="other"></param>
-		SystemAllocator(const SystemAllocator& other) = delete;
+			case MemoryPageProtectionFlags::ReadWrite:
+				return PROT_READ | PROT_WRITE;
 
-		/// <summary>
-		/// Static class.
-		/// </summary>
-		/// <param name="other"></param>
-		SystemAllocator(SystemAllocator&& other) = delete;
+			case MemoryPageProtectionFlags::ReadExecute:
+				return PROT_READ | PROT_EXEC;
 
-		/// <summary>
-		/// Static class.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		auto operator =(const SystemAllocator& other) -> SystemAllocator& = delete;
+			case MemoryPageProtectionFlags::ReadWriteExecute:
+				return PROT_READ | PROT_WRITE | PROT_EXEC;
 
-		/// <summary>
-		/// Static class.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		auto operator =(SystemAllocator&& other) -> SystemAllocator& = delete;
-
-		/// <summary>
-		/// Static class.
-		/// </summary>
-		~SystemAllocator() = delete;
-
-		/// <summary>
-		/// Allocates an uninitialized block of memory.
-		/// Like std::malloc.
-		/// </summary>
-		/// <param name="size">The size in bytes.</param>
-		/// <returns>The pointer or nullptr on fail.</returns>
-		[[nodiscard]]
-		NOX_HOT NOX_ALLOC_SIZE(1) NOX_MALLOC static auto Allocate(std::uint64_t size) -> void*;
-
-		/// <summary>
-		/// Allocates an zero initialized block of memory.
-		/// Like std::calloc.
-		/// </summary>
-		/// <param name="size">The size in bytes.</param>
-		/// <returns>The pointer or nullptr on fail.</returns>
-		[[nodiscard]]
-		NOX_HOT NOX_ALLOC_SIZE(1) static auto AllocateAndZero(std::uint64_t size) -> void*;
-
-		/// <summary>
-		/// Reallocates a block of memory.
-		/// Like std::realloc.
-		/// </summary>
-		/// <param name="where">The block to reallocate.</param>
-		/// <param name="size">The new size of the blob.</param>
-		/// <returns>The pointer or nullptr on fail.</returns>
-		[[nodiscard]]
-		NOX_HOT NOX_ALLOC_SIZE(2) static auto Reallocate(void* where, std::uint64_t size) -> void*;
-
-		/// <summary>
-		/// Deallocates a block of memory.
-		/// Like std::free.
-		/// </summary>
-		/// <param name="ptr">The pointer to deallocate.</param>
-		/// <returns>Nothing.</returns>
-		NOX_HOT static auto Deallocate(void* ptr) -> void;
-
-		/// <summary>
-		/// Allocates an uninitialized block of memory with special alignment.
-		/// Like std::malloc.
-		/// </summary>
-		/// <param name="size">The size in bytes.</param>
-		/// <param name="alignment">The alignment the new address should have.</param>
-		/// <returns>The pointer or nullptr on fail.</returns>
-		[[nodiscard]]
-		NOX_HOT NOX_ALLOC_SIZE(1) NOX_MALLOC static auto AllocateAligned(std::uint64_t size, std::uint64_t alignment) -> void*;
-
-		/// <summary>
-		/// Allocates an zero initialized block of memory with special alignment.
-		/// Like std::calloc.
-		/// </summary>
-		/// <param name="size">The size in bytes.</param>
-		/// <param name="alignment">The alignment the new address should have.</param>
-		/// <returns>The pointer or nullptr on fail.</returns>
-		[[nodiscard]]
-		NOX_HOT NOX_ALLOC_SIZE(1) NOX_MALLOC static auto AllocateAlignedAndZero(std::uint64_t size, std::uint64_t alignment) -> void*;
-
-		/// <summary>
-		/// Reallocates a block of memory with special alignment.
-		/// Like std::realloc.
-		/// </summary>
-		/// <param name="where">The block to reallocate.</param>
-		/// <param name="size">The new size of the blob.</param>
-		/// <param name="alignment">The alignment the new address should have.</param>
-		/// <returns>The pointer or nullptr on fail.</returns>
-		NOX_HOT NOX_ALLOC_SIZE(2) static auto ReallocateAligned(void* where, std::uint64_t size, std::uint64_t alignment) -> void*;
-
-		/// <summary>
-		/// Deallocates a block of memory with special alignment.
-		/// Like std::free.
-		/// </summary>
-		/// <param name="ptr">The pointer to deallocate.</param>
-		/// <returns>Nothing.</returns>
-		NOX_HOT static auto DeallocateAligned(void* ptr) -> void;
-
-		/// <summary>
-		/// Allocates an uninitialized block of memory.
-		/// Like std::malloc but panics on allocation failture.
-		/// </summary>
-		/// <param name="size">The size in bytes.</param>
-		/// <returns>The pointer.</returns>
-		[[nodiscard]]
-		NOX_ALLOC_SIZE(1) NOX_MALLOC static auto AllocateChecked(std::uint64_t size) -> void*;
-
-		/// <summary>
-		/// Allocates an zero initialized block of memory.
-		/// Like std::calloc but panics on allocation failture.
-		/// </summary>
-		/// <param name="size">The size in bytes.</param>
-		/// <returns>The pointer.</returns>
-		[[nodiscard]]
-		NOX_ALLOC_SIZE(1) static auto AllocateAndZeroChecked(std::uint64_t size) -> void*;
-
-		/// <summary>
-		/// Reallocates a block of memory.
-		/// Like std::realloc but panics on allocation failture.
-		/// </summary>
-		/// <param name="where">The block to reallocate.</param>
-		/// <param name="size">The new size of the blob.</param>
-		/// <returns>The pointer.</returns>
-		[[nodiscard]]
-		NOX_ALLOC_SIZE(2) static auto ReallocateChecked(void* where, std::uint64_t size) -> void*;
-
-		/// <summary>
-		/// Deallocates a block of memory.
-		/// Like std::free but panics on allocation failture.
-		/// </summary>
-		/// <param name="ptr">The pointer to deallocate.</param>
-		/// <returns>Nothing.</returns>
-		static auto DeallocateChecked(void* ptr) -> void;
-
-		/// <summary>
-		/// Allocates an uninitialized block of memory with special alignment.
-		/// Like std::malloc but panics on allocation failture.
-		/// </summary>
-		/// <param name="size">The size in bytes.</param>
-		/// <param name="alignment">The alignment the new address should have.</param>
-		/// <returns>The pointer.</returns>
-		[[nodiscard]]
-		NOX_ALLOC_SIZE(1) NOX_MALLOC static auto AllocateAlignedChecked(std::uint64_t size, std::uint64_t alignment) -> void*;
-
-		/// <summary>
-		/// Allocates an zero initialized block of memory with special alignment.
-		/// Like std::calloc but panics on allocation failture.
-		/// </summary>
-		/// <param name="size">The size in bytes.</param>
-		/// <param name="alignment">The alignment the new address should have.</param>
-		/// <returns>The pointer.</returns>
-		[[nodiscard]]
-		NOX_ALLOC_SIZE(1) NOX_MALLOC static auto AllocateAlignedAndZeroChecked(std::uint64_t size, std::uint64_t alignment) -> void*;
-
-		/// <summary>
-		/// Reallocates a block of memory with special alignment.
-		/// Like std::realloc but panics on allocation failture.
-		/// </summary>
-		/// <param name="where">The block to reallocate.</param>
-		/// <param name="size">The new size of the blob.</param>
-		/// <param name="alignment">The alignment the new address should have.</param>
-		/// <returns>The pointer.</returns>
-		NOX_ALLOC_SIZE(2) static auto ReallocateAlignedChecked(void* where, std::uint64_t size, std::uint64_t alignment) -> void*;
-
-		/// <summary>
-		/// Deallocates a block of memory with special alignment.
-		/// Like std::free but panics on allocation failture.
-		/// </summary>
-		/// <param name="ptr">The pointer to deallocate.</param>
-		/// <returns>Nothing.</returns>
-		static auto DeallocateAlignedChecked(void* ptr) -> void;
-	};
-
-	NOX_HOT NOX_FLATTEN inline auto SystemAllocator::Allocate(const std::uint64_t size) -> void*
-	{
-		return std::malloc(size);
+			default:
+			case MemoryPageProtectionFlags::NoAccess:
+				return PROT_NONE;
+		}
 	}
 
-	NOX_HOT NOX_FLATTEN inline auto SystemAllocator::AllocateAndZero(const std::uint64_t size) -> void*
+	/// <summary>
+	/// Allocation flags for mmap.
+	/// </summary>
+	static constexpr int MEMORY_MAPPING_FLAGS { MAP_PRIVATE | MAP_ANONYMOUS };
+
+	auto OSI::MemoryMap
+	(
+		const std::uint64_t             size,
+		const MemoryPageProtectionFlags protectionFlags
+	) -> void*
 	{
-		return std::calloc(1, size);
+		const int     argPageProtections { MapOsPageProtectionFlags(protectionFlags) };
+		constexpr int argMappingFlags { MEMORY_MAPPING_FLAGS };
+		const int     prevError { errno };
+		void* const   ptr { mmap(nullptr, size, argPageProtections, argMappingFlags, -1, 0) };
+		errno = prevError;
+		return ptr;
 	}
 
-	NOX_HOT NOX_FLATTEN inline auto SystemAllocator::Reallocate(void* const where, const std::uint64_t size) -> void*
+	auto OSI::MemoryUnmap(void* const region, const std::uint64_t size) -> bool
 	{
-		return std::realloc(where, size);
+		const int  prevError { errno };
+		const bool result { munmap(region, static_cast<std::size_t>(size)) == 0 };
+		errno = prevError;
+		return result;
 	}
 
-	NOX_HOT NOX_FLATTEN inline auto SystemAllocator::Deallocate(void* const ptr) -> void
+	auto OSI::MemoryProtect(void* const region, const std::uint64_t size, const MemoryPageProtectionFlags protectionFlags) -> bool
 	{
-		std::free(ptr);
-	}
-
-	NOX_HOT NOX_FLATTEN inline auto SystemAllocator::AllocateAligned(const std::uint64_t size, const std::uint64_t alignment) -> void*
-	{
-		#if NOX_OS_WINDOWS && NOX_COM_CLANG
-			return _aligned_malloc(size, alignment);
-		#else
-			return aligned_alloc(alignment, size);
-		#endif
-	}
-
-	NOX_HOT NOX_FLATTEN NOX_MALLOC inline auto SystemAllocator::AllocateAlignedAndZero(const std::uint64_t size, const std::uint64_t alignment) -> void*
-	{
-		return std::memset(AllocateAligned(size, alignment), 0, size);
-	}
-
-	NOX_HOT NOX_FLATTEN inline auto SystemAllocator::ReallocateAligned(void* const where, const std::uint64_t size, const std::uint64_t alignment) -> void*
-	{
-		#if NOX_OS_WINDOWS && NOX_COM_CLANG
-			return _aligned_realloc(where, size, alignment);
-		#else
-			auto* const mem { AllocateAligned(size, alignment) };
-			std::memcpy(mem, where, size);
-			DeallocateAligned(where);
-			return mem;
-		#endif
-	}
-
-	NOX_HOT NOX_FLATTEN inline auto SystemAllocator::DeallocateAligned(void* const ptr) -> void
-	{
-		#if NOX_OS_WINDOWS && NOX_COM_CLANG
-			_aligned_free(ptr);
-		#else
-			std::free(ptr);
-		#endif
-	}
-
-	NOX_FLATTEN inline auto SystemAllocator::AllocateChecked(const std::uint64_t size) -> void*
-	{
-		void* mem { Allocate(size) };
-		NOX_PAS_NOT_NULL(mem, "Allocation error!");
-		return mem;
-	}
-
-	NOX_FLATTEN inline auto SystemAllocator::AllocateAndZeroChecked(const std::uint64_t size) -> void*
-	{
-		void* mem { AllocateAndZero(size) };
-		NOX_PAS_NOT_NULL(mem, "Allocation error!");
-		return mem;
-	}
-
-	NOX_FLATTEN inline auto SystemAllocator::ReallocateChecked(void* const where, const std::uint64_t size) -> void*
-	{
-		void* mem { Reallocate(where, size) };
-		NOX_PAS_NOT_NULL(mem, "Allocation error!");
-		return mem;
-	}
-
-	NOX_FLATTEN inline auto SystemAllocator::DeallocateChecked(void* const ptr) -> void
-	{
-		NOX_PAS_NOT_NULL(ptr, "Allocation error!");
-		Deallocate(ptr);
-	}
-
-	NOX_FLATTEN inline auto SystemAllocator::AllocateAlignedChecked(const std::uint64_t size, const std::uint64_t alignment) -> void*
-	{
-		void* const mem { AllocateAligned(size, alignment) };
-		NOX_PAS_NOT_NULL(mem, "Allocation error!");
-		return mem;
-	}
-
-	NOX_FLATTEN inline auto SystemAllocator::AllocateAlignedAndZeroChecked(const std::uint64_t size, const std::uint64_t alignment) -> void*
-	{
-		void* const mem { AllocateAlignedAndZero(size, alignment) };
-		NOX_PAS_NOT_NULL(mem, "Allocation error!");
-		return mem;
-	}
-
-	NOX_FLATTEN inline auto SystemAllocator::ReallocateAlignedChecked(void* const where, const std::uint64_t size, const std::uint64_t alignment) -> void*
-	{
-		void* const mem { ReallocateAligned(where, size, alignment) };
-		NOX_PAS_NOT_NULL(mem, "Allocation error!");
-		return mem;
-	}
-
-	NOX_FLATTEN inline auto SystemAllocator::DeallocateAlignedChecked(void* const ptr) -> void
-	{
-		NOX_PAS_NOT_NULL(ptr, "Allocation error!");
-		DeallocateAligned(ptr);
+		const int  argPageProtections { MapOsPageProtectionFlags(protectionFlags) };
+		const int  prevError { errno };
+		const bool result { mprotect(region, static_cast<std::size_t>(size), argPageProtections) == 0 };
+		errno = prevError;
+		return result;
 	}
 }
+
+#endif

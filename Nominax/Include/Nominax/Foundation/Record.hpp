@@ -491,7 +491,7 @@ namespace Nominax::Foundation
 
 	constexpr auto Record::Padding() -> Record
 	{
-		return Record { 0xFF'FF'FF'FF'FF'FF'FF'FF };
+		return Record { static_cast<std::uint64_t>(0xFF'FF'FF'FF'FF'FF'FF'FF) };
 	}
 
 	static_assert(sizeof(float) == sizeof(std::int32_t));
