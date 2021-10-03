@@ -259,84 +259,85 @@ namespace Nominax::ByteCode
 		if (input.IsEmpty())
 		{
 			[[unlikely]]
-				return ValidationResultCode::Empty;
+            return ValidationResultCode::Empty;
 		}
 
 		// Check if prologue code is contained:
 		if (!ContainsPrologue(input))
 		{
 			[[unlikely]]
-				return ValidationResultCode::MissingPrologueCode;
+            return ValidationResultCode::MissingPrologueCode;
 		}
 
 		// Check if epilogue code is contained:
 		if (!ContainsEpilogue(input))
 		{
 			[[unlikely]]
-				return ValidationResultCode::MissingEpilogueCode;
+            return ValidationResultCode::MissingEpilogueCode;
 		}
 
-		// Validate that user intrinsic calls are non null:
-		for (IntrinsicRoutine* const routine : intrinsicRegistry)
-		{
-			if (!routine)
-			{
-				[[unlikely]]
-					return ValidationResultCode::InvalidUserIntrinsicCall;
-			}
-		}
+        // Validate that user intrinsic calls are non null:
+        {
+            std::atomic_bool error { false };
+            std::for_each(std::execution::par_unseq, std::cbegin(intrinsicRegistry), std::cend(intrinsicRegistry), [&error](IntrinsicRoutine* const elem)
+            {
+                if (!elem)
+                {
+                    [[unlikely]]
+                    error = true;
+                }
+            });
+            if (error)
+            {
+                [[unlikely]]
+                return ValidationResultCode::InvalidUserIntrinsicCall;
+            }
+        }
 
 		// Error state:
 		Foundation::AtomicState<ValidationResultCode> error { };
-		std::atomic<std::uint32_t>                    errorIndex { 0 };
+		std::atomic<std::uint32_t> errorIndex { 0 };
 
-		const auto& codeBuf { input.GetCodeBuffer() };
-		const auto& discBuf { input.GetDiscriminatorBuffer() };
-		const auto  bufBegin { &*std::begin(discBuf) };
-		const auto  bufEnd { &*std::end(discBuf) };
+		const Stream::CodeStorageType& codeBuf { input.GetCodeBuffer() };
+		const Stream::DiscriminatorStorageType& discBuf { input.GetDiscriminatorBuffer() };
+		const Signal::Discriminator* const bufBegin { &*std::begin(discBuf) };
+		const Signal::Discriminator* const bufEnd { &*std::end(discBuf) };
 
-		auto validationRoutine
+		const auto validationRoutine
 		{
 			[&](const Signal::Discriminator& iterator)
 			{
 				const std::ptrdiff_t index { Foundation::DistanceRef(iterator, bufBegin) };
-				const Signal         signal { codeBuf[index] };
-				auto                 result { ValidationResultCode::Ok };
+				const Signal signal { codeBuf[index] };
+				auto result { ValidationResultCode::Ok };
 
 				switch (iterator)
 				{
-						// validate instruction:
+                    // validate instruction:
 					case Signal::Discriminator::Instruction:
-					{
-						const auto* const next { SearchForNextInstruction(&iterator, bufEnd) };
-						const auto        args {
-							ExtractInstructionArguments(&iterator, ComputeInstructionArgumentOffset(&iterator, next))
-						};
-						result = ValidateInstructionArguments(signal.Instr, args); // validate args
-					}
+                    {
+                        const Signal::Discriminator* const next { SearchForNextInstruction(&iterator, bufEnd) };
+                        const std::span<const Signal::Discriminator> args { ExtractInstructionArguments(&iterator, ComputeInstructionArgumentOffset(&iterator, next)) };
+                        result = ValidateInstructionArguments(signal.Instr, args); // validate args
+                    }
 					break;
 
 					case Signal::Discriminator::JumpAddress:
-					{
 						result = ValidateJumpAddress(input, signal.JmpAddress)
-							         ? ValidationResultCode::Ok
-							         : ValidationResultCode::InvalidJumpAddress;
-					}
+                                ? ValidationResultCode::Ok
+                                : ValidationResultCode::InvalidJumpAddress;
 					break;
 
 					case Signal::Discriminator::UserIntrinsicInvocationID:
-					{
 						result = ValidateUserIntrinsicCall(intrinsicRegistry, signal.UserIntrinID)
-							         ? ValidationResultCode::Ok
-							         : ValidationResultCode::InvalidUserIntrinsicCall;
-					}
+                                ? ValidationResultCode::Ok
+                                : ValidationResultCode::InvalidUserIntrinsicCall;
 					break;
 
 					default: ;
 				}
 
-				if (result != ValidationResultCode::Ok)
-				[[unlikely]]
+				if (result != ValidationResultCode::Ok) [[unlikely]]
 				{
 					errorIndex.store(static_cast<std::uint32_t>(index));
 					error(result);
@@ -360,7 +361,6 @@ namespace Nominax::ByteCode
 
 		if (outIndex)
 		{
-			[[unlikely]]
             *outIndex = 0;
 		}
 
@@ -375,7 +375,7 @@ namespace Nominax::ByteCode
 		if (bucket.Size() <= idx)
 		{
 			[[unlikely]]
-				return false;
+            return false;
 		}
 
 		return NOX_EXPECT_VALUE(bucket[idx].Contains<Instruction>(), true);
@@ -384,12 +384,12 @@ namespace Nominax::ByteCode
 	auto ValidateSystemIntrinsicCall(const SysCall id) -> bool
 	{
 		constexpr auto max { Foundation::ToUnderlying(SysCall::Count_) - 1 };
-		const auto     value { Foundation::ToUnderlying(id) };
+		const auto value { Foundation::ToUnderlying(id) };
 		static_assert(std::is_unsigned_v<decltype(value)>);
 		return NOX_EXPECT_VALUE(value <= max, true);
 	}
 
-	auto ValidateUserIntrinsicCall(const UserIntrinsicRoutineRegistry& routines, UserIntrinsicInvocationID id) -> bool
+	auto ValidateUserIntrinsicCall(const UserIntrinsicRoutineRegistry& routines, const UserIntrinsicInvocationID id) -> bool
 	{
 		static_assert(std::is_unsigned_v<std::underlying_type_t<decltype(id)>>);
 		return NOX_EXPECT_VALUE(Foundation::ToUnderlying(id) < std::size(routines), true);

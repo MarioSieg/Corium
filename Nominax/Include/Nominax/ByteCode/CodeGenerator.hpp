@@ -288,5 +288,6 @@ namespace Nominax::ByteCode
 	inline auto LocalCodeGenerationLayer::Emit(const Instruction instruction) -> LocalCodeGenerationLayer&
 	{
 		this->Emitter.Emit(instruction);
+        return *this;
 	}
 }

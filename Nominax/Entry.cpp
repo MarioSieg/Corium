@@ -218,8 +218,10 @@ auto main(const int argc, const char* const* const argv) -> int
         var += 1;
         var /= 1;
     }
-    stream << Instruction::JMP << JumpAddress(3);
-    stream << Instruction::DEREFR << FieldOffset{5};
+    stream.Emit(Instruction::JMP);
+    stream.Emit(JumpAddress(3));
+    stream.Emit(Instruction::DEREFR);
+    stream.Emit(FieldOffset{5});
     stream.SysCall(SysCall::FLUSH);
     stream.DisplayToConsole();
 

@@ -523,7 +523,7 @@ namespace Nominax::ByteCode
         /// </summary>
         /// <param name="x">The value to emit.</param>
         /// <returns></returns>
-        auto Emit(std::uint64_t x) -> void;
+        auto Emit(MemOffset x) -> void;
 
         /// <summary>
         /// Emit signal with discriminator.
@@ -831,7 +831,7 @@ namespace Nominax::ByteCode
 		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::JumpAddress);
 	}
 
-	inline auto Stream::Emit(const std::uint64_t value) -> void
+	inline auto Stream::Emit(const MemOffset value) -> void
 	{
 		NOX_DBG_PAS(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal { value });

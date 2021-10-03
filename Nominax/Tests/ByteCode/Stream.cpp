@@ -217,13 +217,13 @@ TEST(BytecodeStream, Push)
 	Stream stream { };
 	ASSERT_EQ(stream.Size(), 0);
 
-	stream.Emit(static_cast<std::uint64_t>(0));
+	stream.Emit(static_cast<MemOffset>(0));
 	stream.Emit(Instruction::NOP);
 	stream.Emit(Instruction::CALL);
 	stream.Emit(SysCall::ACOS);
 	stream.Emit(UserIntrinsicInvocationID {3});
 	stream.Emit(3.5);
-	stream.Emit(UINT64_C(32));
+	stream.Emit(MemOffset(32));
 	stream.Emit(INT64_C(-10));
 
 	ASSERT_EQ(stream.Size(), 8);

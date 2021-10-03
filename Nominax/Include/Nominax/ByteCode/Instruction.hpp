@@ -241,6 +241,11 @@ namespace Nominax::ByteCode
         'V'
     };
 
+    /// <summary>
+    /// Represents an unsigned stack offset.
+    /// </summary>
+    enum class alignas(alignof(std::uint64_t)) MemOffset : std::uint64_t;
+
 	/// <summary>
 	/// Represents a jump address which
 	/// is essentially an index to a instruction.

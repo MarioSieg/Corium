@@ -277,7 +277,7 @@ namespace Nominax::ByteCode
         /// </summary>
         static constexpr std::array<const std::string_view, Foundation::ToUnderlying(Discriminator::Count_)> DISCRIMINATOR_NAMES
         {
-            "UOffset",
+            "MemOffset",
             "Int",
             "Float",
             "Instruction",
@@ -338,6 +338,11 @@ namespace Nominax::ByteCode
         /// Reinterpret as field offset.
         /// </summary>
         FieldOffset FOffset;
+
+        /// <summary>
+        /// Unsigned memory offset.
+        /// </summary>
+        MemOffset UOffset;
 
         /// <summary>
 		/// Reinterpret as void pointer.
@@ -433,6 +438,13 @@ namespace Nominax::ByteCode
         /// <param name="value"></param>
         /// <returns></returns>
         explicit constexpr Signal(FieldOffset value);
+
+        /// <summary>
+        /// Construct from 64 bit unsigned offset.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        explicit constexpr Signal(MemOffset value);
 	};
 
 	constexpr Signal::Signal(const Foundation::Record value) : R64 { value } { }
@@ -447,6 +459,7 @@ namespace Nominax::ByteCode
 	constexpr Signal::Signal(const JumpAddress value) : JmpAddress { value } {}
     constexpr Signal::Signal(const TypeID value) : Type { value } { }
     constexpr Signal::Signal(const FieldOffset value) : FOffset { value } { }
+    constexpr Signal::Signal(const MemOffset value) : UOffset {value } { }
 
     /// <summary>
 	/// Raw representation of a signal as bytes.
