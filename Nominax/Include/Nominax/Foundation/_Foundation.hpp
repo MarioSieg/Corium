@@ -236,6 +236,7 @@
 #include "PanicAssertions.hpp"
 #include "Platform.hpp"
 #include "Print.hpp"
+#include "ProtocolController.hpp"
 #include "ProxyF64.hpp"
 #include "Record.hpp"
 #include "SystemInfoSnapshot.hpp"

@@ -431,7 +431,6 @@ TEST(Environment, Boot)
 	ASSERT_EQ(env.GetExecutionCount(), 0);
 	ASSERT_NE(env.GetKernel(), nullptr);
 	ASSERT_TRUE(env.IsOnline());
-	ASSERT_NE(env.GetBootTime().count(), 0);
 	ASSERT_NE(env.GetBootStamp().time_since_epoch().count(), 0);
 }
 

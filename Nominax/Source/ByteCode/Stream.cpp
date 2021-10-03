@@ -219,7 +219,7 @@ namespace Nominax::ByteCode
 		out.EncryptDecrypt();
 	}
 
-	auto Stream::Serialize(std::ofstream& out) const -> bool
+	auto Stream::Serialize(std::FILE& out) const -> bool
 	{
 		SerializationImageHeader header { };
 		constexpr std::uint64_t  codeSectionMarker { STREAM_IMAGE_CODE_SECTION_MARKER };
@@ -227,22 +227,22 @@ namespace Nominax::ByteCode
 
 		// header
 		this->GetSerializationImageHeader(header);
-		out.write(reinterpret_cast<const char*>(&header), sizeof(SerializationImageHeader));
+		std::fwrite(&header, sizeof(SerializationImageHeader), 1, &out);
 
 		// code section
-		out.write(reinterpret_cast<const char*>(&codeSectionMarker), sizeof(std::uint64_t));
-		out.write(reinterpret_cast<const char*>(std::data(this->CodeBuffer_)), std::size(this->CodeBuffer_) * sizeof(CodeStorageType::value_type));
+		std::fwrite(&codeSectionMarker, sizeof(std::uint64_t), 1, &out);
+		std::fwrite(std::data(this->CodeBuffer_), sizeof(CodeStorageType::value_type), std::size(this->CodeBuffer_), &out);
 
 		// discriminator section
-		out.write(reinterpret_cast<const char*>(&discriminatorSectionMarker), sizeof(std::uint64_t));
-		out.write(reinterpret_cast<const char*>(std::data(this->CodeDiscriminatorBuffer_)), std::size(this->CodeDiscriminatorBuffer_) * sizeof(DiscriminatorStorageType::value_type));
+		std::fwrite(&discriminatorSectionMarker, sizeof(std::uint64_t), 1, &out);
+		std::fwrite(std::data(this->CodeDiscriminatorBuffer_), sizeof(DiscriminatorStorageType::value_type), std::size(this->CodeDiscriminatorBuffer_), &out);
 		return true;
 	}
 
-	auto Stream::Deserialize(std::ifstream& in) -> bool
+	auto Stream::Deserialize(std::FILE& in) -> bool
 	{
 		SerializationImageHeader header { };
-		in.read(reinterpret_cast<char*>(&header), sizeof(SerializationImageHeader));
+		std::fread(&header, sizeof(SerializationImageHeader), 1, &in);
 		for (std::uint64_t i { 0 }; i < std::size(SerializationImageHeader::MAGIC_ID); ++i)
 		{
 			if (header.Magic[i] != SerializationImageHeader::MAGIC_ID[i])
@@ -261,7 +261,7 @@ namespace Nominax::ByteCode
 
 		// validate code section marker
 		std::uint64_t codeSectionMarker { };
-		in.read(reinterpret_cast<char*>(&codeSectionMarker), sizeof(std::uint64_t));
+		std::fread(&codeSectionMarker, sizeof(std::uint64_t), 1, &in);
 		if (codeSectionMarker != STREAM_IMAGE_CODE_SECTION_MARKER)
 		{
 			[[unlikely]]
@@ -271,11 +271,11 @@ namespace Nominax::ByteCode
 		// load code section:
 		this->CodeBuffer_.clear();
 		this->CodeBuffer_.resize(header.CodeImageSize);
-		in.read(reinterpret_cast<char*>(std::data(this->CodeBuffer_)), header.CodeImageSize * sizeof(CodeStorageType::value_type));
+		std::fread(std::data(this->CodeBuffer_), sizeof(CodeStorageType::value_type), header.CodeImageSize, &in);
 
 		// validate discriminator section marker
 		std::uint64_t discriminatorSectionMarker { };
-		in.read(reinterpret_cast<char*>(&discriminatorSectionMarker), sizeof(std::uint64_t));
+		std::fread(&discriminatorSectionMarker, sizeof(std::uint64_t), 1, &in);
 		if (discriminatorSectionMarker != STREAM_IMAGE_DISCRIMINATOR_SECTION_MARKER)
 		{
 			[[unlikely]]
@@ -285,7 +285,7 @@ namespace Nominax::ByteCode
 		// load discriminator section:
 		this->CodeDiscriminatorBuffer_.clear();
 		this->CodeDiscriminatorBuffer_.resize(header.CodeImageSize);
-		in.read(reinterpret_cast<char*>(std::data(this->CodeDiscriminatorBuffer_)), header.DiscriminatorImageSize * sizeof(CodeStorageType::value_type));
+		std::fread(std::data(this->CodeDiscriminatorBuffer_), sizeof(CodeStorageType::value_type), header.DiscriminatorImageSize, &in);
 
 		return true;
 	}

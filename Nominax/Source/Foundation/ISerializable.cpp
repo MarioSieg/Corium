@@ -207,68 +207,27 @@
 
 namespace Nominax::Foundation
 {
-	auto IAllocator::Allocate(void*& out, const std::uint64_t size) const -> void
+	auto ISerializable::SerializeToDisk(const std::string& file) const -> bool
 	{
-		out = SystemAllocator::AllocateChecked(size);
-	}
-
-	auto IAllocator::Reallocate(void*& out, const std::uint64_t size) const -> void
-	{
-		out = SystemAllocator::ReallocateChecked(out, size);
-	}
-
-	auto IAllocator::Deallocate(void*& out) const -> void
-	{
-		SystemAllocator::DeallocateChecked(out);
-		out = nullptr;
-	}
-
-	auto IAllocator::AllocateAligned(void*& out, const std::uint64_t size, const std::uint64_t alignment) const -> void
-	{
-		out = SystemAllocator::AllocateAlignedChecked(size, alignment);
-	}
-
-	auto IAllocator::ReallocateAligned(void*& out, const std::uint64_t size, const std::uint64_t alignment) const -> void
-	{
-		out = SystemAllocator::ReallocateAlignedChecked(out, size, alignment);
-	}
-
-	auto IAllocator::DeallocateAligned(void*& out) const -> void
-	{
-		SystemAllocator::DeallocateAlignedChecked(out);
-		out = nullptr;
-	}
-
-	auto IAllocator::Valloc(void*& out, const std::uint64_t size) const -> void
-	{
-		this->Allocate(out, size);
-	}
-
-	auto IAllocator::Vdealloc(void*& out) const -> void
-	{
-		this->Deallocate(out);
-	}
-
-
-	auto ISerializable::SerializeToDisk(const std::filesystem::path& file) const -> bool
-	{
-		std::ofstream stream { file };
-		if (!stream)
+		std::FILE* const handle { std::fopen(file.c_str(), "w")};
+		if (!handle)
 		{
-			[[unlikely]]
-            return false;
+			return false;
 		}
-		return this->Serialize(stream);
+		const bool status { this->Serialize(*handle) };
+		std::fclose(handle);
+		return status;
 	}
 
-	auto ISerializable::DeserializeFromDisk(const std::filesystem::path& file) -> bool
+	auto ISerializable::DeserializeFromDisk(const std::string& file) -> bool
 	{
-		std::ifstream stream { file };
-		if (!stream)
+		std::FILE* const handle { std::fopen(file.c_str(), "r") };
+		if (!handle)
 		{
-			[[unlikely]]
-            return false;
+			return false;
 		}
-		return this->Deserialize(stream);
+		const bool status{ this->Deserialize(*handle) };
+		std::fclose(handle);
+		return status;
 	}
 }

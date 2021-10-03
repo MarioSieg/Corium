@@ -1,0 +1,5 @@
+push %i64 #10
+push %i64 #5
+iadd
+syscall %sys #print_int
+pop
