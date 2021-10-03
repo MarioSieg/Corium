@@ -351,6 +351,13 @@
 #	define NOX_COM_NAME "MinGW"
 #endif
 
+#if NOX_ARCH_X86_64
+#   define NOX_ARCH_PROXY ::Nominax::Assembler::X86_64
+#elif NOX_ARCH_AARCH64
+#   define NOX_ARCH_PROXY ::Nominax::Assembler::AArch64
+#endif
+
+
 /// <summary>
 /// Use architecture specific optimizations such as assembly or intrinsics?
 /// </summary>

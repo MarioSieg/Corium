@@ -270,11 +270,10 @@ namespace Nominax::ByteCode
     /// <summary>
     /// Index of a type descriptor.
     /// </summary>
-    using TypeID = std::uint64_t;
+    enum class alignas(alignof(std::uint64_t)) TypeID : std::uint64_t;
 
     /// <summary>
     /// Index to a structure field.
     /// </summary>
-    using FieldOffset = std::uint64_t;
-
+    enum class alignas(alignof(std::uint64_t)) FieldOffset : std::uint64_t;
 }

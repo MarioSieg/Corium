@@ -282,7 +282,7 @@ namespace Nominax::ByteCode
         static constexpr std::array<const InstructionOperandTable, Foundation::ToUnderlying(Instruction::Count_)> OPERAND_TYPE_TABLE
         {
             /* int      */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::Int) },
-            /* syscall  */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::SysCallID) },
+            /* syscall  */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::SysCall) },
             /* intrin   */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::UserIntrinsicInvocationID) },
             /* call     */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::UOffset) },
             /* ret      */  InstructionOperandTable { },

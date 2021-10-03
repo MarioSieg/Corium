@@ -205,6 +205,7 @@
 
 #pragma once
 
+#include "CPUFeatureBits.hpp"
 #include "Emitter.hpp"
 #include "Encoder.hpp"
 #include "ISAExtension.hpp"

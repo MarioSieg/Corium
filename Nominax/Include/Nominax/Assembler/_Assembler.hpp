@@ -209,15 +209,6 @@
 
 #if NOX_ARCH_X86_64
 #   include "X86_64/_X86_64.hpp"
-#   define NOX_ARCH_PROXY X86_64
 #elif NOX_ARCH_AARCH64
 #   include "AArch64/_AArch64.hpp"
-#   define NOX_ARCH_PROXY AArch64
 #endif
-
-namespace Nominax::Assembler
-{
-    using RegisterCache = NOX_ARCH_PROXY::RegisterCache;
-}
-
-#undef NOX_ARCH_PROXY

@@ -242,7 +242,7 @@ namespace Nominax::ByteCode
 		}
 		else if constexpr (std::is_same_v<SysCall, T>)
 		{
-			return { Signal::Discriminator::SysCallID };
+			return { Signal::Discriminator::SysCall };
 		}
 		else if constexpr (std::is_same_v<UserIntrinsicInvocationID, T>)
 		{

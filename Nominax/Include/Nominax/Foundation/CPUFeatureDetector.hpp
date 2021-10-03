@@ -211,21 +211,21 @@
 namespace Nominax::Foundation
 {
 	/// <summary>
-		/// Detects architecture dependent cpu features.
-		/// </summary>
+    /// Detects architecture dependent cpu features.
+    /// </summary>
 	class CPUFeatureDetector final : public IDisplay
 	{
 		/// <summary>
 		/// Architecture dependent bits.
 		/// </summary>
-		CpuFeatureMask FeatureBits_;
+		CPUFeatureMask FeatureBits_;
 
 		/// <summary>
 		/// Get or set support for special feature.
 		/// </summary>
 		/// <param name="bit"></param>
 		/// <returns></returns>
-		auto operator [](CPUFeatureBits bit) -> bool&;
+		auto operator [](CPUFeature bit) -> bool&;
 
 	public:
 		/// <summary>
@@ -237,7 +237,7 @@ namespace Nominax::Foundation
 		/// <summary>
 		/// No copy.
 		/// </summary>
-		CPUFeatureDetector(const CPUFeatureDetector&) = delete;
+		CPUFeatureDetector(const CPUFeatureDetector&) = default;
 
 		/// <summary>
 		/// No move.
@@ -247,12 +247,12 @@ namespace Nominax::Foundation
 		/// <summary>
 		/// No copy.
 		/// </summary>
-		auto operator =(const CPUFeatureDetector&) -> CPUFeatureDetector& = delete;
+		auto operator =(const CPUFeatureDetector&) -> CPUFeatureDetector& = default;
 
 		/// <summary>
 		/// No move.
 		/// </summary>
-		auto operator =(CPUFeatureDetector&&) -> CPUFeatureDetector& = delete;
+		auto operator =(CPUFeatureDetector&&) -> CPUFeatureDetector& = default;
 
 		/// <summary>
 		/// Destructor.
@@ -263,20 +263,21 @@ namespace Nominax::Foundation
 		/// Access the architecture dependent feature bits directly.
 		/// </summary>
 		[[nodiscard]]
-		auto operator ->() const -> const CpuFeatureMask*;
+		auto operator ->() const -> const CPUFeatureMask*;
 
 		/// <summary>
 		/// Access the architecture dependent feature bits directly.
 		/// </summary>
 		[[nodiscard]]
-		auto operator *() const -> const CpuFeatureMask&;
+		auto operator *() const -> const CPUFeatureMask&;
 
 		/// <summary>
 		/// Check support for special feature.
 		/// </summary>
 		/// <param name="bit"></param>
 		/// <returns></returns>
-		auto operator [](CPUFeatureBits bit) const -> bool;
+        [[nodiscard]]
+        auto operator [](CPUFeature bit) const -> bool;
 
         /// <summary>
         /// Prints this object into the file stream.
@@ -284,22 +285,22 @@ namespace Nominax::Foundation
         virtual auto Display(std::FILE& stream) const -> void override;
 	};
 
-	inline auto CPUFeatureDetector::operator[](const CPUFeatureBits bit) -> bool&
+	inline auto CPUFeatureDetector::operator[](const CPUFeature bit) -> bool&
 	{
 		return this->FeatureBits_[ToUnderlying(bit)];
 	}
 
-	inline auto CPUFeatureDetector::operator[](const CPUFeatureBits bit) const -> bool
+	inline auto CPUFeatureDetector::operator[](const CPUFeature bit) const -> bool
 	{
 		return this->FeatureBits_[ToUnderlying(bit)];
 	}
 
-	inline auto CPUFeatureDetector::operator*() const -> const CpuFeatureMask&
+	inline auto CPUFeatureDetector::operator*() const -> const CPUFeatureMask&
 	{
 		return this->FeatureBits_;
 	}
 
-	inline auto CPUFeatureDetector::operator->() const -> const CpuFeatureMask*
+	inline auto CPUFeatureDetector::operator->() const -> const CPUFeatureMask*
 	{
 		return &this->FeatureBits_;
 	}

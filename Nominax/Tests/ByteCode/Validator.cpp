@@ -222,7 +222,7 @@ struct DynamicSignal final
 			case 0:
 				return Signal::Discriminator::Instruction;
 			case 1:
-				return Signal::Discriminator::SysCallID;
+				return Signal::Discriminator::SysCall;
 			case 2:
 				return Signal::Discriminator::UserIntrinsicInvocationID;
 			case 3:
@@ -250,12 +250,12 @@ inline auto ValidateInstructionArguments(const Instruction instr, std::vector<Dy
 TEST(ValidatorAlgorithms, ValidateJumpAddressValid)
 {
 	Stream bucket { };
-	bucket << Instruction::DUPL;
-	bucket << 2.2;
-	bucket << static_cast<std::int64_t>(-2);
-	bucket << static_cast<std::uint64_t>(0xFF);
-	bucket << Instruction::FADD;
-	bucket << static_cast<std::int64_t>(3);
+	bucket.Emit(Instruction::DUPL);
+	bucket.Emit(2.2);
+	bucket.Emit(static_cast<std::int64_t>(-2));
+	bucket.Emit(static_cast<std::uint64_t>(0xFF));
+	bucket.Emit(Instruction::FADD);
+	bucket.Emit(static_cast<std::int64_t>(3));
 
 	ASSERT_TRUE(ValidateJumpAddress(bucket, JumpAddress{ 0 }));
 	ASSERT_FALSE(ValidateJumpAddress(bucket, JumpAddress{ 1 }));
@@ -394,16 +394,16 @@ TEST(ValidatorAlgorithms, ValidateInstructionArguments_Push)
 TEST(ValidatorAlgorithms, ComputeInstructionArgumentOffset)
 {
 	Stream code { };
-	code << Instruction::PUSH;
-	code << static_cast<std::int64_t>(4);
-	code << Instruction::PUSH;
-	code << static_cast<std::int64_t>(2);
-	code << Instruction::STO;
-	code << static_cast<std::uint64_t>(1);
-	code << -0.5;
-	code << Instruction::IADD;
-	code << Instruction::INT;
-	code << static_cast<std::int64_t>(0);
+	code.Emit(Instruction::PUSH);
+	code.Emit(static_cast<std::int64_t>(4));
+	code.Emit(Instruction::PUSH);
+	code.Emit(static_cast<std::int64_t>(2));
+	code.Emit(Instruction::STO);
+	code.Emit(static_cast<std::uint64_t>(1));
+	code.Emit(-0.5);
+	code.Emit(Instruction::IADD);
+	code.Emit(Instruction::INT);
+	code.Emit(static_cast<std::int64_t>(0));
 
 	constexpr std::array cache {0, 2, 4, 7, 8};
 
@@ -417,16 +417,16 @@ TEST(ValidatorAlgorithms, ComputeInstructionArgumentOffset)
 TEST(ValidatorAlgorithms, ExtractInstructionArguments)
 {
 	Stream code { };
-	code << Instruction::PUSH;
-	code << static_cast<std::int64_t>(4);
-	code << Instruction::PUSH;
-	code << static_cast<std::int64_t>(2);
-	code << Instruction::STO;
-	code << static_cast<std::uint64_t>(1);
-	code << -0.5;
-	code << Instruction::IADD;
-	code << Instruction::INT;
-	code << static_cast<std::int64_t>(0);
+	code.Emit(Instruction::PUSH);
+	code.Emit(static_cast<std::int64_t>(4));
+	code.Emit(Instruction::PUSH);
+	code.Emit(static_cast<std::int64_t>(2));
+	code.Emit(Instruction::STO);
+	code.Emit(static_cast<std::uint64_t>(1));
+	code.Emit(-0.5);
+	code.Emit(Instruction::IADD);
+	code.Emit(Instruction::INT);
+	code.Emit(static_cast<std::int64_t>(0));
 
 	constexpr std::array cache {0, 2, 4, 7, 8};
 
@@ -472,18 +472,18 @@ TEST(ValidatorAlgorithms, ValidateValid)
 	Stream code { };
 
 	code.Prologue();
-	code << Instruction::PUSH;
-	code << static_cast<std::int64_t>(4);
-	code << Instruction::PUSH;
-	code << static_cast<std::int64_t>(2);
-	code << Instruction::STO;
-	code << static_cast<std::uint64_t>(1);
-	code << -0.5;
-	code << Instruction::JMP;
-	code << JumpAddress {0};
-	code << Instruction::IADD;
-	code << Instruction::INT;
-	code << static_cast<std::int64_t>(0);
+	code.Emit(Instruction::PUSH);
+	code.Emit(static_cast<std::int64_t>(4));
+	code.Emit(Instruction::PUSH);
+	code.Emit(static_cast<std::int64_t>(2));
+	code.Emit(Instruction::STO);
+	code.Emit(static_cast<std::uint64_t>(1));
+	code.Emit(-0.5);
+	code.Emit(Instruction::JMP);
+	code.Emit(JumpAddress {0});
+	code.Emit(Instruction::IADD);
+	code.Emit(Instruction::INT);
+	code.Emit(static_cast<std::int64_t>(0));
 	code.Epilogue();
 	std::uint32_t error;
 	ASSERT_EQ(ValidateFullPass(code, {}, &error), ValidationResultCode::Ok);
@@ -494,19 +494,19 @@ TEST(ValidatorAlgorithms, ValidateInvalidTooManyArgs)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::PUSH;
-	code << static_cast<std::int64_t>(2);
-	code << Instruction::PUSH;
-	code << static_cast<std::int64_t>(4);
-	code << static_cast<std::int64_t>(4); // error
-	code << Instruction::PUSH;
-	code << static_cast<std::int64_t>(2);
-	code << Instruction::STO;
-	code << static_cast<std::uint64_t>(1);
-	code << -0.5;
-	code << Instruction::IADD;
-	code << Instruction::INT;
-	code << static_cast<std::int64_t>(0);
+	code.Emit(Instruction::PUSH);
+	code.Emit(static_cast<std::int64_t>(2));
+	code.Emit(Instruction::PUSH);
+	code.Emit(static_cast<std::int64_t>(4));
+	code.Emit(static_cast<std::int64_t>(4)); // error
+	code.Emit(Instruction::PUSH);
+	code.Emit(static_cast<std::int64_t>(2));
+	code.Emit(Instruction::STO);
+	code.Emit(static_cast<std::uint64_t>(1));
+	code.Emit(-0.5);
+	code.Emit(Instruction::IADD);
+	code.Emit(Instruction::INT);
+	code.Emit(static_cast<std::int64_t>(0));
 	code.Epilogue();
 	std::uint32_t error;
 	ASSERT_EQ(ValidateFullPass(code, {}, &error), ValidationResultCode::TooManyArgumentsForInstruction);
@@ -517,15 +517,15 @@ TEST(ValidatorAlgorithms, ValidateInvalidNotEnoughArgs)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::PUSH;
-	code << static_cast<std::int64_t>(2);
-	code << Instruction::PUSH;
-	code << Instruction::STO;
-	code << static_cast<std::uint64_t>(1);
-	code << -0.5;
-	code << Instruction::IADD;
-	code << Instruction::INT;
-	code << static_cast<std::int64_t>(0);
+	code.Emit(Instruction::PUSH);
+	code.Emit(static_cast<std::int64_t>(2));
+	code.Emit(Instruction::PUSH);
+	code.Emit(Instruction::STO);
+	code.Emit(static_cast<std::uint64_t>(1));
+	code.Emit(-0.5);
+	code.Emit(Instruction::IADD);
+	code.Emit(Instruction::INT);
+	code.Emit(static_cast<std::int64_t>(0));
 	code.Epilogue();
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::NotEnoughArgumentsForInstruction);
 }
@@ -534,14 +534,14 @@ TEST(ValidatorAlgorithms, ValidateInvalidTypeMismatch)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::PUSH;
-	code << 2.0;
-	code << Instruction::STO;
-	code << 2.0;
-	code << -0.5;
-	code << Instruction::IADD;
-	code << Instruction::INT;
-	code << static_cast<std::int64_t>(0);
+	code.Emit(Instruction::PUSH);
+	code.Emit(2.0);
+	code.Emit(Instruction::STO);
+	code.Emit(2.0);
+	code.Emit(-0.5);
+	code.Emit(Instruction::IADD);
+	code.Emit(Instruction::INT);
+	code.Emit(static_cast<std::int64_t>(0));
 	code.Epilogue();
 	std::uint32_t error;
 	ASSERT_EQ(ValidateFullPass(code, {}, &error), ValidationResultCode::ArgumentTypeMismatch);
@@ -552,9 +552,9 @@ TEST(ValidatorAlgorithms, ValidateLastValid)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::NOP;
-	code << Instruction::JMP;
-	code << JumpAddress {0};
+	code.Emit(Instruction::NOP);
+	code.Emit(Instruction::JMP);
+	code.Emit(JumpAddress {0});
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::Ok);
@@ -564,8 +564,8 @@ TEST(ValidatorAlgorithms, ValidateLastInvalidMissingArgs)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::NOP;
-	code << Instruction::INT;
+	code.Emit(Instruction::NOP);
+	code.Emit(Instruction::INT);
 	code.Epilogue();
 	std::uint32_t error;
 	ASSERT_EQ(ValidateFullPass(code, {}, &error), ValidationResultCode::NotEnoughArgumentsForInstruction);
@@ -576,8 +576,10 @@ TEST(ValidatorAlgorithms, ValidateLastInvalidTooManyArgs)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::NOP;
-	code << Instruction::INT << 0 << 0;
+	code.Emit(Instruction::NOP);
+	code.Emit(Instruction::INT);
+    code.Emit(UINT64_C(0));
+    code.Emit(UINT64_C(0));
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::TooManyArgumentsForInstruction);
@@ -587,8 +589,9 @@ TEST(ValidatorAlgorithms, ValidateLastInvalidTypeMismatch)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::NOP;
-	code << Instruction::INT << 0.2;
+	code.Emit(Instruction::NOP);
+	code.Emit(Instruction::INT);
+    code.Emit(0.2);
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::ArgumentTypeMismatch);
@@ -598,8 +601,8 @@ TEST(ValidatorAlgorithms, ValidateLastPushInvalidMissingArgs)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::NOP;
-	code << Instruction::PUSH;
+	code.Emit(Instruction::NOP);
+	code.Emit(Instruction::PUSH);
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::NotEnoughArgumentsForInstruction);
@@ -609,8 +612,10 @@ TEST(ValidatorAlgorithms, ValidateLastPushInvalidTooManyArgs)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::NOP;
-	code << Instruction::PUSH << 0 << 0;
+	code.Emit(Instruction::NOP);
+	code.Emit(Instruction::PUSH);
+    code.Emit(UINT64_C(0));
+    code.Emit(UINT64_C(0));
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::TooManyArgumentsForInstruction);
@@ -620,8 +625,9 @@ TEST(ValidatorAlgorithms, ValidateValidLastPushInt)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::NOP;
-	code << Instruction::PUSH << 0;
+    code.Emit(Instruction::NOP);
+    code.Emit(Instruction::PUSH);
+    code.Emit(INT64_C(0));
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::Ok);
@@ -631,8 +637,9 @@ TEST(ValidatorAlgorithms, ValidateValidLastPushUInt)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::NOP;
-	code << Instruction::PUSH << static_cast<std::uint64_t>(0);
+	code.Emit(Instruction::NOP);
+	code.Emit(Instruction::PUSH);
+    code.Emit(static_cast<std::uint64_t>(0));
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::Ok);
@@ -642,8 +649,9 @@ TEST(ValidatorAlgorithms, ValidateValidLastPushFloat)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::NOP;
-	code << Instruction::PUSH << 0.0;
+	code.Emit(Instruction::NOP);
+	code.Emit(Instruction::PUSH);
+    code.Emit(0.0);
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::Ok);
@@ -653,8 +661,10 @@ TEST(ValidatorAlgorithms, ValidateValidLastSto)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::NOP;
-	code << Instruction::STO << static_cast<std::uint64_t>(0) << 2.5;
+	code.Emit(Instruction::NOP);
+	code.Emit(Instruction::STO);
+    code.Emit(static_cast<std::uint64_t>(0));
+    code.Emit(2.5);
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::Ok);
@@ -664,8 +674,9 @@ TEST(ValidatorAlgorithms, ValidateInvalidLastStoNotEnoughArgs)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::NOP;
-	code << Instruction::STO << static_cast<std::uint64_t>(0);
+	code.Emit(Instruction::NOP);
+	code.Emit(Instruction::STO);
+    code.Emit(static_cast<std::uint64_t>(0));
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::NotEnoughArgumentsForInstruction);
@@ -675,8 +686,11 @@ TEST(ValidatorAlgorithms, ValidateInvalidLastStoTooManyArgs)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::NOP;
-	code << Instruction::STO << static_cast<std::uint64_t>(0) << 2.5 << 3;
+	code.Emit(Instruction::NOP);
+	code.Emit(Instruction::STO);
+    code.Emit(static_cast<std::uint64_t>(0));
+    code.Emit(2.5);
+    code.Emit(INT64_C(3));
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::TooManyArgumentsForInstruction);
@@ -686,8 +700,10 @@ TEST(ValidatorAlgorithms, ValidateInvalidLastMovTypeMismatch)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::NOP;
-	code << Instruction::MOV << static_cast<std::uint64_t>(0) << 2.5;
+	code.Emit(Instruction::NOP);
+	code.Emit(Instruction::MOV);
+    code.Emit(static_cast<std::uint64_t>(0));
+    code.Emit(2.5);
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::ArgumentTypeMismatch);
@@ -703,8 +719,10 @@ TEST(ValidatorAlgorithms, ValidateInvalidEmpty)
 TEST(ValidatorAlgorithms, ValidateInvalidMissingPrologue)
 {
 	Stream code { };
-	code << Instruction::FADD;
-	code << Instruction::STO << static_cast<std::uint64_t>(0) << 2.5;
+	code.Emit(Instruction::FADD);
+	code.Emit(Instruction::STO);
+    code.Emit(static_cast<std::uint64_t>(0));
+    code.Emit(2.5);
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::MissingPrologueCode);
@@ -714,8 +732,10 @@ TEST(ValidatorAlgorithms, ValidateInvalidMissingEpilogue)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::NOP;
-	code << Instruction::STO << static_cast<std::uint64_t>(0) << 2.5;
+	code.Emit(Instruction::NOP);
+	code.Emit(Instruction::STO);
+    code.Emit(static_cast<std::uint64_t>(0));
+    code.Emit(2.5);
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::MissingEpilogueCode);
 }
@@ -724,8 +744,8 @@ TEST(ValidatorAlgorithms, ValidateInvalidMissingEpilogue2)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::NOP;
-	code << Instruction::INT;
+	code.Emit(Instruction::NOP);
+	code.Emit(Instruction::INT);
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::MissingEpilogueCode);
 }
@@ -735,17 +755,17 @@ TEST(ValidatorAlgorithms, ValidateValidPass0JumpAddress)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::PUSH;
-	code << static_cast<std::int64_t>(4);
-	code << Instruction::JMP;
-	code << JumpAddress {0};
-	code << Instruction::JMP;
-	code << JumpAddress {7};
-	code << Instruction::JMP;
-	code << JumpAddress {10};
-	code << Instruction::IADD;
-	code << Instruction::INT;
-	code << static_cast<std::int64_t>(0);
+	code.Emit(Instruction::PUSH);
+	code.Emit(static_cast<std::int64_t>(4));
+	code.Emit(Instruction::JMP);
+	code.Emit(JumpAddress {0});
+	code.Emit(Instruction::JMP);
+	code.Emit(JumpAddress {7});
+	code.Emit(Instruction::JMP);
+	code.Emit(JumpAddress {10});
+	code.Emit(Instruction::IADD);
+	code.Emit(Instruction::INT);
+	code.Emit(static_cast<std::int64_t>(0));
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::Ok);
@@ -755,17 +775,17 @@ TEST(ValidatorAlgorithms, ValidateInvalidPass0JumpAddressOutOfRange)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::PUSH;
-	code << static_cast<std::int64_t>(4);
-	code << Instruction::JMP;
-	code << JumpAddress {0};
-	code << Instruction::JMP;
-	code << JumpAddress {7};
-	code << Instruction::JMP;
-	code << JumpAddress {100};
-	code << Instruction::IADD;
-	code << Instruction::INT;
-	code << static_cast<std::int64_t>(0);
+	code.Emit(Instruction::PUSH);
+	code.Emit(static_cast<std::int64_t>(4));
+	code.Emit(Instruction::JMP);
+	code.Emit(JumpAddress {0});
+	code.Emit(Instruction::JMP);
+	code.Emit(JumpAddress {7});
+	code.Emit(Instruction::JMP);
+	code.Emit(JumpAddress {100});
+	code.Emit(Instruction::IADD);
+	code.Emit(Instruction::INT);
+	code.Emit(static_cast<std::int64_t>(0));
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::InvalidJumpAddress);
@@ -775,16 +795,16 @@ TEST(ValidatorAlgorithms, ValidateInvalidPass0JumpAddressNoInstruction)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::PUSH;
-	code << static_cast<std::int64_t>(4);
-	code << Instruction::JMP;
-	code << JumpAddress {Stream::PrologueCode().size() + 1};
-	code << Instruction::STO;
-	code << static_cast<std::uint64_t>(1);
-	code << -0.5;
-	code << Instruction::IADD;
-	code << Instruction::INT;
-	code << static_cast<std::int64_t>(0);
+	code.Emit(Instruction::PUSH);
+	code.Emit(static_cast<std::int64_t>(4));
+	code.Emit(Instruction::JMP);
+	code.Emit(JumpAddress {Stream::PrologueCode().size() + 1});
+	code.Emit(Instruction::STO);
+	code.Emit(static_cast<std::uint64_t>(1));
+	code.Emit(-0.5);
+	code.Emit(Instruction::IADD);
+	code.Emit(Instruction::INT);
+	code.Emit(static_cast<std::int64_t>(0));
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::InvalidJumpAddress);
@@ -794,7 +814,8 @@ TEST(ValidatorAlgorithms, ValidateInvalidPass0LastJumpAddressOutOfRange)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::JMP << JumpAddress {100};
+	code.Emit(Instruction::JMP);
+    code.Emit(JumpAddress {100});
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::InvalidJumpAddress);
@@ -804,7 +825,8 @@ TEST(ValidatorAlgorithms, ValidateInvalidPass0LastJumpAddressWrongType)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::JMP << static_cast<std::uint64_t>(2);
+	code.Emit(Instruction::JMP);
+    code.Emit(static_cast<std::uint64_t>(2));
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::ArgumentTypeMismatch);
@@ -814,7 +836,8 @@ TEST(ValidatorAlgorithms, ValidateInvalidPass0LastJumpAddressNoInstruction)
 {
 	Stream code { };
 	code.Prologue();
-	code << Instruction::JMP << JumpAddress {Stream::PrologueCode().size() + 1};
+	code.Emit(Instruction::JMP);
+    code.Emit(JumpAddress {Stream::PrologueCode().size() + 1});
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::InvalidJumpAddress);
@@ -831,9 +854,12 @@ TEST(ValidatorAlgorithms, ValidateUserIntrinsicValid)
 
 	Stream code { };
 	code.Prologue();
-	code << Instruction::INTRIN << UserIntrinsicInvocationID {0};
-	code << Instruction::INTRIN << UserIntrinsicInvocationID {1};
-	code << Instruction::INTRIN << UserIntrinsicInvocationID {2};
+    code.Emit(Instruction::INTRIN);
+    code.Emit(UserIntrinsicInvocationID {0});
+    code.Emit(Instruction::INTRIN);
+    code.Emit(UserIntrinsicInvocationID {1});
+    code.Emit(Instruction::INTRIN);
+    code.Emit(UserIntrinsicInvocationID {2});
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code, routines), ValidationResultCode::Ok);
@@ -850,9 +876,12 @@ TEST(ValidatorAlgorithms, ValidateUserIntrinsicInvalidNull)
 
 	Stream code { };
 	code.Prologue();
-	code << Instruction::INTRIN << UserIntrinsicInvocationID {0};
-	code << Instruction::INTRIN << UserIntrinsicInvocationID {1};
-	code << Instruction::INTRIN << UserIntrinsicInvocationID {2};
+	code.Emit(Instruction::INTRIN);
+    code.Emit(UserIntrinsicInvocationID {0});
+	code.Emit(Instruction::INTRIN);
+    code.Emit(UserIntrinsicInvocationID {1});
+	code.Emit(Instruction::INTRIN);
+    code.Emit(UserIntrinsicInvocationID {2});
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code, routines), ValidationResultCode::InvalidUserIntrinsicCall);
@@ -869,9 +898,12 @@ TEST(ValidatorAlgorithms, ValidateUserIntrinsicInvalidOutOfRange)
 
 	Stream code { };
 	code.Prologue();
-	code << Instruction::INTRIN << UserIntrinsicInvocationID {0};
-	code << Instruction::INTRIN << UserIntrinsicInvocationID {1};
-	code << Instruction::INTRIN << UserIntrinsicInvocationID {3};
+	code.Emit(Instruction::INTRIN);
+    code.Emit(UserIntrinsicInvocationID {0});
+	code.Emit(Instruction::INTRIN);
+    code.Emit(UserIntrinsicInvocationID {1});
+	code.Emit(Instruction::INTRIN);
+    code.Emit(UserIntrinsicInvocationID {3});
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code, routines), ValidationResultCode::InvalidUserIntrinsicCall);
@@ -883,9 +915,12 @@ TEST(ValidatorAlgorithms, ValidateUserIntrinsicInvalidOutOfRange2)
 
 	Stream code { };
 	code.Prologue();
-	code << Instruction::INTRIN << UserIntrinsicInvocationID {0};
-	code << Instruction::INTRIN << UserIntrinsicInvocationID {1};
-	code << Instruction::INTRIN << UserIntrinsicInvocationID {3};
+	code.Emit(Instruction::INTRIN);
+    code.Emit(UserIntrinsicInvocationID {0});
+	code.Emit(Instruction::INTRIN);
+    code.Emit(UserIntrinsicInvocationID {1});
+	code.Emit(Instruction::INTRIN);
+    code.Emit(UserIntrinsicInvocationID {3});
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code, routines), ValidationResultCode::InvalidUserIntrinsicCall);
@@ -901,17 +936,18 @@ TEST(ValidatorAlgorithms, FullValidation1Million)
 
 	for (std::uint64_t i {0}; i < count; ++i)
 	{
-		stream << Instruction::JMP;
-		stream << JumpAddress {0};
-		stream << Instruction::STO;
-		stream << static_cast<std::uint64_t>(1);
-		stream << -0.5;
+		stream.Emit(Instruction::JMP);
+		stream.Emit(JumpAddress {0});
+		stream.Emit(Instruction::STO);
+		stream.Emit(static_cast<std::uint64_t>(1));
+		stream.Emit(-0.5);
 	}
 
 	stream.Epilogue();
 
 	auto result {ValidationResultCode::Ok};
-	auto exec {
+	const auto exec
+    {
 		[&result, &stream]()
 		{
 			result = ValidateFullPass(stream);

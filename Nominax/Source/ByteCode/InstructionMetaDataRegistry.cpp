@@ -231,7 +231,7 @@ namespace Nominax::ByteCode
                 result.reserve(32);
                 for (std::underlying_type_t<Signal::Discriminator> j { }; j < Foundation::ToUnderlying(Signal::Discriminator::Count_); ++j)
                 {
-                    if (flags & ComputeDiscBit(static_cast<Signal::Discriminator>(j + 1)))
+                    if (flags & ComputeDiscBit(static_cast<Signal::Discriminator>(j)))
                     {
                         result.append(Signal::DISCRIMINATOR_MNEMONICS[j]);
                         result.push_back(' ');

@@ -211,6 +211,18 @@ constexpr std::string_view CONFIG_FILE { "Nominax.ini" };
 
 auto main(const int argc, const char* const* const argv) -> int
 {
+    Stream stream { };
+    {
+        ScopedInt var { stream, 2 };
+        var *= 2;
+        var += 1;
+        var /= 1;
+    }
+    stream << Instruction::JMP << JumpAddress(3);
+    stream << Instruction::DEREFR << FieldOffset{5};
+    stream.SysCall(SysCall::FLUSH);
+    stream.DisplayToConsole();
+
     CLIParser parser { argc, argv };
     CLIOptions options { };
     const bool shouldBoot { options.ParseAndProcess(parser) };

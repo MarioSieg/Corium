@@ -244,7 +244,7 @@ namespace Nominax::ByteCode
 			/// <summary>
 			/// System call id.
 			/// </summary>
-			SysCallID,
+			SysCall,
 
 			/// <summary>
 			/// User call id.
@@ -419,20 +419,36 @@ namespace Nominax::ByteCode
 		/// <param name="value"></param>
 		/// <returns></returns>
 		explicit constexpr Signal(JumpAddress value);
+
+        /// <summary>
+        /// Construct from 64 bit type id.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        explicit constexpr Signal(TypeID value);
+
+        /// <summary>
+        /// Construct from 64 bit field offset.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        explicit constexpr Signal(FieldOffset value);
 	};
 
-	constexpr Signal::Signal(const Foundation::Record value) : R64 { value } {}
-	constexpr Signal::Signal(const Instruction value) : Instr { value } {}
-	constexpr Signal::Signal(const SysCall value) : SysCallID {value } {}
-	constexpr Signal::Signal(const UserIntrinsicInvocationID value) : UserIntrinID { value } {}
-	constexpr Signal::Signal(void* const value) : Ptr { value } {}
-	constexpr Signal::Signal(const std::int64_t value) : R64 { value } {}
-	constexpr Signal::Signal(const std::uint64_t value) : R64 { value } {}
-	constexpr Signal::Signal(const double value) : R64 { value } {}
-	constexpr Signal::Signal(const char32_t value) : R64 { value } {}
+	constexpr Signal::Signal(const Foundation::Record value) : R64 { value } { }
+	constexpr Signal::Signal(const Instruction value) : Instr { value } { }
+	constexpr Signal::Signal(const SysCall value) : SysCallID {value } { }
+	constexpr Signal::Signal(const UserIntrinsicInvocationID value) : UserIntrinID { value } { }
+	constexpr Signal::Signal(void* const value) : Ptr { value } { }
+	constexpr Signal::Signal(const std::int64_t value) : R64 { value } { }
+	constexpr Signal::Signal(const std::uint64_t value) : R64 { value } { }
+	constexpr Signal::Signal(const double value) : R64 { value } { }
+	constexpr Signal::Signal(const char32_t value) : R64 { value } { }
 	constexpr Signal::Signal(const JumpAddress value) : JmpAddress { value } {}
+    constexpr Signal::Signal(const TypeID value) : Type { value } { }
+    constexpr Signal::Signal(const FieldOffset value) : FOffset { value } { }
 
-	/// <summary>
+    /// <summary>
 	/// Raw representation of a signal as bytes.
 	/// </summary>
 	using SignalByteBuffer = std::array<std::uint8_t, sizeof(Signal)>;

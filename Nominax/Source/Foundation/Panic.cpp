@@ -210,7 +210,7 @@
 
 namespace Nominax::Foundation
 {
-    using ::Nominax::Assembler::RegisterCache;
+    using NOX_ARCH_PROXY::RegisterCache;
 
     static auto PrintPanicMessage(std::string_view message, const Foundation::SourceLocation& srcLoc) -> void;
 

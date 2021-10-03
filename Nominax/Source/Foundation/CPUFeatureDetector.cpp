@@ -213,13 +213,13 @@ namespace Nominax::Foundation
 		#if NOX_ARCH_X86_64
         
             using namespace Assembler::X86_64::Routines;
-            using CFB = CPUFeatureBits;
+            using CFB = CPUFeature;
 
             // check if cpuid is supported on system
             NOX_PAS(IsCPUIDSupported(), "CPUID instruction is not supported on system!");
 
             // extract gathered CPU feature bits:
-            CpuFeatureMaskBuffer buffer { };
+            CPUFeatureMaskBuffer buffer { };
             std::array<std::uint64_t, 3> merged { };
             const std::uint32_t result { CPUID(&merged[0], &merged[1], &merged[2]) };
             std::uint8_t* const needle { std::data(buffer) };
@@ -276,17 +276,19 @@ namespace Nominax::Foundation
     auto CPUFeatureDetector::Display(std::FILE& stream) const -> void
     {
         Print(stream, "CPU Features:");
-        for (std::uint64_t i { 0 }, j { 0 }; i < std::size(this->FeatureBits_); ++i)
-        {
-            if (!std::empty(CPU_FEATURE_BIT_NAMES[i]) && this->FeatureBits_[i])
+        #if NOX_ARCH_X86_64
+            for (std::uint64_t i { 0 }, j { 0 }; i < std::size(this->FeatureBits_); ++i)
             {
-                if (j++ % 8 == 0)
+                if (!std::empty(Assembler::X86_64::CPU_FEATURE_BIT_NAMES[i]) && this->FeatureBits_[i])
                 {
-                    Print(stream, '\n');
+                    if (j++ % 8 == 0)
+                    {
+                        Print(stream, '\n');
+                    }
+                    Print(stream, "{} ", Assembler::X86_64::CPU_FEATURE_BIT_NAMES[i]);
                 }
-                Print(stream, "{} ", CPU_FEATURE_BIT_NAMES[i]);
             }
-        }
+        #endif
         Print(stream, '\n');
     }
 }

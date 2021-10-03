@@ -18,7 +18,7 @@ TEST(CPUFeaturDetector, Construct)
 TEST(CPUFeaturDetector, SSE)
 {
     const CPUFeatureDetector detector { };
-    ASSERT_TRUE(detector[CPUFeatureBits::SSE]);
+    ASSERT_TRUE(detector[CPUFeature::SSE]);
 }
 
 #endif
@@ -28,7 +28,7 @@ TEST(CPUFeaturDetector, SSE)
 TEST(CPUFeaturDetector, SSE2)
 {
     const CPUFeatureDetector detector { };
-    ASSERT_TRUE(detector[CPUFeatureBits::SSE2]);
+    ASSERT_TRUE(detector[CPUFeature::SSE2]);
 }
 
 #endif
@@ -38,7 +38,7 @@ TEST(CPUFeaturDetector, SSE2)
 TEST(CPUFeaturDetector, SSE3)
 {
     const CPUFeatureDetector detector { };
-    ASSERT_TRUE(detector[CPUFeatureBits::SSE3]);
+    ASSERT_TRUE(detector[CPUFeature::SSE3]);
 }
 
 #endif
@@ -48,7 +48,7 @@ TEST(CPUFeaturDetector, SSE3)
 TEST(CPUFeaturDetector, SSSE3)
 {
     const CPUFeatureDetector detector { };
-    ASSERT_TRUE(detector[CPUFeatureBits::SSSE3]);
+    ASSERT_TRUE(detector[CPUFeature::SSSE3]);
 }
 
 #endif
@@ -58,7 +58,7 @@ TEST(CPUFeaturDetector, SSSE3)
 TEST(CPUFeaturDetector, SSE4_1)
 {
     const CPUFeatureDetector detector { };
-    ASSERT_TRUE(detector[CPUFeatureBits::SSE4_1]);
+    ASSERT_TRUE(detector[CPUFeature::SSE4_1]);
 }
 
 #endif
@@ -68,7 +68,7 @@ TEST(CPUFeaturDetector, SSE4_1)
 TEST(CPUFeaturDetector, SSE4_2)
 {
     const CPUFeatureDetector detector { };
-    ASSERT_TRUE(detector[CPUFeatureBits::SSE4_2]);
+    ASSERT_TRUE(detector[CPUFeature::SSE4_2]);
 }
 
 #endif
@@ -78,7 +78,7 @@ TEST(CPUFeaturDetector, SSE4_2)
 TEST(CPUFeaturDetector, FMA)
 {
     const CPUFeatureDetector detector { };
-    ASSERT_TRUE(detector[CPUFeatureBits::FMA3]);
+    ASSERT_TRUE(detector[CPUFeature::FMA3]);
 }
 
 #endif
@@ -88,7 +88,7 @@ TEST(CPUFeaturDetector, FMA)
 TEST(CPUFeaturDetector, AVX)
 {
     const CPUFeatureDetector detector { };
-    ASSERT_TRUE(detector[CPUFeatureBits::AVX]);
+    ASSERT_TRUE(detector[CPUFeature::AVX]);
 }
 
 #endif
@@ -98,7 +98,7 @@ TEST(CPUFeaturDetector, AVX)
 TEST(CPUFeaturDetector, AVX2)
 {
     const CPUFeatureDetector detector { };
-    ASSERT_TRUE(detector[CPUFeatureBits::AVX2]);
+    ASSERT_TRUE(detector[CPUFeature::AVX2]);
 }
 
 #endif
@@ -108,7 +108,7 @@ TEST(CPUFeaturDetector, AVX2)
 TEST(CPUFeaturDetector, AVX512F)
 {
     const CPUFeatureDetector detector { };
-    ASSERT_TRUE(detector[CPUFeatureBits::AVX512F]);
+    ASSERT_TRUE(detector[CPUFeature::AVX512F]);
 }
 
 #endif

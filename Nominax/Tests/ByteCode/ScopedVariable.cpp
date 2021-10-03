@@ -264,7 +264,7 @@ TEST(ScopedVariable, I64StackPushPopOptScalarOne)
 TEST(ScopedVariable, F64StackPushPopOptScalarDupl)
 {
 	Stream stream {OptimizationLevel::O3};
-	stream << 3.5;
+	stream.Emit(3.5);
     {
         const ScopedFloat x { stream, 3.5 };
     }
@@ -277,7 +277,7 @@ TEST(ScopedVariable, F64StackPushPopOptScalarDupl)
 TEST(ScopedVariable, I64StackPushPopOptScalarDupl)
 {
 	Stream stream {OptimizationLevel::O3};
-	stream << INT64_C(3);
+	stream.Emit(INT64_C(3));
     {
         const ScopedInt x { stream, 3 };
     }

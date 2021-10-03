@@ -444,13 +444,6 @@ namespace Nominax::ByteCode
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <returns>The underlying code buffer.</returns>
-		[[nodiscard]]
-		auto GetCodeBuffer() const && -> const CodeStorageType&&;
-
-		/// <summary>
-		/// 
-		/// </summary>
 		/// <returns>The underlying discriminator buffer.</returns>
 		[[nodiscard]]
 		auto GetDiscriminatorBuffer() & -> DiscriminatorStorageType&;
@@ -468,13 +461,6 @@ namespace Nominax::ByteCode
 		/// <returns>The underlying discriminator buffer.</returns>
 		[[nodiscard]]
 		auto GetDiscriminatorBuffer() && -> DiscriminatorStorageType&&;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>The underlying discriminator buffer.</returns>
-		[[nodiscard]]
-		auto GetDiscriminatorBuffer() const && -> const DiscriminatorStorageType&&;
 
 		/// <summary>
 		/// 
@@ -532,61 +518,68 @@ namespace Nominax::ByteCode
 		[[nodiscard]]
 		auto SizeInBytes() const -> std::uint64_t;
 
-		/// <summary>
-		/// PUSH stream entry.
-		/// </summary>
-		/// <param name="instr"></param>
-		/// <returns></returns>
-		auto operator <<(Instruction instr) -> Stream&;
+        /// <summary>
+        /// Emit signal with discriminator.
+        /// </summary>
+        /// <param name="x">The value to emit.</param>
+        /// <returns></returns>
+        auto Emit(std::uint64_t x) -> void;
 
-		/// <summary>
-		/// PUSH stream entry.
-		/// </summary>
-		/// <param name="intrin"></param>
-		/// <returns></returns>
-		auto operator <<(SysCall intrin) -> Stream&;
+        /// <summary>
+        /// Emit signal with discriminator.
+        /// </summary>
+        /// <param name="x">The value to emit.</param>
+        /// <returns></returns>
+        auto Emit(std::int64_t x) -> void;
 
-		/// <summary>
-		/// PUSH stream entry.
-		/// </summary>
-		/// <param name="intrin"></param>
-		/// <returns></returns>
-		auto operator <<(UserIntrinsicInvocationID intrin) -> Stream&;
+        /// <summary>
+        /// Emit signal with discriminator.
+        /// </summary>
+        /// <param name="x">The value to emit.</param>
+        /// <returns></returns>
+        auto Emit(double x) -> void;
 
-		/// <summary>
-		/// PUSH stream entry.
-		/// </summary>
-		/// <param name="address"></param>
-		/// <returns></returns>
-		auto operator <<(JumpAddress address) -> Stream&;
+        /// <summary>
+        /// Emit signal with discriminator.
+        /// </summary>
+        /// <param name="x">The value to emit.</param>
+        /// <returns></returns>
+        auto Emit(Instruction x) -> void;
 
-		/// <summary>
-		/// PUSH stream entry.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		auto operator <<(std::uint64_t value) -> Stream&;
+        /// <summary>
+        /// Emit signal with discriminator.
+        /// </summary>
+        /// <param name="x">The value to emit.</param>
+        /// <returns></returns>
+        auto Emit(SysCall x) -> void;
 
-		/// <summary>
-		/// PUSH stream entry.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		auto operator <<(std::int64_t value) -> Stream&;
+        /// <summary>
+        /// Emit signal with discriminator.
+        /// </summary>
+        /// <param name="x">The value to emit.</param>
+        /// <returns></returns>
+        auto Emit(UserIntrinsicInvocationID x) -> void;
 
-		/// <summary>
-		/// Sign extend 32-bit signed integer to std::int64_t and push.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		auto operator <<(signed value) -> Stream&;
+        /// <summary>
+        /// Emit signal with discriminator.
+        /// </summary>
+        /// <param name="x">The value to emit.</param>
+        /// <returns></returns>
+        auto Emit(JumpAddress x) -> void;
 
-		/// <summary>
-		/// PUSH stream entry.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		auto operator <<(double value) -> Stream&;
+        /// <summary>
+        /// Emit signal with discriminator.
+        /// </summary>
+        /// <param name="x">The value to emit.</param>
+        /// <returns></returns>
+        auto Emit(TypeID x) -> void;
+
+        /// <summary>
+        /// Emit signal with discriminator.
+        /// </summary>
+        /// <param name="x">The value to emit.</param>
+        /// <returns></returns>
+        auto Emit(FieldOffset x) -> void;
 
         /// <summary>
         /// Prints this object into the file stream.
@@ -596,7 +589,7 @@ namespace Nominax::ByteCode
         /// <summary>
         /// Emit a syscall instruction with correct parameter.
         /// </summary>
-        auto SysCall(SysCall sysCall) -> Stream&;
+        auto SysCall(SysCall sysCall) -> void;
 
 		/// <summary>
 		/// Index lookup.
@@ -612,14 +605,14 @@ namespace Nominax::ByteCode
 		/// <param name="args"></param>
 		/// <returns></returns>
 		template <Instruction I, typename... Ts> requires ValidInstruction<I, Ts...> && ValidInstructionArgument<Ts...>
-		auto Do(Ts&&...args) -> Stream&;
+		auto Do(Ts&&...args) -> void;
 
 		/// <summary>
 		/// Insert instruction manually without immediate arguments.
 		/// </summary>
 		/// <returns></returns>
 		template <Instruction I>
-		auto Do() -> Stream&;
+		auto Do() -> void;
 
 		/// <summary>
 		/// 
@@ -712,16 +705,16 @@ namespace Nominax::ByteCode
 	}
 
 	template <Instruction I, typename... Ts> requires ValidInstruction<I, Ts...> && ValidInstructionArgument<Ts...>
-	inline auto Stream::Do(Ts&&...args) -> Stream&
+	inline auto Stream::Do(Ts&&...args) -> void
 	{
-		*this << I;
-		return (*this << ... << args);
+		this->Emit(I);
+        this->Emit(args...);
 	}
 
 	template <Instruction I>
-	inline auto Stream::Do() -> Stream&
+	inline auto Stream::Do() -> void
 	{
-		return *this << I;
+		this->Emit(I);
 	}
 
 	inline auto Stream::Front() const -> DiscriminatedSignal
@@ -759,11 +752,6 @@ namespace Nominax::ByteCode
 		return std::move(this->CodeBuffer_);
 	}
 
-	inline auto Stream::GetCodeBuffer() const && -> const CodeStorageType&&
-	{
-		return std::move(this->CodeBuffer_);
-	}
-
 	inline auto Stream::GetDiscriminatorBuffer() & -> DiscriminatorStorageType&
 	{
 		return this->CodeDiscriminatorBuffer_;
@@ -775,11 +763,6 @@ namespace Nominax::ByteCode
 	}
 
 	inline auto Stream::GetDiscriminatorBuffer() && -> DiscriminatorStorageType&&
-	{
-		return std::move(this->CodeDiscriminatorBuffer_);
-	}
-
-	inline auto Stream::GetDiscriminatorBuffer() const && -> const DiscriminatorStorageType&&
 	{
 		return std::move(this->CodeDiscriminatorBuffer_);
 	}
@@ -820,71 +803,72 @@ namespace Nominax::ByteCode
 			* sizeof(Signal::Discriminator);
 	}
 
-	inline auto Stream::operator <<(const Instruction instr) -> Stream&
+	inline auto Stream::Emit(const Instruction instr) -> void
 	{
 		NOX_DBG_PAS(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal { instr });
 		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::Instruction);
-		return *this;
 	}
 
-	inline auto Stream::operator <<(const enum SysCall intrin) -> Stream&
+	inline auto Stream::Emit(const enum SysCall intrin) -> void
 	{
 		NOX_DBG_PAS(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal { intrin });
-		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::SysCallID);
-		return *this;
+		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::SysCall);
 	}
 
-	inline auto Stream::operator <<(const UserIntrinsicInvocationID intrin) -> Stream&
+	inline auto Stream::Emit(const UserIntrinsicInvocationID intrin) -> void
 	{
 		NOX_DBG_PAS(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal { intrin });
 		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::UserIntrinsicInvocationID);
-		return *this;
 	}
 
-	inline auto Stream::operator<<(const JumpAddress address) -> Stream&
+	inline auto Stream::Emit(const JumpAddress address) -> void
 	{
 		NOX_DBG_PAS(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal { address });
 		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::JumpAddress);
-		return *this;
 	}
 
-	inline auto Stream::operator <<(const std::uint64_t value) -> Stream&
+	inline auto Stream::Emit(const std::uint64_t value) -> void
 	{
 		NOX_DBG_PAS(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal { value });
 		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::UOffset);
-		return *this;
 	}
 
-	inline auto Stream::operator <<(const std::int64_t value) -> Stream&
+	inline auto Stream::Emit(const std::int64_t value) -> void
 	{
 		NOX_DBG_PAS(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal { value });
 		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::Int);
-		return *this;
 	}
 
-	inline auto Stream::operator <<(const double value) -> Stream&
+	inline auto Stream::Emit(const double value) -> void
 	{
 		NOX_DBG_PAS(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal { value });
 		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::Float);
-		return *this;
 	}
 
-	inline auto Stream::operator<<(const signed value) -> Stream&
-	{
-		return *this << static_cast<std::int64_t>(value);
-	}
-
-    inline auto Stream::SysCall(const enum SysCall sysCall) -> Stream&
+    inline auto Stream::Emit(const TypeID value) -> void
     {
-        *this << Instruction::SYSCALL;
-        *this << Foundation::ToUnderlying(sysCall);
-        return *this;
+        NOX_DBG_PAS(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
+        this->CodeBuffer_.emplace_back(Signal { value });
+        this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::TypeID);
+    }
+
+    inline auto Stream::Emit(const FieldOffset value) -> void
+    {
+        NOX_DBG_PAS(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
+        this->CodeBuffer_.emplace_back(Signal { value });
+        this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::FieldOffset);
+    }
+
+    inline auto Stream::SysCall(const enum SysCall sysCall) -> void
+    {
+        this->Emit(Instruction::SYSCALL);
+        this->Emit(sysCall);
     }
 }

@@ -205,6 +205,7 @@
 
 #pragma once
 
+#include "CPUFeatureBits.hpp"
 #include "RegisterCache.hpp"
 #include "RegisterLayout.hpp"
 #include "RegisterSet.hpp"
