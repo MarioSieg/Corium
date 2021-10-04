@@ -328,7 +328,7 @@ namespace Nominax::ByteCode
                                 : ValidationResultCode::InvalidJumpAddress;
 					break;
 
-					case Signal::Discriminator::UserIntrinsicInvocationID:
+					case Signal::Discriminator::Intrinsic:
 						result = ValidateUserIntrinsicCall(intrinsicRegistry, signal.UserIntrinID)
                                 ? ValidationResultCode::Ok
                                 : ValidationResultCode::InvalidUserIntrinsicCall;

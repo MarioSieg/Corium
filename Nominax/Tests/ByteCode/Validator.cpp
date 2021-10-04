@@ -224,11 +224,11 @@ struct DynamicSignal final
 			case 1:
 				return Signal::Discriminator::SysCall;
 			case 2:
-				return Signal::Discriminator::UserIntrinsicInvocationID;
+				return Signal::Discriminator::Intrinsic;
 			case 3:
 				return Signal::Discriminator::JumpAddress;
 			case 4:
-				return Signal::Discriminator::UOffset;
+				return Signal::Discriminator::MemoryOffset;
 			case 5:
 				return Signal::Discriminator::Int;
 			case 6:
@@ -449,7 +449,7 @@ TEST(ValidatorAlgorithms, ExtractInstructionArguments)
 		ExtractInstructionArguments(&code.GetDiscriminatorBuffer()[cache[2]], ComputeInstructionArgumentOffset(&code.GetDiscriminatorBuffer()[cache[2]], &code.GetDiscriminatorBuffer()[cache[3]]))
 	};
 	ASSERT_EQ(r3.size(), 2);
-	ASSERT_TRUE(r3[0] == Signal::Discriminator::UOffset);
+	ASSERT_TRUE(r3[0] == Signal::Discriminator::MemoryOffset);
 	ASSERT_TRUE(r3[1] == Signal::Discriminator::Float);
 
 	// iadd

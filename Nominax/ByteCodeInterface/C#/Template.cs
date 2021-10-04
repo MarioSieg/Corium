@@ -219,11 +219,23 @@ namespace NominaxByteCodeInterface
         $SYSCALL$
     }
 
+    public struct MemoryOffset {
+        public ulong Value;
+    }
+
+    public struct Int {
+        public long Value;
+    }
+
+    public struct Float {
+        public double Value;
+    }
+
     public struct JumpAddress {
         public ulong Value;
     }
 
-    public struct UserIntrinsicInvocationID {
+    public struct Intrinsic {
         public ulong Value;
     }
 

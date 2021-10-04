@@ -272,8 +272,8 @@ namespace Nominax::ByteCode
         /// </summary>
         static constexpr TypeIndexBitFlagVector ANY_SCALAR_VALUE_TYPE
         {
-            ComputeDiscBit(Signal::Discriminator::UOffset) |
-            ComputeDiscBit(Signal::Discriminator::Int) |
+                ComputeDiscBit(Signal::Discriminator::MemoryOffset) |
+                ComputeDiscBit(Signal::Discriminator::Int) |
             ComputeDiscBit(Signal::Discriminator::Float)
         };
 
@@ -284,12 +284,12 @@ namespace Nominax::ByteCode
         {
             /* int      */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::Int) },
             /* syscall  */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::SysCall) },
-            /* intrin   */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::UserIntrinsicInvocationID) },
-            /* call     */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::UOffset) },
+            /* intrin   */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::Intrinsic) },
+            /* call     */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::MemoryOffset) },
             /* ret      */  InstructionOperandTable { },
-            /* mov      */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::UOffset),
-                                                      ComputeDiscBit(Signal::Discriminator::UOffset) },
-            /* sto      */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::UOffset), ANY_SCALAR_VALUE_TYPE },
+            /* mov      */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::MemoryOffset),
+                                                      ComputeDiscBit(Signal::Discriminator::MemoryOffset) },
+            /* sto      */  InstructionOperandTable {ComputeDiscBit(Signal::Discriminator::MemoryOffset), ANY_SCALAR_VALUE_TYPE },
             /* push     */  InstructionOperandTable { ANY_SCALAR_VALUE_TYPE },
             /* pop      */  InstructionOperandTable { },
             /* pop2     */  InstructionOperandTable { },

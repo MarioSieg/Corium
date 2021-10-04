@@ -207,6 +207,7 @@
 
 mod ast;
 mod cli;
+mod codegen;
 mod context;
 mod error;
 mod literal;

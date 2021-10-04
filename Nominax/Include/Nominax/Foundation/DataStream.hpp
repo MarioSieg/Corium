@@ -421,12 +421,12 @@ namespace Nominax::Foundation
 
     inline auto DataStream::GetHandle() -> NativeHandle&
     {
-        return ***this;
+        return *static_cast<NativeHandle*>(**this);
     }
 
     inline auto DataStream::GetHandle() const -> const NativeHandle&
     {
-        return ***this;
+        return *static_cast<const NativeHandle*>(**this);
     }
 
     inline auto DataStream::operator *() -> NativeHandle*
@@ -465,17 +465,17 @@ namespace Nominax::Foundation
 
     inline auto DataStream::StdOut() -> DataStream
     {
-        return DataStream { *stdout };
+        return DataStream { *static_cast<NativeHandle*>(stdout) };
     }
 
     inline auto DataStream::StdErr() -> DataStream
     {
-        return DataStream { *stderr };
+        return DataStream { *static_cast<NativeHandle*>(stderr) };
     }
 
     inline auto DataStream::StdIn() -> DataStream
     {
-        return DataStream { *stdin };
+        return DataStream { *static_cast<NativeHandle*>(stdin) };
     }
 
     inline auto DataStream::NewLine() -> void

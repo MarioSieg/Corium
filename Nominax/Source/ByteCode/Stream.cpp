@@ -369,7 +369,7 @@ namespace Nominax::ByteCode
             switch (dis)
             {
                 default:
-                case Signal::Discriminator::UOffset:
+                case Signal::Discriminator::MemoryOffset:
                     Print(stream, " %{} #{}", Signal::DISCRIMINATOR_MNEMONICS[ToUnderlying(dis)], sig.R64.AsU64);
                 continue;
 

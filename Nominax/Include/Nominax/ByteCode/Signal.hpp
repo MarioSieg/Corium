@@ -224,7 +224,7 @@ namespace Nominax::ByteCode
 			/// <summary>
 			/// Unsigned 64-bit offset.
 			/// </summary>
-			UOffset,
+			MemoryOffset,
 
 			/// <summary>
 			/// std::int64_t in record.
@@ -249,7 +249,7 @@ namespace Nominax::ByteCode
 			/// <summary>
 			/// User call id.
 			/// </summary>
-			UserIntrinsicInvocationID,
+			Intrinsic,
 
 			/// <summary>
 			/// Jump address.
@@ -277,7 +277,7 @@ namespace Nominax::ByteCode
         /// </summary>
         static constexpr std::array<const std::string_view, Foundation::ToUnderlying(Discriminator::Count_)> DISCRIMINATOR_NAMES
         {
-            "MemOffset",
+            "MemoryOffset",
             "Int",
             "Float",
             "Instruction",
@@ -293,15 +293,15 @@ namespace Nominax::ByteCode
         /// </summary>
         static constexpr std::array<const std::string_view, Foundation::ToUnderlying(Discriminator::Count_)> DISCRIMINATOR_MNEMONICS
         {
-            "u64",
-            "i64",
-            "f64",
+            "mof",
+            "imm",
+            "fmm",
             "ins",
             "sys",
             "int",
             "jmp",
             "tyd",
-            "mof"
+            "fof"
         };
 
 		/// <summary>
