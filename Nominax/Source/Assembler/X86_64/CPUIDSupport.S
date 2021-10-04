@@ -203,11 +203,17 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-.globl _IsCPUIDSupported
+#ifdef __APPLE__
+#define SUBROUTINE(x) x##_
+#else
+#define SUBROUTINE(x) x
+#endif
+
+.globl SUBROUTINE(IsCPUIDSupported)
 
 # extern "C" NOX_ASM_ROUTINE auto IsCPUIDSupported() -> bool;
 # Header: Arch/X86_64/CpuId.hpp
-_IsCPUIDSupported:
+SUBROUTINE(IsCPUIDSupported):
     pushq   %rbp                # stack frame prologue
     movq    %rsp, %rbp          # stack frame prologue
     pushq   %rbx

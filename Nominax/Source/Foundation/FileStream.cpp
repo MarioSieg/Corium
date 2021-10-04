@@ -203,69 +203,27 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include <array>
 
-#include "DataStream.hpp"
+#include "../../Include/Nominax/Foundation/FileStream.hpp"
+#include "../../Include/Nominax/Foundation/Print.hpp"
 
 namespace Nominax::Foundation
 {
-    /// <summary>
-    /// Controller for the logger protocol.
-    /// </summary>
-    struct ProtocolController final
+    FileStream::FileStream(const std::string& fileName, const FileAccessMode mode)
+    : DataStream
     {
-        /// <summary>
-        /// Static class.
-        /// </summary>
-        ProtocolController() = delete;
+        [&]() -> std::FILE&
+        {
+            std::array<char, 2> modeProxy { static_cast<char>(mode), '\0' };
+            std::FILE* const handle { std::fopen(fileName.c_str(), std::data(modeProxy)) };
+            NOX_PAS(handle, Format("Failed to open file handle: {}", fileName));
+            return *handle;
+        }()
+    } { }
 
-        /// <summary>
-        /// Static class.
-        /// </summary>
-        /// <param name="other"></param>
-        ProtocolController(const ProtocolController& other) = delete;
-
-        /// <summary>
-        /// Static class.
-        /// </summary>
-        /// <param name="other"></param>
-        ProtocolController(ProtocolController&& other) = delete;
-
-        /// <summary>
-        /// Static class.
-        /// </summary>
-        /// <param name="other"></param>
-        /// <returns></returns>
-        auto operator =(const ProtocolController& other) -> ProtocolController& = delete;
-
-        /// <summary>
-        /// Static class.
-        /// </summary>
-        /// <param name="other"></param>
-        /// <returns></returns>
-        auto operator =(ProtocolController&& other) -> ProtocolController& = delete;
-
-		/// <summary>
-		/// Static class.
-		/// </summary>
-        ~ProtocolController() = delete;
-
-        /// <summary>
-        /// If true, the protocol will be printed out to the console, else the protocol is ignored.
-        /// </summary>
-        static inline constinit bool IsProtocolEnabled { true };
-
-        /// <summary>
-        /// Query output stream.
-        /// </summary>
-        /// <returns>The current stream acting as stdout.</returns>
-        [[nodiscard]]
-        static inline auto GetProtocolStream() -> DataStream&;
-    };
-
-    inline auto ProtocolController::GetProtocolStream() -> DataStream&
+    FileStream::~FileStream()
     {
-        static DataStream Out { DataStream::StdOut() };
-        return Out;
+        std::fclose(&this->Handle_);
     }
 }

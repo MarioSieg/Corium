@@ -210,6 +210,7 @@
 #include <fmt/chrono.h>
 #include <fmt/color.h>
 
+#include "DataStream.hpp"
 #include "ProtocolController.hpp"
 #include "Platform.hpp"
 #include "Algorithm.hpp"
@@ -237,7 +238,7 @@ namespace Nominax::Foundation
             if (ProtocolController::IsProtocolEnabled)
             {
                 [[unlikely]]
-                fmt::print(&ProtocolController::GetProtocolStream(), formatString, std::forward<Args>(args)...);
+                fmt::print(*ProtocolController::GetProtocolStream(), formatString, std::forward<Args>(args)...);
             }
         }
 	}
@@ -256,9 +257,9 @@ namespace Nominax::Foundation
     /// <param name="args">The arguments to format.</param>
     template <typename... Args>
     NOX_COLD
-    inline auto Print([[maybe_unused]] std::FILE& stream, [[maybe_unused]] const std::string_view formatString, [[maybe_unused]] Args&&...args) -> void
+    inline auto Print([[maybe_unused]] DataStream& stream, [[maybe_unused]] const std::string_view formatString, [[maybe_unused]] Args&&...args) -> void
     {
-        fmt::print(&stream, formatString, std::forward<Args>(args)...);
+        fmt::print(*stream, formatString, std::forward<Args>(args)...);
     }
 
 	/// <summary>
@@ -274,7 +275,7 @@ namespace Nominax::Foundation
             if (ProtocolController::IsProtocolEnabled)
             {
                 [[unlikely]]
-                std::fputc(x, &ProtocolController::GetProtocolStream());
+                ProtocolController::GetProtocolStream().PutChar(x);
             }
         }
 	}
@@ -285,9 +286,9 @@ namespace Nominax::Foundation
     /// <param name="x"></param>
     /// <returns></returns>
     NOX_COLD
-    inline auto Print([[maybe_unused]] std::FILE& stream, const char x) -> void
+    inline auto Print([[maybe_unused]] DataStream& stream, const char x) -> void
     {
-        std::fputc(x, &stream);
+        stream.PutChar(x);
     }
 
 	/// <summary>

@@ -203,12 +203,18 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-.globl _QueryRegSet_GPR
-.globl _QueryRegSet_SSE
-.globl _QueryRegSet_AVX
-.globl _QueryRegSet_AVX512
-.globl _QueryRegSet_AVX512Masks
-.globl _QueryRegSet_AVX512BWMasks
+#ifdef __APPLE__
+#define SUBROUTINE(x) x##_
+#else
+#define SUBROUTINE(x) x
+#endif
+
+.globl SUBROUTINE(QueryRegSet_GPR)
+.globl SUBROUTINE(QueryRegSet_SSE)
+.globl SUBROUTINE(QueryRegSet_AVX)
+.globl SUBROUTINE(QueryRegSet_AVX512)
+.globl SUBROUTINE(QueryRegSet_AVX512Masks)
+.globl SUBROUTINE(QueryRegSet_AVX512BWMasks)
 
 #ifdef __WIN__
 #define AR0 rcx
@@ -218,7 +224,7 @@
 
 # extern "C" NOX_ASM_ROUTINE auto _QueryRegSet_GPR(GPRRegister64Layout* out) -> void;
 # Query general purpose registers (%rax - %r15). (%rip) does not count as GPR!
-_QueryRegSet_GPR:
+SUBROUTINE(QueryRegSet_GPR):
     movq    %rax,   (%AR0)
     movq    %rbx,   8*1(%AR0)
     movq    %rcx,   8*2(%AR0)
@@ -239,7 +245,7 @@ _QueryRegSet_GPR:
 
 # extern "C" NOX_ASM_ROUTINE auto _QueryRegSet_SSE(SSERegister128Layout* out) -> void;
 # Query all SSE registers (%xmm0 - %xmm15)
-_QueryRegSet_SSE:
+SUBROUTINE(QueryRegSet_SSE):
     movdqu  %xmm0,  (%AR0)
     movdqu  %xmm1,  16*1(%AR0)
     movdqu  %xmm2,  16*2(%AR0)
@@ -260,7 +266,7 @@ _QueryRegSet_SSE:
 
 # extern "C" NOX_ASM_ROUTINE auto _QueryRegSet_AVX(AVXRegister256Layout* out) -> void;
 # Query all AVX registers (%ymm0 - %ymm15)
-_QueryRegSet_AVX:
+SUBROUTINE(QueryRegSet_AVX):
     vmovdqu  %ymm0,  (%AR0)
     vmovdqu  %ymm1,  32*1(%AR0)
     vmovdqu  %ymm2,  32*2(%AR0)
@@ -281,7 +287,7 @@ _QueryRegSet_AVX:
 
 # extern "C" NOX_ASM_ROUTINE auto _QueryRegSet_AVX512(AVX512Register512Layout* out) -> void;
 # Query all AVX-512 registers (%zmm0 - %zmm31)
-_QueryRegSet_AVX512:
+SUBROUTINE(QueryRegSet_AVX512):
     vmovdqu64  %zmm0,  (%AR0)
     vmovdqu64  %zmm1,  64*1(%AR0)
     vmovdqu64  %zmm2,  64*2(%AR0)
@@ -319,7 +325,7 @@ _QueryRegSet_AVX512:
 # extern "C" NOX_ASM_ROUTINE auto _QueryRegSet_AVX512Masks(AVX512MaskRegister16Layout* out) -> void;
 # Query all AVX-512 mask registers (%k0 - %k7)
 # By default AVX-512 mask registers are 16-bit wide.
-_QueryRegSet_AVX512Masks:
+SUBROUTINE(QueryRegSet_AVX512Masks):
     kmovw   %k0,    %eax
     movw    %ax,    (%AR0)
     kmovw   %k1,    %eax
@@ -341,7 +347,7 @@ _QueryRegSet_AVX512Masks:
 # extern "C" NOX_ASM_ROUTINE auto _QueryRegSet_AVX512BWMasks(AVX512BWMaskRegister64Layout* out) -> void;
 # If we have AVX-512 BW the mask registers are 64-bits wide instead of 16-bits
 # Query all AVX-512 mask registers (%k0 - %k7)
-_QueryRegSet_AVX512BWMasks:
+SUBROUTINE(QueryRegSet_AVX512BWMasks):
     kmovq   %k0,    %rax
     movq    %rax,   (%AR0)
     kmovq   %k1,    %rax

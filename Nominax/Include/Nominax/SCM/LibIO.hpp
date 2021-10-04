@@ -210,23 +210,21 @@
 #include <cstdio>
 #include <limits>
 
+#include "../Foundation/DataStream.hpp"
 #include "SysCallProxy.hpp"
 
 namespace Nominax::SCM
 {
-    NOX_SYSCALL_LIB_ATTRIBS auto GetNativeRuntimeOutputStream() -> std::FILE*
+    using Foundation::DataStream;
+
+    NOX_SYSCALL_LIB_ATTRIBS auto GetNativeRuntimeOutputStream() -> DataStream
     {
-        return stdout;
+        return DataStream::StdOut();
     }
 
     NOX_SYSCALL_LIB_ATTRIBS auto PrintNative(const char* const data, const std::uint64_t len) -> void
     {
-        std::fwrite(data, sizeof(char), len, GetNativeRuntimeOutputStream());
-    }
-
-    NOX_SYSCALL_LIB_ATTRIBS auto PrintNL() -> void
-    {
-        std::putc('\n', GetNativeRuntimeOutputStream());
+        GetNativeRuntimeOutputStream().Write(data, len);
     }
 
     /// <summary>
@@ -349,6 +347,6 @@ namespace Nominax::SCM
     /// <returns>None.</returns>
     NOX_SYSCALL_PROXY(FLUSH)
     {
-        std::fflush(GetNativeRuntimeOutputStream());
+        GetNativeRuntimeOutputStream().Flush();
     }
 }

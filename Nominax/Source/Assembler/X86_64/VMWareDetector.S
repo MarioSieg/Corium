@@ -203,12 +203,18 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-.globl _VMWareDetector
+#ifdef __APPLE__
+#define SUBROUTINE(x) x##_
+#else
+#define SUBROUTINE(x) x
+#endif
+
+.globl SUBROUTINE(VMWareDetector)
 
 .equ HYPERVISOR, 0x564D5868     # "VMXh"
 .equ PORT, 0x5658               # "VX"
 
-_VMWareDetector:
+SUBROUTINE(VMWareDetector):
     pushq   %rbp
     movq    %rsp, %rbp
     pushq   %rbx

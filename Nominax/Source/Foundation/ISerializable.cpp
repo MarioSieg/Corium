@@ -209,25 +209,13 @@ namespace Nominax::Foundation
 {
 	auto ISerializable::SerializeToDisk(const std::string& file) const -> bool
 	{
-		std::FILE* const handle { std::fopen(file.c_str(), "w")};
-		if (!handle)
-		{
-			return false;
-		}
-		const bool status { this->Serialize(*handle) };
-		std::fclose(handle);
-		return status;
+		FileStream stream { file, FileAccessMode::Write };
+        return this->Serialize(stream);
 	}
 
 	auto ISerializable::DeserializeFromDisk(const std::string& file) -> bool
 	{
-		std::FILE* const handle { std::fopen(file.c_str(), "r") };
-		if (!handle)
-		{
-			return false;
-		}
-		const bool status{ this->Deserialize(*handle) };
-		std::fclose(handle);
-		return status;
+        FileStream stream { file, FileAccessMode::Read };
+        return this->Deserialize(stream);
 	}
 }

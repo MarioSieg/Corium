@@ -214,8 +214,7 @@ namespace Nominax::Foundation
         {
             if (ProtocolController::IsProtocolEnabled) [[unlikely]]
             {
-                std::FILE& console { ProtocolController::GetProtocolStream() };
-                this->Display(console);
+                this->Display(ProtocolController::GetProtocolStream());
             }
         }
     }

@@ -207,7 +207,6 @@
 #include "../../../Nominax/Include/Nominax/Foundation/_Foundation.hpp"
 #include "../../Include/Nominax/ByteCode/Stream.hpp"
 
-
 namespace Nominax::ByteCode
 {
 	auto Stream::GetSerializationImageHeader(SerializationImageHeader& out) const -> void
@@ -216,33 +215,32 @@ namespace Nominax::ByteCode
 		std::memcpy(std::data(out.Magic), std::data(SerializationImageHeader::MAGIC_ID), sizeof out.Magic);
 		out.CodeImageSize = std::size(this->CodeBuffer_);
 		out.DiscriminatorImageSize = std::size(this->CodeDiscriminatorBuffer_);
-		out.EncryptDecrypt();
 	}
 
-	auto Stream::Serialize(std::FILE& out) const -> bool
+	auto Stream::Serialize(Foundation::DataStream& out) const -> bool
 	{
-		SerializationImageHeader header { };
-		constexpr std::uint64_t  codeSectionMarker { STREAM_IMAGE_CODE_SECTION_MARKER };
-		constexpr std::uint64_t  discriminatorSectionMarker { STREAM_IMAGE_DISCRIMINATOR_SECTION_MARKER };
-
 		// header
+        SerializationImageHeader header { };
 		this->GetSerializationImageHeader(header);
-		std::fwrite(&header, sizeof(SerializationImageHeader), 1, &out);
+        header.EncryptDecrypt();
+		out.Write(header);
 
 		// code section
-		std::fwrite(&codeSectionMarker, sizeof(std::uint64_t), 1, &out);
-		std::fwrite(std::data(this->CodeBuffer_), sizeof(CodeStorageType::value_type), std::size(this->CodeBuffer_), &out);
+        constexpr std::uint64_t codeSectionMarker { STREAM_IMAGE_CODE_SECTION_MARKER };
+        out.Write(codeSectionMarker);
+		out.Write(std::data(this->CodeBuffer_), sizeof(CodeStorageType::value_type) * std::size(this->CodeBuffer_));
 
 		// discriminator section
-		std::fwrite(&discriminatorSectionMarker, sizeof(std::uint64_t), 1, &out);
-		std::fwrite(std::data(this->CodeDiscriminatorBuffer_), sizeof(DiscriminatorStorageType::value_type), std::size(this->CodeDiscriminatorBuffer_), &out);
+        constexpr std::uint64_t discriminatorSectionMarker { STREAM_IMAGE_DISCRIMINATOR_SECTION_MARKER };
+        out.Write(discriminatorSectionMarker);
+        out.Write(std::data(this->CodeDiscriminatorBuffer_), sizeof(DiscriminatorStorageType::value_type) * std::size(this->CodeDiscriminatorBuffer_));
 		return true;
 	}
 
-	auto Stream::Deserialize(std::FILE& in) -> bool
+	auto Stream::Deserialize(Foundation::DataStream& in) -> bool
 	{
 		SerializationImageHeader header { };
-		std::fread(&header, sizeof(SerializationImageHeader), 1, &in);
+		in.Read(header);
 		for (std::uint64_t i { 0 }; i < std::size(SerializationImageHeader::MAGIC_ID); ++i)
 		{
 			if (header.Magic[i] != SerializationImageHeader::MAGIC_ID[i])
@@ -261,7 +259,7 @@ namespace Nominax::ByteCode
 
 		// validate code section marker
 		std::uint64_t codeSectionMarker { };
-		std::fread(&codeSectionMarker, sizeof(std::uint64_t), 1, &in);
+		in.Read(codeSectionMarker);
 		if (codeSectionMarker != STREAM_IMAGE_CODE_SECTION_MARKER)
 		{
 			[[unlikely]]
@@ -271,11 +269,11 @@ namespace Nominax::ByteCode
 		// load code section:
 		this->CodeBuffer_.clear();
 		this->CodeBuffer_.resize(header.CodeImageSize);
-		std::fread(std::data(this->CodeBuffer_), sizeof(CodeStorageType::value_type), header.CodeImageSize, &in);
+		in.Read(std::data(this->CodeBuffer_), sizeof(CodeStorageType::value_type) * header.CodeImageSize);
 
 		// validate discriminator section marker
 		std::uint64_t discriminatorSectionMarker { };
-		std::fread(&discriminatorSectionMarker, sizeof(std::uint64_t), 1, &in);
+		in.Read(discriminatorSectionMarker);
 		if (discriminatorSectionMarker != STREAM_IMAGE_DISCRIMINATOR_SECTION_MARKER)
 		{
 			[[unlikely]]
@@ -284,8 +282,8 @@ namespace Nominax::ByteCode
 
 		// load discriminator section:
 		this->CodeDiscriminatorBuffer_.clear();
-		this->CodeDiscriminatorBuffer_.resize(header.CodeImageSize);
-		std::fread(std::data(this->CodeDiscriminatorBuffer_), sizeof(CodeStorageType::value_type), header.DiscriminatorImageSize, &in);
+		this->CodeDiscriminatorBuffer_.resize(header.DiscriminatorImageSize);
+		in.Read(std::data(this->CodeDiscriminatorBuffer_), sizeof(DiscriminatorStorageType::value_type) * header.DiscriminatorImageSize);
 
 		return true;
 	}
@@ -344,7 +342,7 @@ namespace Nominax::ByteCode
 		return ByteCode::ContainsEpilogue(*this);
 	}
 
-    auto Stream::Display(std::FILE& stream) const -> void
+    auto Stream::Display(Foundation::DataStream& stream) const -> void
     {
         using namespace Foundation;
 

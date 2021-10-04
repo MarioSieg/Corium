@@ -249,7 +249,7 @@ namespace Nominax::Foundation
         return found(option.Short) || found(option.Long);
 	}
 
-    auto CLIParser::Display(std::FILE& stream) const -> void
+    auto CLIParser::Display(DataStream& stream) const -> void
     {
         for (const auto& option : this->Options_)
         {

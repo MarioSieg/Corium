@@ -209,63 +209,20 @@
 
 namespace Nominax::Foundation
 {
-    /// <summary>
-    /// Controller for the logger protocol.
-    /// </summary>
-    struct ProtocolController final
+    enum class FileAccessMode : char
     {
-        /// <summary>
-        /// Static class.
-        /// </summary>
-        ProtocolController() = delete;
-
-        /// <summary>
-        /// Static class.
-        /// </summary>
-        /// <param name="other"></param>
-        ProtocolController(const ProtocolController& other) = delete;
-
-        /// <summary>
-        /// Static class.
-        /// </summary>
-        /// <param name="other"></param>
-        ProtocolController(ProtocolController&& other) = delete;
-
-        /// <summary>
-        /// Static class.
-        /// </summary>
-        /// <param name="other"></param>
-        /// <returns></returns>
-        auto operator =(const ProtocolController& other) -> ProtocolController& = delete;
-
-        /// <summary>
-        /// Static class.
-        /// </summary>
-        /// <param name="other"></param>
-        /// <returns></returns>
-        auto operator =(ProtocolController&& other) -> ProtocolController& = delete;
-
-		/// <summary>
-		/// Static class.
-		/// </summary>
-        ~ProtocolController() = delete;
-
-        /// <summary>
-        /// If true, the protocol will be printed out to the console, else the protocol is ignored.
-        /// </summary>
-        static inline constinit bool IsProtocolEnabled { true };
-
-        /// <summary>
-        /// Query output stream.
-        /// </summary>
-        /// <returns>The current stream acting as stdout.</returns>
-        [[nodiscard]]
-        static inline auto GetProtocolStream() -> DataStream&;
+        Read = 'r',
+        Write = 'w'
     };
 
-    inline auto ProtocolController::GetProtocolStream() -> DataStream&
+    class FileStream : public DataStream
     {
-        static DataStream Out { DataStream::StdOut() };
-        return Out;
-    }
+    public:
+        explicit FileStream(const std::string& fileName, FileAccessMode mode);
+        FileStream(FileStream&& other) = delete;
+        FileStream(const FileStream& other) = delete;
+        auto operator =(const FileStream& other) -> FileStream& = delete;
+        auto operator =(FileStream&& other) -> FileStream& = delete;
+        ~FileStream() override;
+    };
 }

@@ -205,67 +205,130 @@
 
 #pragma once
 
-#include "DataStream.hpp"
+#include <cstdio>
+#include <type_traits>
+
+#include "PanicAssertions.hpp"
 
 namespace Nominax::Foundation
 {
-    /// <summary>
-    /// Controller for the logger protocol.
-    /// </summary>
-    struct ProtocolController final
+    class DataStream
     {
-        /// <summary>
-        /// Static class.
-        /// </summary>
-        ProtocolController() = delete;
+    protected:
+        std::FILE& Handle_;
 
-        /// <summary>
-        /// Static class.
-        /// </summary>
-        /// <param name="other"></param>
-        ProtocolController(const ProtocolController& other) = delete;
+    public:
+        explicit DataStream(std::FILE& handle);
+        DataStream(const DataStream& other) = delete;
+        DataStream(DataStream&& other) = delete;
+        auto operator =(const DataStream& other) -> DataStream& = delete;
+        auto operator =(DataStream&& other) -> DataStream& = delete;
+        virtual ~DataStream() = default;
 
-        /// <summary>
-        /// Static class.
-        /// </summary>
-        /// <param name="other"></param>
-        ProtocolController(ProtocolController&& other) = delete;
+        auto Write(const void* buffer, std::uint64_t size) -> void;
+        auto Read(void* buffer, std::uint64_t size) -> void;
 
-        /// <summary>
-        /// Static class.
-        /// </summary>
-        /// <param name="other"></param>
-        /// <returns></returns>
-        auto operator =(const ProtocolController& other) -> ProtocolController& = delete;
-
-        /// <summary>
-        /// Static class.
-        /// </summary>
-        /// <param name="other"></param>
-        /// <returns></returns>
-        auto operator =(ProtocolController&& other) -> ProtocolController& = delete;
-
-		/// <summary>
-		/// Static class.
-		/// </summary>
-        ~ProtocolController() = delete;
-
-        /// <summary>
-        /// If true, the protocol will be printed out to the console, else the protocol is ignored.
-        /// </summary>
-        static inline constinit bool IsProtocolEnabled { true };
-
-        /// <summary>
-        /// Query output stream.
-        /// </summary>
-        /// <returns>The current stream acting as stdout.</returns>
         [[nodiscard]]
-        static inline auto GetProtocolStream() -> DataStream&;
+        auto WriteUnchecked(const void* buffer, std::uint64_t size) -> bool;
+
+        [[nodiscard]]
+        auto ReadUnchecked(void* buffer, std::uint64_t size) -> bool;
+
+        template <typename T> requires std::is_trivial_v<T>
+        auto Write(const T& buffer) -> void;
+
+        template <typename T> requires std::is_trivial_v<T>
+        auto Read(T& buffer) -> void;
+
+        template <typename T> requires std::is_trivial_v<T>
+        [[nodiscard]]
+        auto WriteUnchecked(const T& buffer) -> bool;
+
+        template <typename T> requires std::is_trivial_v<T>
+        [[nodiscard]]
+        auto ReadUnchecked(T& buffer) -> bool;
+
+
+        auto PutChar(char x) -> void;
+        [[nodiscard]]
+        auto PutCharUnchecked(char x) -> bool;
+        auto Flush() -> void;
+        auto NewLine() -> void;
+
+        auto GetHandle() -> std::FILE&;
+        auto GetHandle() const -> const std::FILE&;
+
+        auto operator *() -> std::FILE*;
+        auto operator *() const -> const std::FILE*;
+
+        [[nodiscard]] static auto StdOut() -> DataStream;
+        [[nodiscard]] static auto StdErr() -> DataStream;
+        [[nodiscard]] static auto StdIn() -> DataStream;
     };
 
-    inline auto ProtocolController::GetProtocolStream() -> DataStream&
+    inline DataStream::DataStream(std::FILE& handle) : Handle_ { handle } { }
+
+    inline auto DataStream::GetHandle() -> std::FILE&
     {
-        static DataStream Out { DataStream::StdOut() };
-        return Out;
+        return ***this;
+    }
+
+    inline auto DataStream::GetHandle() const -> const std::FILE&
+    {
+        return ***this;
+    }
+
+    inline auto DataStream::operator *() -> std::FILE*
+    {
+        return &this->Handle_;
+    }
+
+    inline auto DataStream::operator *() const -> const std::FILE*
+    {
+        return &this->Handle_;
+    }
+
+    template<typename T> requires std::is_trivial_v<T>
+    inline auto DataStream::Write(const T& buffer) -> void
+    {
+        this->Write(&buffer, sizeof(T));
+    }
+
+    template<typename T> requires std::is_trivial_v<T>
+    inline auto DataStream::Read(T& buffer) -> void
+    {
+        this->Read(&buffer, sizeof(T));
+    }
+
+    template<typename T> requires std::is_trivial_v<T>
+    inline auto DataStream::WriteUnchecked(const T& buffer) -> bool
+    {
+        return this->WriteUnchecked(&buffer, sizeof(T));
+    }
+
+    template<typename T> requires std::is_trivial_v<T>
+    inline auto DataStream::ReadUnchecked(T& buffer) -> bool
+    {
+        return this->ReadUnchecked(&buffer, sizeof(T));
+    }
+
+    inline auto DataStream::StdOut() -> DataStream
+    {
+        return DataStream { *stdout };
+    }
+
+    inline auto DataStream::StdErr() -> DataStream
+    {
+        return DataStream { *stderr };
+    }
+
+    inline auto DataStream::StdIn() -> DataStream
+    {
+        return DataStream { *stdin };
+    }
+
+    inline auto DataStream::NewLine() -> void
+    {
+        this->PutChar('\n');
     }
 }

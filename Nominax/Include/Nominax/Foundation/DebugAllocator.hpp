@@ -337,7 +337,7 @@ namespace Nominax::Foundation
         /// <summary>
         /// Prints this object into the file stream.
         /// </summary>
-        virtual auto Display(std::FILE& stream) const -> void override;
+        virtual auto Display(DataStream& stream) const -> void override;
 	};
 
 	constexpr auto DebugAllocator::GetAllocationCount() const -> std::uint64_t

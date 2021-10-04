@@ -309,7 +309,7 @@ namespace Nominax::Foundation
         /// <summary>
         /// Prints this object into the file stream.
         /// </summary>
-        virtual auto Display(std::FILE& stream) const -> void override;
+        virtual auto Display(DataStream& stream) const -> void override;
 
 		/// <summary>
 		/// Returns true if the argument count is less or equal to one,

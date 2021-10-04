@@ -325,14 +325,14 @@ namespace Nominax::Foundation
 		/// </summary>
 		/// <returns>True on success, else false.</returns>
 		[[nodiscard]]
-		virtual auto Serialize(std::FILE& out) const -> bool override;
+		virtual auto Serialize(DataStream& out) const -> bool override;
 
 		/// <summary>
 		/// Deserialize from file stream.
 		/// </summary>
 		/// <returns>True on success, else false.</returns>
 		[[nodiscard]]
-		virtual auto Deserialize(std::FILE& in) -> bool override;
+		virtual auto Deserialize(DataStream& in) -> bool override;
 
 		/// <summary>
 		/// Begins a new section in the file and appends to it.

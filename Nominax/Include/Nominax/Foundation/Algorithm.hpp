@@ -395,9 +395,9 @@ namespace Nominax::Foundation
 	constexpr auto FP16ToFP32(const std::uint16_t src) -> float
 	{
 		const std::uint32_t h { src };
-		std::uint32_t       sign { (h >> 15) & 1 };
-		std::uint32_t       exp { (h >> 10) & 0x1F };
-		std::uint32_t       man { (h & 0x3FF) << 13 };
+		std::uint32_t sign { (h >> 15) & 1 };
+		std::uint32_t exp { (h >> 10) & 0x1F };
+		std::uint32_t man { (h & 0x3FF) << 13 };
 
 		if (exp == 0x1F)
 		{
@@ -641,7 +641,7 @@ namespace Nominax::Foundation
 	/// <typeparam name="VariantType"></typeparam>
 	/// <typeparam name="T"></typeparam>
 	/// <returns></returns>
-	template <typename VariantType, typename T, std::uint64_t Index = 0>
+	template <typename VariantType, typename T, const std::uint64_t Index = 0>
 	[[nodiscard]]
 	constexpr auto VariantIndexOf() -> std::uint64_t
 	{

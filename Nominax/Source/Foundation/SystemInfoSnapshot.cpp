@@ -223,7 +223,7 @@ namespace Nominax::Foundation
 		this->PageSize          = OSI::QueryPageSize();
 	}
 
-    auto SystemInfoSnapshot::Display(std::FILE& stream) const -> void
+    auto SystemInfoSnapshot::Display(DataStream& stream) const -> void
     {
         using Foundation::Print;
 

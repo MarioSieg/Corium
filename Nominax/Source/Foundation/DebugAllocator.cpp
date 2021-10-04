@@ -278,7 +278,7 @@ namespace Nominax::Foundation
 		++this->Deallocations_;
 	}
 
-    auto DebugAllocator::Display(std::FILE& stream) const -> void
+    auto DebugAllocator::Display(DataStream& stream) const -> void
     {
         const auto [count, suffix] { GetMemoryUnitInfo(this->BytesAllocated_) };
         Print(stream, "Allocations: {}\n", this->Allocations_);

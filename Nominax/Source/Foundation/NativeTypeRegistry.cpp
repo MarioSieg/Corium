@@ -20,7 +20,7 @@ namespace Nominax::Foundation
         }
     };
 
-    auto NativeTypeRegistry::Display(std::FILE& stream) const -> void
+    auto NativeTypeRegistry::Display(DataStream& stream) const -> void
     {
         for (const NativeTypeInfo& info : this->Data)
         {

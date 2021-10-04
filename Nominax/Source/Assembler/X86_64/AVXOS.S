@@ -203,11 +203,17 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-.globl _IsAVXSupportedByOS
+#ifdef __APPLE__
+#define SUBROUTINE(x) x##_
+#else
+#define SUBROUTINE(x) x
+#endif
+
+.globl SUBROUTINE(IsAVXSupportedByOS)
 
 # extern "C" NOX_ASM_ROUTINE auto IsAVXSupportedByOS() -> bool;
 # Header: Arch/X86_64/CpuId.hpp
-_IsAVXSupportedByOS:
+SUBROUTINE(IsAVXSupportedByOS):
     xorl    %ecx, %ecx              # clear ecx
     xgetbv                          # read value from extended control register into %edx:%eax
     andb    $0b00000110, %al        # mask out avx bits

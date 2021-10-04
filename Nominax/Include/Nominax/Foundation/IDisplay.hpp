@@ -205,7 +205,7 @@
 
 #pragma once
 
-#include <cstdio>
+#include "DataStream.hpp"
 
 namespace Nominax::Foundation
 {
@@ -252,11 +252,11 @@ namespace Nominax::Foundation
         /// <summary>
         /// Prints this object into the file stream.
         /// </summary>
-        virtual auto Display(std::FILE& stream) const -> void = 0;
+        NOX_COLD virtual auto Display(DataStream& stream) const -> void = 0;
 
         /// <summary>
         /// Prints this object into the console.
         /// </summary>
-        virtual auto DisplayToConsole() const -> void;
+        NOX_COLD virtual auto DisplayToConsole() const -> void;
     };
 }

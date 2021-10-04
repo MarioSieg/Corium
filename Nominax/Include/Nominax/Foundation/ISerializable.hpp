@@ -205,10 +205,9 @@
 
 #pragma once
 
-#include <cstdio>
-#include <filesystem>
-#include <fstream>
 #include <string>
+
+#include "DataStream.hpp"
 
 namespace Nominax::Foundation
 {
@@ -274,13 +273,13 @@ namespace Nominax::Foundation
 		/// </summary>
 		/// <returns>True on success, else false.</returns>
 		[[nodiscard]]
-		virtual auto Serialize(std::FILE& out) const -> bool = 0;
+		virtual auto Serialize(DataStream& out) const -> bool = 0;
 
 		/// <summary>
 		/// Deserialize from file stream.
 		/// </summary>
 		/// <returns>True on success, else false.</returns>
 		[[nodiscard]]
-		virtual auto Deserialize(std::FILE& in) -> bool = 0;
+		virtual auto Deserialize(DataStream& in) -> bool = 0;
 	};
 }

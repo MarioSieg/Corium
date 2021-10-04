@@ -203,10 +203,9 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <cinttypes>
-
 #include "../../Include/Nominax/Foundation/INIFile.hpp"
 #include "../../Include/Nominax/Foundation/Algorithm.hpp"
+#include "../../Include/Nominax/Foundation/Print.hpp"
 
 namespace Nominax::Foundation
 {
@@ -215,7 +214,7 @@ namespace Nominax::Foundation
         this->PushSection(Key { DEFAULT_SECTION_NAME });
     }
 
-	INIFile::INIFile(SectionMap&& map) : Sections_ {std::move(map) }
+	INIFile::INIFile(SectionMap&& map) : Sections_ { std::move(map) }
     {
         if (std::empty(this->Sections_))
         {
@@ -234,7 +233,7 @@ namespace Nominax::Foundation
 		this->Sections_[this->CurrentSection].insert_or_assign(std::move(key), std::move(value));
 	}
 
-	auto INIFile::Serialize([[maybe_unused]] std::FILE& out) const -> bool
+	auto INIFile::Serialize(DataStream& out) const -> bool
 	{
 		for (const auto& [section, entries] : this->Sections_)
 		{
@@ -242,40 +241,40 @@ namespace Nominax::Foundation
 			{
 				continue;
 			}
-            std::fprintf(&out, "%c%s%c\n", SECTION_BEGIN, section.c_str(), SECTION_END);
+            Print(out, "{}{}{}\n", SECTION_BEGIN, section.c_str(), SECTION_END);
 			for (const auto& [key, value] : entries)
 			{
-                std::fprintf(&out, "%s %c ", key.c_str(), EQU);
+                Print(out, "{} {} ", key.c_str(), EQU);
                 std::visit
                 (
                     Overload
                     {
                         [&out](const std::string& val)
                         {
-                            std::fprintf(&out, "\"%s\"", val.c_str());
+                            Print(out, "\"{}\"", val.c_str());
                         },
                         [&out](const std::int64_t val)
                         {
-                            std::fprintf(&out, "%" PRIi64, val);
+                            Print(out, "{}", val);
                         },
                         [&out](const double val)
                         {
-                            std::fprintf(&out, "%f", val);
+                            Print(out, "{}", val);
                         },
                         [&out](const bool val)
                         {
-                            std::fprintf(&out, "%s", val ? "true" : "false");
+                            Print(out, "{}", val ? "true" : "false");
                         }
                     }, value
                 );
-                std::fputc('\n', &out);
+                out.NewLine();
 			}
-            std::fputc('\n', &out);
+            out.NewLine();
 		}
 		return true;
 	}
 
-	auto INIFile::Deserialize([[maybe_unused]] std::FILE& in) -> bool
+	auto INIFile::Deserialize([[maybe_unused]] DataStream& in) -> bool
 	{
 		return false;
 	}

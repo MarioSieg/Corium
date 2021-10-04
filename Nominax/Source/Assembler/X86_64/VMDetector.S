@@ -203,9 +203,15 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-.globl _VMDetector
+#ifdef __APPLE__
+#define SUBROUTINE(x) x##_
+#else
+#define SUBROUTINE(x) x
+#endif
 
-_VMDetector:
+.globl SUBROUTINE(VMDetector)
+
+SUBROUTINE(VMDetector):
     rdtsc                   # read time stamp counter into %edx:%eax
     salq    $32, %rdx       # shift into hiword
     orq     %rdx, %rax      # merge

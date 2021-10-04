@@ -203,10 +203,16 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-.globl _MockCall
+#ifdef __APPLE__
+#define SUBROUTINE(x) x##_
+#else
+#define SUBROUTINE(x) x
+#endif
+
+.globl SUBROUTINE(MockCall)
 
 # Header: Arch/X86_64/CpuId.hpp
-_MockCall:
+SUBROUTINE(MockCall):
     xorl    %eax, %eax
 #ifdef __WIN__
     movb	$0xFF, %al

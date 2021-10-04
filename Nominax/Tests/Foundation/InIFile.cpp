@@ -223,7 +223,7 @@ TEST(IniFile, Write)
 	ASSERT_TRUE(file);
 	const std::string content {(std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>()};
 	ASSERT_EQ(content,
-              Format("[Values]\nAge = 10\nPi = 3.141500\nSymver = \"Hello\"\n\n"));
+              Format("[Values]\nAge = 10\nPi = 3.1415\nSymver = \"Hello\"\n\n"));
 	file.close();
 	std::filesystem::remove("Test.ini");
 	ASSERT_FALSE(std::filesystem::exists("Test.ini"));

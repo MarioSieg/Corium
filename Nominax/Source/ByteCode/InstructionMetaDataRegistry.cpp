@@ -208,7 +208,7 @@
 
 namespace Nominax::ByteCode
 {
-    auto InstructionMetaDataRegistry::PrintInstructionSetTable(std::FILE& stream) -> void
+    auto InstructionMetaDataRegistry::PrintInstructionSetTable(Foundation::DataStream& stream) -> void
     {
         using Foundation::Print;
 

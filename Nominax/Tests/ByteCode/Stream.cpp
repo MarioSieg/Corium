@@ -358,6 +358,7 @@ TEST(BytecodeStream, GetStreamHeader)
 	{
 		ASSERT_EQ(header.Magic[i], Stream::SerializationImageHeader::MAGIC_ID[i]);
 	}
+    header.EncryptDecrypt();
 	ASSERT_NE(header.CodeImageSize, std::size(stream.GetCodeBuffer()));
 	ASSERT_NE(header.DiscriminatorImageSize, std::size(stream.GetDiscriminatorBuffer()));
 

@@ -269,7 +269,7 @@ namespace Nominax::Foundation
         return true;
     }
 
-    auto CLIOptions::Display(std::FILE& stream) const -> void
+    auto CLIOptions::Display(DataStream& stream) const -> void
     {
         using Foundation::Print;
 

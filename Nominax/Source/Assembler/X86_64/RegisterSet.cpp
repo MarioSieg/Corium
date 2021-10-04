@@ -210,7 +210,7 @@ namespace Nominax::Assembler::X86_64
 {
     using Foundation::Print;
 
-    auto DumpRegisterSet(std::FILE& stream, const GPRRegisterSet& regset) -> void
+    auto DumpRegisterSet(Foundation::DataStream& stream, const GPRRegisterSet& regset) -> void
     {
         static constexpr std::array<std::string_view, 16> GPR_LUT
         {
@@ -242,7 +242,7 @@ namespace Nominax::Assembler::X86_64
         Print(stream, '\n');
     }
 
-    auto DumpRegisterSet(std::FILE& stream, const SSERegisterSet& regset) -> void
+    auto DumpRegisterSet(Foundation::DataStream& stream, const SSERegisterSet& regset) -> void
     {
         for (std::uint64_t i { 0 }; i < std::size(regset); ++i)
         {
@@ -251,7 +251,7 @@ namespace Nominax::Assembler::X86_64
         }
     }
 
-    auto DumpRegisterSet(std::FILE& stream, const AVXRegisterSet& regset) -> void
+    auto DumpRegisterSet(Foundation::DataStream& stream, const AVXRegisterSet& regset) -> void
     {
         for (std::uint64_t i { 0 }; i < std::size(regset); ++i)
         {
@@ -268,7 +268,7 @@ namespace Nominax::Assembler::X86_64
         }
     }
 
-    auto DumpRegisterSet(std::FILE& stream, const AVX512RegisterSet& regset) -> void
+    auto DumpRegisterSet(Foundation::DataStream& stream, const AVX512RegisterSet& regset) -> void
     {
         for (std::uint64_t i { 0 }; i < std::size(regset); ++i)
         {
@@ -289,7 +289,7 @@ namespace Nominax::Assembler::X86_64
         }
     }
 
-    auto DumpRegisterSet(std::FILE& stream, const AVX512MaskRegisterSet& regset) -> void
+    auto DumpRegisterSet(Foundation::DataStream& stream, const AVX512MaskRegisterSet& regset) -> void
     {
         for (std::uint64_t i { 0 }; i < std::size(regset); ++i)
         {
@@ -298,7 +298,7 @@ namespace Nominax::Assembler::X86_64
         }
     }
 
-    auto DumpRegisterSet(std::FILE& stream, const AVX512BWMaskRegisterSet& regset) -> void
+    auto DumpRegisterSet(Foundation::DataStream& stream, const AVX512BWMaskRegisterSet& regset) -> void
     {
         for (std::uint64_t i { 0 }; i < std::size(regset); ++i)
         {

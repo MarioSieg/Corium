@@ -3,7 +3,7 @@
 
 namespace Nominax::Foundation
 {
-    auto Version::Display(std::FILE& stream) const -> void
+    auto Version::Display(DataStream& stream) const -> void
     {
         Print(stream, SYSTEM_LOGO_TEXT);
         Print(stream, SYSTEM_COPYRIGHT_TEXT);

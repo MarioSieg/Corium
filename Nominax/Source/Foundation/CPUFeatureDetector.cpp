@@ -273,7 +273,7 @@ namespace Nominax::Foundation
 		#endif
 	}
 
-    auto CPUFeatureDetector::Display(std::FILE& stream) const -> void
+    auto CPUFeatureDetector::Display(DataStream& stream) const -> void
     {
         Print(stream, "CPU Features:");
         #if NOX_ARCH_X86_64

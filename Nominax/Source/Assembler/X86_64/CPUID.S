@@ -203,10 +203,16 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-.globl _CPUID
+#ifdef __APPLE__
+#define SUBROUTINE(x) x##_
+#else
+#define SUBROUTINE(x) x
+#endif
+
+.globl SUBROUTINE(CPUID)
 
 # Header: Include/Assembler/X86_64/Routines.hpp
-_CPUID:
+SUBROUTINE(CPUID):
     pushq   %rbp                # stack frame prologue
     movq    %rsp, %rbp          # stack frame prologue
     pushq   %rbx
