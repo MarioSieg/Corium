@@ -205,12 +205,12 @@
 
 #include <array>
 
-#include "../../Include/Nominax/Foundation/FileStream.hpp"
+#include "../../Include/Nominax/Foundation/IOStream.hpp"
 #include "../../Include/Nominax/Foundation/Print.hpp"
 
 namespace Nominax::Foundation
 {
-    FileStream::FileStream(const std::string& fileName, const FileAccessMode mode)
+    IOStream::IOStream(const std::string& fileName, const FileAccessMode mode)
     : DataStream
     {
         [&]() -> std::FILE&
@@ -220,10 +220,29 @@ namespace Nominax::Foundation
             NOX_PAS(handle, Format("Failed to open file handle: {}", fileName));
             return *handle;
         }()
-    } { }
+    }, AccessMode_ { mode } { }
 
-    FileStream::~FileStream()
+    IOStream::IOStream(IOStream&& other) : DataStream { **other }, AccessMode_ { other.AccessMode_ }
     {
-        std::fclose(&this->Handle_);
+        other.Handle_ = nullptr;
+    }
+
+    auto IOStream::operator =(IOStream&& other) -> IOStream&
+    {
+        if (this == &other)
+        {
+            return *this;
+        }
+        std::fclose(this->Handle_);
+        this->Handle_ = other.Handle_;
+        this->AccessMode_ = other.AccessMode_;
+        other.Handle_ = nullptr;
+        return *this;
+    }
+
+    IOStream::~IOStream()
+    {
+        std::fclose(this->Handle_);
+        this->Handle_ = nullptr;
     }
 }

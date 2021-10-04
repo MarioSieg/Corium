@@ -215,14 +215,48 @@ namespace Nominax::Foundation
         Write = 'w'
     };
 
-    class FileStream : public DataStream
+    class IOStream : public DataStream
     {
+        FileAccessMode AccessMode_;
+
     public:
-        explicit FileStream(const std::string& fileName, FileAccessMode mode);
-        FileStream(FileStream&& other) = delete;
-        FileStream(const FileStream& other) = delete;
-        auto operator =(const FileStream& other) -> FileStream& = delete;
-        auto operator =(FileStream&& other) -> FileStream& = delete;
-        ~FileStream() override;
+        explicit IOStream(const std::string& fileName, FileAccessMode mode);
+        IOStream(IOStream&& other);
+        IOStream(const IOStream& other) = delete;
+        auto operator =(const IOStream& other) -> IOStream& = delete;
+        auto operator =(IOStream&& other) -> IOStream&;
+        ~IOStream() override;
+
+        auto GetAccessMode() const -> FileAccessMode;
+        auto IsReadable() const -> bool;
+        auto IsWriteable() const -> bool;
+
+        auto operator *() -> std::FILE*;
+        auto operator *() const -> const std::FILE*;
     };
+
+    inline auto IOStream::operator *() -> std::FILE*
+    {
+        return this->Handle_;
+    }
+
+    inline auto IOStream::operator *() const -> const std::FILE*
+    {
+        return this->Handle_;
+    }
+
+    inline auto IOStream::GetAccessMode() const -> FileAccessMode
+    {
+        return this->AccessMode_;
+    }
+
+    inline auto IOStream::IsReadable() const -> bool
+    {
+        return this->AccessMode_ == FileAccessMode::Read;
+    }
+
+    inline auto IOStream::IsWriteable() const -> bool
+    {
+        return this->AccessMode_ == FileAccessMode::Write;
+    }
 }

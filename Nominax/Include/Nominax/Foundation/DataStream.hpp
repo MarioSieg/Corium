@@ -215,14 +215,14 @@ namespace Nominax::Foundation
     class DataStream
     {
     protected:
-        std::FILE& Handle_;
+        std::FILE* Handle_;
 
     public:
         explicit DataStream(std::FILE& handle);
         DataStream(const DataStream& other) = delete;
-        DataStream(DataStream&& other) = delete;
+        DataStream(DataStream&& other) noexcept = default;
         auto operator =(const DataStream& other) -> DataStream& = delete;
-        auto operator =(DataStream&& other) -> DataStream& = delete;
+        auto operator =(DataStream&& other) noexcept -> DataStream& = default;
         virtual ~DataStream() = default;
 
         auto Write(const void* buffer, std::uint64_t size) -> void;
@@ -258,15 +258,15 @@ namespace Nominax::Foundation
         auto GetHandle() -> std::FILE&;
         auto GetHandle() const -> const std::FILE&;
 
-        auto operator *() -> std::FILE*;
-        auto operator *() const -> const std::FILE*;
+       auto operator *() -> std::FILE*;
+       auto operator *() const -> const std::FILE*;
 
         [[nodiscard]] static auto StdOut() -> DataStream;
         [[nodiscard]] static auto StdErr() -> DataStream;
         [[nodiscard]] static auto StdIn() -> DataStream;
     };
 
-    inline DataStream::DataStream(std::FILE& handle) : Handle_ { handle } { }
+    inline DataStream::DataStream(std::FILE& handle) : Handle_ { &handle } { }
 
     inline auto DataStream::GetHandle() -> std::FILE&
     {
@@ -280,12 +280,12 @@ namespace Nominax::Foundation
 
     inline auto DataStream::operator *() -> std::FILE*
     {
-        return &this->Handle_;
+        return this->Handle_;
     }
 
     inline auto DataStream::operator *() const -> const std::FILE*
     {
-        return &this->Handle_;
+        return this->Handle_;
     }
 
     template<typename T> requires std::is_trivial_v<T>
