@@ -209,38 +209,114 @@
 
 namespace Nominax::Foundation
 {
+    /// <summary>
+    /// File access types.
+    /// </summary>
     enum class FileAccessMode : char
     {
+        /// <summary>
+        /// Read access.
+        /// </summary>
         Read = 'r',
+
+        /// <summary>
+        /// Write access.
+        /// </summary>
         Write = 'w'
     };
 
+    /// <summary>
+    /// Represents an IO stream to a file system object.
+    /// </summary>
     class IOStream : public DataStream
     {
+    protected:
+        /// <summary>
+        /// Access mode.
+        /// </summary>
         FileAccessMode AccessMode_;
 
     public:
-        explicit IOStream(const std::string& fileName, FileAccessMode mode);
-        IOStream(IOStream&& other);
+        /// <summary>
+        /// Construct and open file stream.
+        /// </summary>
+        /// <param name="fileName">The name of the file.</param>
+        /// <param name="accessMode">The access mode.</param>
+        explicit IOStream(const std::string& fileName, FileAccessMode accessMode);
+
+    	/// <summary>
+    	/// Move constructor.
+    	/// </summary>
+    	/// <param name="other"></param>
+    	IOStream(IOStream&& other);
+
+        /// <summary>
+        /// No copy.
+        /// </summary>
+        /// <param name="other"></param>
         IOStream(const IOStream& other) = delete;
+
+        /// <summary>
+        /// No copy.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         auto operator =(const IOStream& other) -> IOStream& = delete;
+
+        /// <summary>
+        /// Move assignment operator.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         auto operator =(IOStream&& other) -> IOStream&;
+
+        /// <summary>
+        /// Destructor
+        /// </summary>
         ~IOStream() override;
 
-        auto GetAccessMode() const -> FileAccessMode;
-        auto IsReadable() const -> bool;
-        auto IsWriteable() const -> bool;
+        /// <summary>
+        /// Query access mode.
+        /// </summary>
+        /// <returns>The access mode the file was opened with.</returns>
+        [[nodiscard]]
+    	auto GetAccessMode() const -> FileAccessMode;
 
-        auto operator *() -> std::FILE*;
-        auto operator *() const -> const std::FILE*;
+        /// <summary>
+        /// Query access mode.
+        /// </summary>
+        /// <returns>True if the file is readable, else false.</returns>
+        [[nodiscard]]
+    	auto IsReadable() const -> bool;
+
+        /// <summary>
+        /// Query access mode.
+        /// </summary>
+        /// <returns>True if the file is writeable, else false.</returns>
+        [[nodiscard]]
+    	auto IsWriteable() const -> bool;
+
+        /// <summary>
+        /// Query native handle.
+        /// </summary>
+        /// <returns></returns>
+        [[nodiscard]]
+    	auto operator *() -> NativeHandle*;
+
+		/// <summary>
+		/// Query native handle.
+		/// </summary>
+		/// <returns></returns>
+        [[nodiscard]]
+    	auto operator *() const -> const NativeHandle*;
     };
 
-    inline auto IOStream::operator *() -> std::FILE*
+    inline auto IOStream::operator *() -> NativeHandle*
     {
         return this->Handle_;
     }
 
-    inline auto IOStream::operator *() const -> const std::FILE*
+    inline auto IOStream::operator *() const -> const NativeHandle*
     {
         return this->Handle_;
     }

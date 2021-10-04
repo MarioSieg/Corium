@@ -212,78 +212,229 @@
 
 namespace Nominax::Foundation
 {
+    /// <summary>
+    /// Represents a data stream for I/O communication.
+    /// </summary>
     class DataStream
     {
+    public:
+        /// <summary>
+        /// Native handle type.
+        /// </summary>
+        using NativeHandle = std::FILE;
+
     protected:
-        std::FILE* Handle_;
+        /// <summary>
+        /// Connected handle.
+        /// </summary>
+        NativeHandle* Handle_;
 
     public:
-        explicit DataStream(std::FILE& handle);
+        /// <summary>
+        /// Construct from handle.
+        /// </summary>
+        /// <param name="handle"></param>
+        explicit DataStream(NativeHandle& handle);
+
+        /// <summary>
+        /// No copy.
+        /// </summary>
+        /// <param name="other"></param>
         DataStream(const DataStream& other) = delete;
+
+        /// <summary>
+        /// Move constructor.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         DataStream(DataStream&& other) noexcept = default;
+
+        /// <summary>
+        /// No copy.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         auto operator =(const DataStream& other) -> DataStream& = delete;
+
+        /// <summary>
+        /// Move assignment operator.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         auto operator =(DataStream&& other) noexcept -> DataStream& = default;
+
+        /// <summary>
+        /// Destructor.
+        /// </summary>
         virtual ~DataStream() = default;
 
+        /// <summary>
+        /// Write buffer and panic on fail.
+        /// </summary>
+        /// <param name="buffer">Raw memory pointer.</param>
+        /// <param name="size">The size of the buffer in bytes.</param>
+        /// <returns></returns>
         auto Write(const void* buffer, std::uint64_t size) -> void;
+
+        /// <summary>
+        /// Read buffer and panic on fail.
+        /// </summary>
+        /// <param name="buffer">Raw memory pointer.</param>
+        /// <param name="size">The size of the buffer in bytes.</param>
+        /// <returns></returns>
         auto Read(void* buffer, std::uint64_t size) -> void;
 
+        /// <summary>
+        /// Write buffer and return result.
+        /// </summary>
+        /// <param name="buffer">Raw memory pointer.</param>
+        /// <param name="size">The size of the buffer in bytes.</param>
+        /// <returns>True on success, else false.</returns>
         [[nodiscard]]
-        auto WriteUnchecked(const void* buffer, std::uint64_t size) -> bool;
+    	auto WriteUnchecked(const void* buffer, std::uint64_t size) -> bool;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="buffer">Raw memory pointer.</param>
+        /// <param name="size">The size of the buffer in bytes.</param>
+        /// <returns>True on success, else false.</returns>
         [[nodiscard]]
-        auto ReadUnchecked(void* buffer, std::uint64_t size) -> bool;
+    	auto ReadUnchecked(void* buffer, std::uint64_t size) -> bool;
 
+        /// <summary>
+		/// Write object and panic on fail.
+		/// </summary>
+		/// <typeparam name="T">The POD type to write.</typeparam>
+		/// <param name="buffer">The POD type to write.</param>
+		/// <returns></returns>
         template <typename T> requires std::is_trivial_v<T>
-        auto Write(const T& buffer) -> void;
+    	auto Write(const T& buffer) -> void;
 
+        /// <summary>
+        /// Read object and panic on fail.
+        /// </summary>
+        /// <typeparam name="T">The POD type to read.</typeparam>
+        /// <param name="buffer">The POD type to read.</param>
+        /// <returns></returns>
         template <typename T> requires std::is_trivial_v<T>
         auto Read(T& buffer) -> void;
 
+        /// <summary>
+        /// Write object and return result.
+        /// </summary>
+        /// <typeparam name="T">The POD type to write.</typeparam>
+        /// <param name="buffer">The POD type to write.</param>
+        /// <returns>True on success, else false.</returns>
         template <typename T> requires std::is_trivial_v<T>
         [[nodiscard]]
         auto WriteUnchecked(const T& buffer) -> bool;
 
+        /// <summary>
+        /// Read object and return result.
+        /// </summary>
+        /// <typeparam name="T">The POD type to read.</typeparam>
+        /// <param name="buffer">The POD type to read.</param>
+        /// <returns>True on success, else false.</returns>
         template <typename T> requires std::is_trivial_v<T>
         [[nodiscard]]
         auto ReadUnchecked(T& buffer) -> bool;
 
-
+        /// <summary>
+        /// Write char and panic on fail.
+        /// </summary>
+        /// <param name="x">The char to write.</param>
+        /// <returns></returns>
         auto PutChar(char x) -> void;
+
+        /// <summary>
+        /// Write char and return result.
+        /// </summary>
+        /// <param name="x">The char to write.</param>
+        /// <returns></returns>
         [[nodiscard]]
-        auto PutCharUnchecked(char x) -> bool;
-        auto Flush() -> void;
+    	auto PutCharUnchecked(char x) -> bool;
+
+    	/// <summary>
+    	/// Flush stream and panic on fail.
+    	/// </summary>
+    	/// <returns></returns>
+    	auto Flush() -> void;
+
+        /// <summary>
+        /// Write new line and panic on fail.
+        /// </summary>
+        /// <returns></returns>
         auto NewLine() -> void;
 
-        auto GetHandle() -> std::FILE&;
-        auto GetHandle() const -> const std::FILE&;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns>The native handle.</returns>
+        [[nodiscard]]
+    	auto GetHandle() ->NativeHandle&;
 
-       auto operator *() -> std::FILE*;
-       auto operator *() const -> const std::FILE*;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns>The native handle.</returns>
+        [[nodiscard]]
+    	auto GetHandle() const -> const NativeHandle&;
 
-        [[nodiscard]] static auto StdOut() -> DataStream;
-        [[nodiscard]] static auto StdErr() -> DataStream;
-        [[nodiscard]] static auto StdIn() -> DataStream;
+        /// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The native handle.</returns>
+        [[nodiscard]]
+    	auto operator *() -> NativeHandle*;
+
+        /// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The native handle.</returns>
+        [[nodiscard]]
+    	auto operator *() const -> const NativeHandle*;
+
+		/// <summary>
+		/// Query standard stream.
+		/// </summary>
+		/// <returns>The std output stream.</returns>
+        [[nodiscard]]
+    	static auto StdOut() -> DataStream;
+
+        /// <summary>
+        /// Query standard stream.
+        /// </summary>
+        /// <returns>The std error stream.</returns>
+        [[nodiscard]]
+    	static auto StdErr() -> DataStream;
+
+        /// <summary>
+        /// Query standard stream.
+        /// </summary>
+        /// <returns>The std input stream.</returns>
+        [[nodiscard]]
+    	static auto StdIn() -> DataStream;
     };
 
-    inline DataStream::DataStream(std::FILE& handle) : Handle_ { &handle } { }
+    inline DataStream::DataStream(NativeHandle& handle) : Handle_ { &handle } { }
 
-    inline auto DataStream::GetHandle() -> std::FILE&
+    inline auto DataStream::GetHandle() -> NativeHandle&
     {
         return ***this;
     }
 
-    inline auto DataStream::GetHandle() const -> const std::FILE&
+    inline auto DataStream::GetHandle() const -> const NativeHandle&
     {
         return ***this;
     }
 
-    inline auto DataStream::operator *() -> std::FILE*
+    inline auto DataStream::operator *() -> NativeHandle*
     {
         return this->Handle_;
     }
 
-    inline auto DataStream::operator *() const -> const std::FILE*
+    inline auto DataStream::operator *() const -> const NativeHandle*
     {
         return this->Handle_;
     }

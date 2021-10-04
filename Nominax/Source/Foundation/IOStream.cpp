@@ -210,17 +210,17 @@
 
 namespace Nominax::Foundation
 {
-    IOStream::IOStream(const std::string& fileName, const FileAccessMode mode)
+    IOStream::IOStream(const std::string& fileName, const FileAccessMode accessMode)
     : DataStream
     {
         [&]() -> std::FILE&
         {
-            std::array<char, 2> modeProxy { static_cast<char>(mode), '\0' };
+            std::array<char, 2> modeProxy { static_cast<char>(accessMode), '\0' };
             std::FILE* const handle { std::fopen(fileName.c_str(), std::data(modeProxy)) };
             NOX_PAS(handle, Format("Failed to open file handle: {}", fileName));
             return *handle;
         }()
-    }, AccessMode_ { mode } { }
+    }, AccessMode_ { accessMode } { }
 
     IOStream::IOStream(IOStream&& other) : DataStream { **other }, AccessMode_ { other.AccessMode_ }
     {
