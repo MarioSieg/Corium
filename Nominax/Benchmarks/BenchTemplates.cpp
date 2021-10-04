@@ -217,20 +217,20 @@ auto LoopBenchmark
 	Print('\n');
 
 	Stream stream { };
-	stream << Instruction::NOP;
-	stream << Instruction::PUSHZ;
-	stream << Instruction::IINC;
-	stream << Instruction::DUPL;
-	stream << Instruction::PUSH;
-	stream << count;
+	stream.Emit(Instruction::NOP);
+	stream.Emit(Instruction::PUSHZ);
+	stream.Emit(Instruction::IINC);
+	stream.Emit(Instruction::DUPL);
+	stream.Emit(Instruction::PUSH);
+	stream.Emit(count);
 
 	loopBody(stream);
 
-	stream << Instruction::JLCMPI;
-	stream << JumpAddress {2};
-	stream << Instruction::POP;
-	stream << Instruction::INT;
-	stream << 0;
+	stream.Emit(Instruction::JLCMPI);
+	stream.Emit(JumpAddress {2});
+	stream.Emit(Instruction::POP);
+	stream.Emit(Instruction::INT);
+	stream.Emit(INT64_C(0));
 
 	Image bundle { };
 	Stream::Build(std::move(stream), Env->GetOptimizationHints(), bundle);
