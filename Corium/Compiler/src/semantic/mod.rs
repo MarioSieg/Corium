@@ -203,4 +203,45 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+use std::fmt;
+
 pub mod symtable;
+
+use crate::ast::*;
+use symtable::{GlobalSymbolTable, LocalSymbolTable};
+
+#[derive(Debug)]
+pub struct SemanticAnalysisContext<'ast> {
+    pub global: GlobalSymbolTable<'ast>,
+    pub local: LocalSymbolTable<'ast>,
+}
+
+impl<'ast> SemanticAnalysisContext<'ast> {
+    pub fn new() -> Self {
+        Self {
+            global: GlobalSymbolTable::new(),
+            local: LocalSymbolTable::new(),
+        }
+    }
+
+    pub fn walk(&'ast mut self, root: &'ast CompilationUnit<'ast>) {
+        for smt in &root.statements {
+            match smt {
+                GlobalStatement::Function(x) => {
+                    self.global.functions.insert(x.signature.name, x);
+                }
+                GlobalStatement::NativeFunction(x) => {
+                    self.global.native_functions.insert(x.signature.name, x);
+                }
+            }
+        }
+        println!("{}", self);
+    }
+}
+
+impl<'ast> fmt::Display for SemanticAnalysisContext<'ast> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        writeln!(f, "{}", self.local)?;
+        writeln!(f, "{}", self.global)
+    }
+}

@@ -211,6 +211,7 @@ mod codegen;
 mod context;
 mod error;
 mod literal;
+mod nominax;
 mod parser;
 mod semantic;
 mod unit;
@@ -222,9 +223,9 @@ fn main() {
 
     for file in options.input_files {
         let com_unit = context.enqueue_file(file);
-        com_unit.dump_ast = options.dump_ast;
-        com_unit.dump_asm = options.dump_asm;
-        com_unit.opt_level = options.opt_level;
+        com_unit.descriptor.dump_ast = options.dump_ast;
+        com_unit.descriptor.dump_asm = options.dump_asm;
+        com_unit.descriptor.opt_level = options.opt_level;
     }
 
     context.compile();

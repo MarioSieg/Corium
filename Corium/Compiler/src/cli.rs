@@ -256,6 +256,7 @@ pub struct Options {
 impl Options {
     pub fn parse_and_validate() -> Self {
         let mut options = Self::from_args();
+        #[cfg(feature = "concurrent_compilation")]
         if options.jobs == 0 {
             options.jobs = num_cpus::get() as _;
         }

@@ -203,110 +203,24 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::CompilationUnit;
-use crate::parser::parse_and_map;
-use crate::semantic::SemanticAnalysisContext;
-use std::default;
-use std::fs;
-use std::path::{Path, PathBuf};
-use std::time::{Duration, Instant};
-use uuid::Uuid;
+use std::process::Command;
 
-/// FileCompilationUnitDescriptor
-pub struct FCUDescriptor {
-    pub dump_ast: bool,
-    pub dump_asm: bool,
-    pub opt_level: u8,
-}
+const NOMINAX_EXE_NAME: &str = if cfg!(windows) {
+    "Nominax.exe"
+} else {
+    "Nominax"
+};
 
-impl default::Default for FCUDescriptor {
-    fn default() -> Self {
-        Self {
-            dump_ast: false,
-            dump_asm: false,
-            opt_level: 0,
-        }
+pub fn exec_nominax(args: &[&str]) {
+    let mut nominax = Command::new(NOMINAX_EXE_NAME);
+    for arg in args {
+        nominax.arg(arg);
     }
-}
-
-/// Represents a compilation unit.
-/// Each file contains a single compilation unit.
-pub struct FileCompilationUnit {
-    source_code: String,
-    file: PathBuf,
-    file_name: String,
-    id: Uuid,
-    file_load_time: Duration,
-    pub descriptor: FCUDescriptor,
-}
-
-impl FileCompilationUnit {
-    pub fn load(file: PathBuf, descriptor: FCUDescriptor) -> Box<Self> {
-        let clock = Instant::now();
-        let source_code = fs::read_to_string(&file)
-            .unwrap_or_else(|_| panic!("Failed to read source file: {:?}", &file));
-        let file_name = Self::extract_file_name(&file);
-        let id = Uuid::new_v4();
-        let file_load_time = clock.elapsed();
-        Box::new(Self {
-            source_code,
-            file,
-            file_name,
-            id,
-            file_load_time,
-            descriptor,
-        })
-    }
-
-    pub fn compile(&mut self) -> Duration {
-        let clock = Instant::now();
-
-        let root = parse_and_map(&self.source_code).unwrap();
-        let mut analyzer = SemanticAnalysisContext::new();
-        analyzer.walk(&root);
-        self.dump_ast(&root);
-
-        self.file_load_time
-            .checked_add(clock.elapsed())
-            .unwrap_or_else(|| Duration::from_secs(0))
-    }
-
-    fn dump_ast(&self, root: &CompilationUnit) {
-        if !self.descriptor.dump_ast {
-            return;
-        }
-        let mut target = self.file.clone();
-        target.set_file_name(format!("{}.AST.txt", self.file_name));
-        let ast = format!("{:#?}", root);
-        #[cfg(debug_assertions)]
-        {
-            println!("{}", ast);
-        }
-        if fs::write(&target, ast).is_err() {
-            eprintln!("Failed to dump AST for file: {:?}", target);
-        }
-    }
-
-    fn extract_file_name(file: &Path) -> String {
-        file.file_name()
-            .unwrap_or_else(|| panic!("Missing file name: {:?}", file))
-            .to_str()
-            .unwrap_or_else(|| panic!("Failed to convert path: {:?}", file))
-            .into()
-    }
-
-    #[inline]
-    pub fn get_source_code(&self) -> &String {
-        &self.source_code
-    }
-
-    #[inline]
-    pub fn get_file_name(&self) -> &String {
-        &self.file_name
-    }
-
-    #[inline]
-    pub fn get_id(&self) -> &Uuid {
-        &self.id
+    if let Err(e) = nominax.spawn() {
+        let message = format!(
+            "{} not found!\nMake sure Nominax is installed and inside $PATH!\nDetailed error: {:?}",
+            NOMINAX_EXE_NAME, e
+        );
+        panic!("{}", message);
     }
 }

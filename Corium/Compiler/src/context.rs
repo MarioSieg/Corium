@@ -203,15 +203,15 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::unit::FileCompilationUnit;
+use crate::unit::{FCUDescriptor, FileCompilationUnit};
 use std::collections::VecDeque;
 use std::path::PathBuf;
 
-pub struct CompilerContext<'a> {
-    queue: VecDeque<Box<FileCompilationUnit<'a>>>,
+pub struct CompilerContext {
+    queue: VecDeque<Box<FileCompilationUnit>>,
 }
 
-impl<'a> CompilerContext<'a> {
+impl CompilerContext {
     pub fn new() -> Self {
         Self {
             queue: VecDeque::new(),
@@ -219,8 +219,9 @@ impl<'a> CompilerContext<'a> {
     }
 
     #[inline]
-    pub fn enqueue_file(&mut self, path: PathBuf) -> &mut FileCompilationUnit<'a> {
-        self.queue.push_front(FileCompilationUnit::load(path));
+    pub fn enqueue_file(&mut self, path: PathBuf) -> &mut FileCompilationUnit {
+        self.queue
+            .push_front(FileCompilationUnit::load(path, FCUDescriptor::default()));
         self.queue.front_mut().unwrap()
     }
 
@@ -234,7 +235,7 @@ impl<'a> CompilerContext<'a> {
         !self.queue.is_empty()
     }
 
-    pub fn compile(&'a mut self) {
+    pub fn compile(&mut self) {
         while let Some(mut unit) = self.queue.pop_front() {
             unit.compile();
         }

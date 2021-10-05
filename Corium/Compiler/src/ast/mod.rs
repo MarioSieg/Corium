@@ -386,8 +386,10 @@ impl<'ast> AstComponent for ParameterList<'ast> {
 
 impl<'ast> fmt::Display for ParameterList<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        for param in &self.0 {
-            write!(f, "{}", param)?;
+        let last = self.0.len() - 1;
+        for (i, param) in self.0.iter().enumerate() {
+            let spacing = if i != last { ", " } else { "" };
+            write!(f, "{}{}", param, spacing)?;
         }
         Ok(())
     }
@@ -534,7 +536,12 @@ impl<'ast> fmt::Display for Literal<'ast> {
         match self {
             Self::Float(x) => write!(f, "{}", x),
             Self::Int(x) => write!(f, "{}", x),
-            Self::Char(x) => write!(f, "'{}'", x),
+            Self::Char(x) => match x {
+                '\n' => write!(f, "'\\n'"),
+                '\r' => write!(f, "'\\r'"),
+                '\t' => write!(f, "'\\t'"),
+                _ => write!(f, "'{}'", x),
+            },
             Self::Bool(x) => write!(f, "{}", x),
             Self::String(x) => write!(f, "\"{}\"", x),
         }
