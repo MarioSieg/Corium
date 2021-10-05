@@ -206,6 +206,7 @@
 #pragma once
 
 #include "CodeGenerator.hpp"
+#include "Compiler.hpp"
 #include "DiscriminatedSignal.hpp"
 #include "Generics.hpp"
 #include "Image.hpp"

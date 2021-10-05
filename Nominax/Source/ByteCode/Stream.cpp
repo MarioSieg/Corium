@@ -370,15 +370,19 @@ namespace Nominax::ByteCode
             {
                 default:
                 case Signal::Discriminator::MemoryOffset:
-                    Print(stream, " %{} #{}", Signal::DISCRIMINATOR_MNEMONICS[ToUnderlying(dis)], sig.R64.AsU64);
+                    Print(stream, " %({})#{}", Signal::DISCRIMINATOR_MNEMONICS[ToUnderlying(dis)], sig.R64.AsU64);
+                continue;
+
+                case Signal::Discriminator::SysCall:
+                    Print(stream, " %({})#{}", Signal::DISCRIMINATOR_MNEMONICS[ToUnderlying(dis)], SysCallMetaDataRegistry::MNEMONIC_TABLE[sig.R64.AsU64]);
                 continue;
 
                 case Signal::Discriminator::Int:
-                    Print(stream, " %{} #{}", Signal::DISCRIMINATOR_MNEMONICS[ToUnderlying(dis)], sig.R64.AsI64);
+                    Print(stream, " %({})#{}", Signal::DISCRIMINATOR_MNEMONICS[ToUnderlying(dis)], sig.R64.AsI64);
                 continue;
 
                 case Signal::Discriminator::Float:
-                    Print(stream, " %{} #{}", Signal::DISCRIMINATOR_MNEMONICS[ToUnderlying(dis)], sig.R64.AsF64);
+                    Print(stream, " %({})#{}", Signal::DISCRIMINATOR_MNEMONICS[ToUnderlying(dis)], sig.R64.AsF64);
                 continue;
 
                 case Signal::Discriminator::Instruction:

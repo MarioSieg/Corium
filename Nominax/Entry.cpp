@@ -211,19 +211,15 @@ const std::string CONFIG_FILE { "Nominax.ini" };
 
 auto main(const int argc, const char* const* const argv) -> int
 {
-    Stream stream { };
+    Stream out { };
+    Compiler::ErrorList errors { };
+    [[maybe_unused]]
+    const bool ok { Compiler::Compile("ByteCode/Compute.nxb", out, errors) };
+    out.DisplayToConsole();
+    for (const auto& err : errors)
     {
-        ScopedInt var { stream, 2 };
-        var *= 2;
-        var += 1;
-        var /= 1;
+        Print("{}\n", err);
     }
-    stream.Emit(Instruction::JMP);
-    stream.Emit(JumpAddress(3));
-    stream.Emit(Instruction::DEREFR);
-    stream.Emit(FieldOffset{5});
-    stream.SysCall(SysCall::FLUSH);
-    stream.DisplayToConsole();
 
     CLIParser parser { argc, argv };
     CLIOptions options { };

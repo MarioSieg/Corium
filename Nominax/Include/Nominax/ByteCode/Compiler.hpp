@@ -203,69 +203,51 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <array>
+#pragma once
 
-#include "../../Include/Nominax/Foundation/IOStream.hpp"
-#include "../../Include/Nominax/Foundation/Print.hpp"
+#include <vector>
+#include <string>
+#include <string_view>
 
-namespace Nominax::Foundation
+#include "Signal.hpp"
+#include "InstructionMetaDataRegistry.hpp"
+#include "SysCallMetaDataRegistry.hpp"
+
+namespace Nominax::ByteCode
 {
-    [[nodiscard]]
-    static constexpr auto GetCAccessMode(const FileAccessMode mode) -> std::array<char, 2>
-    {
-        std::array<char, 2> modeProxy { static_cast<char>(mode), '\0' };
-        return modeProxy;
-    }
+    class Stream;
 
-    IOStream::IOStream(const std::string& fileName, const FileAccessMode accessMode)
-    : DataStream
+    struct Compiler final
     {
-        [&]() -> NativeHandle&
+        Compiler() = delete;
+        Compiler(const Compiler& other) = delete;
+        Compiler(Compiler&& other) = delete;
+        auto operator =(const Compiler& other) -> Compiler& = delete;
+        auto operator =(Compiler&& other) -> Compiler& = delete;
+        ~Compiler() = delete;
+
+        static constexpr std::uint64_t MAX_LINE { 128 };
+        static constexpr char TYPE_MARKER { '%' };
+        static constexpr char IMMEDIATE_MARKER { '#' };
+        static constexpr char LPAREN { '(' }, RPAREN { ')' };
+
+        static constexpr const std::array<const std::string_view, Foundation::ToUnderlying(Signal::Discriminator::Count_)>& TYPE_NAME_LIST
         {
-            const auto modeProxy { GetCAccessMode(accessMode) };
-            NativeHandle* const handle { std::fopen(fileName.c_str(), std::data(modeProxy)) };
-            NOX_PAS(handle, Format("Failed to open file handle: {}", fileName));
-            return *handle;
-        }()
-    }, AccessMode_ { accessMode } { }
+            Signal::DISCRIMINATOR_MNEMONICS
+        };
 
-    IOStream::IOStream(NativeHandle& handle) : DataStream { handle } { }
-
-    IOStream::IOStream(IOStream&& other) : DataStream { **other }, AccessMode_ { other.AccessMode_ }
-    {
-        other.Handle_ = nullptr;
-    }
-
-    auto IOStream::operator =(IOStream&& other) -> IOStream&
-    {
-        if (this == &other)
+        static constexpr const std::array<const std::string_view, Foundation::ToUnderlying(Instruction::Count_)>& MNEMONIC_LIST
         {
-            return *this;
-        }
-        std::fclose(this->Handle_);
-        this->Handle_ = other.Handle_;
-        this->AccessMode_ = other.AccessMode_;
-        other.Handle_ = nullptr;
-        return *this;
-    }
+            InstructionMetaDataRegistry::MNEMONIC_TABLE
+        };
 
-    IOStream::~IOStream()
-    {
-        if (this->Handle_)
+        static constexpr const std::array<const std::string_view, Foundation::ToUnderlying(SysCall::Count_)>& SYSCALL_MNEMONIC_TABLE
         {
-           std::fclose(this->Handle_);
-           this->Handle_ = nullptr;
-        }
-    }
+            SysCallMetaDataRegistry::MNEMONIC_TABLE
+        };
 
-    auto IOStream::TryOpen(const std::string& fileName, const FileAccessMode accessMode) -> std::optional<IOStream>
-    {
-        const auto modeProxy { GetCAccessMode(accessMode) };
-        NativeHandle* const handle { std::fopen(fileName.c_str(), std::data(modeProxy)) };
-        if (!handle) [[unlikely]]
-        {
-            return std::nullopt;
-        }
-        return IOStream { *handle };
-    }
+        using ErrorList = std::vector<std::string>;
+
+        NOX_COLD static auto Compile(const std::string& path, Stream& stream, ErrorList& errors) -> bool;
+    };
 }

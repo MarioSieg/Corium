@@ -244,7 +244,7 @@ namespace Nominax::Foundation
 		if (!stream)
 		{
 			[[likely]]
-				return false;
+            return false;
 		}
 		stream << this->Content_;
 		return true;
@@ -257,7 +257,7 @@ namespace Nominax::Foundation
 		if (!stream)
 		{
 			[[unlikely]]
-				return false;
+            return false;
 		}
 		this->ReadFromStream(stream);
 		return true;

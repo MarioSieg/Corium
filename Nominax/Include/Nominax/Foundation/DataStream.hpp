@@ -206,6 +206,7 @@
 #pragma once
 
 #include <cstdio>
+#include <span>
 #include <type_traits>
 
 #include "PanicAssertions.hpp"
@@ -274,7 +275,7 @@ namespace Nominax::Foundation
         /// <param name="buffer">Raw memory pointer.</param>
         /// <param name="size">The size of the buffer in bytes.</param>
         /// <returns></returns>
-        auto Write(const void* buffer, std::uint64_t size) -> void;
+        auto Write(const void* buffer, std::uint64_t size) const -> void;
 
         /// <summary>
         /// Read buffer and panic on fail.
@@ -282,7 +283,7 @@ namespace Nominax::Foundation
         /// <param name="buffer">Raw memory pointer.</param>
         /// <param name="size">The size of the buffer in bytes.</param>
         /// <returns></returns>
-        auto Read(void* buffer, std::uint64_t size) -> void;
+        auto Read(void* buffer, std::uint64_t size) const -> void;
 
         /// <summary>
         /// Write buffer and return result.
@@ -291,7 +292,7 @@ namespace Nominax::Foundation
         /// <param name="size">The size of the buffer in bytes.</param>
         /// <returns>True on success, else false.</returns>
         [[nodiscard]]
-    	auto WriteUnchecked(const void* buffer, std::uint64_t size) -> bool;
+    	auto WriteUnchecked(const void* buffer, std::uint64_t size) const -> bool;
 
         /// <summary>
         /// 
@@ -300,7 +301,7 @@ namespace Nominax::Foundation
         /// <param name="size">The size of the buffer in bytes.</param>
         /// <returns>True on success, else false.</returns>
         [[nodiscard]]
-    	auto ReadUnchecked(void* buffer, std::uint64_t size) -> bool;
+    	auto ReadUnchecked(void* buffer, std::uint64_t size) const -> bool;
 
         /// <summary>
 		/// Write object and panic on fail.
@@ -309,7 +310,7 @@ namespace Nominax::Foundation
 		/// <param name="buffer">The POD type to write.</param>
 		/// <returns></returns>
         template <typename T> requires std::is_trivial_v<T>
-    	auto Write(const T& buffer) -> void;
+    	auto Write(const T& buffer) const -> void;
 
         /// <summary>
         /// Read object and panic on fail.
@@ -318,7 +319,7 @@ namespace Nominax::Foundation
         /// <param name="buffer">The POD type to read.</param>
         /// <returns></returns>
         template <typename T> requires std::is_trivial_v<T>
-        auto Read(T& buffer) -> void;
+        auto Read(T& buffer) const -> void;
 
         /// <summary>
         /// Write object and return result.
@@ -328,7 +329,7 @@ namespace Nominax::Foundation
         /// <returns>True on success, else false.</returns>
         template <typename T> requires std::is_trivial_v<T>
         [[nodiscard]]
-        auto WriteUnchecked(const T& buffer) -> bool;
+        auto WriteUnchecked(const T& buffer) const -> bool;
 
         /// <summary>
         /// Read object and return result.
@@ -338,14 +339,14 @@ namespace Nominax::Foundation
         /// <returns>True on success, else false.</returns>
         template <typename T> requires std::is_trivial_v<T>
         [[nodiscard]]
-        auto ReadUnchecked(T& buffer) -> bool;
+        auto ReadUnchecked(T& buffer) const -> bool;
 
         /// <summary>
         /// Write char and panic on fail.
         /// </summary>
         /// <param name="x">The char to write.</param>
         /// <returns></returns>
-        auto PutChar(char x) -> void;
+        auto PutChar(char x) const -> void;
 
         /// <summary>
         /// Write char and return result.
@@ -353,26 +354,28 @@ namespace Nominax::Foundation
         /// <param name="x">The char to write.</param>
         /// <returns></returns>
         [[nodiscard]]
-    	auto PutCharUnchecked(char x) -> bool;
+    	auto PutCharUnchecked(char x) const -> bool;
+
+        auto ReadStr(std::span<char> span) const -> bool;
 
     	/// <summary>
     	/// Flush stream and panic on fail.
     	/// </summary>
     	/// <returns></returns>
-    	auto Flush() -> void;
+    	auto Flush() const -> void;
 
         /// <summary>
         /// Write new line and panic on fail.
         /// </summary>
         /// <returns></returns>
-        auto NewLine() -> void;
+        auto NewLine() const -> void;
 
         /// <summary>
         /// 
         /// </summary>
         /// <returns>The native handle.</returns>
         [[nodiscard]]
-    	auto GetHandle() ->NativeHandle&;
+    	auto GetHandle() -> NativeHandle&;
 
         /// <summary>
         /// 
@@ -440,25 +443,25 @@ namespace Nominax::Foundation
     }
 
     template<typename T> requires std::is_trivial_v<T>
-    inline auto DataStream::Write(const T& buffer) -> void
+    inline auto DataStream::Write(const T& buffer) const -> void
     {
         this->Write(&buffer, sizeof(T));
     }
 
     template<typename T> requires std::is_trivial_v<T>
-    inline auto DataStream::Read(T& buffer) -> void
+    inline auto DataStream::Read(T& buffer) const -> void
     {
         this->Read(&buffer, sizeof(T));
     }
 
     template<typename T> requires std::is_trivial_v<T>
-    inline auto DataStream::WriteUnchecked(const T& buffer) -> bool
+    inline auto DataStream::WriteUnchecked(const T& buffer) const -> bool
     {
         return this->WriteUnchecked(&buffer, sizeof(T));
     }
 
     template<typename T> requires std::is_trivial_v<T>
-    inline auto DataStream::ReadUnchecked(T& buffer) -> bool
+    inline auto DataStream::ReadUnchecked(T& buffer) const -> bool
     {
         return this->ReadUnchecked(&buffer, sizeof(T));
     }
@@ -478,7 +481,7 @@ namespace Nominax::Foundation
         return DataStream { *static_cast<NativeHandle*>(stdin) };
     }
 
-    inline auto DataStream::NewLine() -> void
+    inline auto DataStream::NewLine() const -> void
     {
         this->PutChar('\n');
     }

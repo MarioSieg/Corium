@@ -205,6 +205,8 @@
 
 #pragma once
 
+#include <optional>
+
 #include "DataStream.hpp"
 
 namespace Nominax::Foundation
@@ -243,6 +245,10 @@ namespace Nominax::Foundation
         /// <param name="fileName">The name of the file.</param>
         /// <param name="accessMode">The access mode.</param>
         explicit IOStream(const std::string& fileName, FileAccessMode accessMode);
+
+        explicit IOStream(NativeHandle& handle);
+
+        static auto TryOpen(const std::string& fileName, FileAccessMode accessMode) -> std::optional<IOStream>;
 
     	/// <summary>
     	/// Move constructor.
