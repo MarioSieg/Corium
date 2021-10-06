@@ -212,7 +212,7 @@ const std::string CONFIG_FILE { "Nominax.ini" };
 auto main(const int argc, const char* const* const argv) -> int
 {
     Stream out { };
-    Compiler::Compile("../../../ByteCode/Compute.nxb", out);
+    Compiler::Compile("ByteCode/Compute.nxb", out);
     out.DisplayToConsole();
 
     CLIParser parser { argc, argv };

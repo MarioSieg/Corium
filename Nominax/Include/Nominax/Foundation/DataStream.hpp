@@ -206,6 +206,7 @@
 #pragma once
 
 #include <cstdio>
+#include <cstdint>
 #include <span>
 #include <type_traits>
 
