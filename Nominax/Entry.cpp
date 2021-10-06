@@ -211,10 +211,6 @@ const std::string CONFIG_FILE { "Nominax.ini" };
 
 auto main(const int argc, const char* const* const argv) -> int
 {
-    Stream out { };
-    Compiler::Compile("ByteCode/Compute.nxb", out);
-    out.DisplayToConsole();
-
     CLIParser parser { argc, argv };
     CLIOptions options { };
     const bool shouldBoot { options.ParseAndProcess(parser) };
@@ -223,6 +219,21 @@ auto main(const int argc, const char* const* const argv) -> int
         [[unlikely]]
         return 0;
     }
+
+    auto bytecodeFile { std::begin(parser.GetArgs()) };
+    std::advance(bytecodeFile, 1);
+    const std::string path { *bytecodeFile };
+    if (!std::filesystem::exists(path)) [[unlikely]]
+    {
+        PanicF({}, "Bytecode file does not exist: `{}`", path);
+    }
+
+    Print("Compiling byte code: `{}`", path);
+    Stream byteCode { };
+    byteCode.Prologue();
+    Compiler::Compile(path, byteCode);
+    byteCode.Epilogue();
+    byteCode.DisplayToConsole();
 
     EnvironmentDescriptor environmentDescriptor { };
 
@@ -237,6 +248,7 @@ auto main(const int argc, const char* const* const argv) -> int
 
 	Environment environment { };
 	environment.Boot(environmentDescriptor);
+    environment.Execute(std::move(byteCode));
 	environment.Shutdown();
 
 	return 0;

@@ -36,4 +36,5 @@
 "print value of float",
 "print value of char",
 "print value of boolean",
-"flush output stream"
+"flush output stream",
+"create new line"

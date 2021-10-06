@@ -209,13 +209,21 @@ namespace Nominax::Foundation
 {
 	auto ISerializable::SerializeToDisk(const std::string& file) const -> bool
 	{
-		IOStream stream { file, FileAccessMode::Write, FileContentMode::Binary };
-        return this->Serialize(stream);
+		std::optional<IOStream> stream { IOStream::TryOpen(file, FileAccessMode::Write, FileContentMode::Binary) };
+		if (!stream) [[unlikely]]
+		{
+			return false;
+		}
+        return this->Serialize(*stream);
 	}
 
 	auto ISerializable::DeserializeFromDisk(const std::string& file) -> bool
 	{
-        IOStream stream { file, FileAccessMode::Read, FileContentMode::Binary };
-        return this->Deserialize(stream);
+		std::optional<IOStream> stream { IOStream::TryOpen(file, FileAccessMode::Read, FileContentMode::Binary) };
+		if (!stream) [[unlikely]]
+		{
+			return false;
+		}
+        return this->Deserialize(*stream);
 	}
 }

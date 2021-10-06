@@ -349,4 +349,26 @@ namespace Nominax::SCM
     {
         GetNativeRuntimeOutputStream().Flush();
     }
+
+    /// <summary>
+    /// ++ NOMINAX SYSCALL INTERFACE ++
+    /// %SP[0] ARG1  | ?? |  ?  |  -> UNUSED
+    /// %SP[1] ARG2  | ?? |  ?  |  -> UNUSED
+    /// %SP[2] ARG3  | ?? |  ?  |  -> UNUSED
+    /// %SP[3] ARG4  | ?? |  ?  |  -> UNUSED
+    /// %SP[4] ARG5  | ?? |  ?  |  -> UNUSED
+    /// %SP[5] ARG6  | ?? |  ?  |  -> UNUSED
+    /// %SP[6] ARG7  | ?? |  ?  |  -> UNUSED
+    /// %SP[7] ARG8  | ?? |  ?  |  -> UNUSED
+    /// %SP[8] ARG9  | ?? |  ?  |  -> UNUSED
+    /// %SP[0] ARG10 | ?? |  ?  |  -> UNUSED
+    /// Syscall description: Creates a new line.
+    /// Syscall gate: 0x27
+    /// </summary>
+    /// <param name="sp">Stack pointer of the current VM reactor.</param>
+    /// <returns>None.</returns>
+    NOX_SYSCALL_PROXY(NEWLINE)
+    {
+        GetNativeRuntimeOutputStream().NewLine();
+    }
 }

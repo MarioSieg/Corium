@@ -246,4 +246,5 @@
 "print_float",
 "print_char",
 "print_bool",
-"flush"
+"flush",
+"newline"

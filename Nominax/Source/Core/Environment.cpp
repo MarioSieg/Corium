@@ -588,7 +588,16 @@ namespace Nominax::Core
 	{
 		ByteCode::Image codeImage { };
 		const ByteCode::ValidationResultCode buildResult { ByteCode::Stream::Build(std::move(stream), this->GetOptimizationHints(), codeImage) };
-		NOX_PAS_EQ(buildResult, ByteCode::ValidationResultCode::Ok, Format("Byte code validation failed for stream! {}", REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[ToUnderlying(buildResult)]));
+		NOX_PAS_EQ
+		(
+			buildResult,
+			ByteCode::ValidationResultCode::Ok,
+			Format
+			(
+				"Byte code validation failed for stream! {}",
+				ByteCode::BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES[ToUnderlying(buildResult)]
+			)
+		);
 		return (*this)(codeImage);
 	}
 
@@ -596,7 +605,16 @@ namespace Nominax::Core
 	{
 		ByteCode::Image codeImage { };
 		const ByteCode::ValidationResultCode buildResult { ByteCode::Stream::Build(stream, this->GetOptimizationHints(), codeImage) };
-        NOX_PAS_EQ(buildResult, ByteCode::ValidationResultCode::Ok, Format("Byte code validation failed for stream! {}", REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[ToUnderlying(buildResult)]));
+        NOX_PAS_EQ
+		(
+			buildResult,
+			ByteCode::ValidationResultCode::Ok,
+			Format
+			(
+				"Byte code validation failed for stream! {}",
+				ByteCode::BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES[ToUnderlying(buildResult)]
+			)
+		);
 		return (*this)(codeImage);
 	}
 

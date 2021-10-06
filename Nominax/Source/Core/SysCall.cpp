@@ -279,7 +279,8 @@ namespace Nominax::Core
             &&NOX_SYSCALL_GATE_ID(print_float),
             &&NOX_SYSCALL_GATE_ID(print_char),
             &&NOX_SYSCALL_GATE_ID(print_bool),
-            &&NOX_SYSCALL_GATE_ID(flush)
+            &&NOX_SYSCALL_GATE_ID(flush),
+            &&NOX_SYSCALL_GATE_ID(newline)
         };
 
         static_assert(ValidateJumpTable(std::data(JUMP_TABLE), std::size(JUMP_TABLE)), "Instruction count in enum does not match jump table entry count!");
@@ -559,6 +560,13 @@ namespace Nominax::Core
             flush,
             NOX_HOT_LABEL,
             FLUSH
+        );
+
+        NOX_SYSCALL_GATE
+        (
+            newline,
+            NOX_HOT_LABEL,
+            NEWLINE
         );
     }
 }
