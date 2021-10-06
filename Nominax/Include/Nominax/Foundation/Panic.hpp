@@ -205,6 +205,7 @@
 
 #pragma once
 
+#include "Print.hpp"
 #include "Platform.hpp"
 #include "SourceLocation.hpp"
 
@@ -218,5 +219,22 @@ namespace Nominax::Foundation
 	/// <returns></returns>
 	[[noreturn]]
 	NOX_COLD NOX_NEVER_INLINE
-	extern auto Panic(std::string_view message, const Foundation::SourceLocation& srcLoc = Foundation::SourceLocation::Current()) -> void;
+	extern auto Panic(std::string_view message, const SourceLocation& srcLoc = {}) -> void;
+
+	/// <summary>
+	/// Panic and format.
+	/// </summary>
+	/// <typeparam name="...Ts"></typeparam>
+	/// <param name="srcLoc"></param>
+	/// <param name="formatStr"></param>
+	/// <param name="args"></param>
+	/// <returns></returns>
+	template <typename... Ts>
+	[[noreturn]]
+	NOX_COLD NOX_NEVER_INLINE
+	auto PanicF(const SourceLocation& srcLoc, std::string_view formatStr, Ts&&... args) -> void
+	{
+		const std::string message { Format(formatStr, std::forward<Ts>(args)...) };
+		Panic(message, srcLoc);
+	}
 }

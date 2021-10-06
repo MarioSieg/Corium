@@ -209,7 +209,7 @@
 #include <span>
 #include <type_traits>
 
-#include "PanicAssertions.hpp"
+#include "Platform.hpp"
 
 namespace Nominax::Foundation
 {
@@ -228,7 +228,7 @@ namespace Nominax::Foundation
         /// <summary>
         /// Connected handle.
         /// </summary>
-        NativeHandle* Handle_;
+        NativeHandle* Handle_ { nullptr };
 
     public:
         /// <summary>
@@ -356,7 +356,13 @@ namespace Nominax::Foundation
         [[nodiscard]]
     	auto PutCharUnchecked(char x) const -> bool;
 
-        auto ReadStr(std::span<char> span) const -> bool;
+        /// <summary>
+        /// Reads a line from the input stream.
+        /// </summary>
+        /// <param name="span">The buffer.</param>
+        /// <param name="size">The amount of chars read.</param>
+        /// <returns></returns>
+        auto ReadLine(std::span<char> span, std::uint64_t& size) const -> bool;
 
     	/// <summary>
     	/// Flush stream and panic on fail.

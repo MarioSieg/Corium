@@ -214,7 +214,7 @@
 #include "../../Include/Nominax/ByteCode/Signal.hpp"
 #include "../../Include/Nominax/ByteCode/Instruction.hpp"
 #include "../../Include/Nominax/Foundation/VectorLib.hpp"
-#include "../../Include/Nominax/Foundation/ProxyF64.hpp"
+#include "../../Include/Nominax/Foundation/IEEE754Binary64.hpp"
 #include "../../Include/Nominax/Foundation/Algorithm.hpp"
 #include "../../Include/Nominax/Foundation/CPU.hpp"
 
@@ -225,9 +225,7 @@ namespace Nominax::Core
 	using Foundation::NoOperation;
 	using Foundation::Rol64;
 	using Foundation::Ror64;
-	using Foundation::Proxy_F64Equals;
-	using Foundation::Proxy_F64IsOne;
-	using Foundation::Proxy_F64IsZero;
+	using Foundation::IEEE754Binary64;
 
 	using Foundation::VectorLib::F64_X4_Add_Unaligned;
 	using Foundation::VectorLib::F64_X4_Sub_Unaligned;
@@ -650,7 +648,7 @@ namespace Nominax::Core
 			ASM_MARKER("jo_cmpf");
 
 			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
-			if (Proxy_F64IsOne((*sp--).AsF64))
+			if (IEEE754Binary64::AutoCMP_IsOne((*sp--).AsF64))
 			{
 				// pop()
 				SET_JUMP_TARGET(); // ip = begin + offset - 1 (inc stride)
@@ -682,7 +680,7 @@ namespace Nominax::Core
 			ASM_MARKER("jno_cmpf");
 
 			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
-			if (!Proxy_F64IsOne((*sp--).AsF64))
+			if (!IEEE754Binary64::AutoCMP_IsOne((*sp--).AsF64))
 			{
 				// pop()
 				SET_JUMP_TARGET(); // ip = begin + offset - 1 (inc stride)
@@ -716,7 +714,7 @@ namespace Nominax::Core
 
 			--sp;                                          // pop()
 			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
-			if (Proxy_F64Equals((*sp).AsF64, (*(sp + 1)).AsF64))
+			if (IEEE754Binary64::AutoCMP_EQ((*sp).AsF64, (*(sp + 1)).AsF64))
 			{
 				SET_JUMP_TARGET(); // ip = begin + offset - 1 (inc stride)
 			}
@@ -750,7 +748,7 @@ namespace Nominax::Core
 
 			--sp;                                          // pop()
 			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
-			if (!Proxy_F64Equals((*sp).AsF64, (*(sp + 1)).AsF64))
+			if (!IEEE754Binary64::AutoCMP_EQ((*sp).AsF64, (*(sp + 1)).AsF64))
 			{
 				SET_JUMP_TARGET(); // ip = begin + offset - 1 (inc stride)
 			}

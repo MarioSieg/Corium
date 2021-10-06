@@ -217,21 +217,47 @@ namespace Nominax::Foundation
 	/// </summary>
 	struct SourceLocation final
 	{
+
 		/// <summary>
-		/// Query current source location.
+		/// Construct and set data.
 		/// </summary>
-		/// <param name="line"></param>
-		/// <param name="column"></param>
-		/// <param name="fileName"></param>
-		/// <param name="functionName"></param>
-		/// <returns></returns>
-		[[nodiscard]]
-		static constexpr auto Current
+		constexpr SourceLocation
 		(
 			std::uint_least32_t line = __builtin_LINE(),
 			std::string_view fileName = __builtin_FILE(),
 			std::string_view functionName = __builtin_FUNCTION()
-		) -> SourceLocation;
+		);
+
+		/// <summary>
+		/// Copy constructor.
+		/// </summary>
+		/// <param name="other"></param>
+		constexpr SourceLocation(const SourceLocation& other) = default;
+
+		/// <summary>
+		/// Move constructor.
+		/// </summary>
+		/// <param name="other"></param>
+		constexpr SourceLocation(SourceLocation&& other) = default;
+
+		/// <summary>
+		/// Copy assignment operator.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator =(const SourceLocation& other) -> SourceLocation& = default;
+
+		/// <summary>
+		/// Move assignment operator.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator =(SourceLocation&& other) -> SourceLocation& = default;
+
+		/// <summary>
+		/// Destructor.
+		/// </summary>
+		~SourceLocation() = default;
 
 		/// <summary>
 		/// 
@@ -255,37 +281,35 @@ namespace Nominax::Foundation
 		constexpr auto GetFunctionName() const -> std::string_view;
 
 	private:
-		std::uint_least32_t Line;
-		std::string_view FileName;
-		std::string_view FunctionName;
+		std::uint_least32_t Line_;
+		std::string_view FileName_;
+		std::string_view FunctionName_;
 	};
 
-	constexpr auto SourceLocation::Current
+	constexpr SourceLocation::SourceLocation
 	(
 		const std::uint_least32_t line,
 		const std::string_view fileName,
 		const std::string_view functionName
-	) -> SourceLocation
+	)
 	{
-		SourceLocation result;
-		result.Line = line;
-		result.FileName = fileName;
-		result.FunctionName = functionName;
-		return result;
+		this->Line_ = line;
+		this->FileName_ = fileName;
+		this->FunctionName_ = functionName;
 	}
 
 	constexpr auto SourceLocation::GetLine() const -> std::uint_least32_t
 	{
-		return this->Line;
+		return this->Line_;
 	}
 
 	constexpr auto SourceLocation::GetFileName() const -> std::string_view
 	{
-		return this->FileName;
+		return this->FileName_;
 	}
 
 	constexpr auto SourceLocation::GetFunctionName() const -> std::string_view
 	{
-		return this->FunctionName;
+		return this->FunctionName_;
 	}
 }

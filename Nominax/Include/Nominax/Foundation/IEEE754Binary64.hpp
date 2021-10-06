@@ -205,173 +205,271 @@
 
 #pragma once
 
+#include <cmath>
+#include <cstdint>
 #include <limits>
 
 #include "Platform.hpp"
-#include <cstdint>
 
 namespace Nominax::Foundation
 {
 	/// <summary>
+	/// Contains functions and values for manipulating and comparing the IEEE754 Binary64 double precision floating point type.
+	///	Also known as double or f64 in most languages.
+	/// </summary>
+	struct IEEE754Binary64 final
+	{
+		static_assert(std::numeric_limits<float>::is_iec559, "Nominax runtime floating point arithmetic relies on IEEE 754 2008!");
+		static_assert(std::numeric_limits<double>::is_iec559, "Nominax runtime floating point arithmetic relies on IEEE 754 2008!");
+
+		/// <summary>
+		/// Min value.
+		/// </summary>
+		static constexpr double MIN { std::numeric_limits<double>::min() };
+
+		/// <summary>
+		/// Max value.
+		/// </summary>
+		static constexpr double MAX { std::numeric_limits<double>::min() };
+
+		/// <summary>
+		/// Amount of decimal digits.
+		/// </summary>
+		static constexpr std::uint32_t DIGITS { std::numeric_limits<double>::digits10 };
+
+		/// <summary>
+		/// The machine epsilon, that is, the difference between 1.0 and the next value representable by F64.
+		/// </summary>
+		static constexpr double MACHINE_EPSILON { std::numeric_limits<double>::epsilon() };
+
+		/// <summary>
 		/// Zero tolerance epsilon.
 		/// </summary>
-	constexpr auto F64_ZERO_TOLERANCE { 1e-6 }; // 8 * 1.19209290E-07F
+		static constexpr auto ZERO_TOLERANCE{ 1e-6 }; // 8 * 1.19209290E-07F
 
-	/// <summary>
-	/// Returns true if x is zero, else false.
-	/// </summary>
-	/// <param name="x">The number to check for zero.</param>
-	/// <returns>True if x is zero, else false.</returns>
-	NOX_FLATTEN NOX_PURE inline auto F64IsZero(const double x) -> bool
-	{
-		return std::abs(x) < F64_ZERO_TOLERANCE;
-	}
-
-	/// <summary>
-	/// Returns true if x is one, else false.
-	/// </summary>
-	/// <param name="x">The number to check for zero.</param>
-	/// <returns>True if x is zero, else false.</returns>
-	NOX_FLATTEN NOX_PURE inline auto F64IsOne(const double x) -> bool
-	{
-		return F64IsZero(x - 1.0);
-	}
-
-	/// <summary>
-	/// How many ULP's (Units in the Last Place) we want to tolerate when comparing two numbers.
-	/// The large the value, the more error (mismatch) the comparison will allow.
-	/// If the ULP value is zero, the two numbers must be exactly the same.
-	/// See http://randomascii.wordpress.com/2012/02/25/comparing-F32ing-point-numbers-2012-edition/ by Bruce Dawson
-	/// </summary>
-	constexpr std::uint32_t F64_MAX_ULPS { 4 };
-
-	/// <summary>
-	/// Bit count inside double.
-	/// </summary>
-	constexpr auto F64_BIT_COUNT { 8 * sizeof(double) };
-
-	/// <summary>
-	/// Fraction bit count.
-	/// </summary>
-	constexpr auto F64_FRACTION_BITS { std::numeric_limits<double>::digits - 1 };
-
-	/// <summary>
-	/// Exponent bit count.
-	/// </summary>
-	constexpr auto F64_EXPONENT_BITS { F64_BIT_COUNT - 1 - F64_FRACTION_BITS };
-
-	/// <summary>
-	/// Mask to extract sign bit.
-	/// </summary>
-	constexpr auto F64_SIGN_MASK { UINT64_C(1) << (F64_BIT_COUNT - 1) };
-
-	/// <summary>
-	/// Mask to extract fraction.
-	/// </summary>
-	constexpr auto F64_FRACTION_MASK { ~UINT64_C(0) >> (F64_EXPONENT_BITS + 1) };
-
-	/// <summary>
-	/// Mask to extract exponent.
-	/// </summary>
-	constexpr auto F64_EXPONENT_MASK { ~(F64_SIGN_MASK | F64_FRACTION_MASK) };
-
-	/// <summary>
-	/// Returns the bit representation of the double.
-	/// </summary>
-	/// <param name="x"></param>
-	/// <returns></returns>
-	NOX_FLATTEN NOX_PURE constexpr auto BitsOf(const double x) -> std::uint64_t
-	{
-		static_assert(sizeof(std::uint64_t) == sizeof(double));
-		return std::bit_cast<std::uint64_t>(x);
-	}
-
-	/// <summary>
-	/// Extract exponent bits.
-	/// </summary>
-	/// <param name="x"></param>
-	/// <returns></returns>
-	NOX_FLATTEN NOX_PURE constexpr auto ExponentBitsOf(const double x) -> std::uint64_t
-	{
-		return F64_EXPONENT_MASK & BitsOf(x);
-	}
-
-	/// <summary>
-	/// Extract fraction bits.
-	/// </summary>
-	/// <param name="x"></param>
-	/// <returns></returns>
-	NOX_FLATTEN NOX_PURE constexpr auto FractionBitsOf(const double x) -> std::uint64_t
-	{
-		return F64_FRACTION_MASK & BitsOf(x);
-	}
-
-	/// <summary>
-	/// Extract sign bit.
-	/// </summary>
-	/// <param name="x"></param>
-	/// <returns></returns>
-	NOX_FLATTEN NOX_PURE constexpr auto SignBitOf(const double x) -> std::uint64_t
-	{
-		return F64_SIGN_MASK & BitsOf(x);
-	}
-
-	/// <summary>
-	/// Returns true if x is NAN, else false.
-	/// NAN = Not A Number
-	/// </summary>
-	NOX_FLATTEN NOX_PURE constexpr auto IsNan(const double x) -> bool
-	{
-		return ExponentBitsOf(x) == F64_EXPONENT_MASK && FractionBitsOf(x) != 0;
-	}
-
-	/// <summary>
-	/// Converts an integer from the "sign and magnitude" to the biased representation.
-	/// See https://en.wikipedia.org/wiki/Signed_number_representations for more info.
-	/// </summary>
-	NOX_FLATTEN NOX_PURE constexpr auto SignMagnitudeToBiasedRepresentation(const std::uint64_t bits) -> std::uint64_t
-	{
-		if (F64_SIGN_MASK & bits)
+		/// <summary>
+		/// Returns true if x is zero, else false.
+		/// </summary>
+		/// <param name="x">The number to check for zero.</param>
+		/// <returns>True if x is zero, else false.</returns>
+		NOX_FLATTEN NOX_PURE static inline auto IsZero(const double x) -> bool
 		{
-			return ~bits + 1;
-		}
-		return F64_SIGN_MASK | bits;
-	}
-
-	/// <summary>
-	/// Returns the unsigned distance between bitsA and bitsB.
-	/// bitsA and bitsB must be converted into the biased representation first!
-	/// </summary>
-	/// <param name="bitsA">The first bits as biased representation.</param>
-	/// <param name="bitsB">The second bits as biased representation.</param>
-	/// <returns>The unsigned distance.</returns>
-	NOX_FLATTEN NOX_PURE constexpr auto ComputeDistanceBetweenSignAndMagnitude(const std::uint64_t bitsA, const std::uint64_t bitsB) -> std::uint64_t
-	{
-		const auto biasedA { SignMagnitudeToBiasedRepresentation(bitsA) };
-		const auto biasedB { SignMagnitudeToBiasedRepresentation(bitsB) };
-		return biasedA >= biasedB ? biasedA - biasedB : biasedB - biasedA;
-	}
-
-	/// <summary>
-	/// Returns true if x and y are near or equal.
-	/// Returns false if either x or y or both are NAN.
-	/// Huge numbers are treated almost as infinity.
-	/// Uses a ULP based approach.
-	/// See https://randomascii.wordpress.com/2012/02/25/comparing-F32ing-point-numbers-2012-edition/
-	/// </summary>
-	/// <param name="x"></param>
-	/// <param name="y"></param>
-	/// <returns></returns>
-	template <std::uint32_t Ulps = F64_MAX_ULPS>
-	NOX_FLATTEN NOX_PURE constexpr auto F64Equals(const double x, const double y) -> bool
-	{
-		static_assert(Ulps > 0);
-		// IEEE 754 required that any NAN comparison should yield false.
-		if (IsNan(x) || IsNan(y))
-		{
-			return false;
+			return std::abs(x) < ZERO_TOLERANCE;
 		}
 
-		return ComputeDistanceBetweenSignAndMagnitude(BitsOf(x), BitsOf(y)) <= Ulps;
-	}
+		/// <summary>
+		/// Returns true if x is one, else false.
+		/// </summary>
+		/// <param name="x">The number to check for zero.</param>
+		/// <returns>True if x is zero, else false.</returns>
+		NOX_FLATTEN NOX_PURE static inline auto IsOne(const double x) -> bool
+		{
+			return IsZero(x - 1.0);
+		}
+
+		/// <summary>
+		/// How many ULP's (Units in the Last Place) we want to tolerate when comparing two numbers.
+		/// The large the value, the more error (mismatch) the comparison will allow.
+		/// If the ULP value is zero, the two numbers must be exactly the same.
+		/// See http://randomascii.wordpress.com/2012/02/25/comparing-F32ing-point-numbers-2012-edition/ by Bruce Dawson
+		/// </summary>
+		static constexpr std::uint32_t MAX_ULPS{ 4 };
+
+		/// <summary>
+		/// Bit count inside double.
+		/// </summary>
+		static constexpr auto BIT_COUNT{ 8 * sizeof(double) };
+
+		/// <summary>
+		/// Fraction bit count.
+		/// </summary>
+		static constexpr auto FRACTION_BITS{ std::numeric_limits<double>::digits - 1 };
+
+		/// <summary>
+		/// Exponent bit count.
+		/// </summary>
+		static constexpr auto EXPONENT_BITS{ BIT_COUNT - 1 - FRACTION_BITS };
+
+		/// <summary>
+		/// Mask to extract sign bit.
+		/// </summary>
+		static constexpr auto SIGN_MASK{ UINT64_C(1) << (BIT_COUNT - 1) };
+
+		/// <summary>
+		/// Mask to extract fraction.
+		/// </summary>
+		static constexpr auto FRACTION_MASK{ ~UINT64_C(0) >> (EXPONENT_BITS + 1) };
+
+		/// <summary>
+		/// Mask to extract exponent.
+		/// </summary>
+		static constexpr auto EXPONENT_MASK{ ~(SIGN_MASK | FRACTION_MASK) };
+
+		/// <summary>
+		/// Returns the bit representation of the double.
+		/// </summary>
+		/// <param name="x"></param>
+		/// <returns></returns>
+		NOX_FLATTEN NOX_PURE static constexpr auto BitsOf(const double x) -> std::uint64_t
+		{
+			static_assert(sizeof(std::uint64_t) == sizeof(double));
+			return std::bit_cast<std::uint64_t>(x);
+		}
+
+		/// <summary>
+		/// Extract exponent bits.
+		/// </summary>
+		/// <param name="x"></param>
+		/// <returns></returns>
+		NOX_FLATTEN NOX_PURE static constexpr auto ExponentBitsOf(const double x) -> std::uint64_t
+		{
+			return EXPONENT_MASK & BitsOf(x);
+		}
+
+		/// <summary>
+		/// Extract fraction bits.
+		/// </summary>
+		/// <param name="x"></param>
+		/// <returns></returns>
+		NOX_FLATTEN NOX_PURE static constexpr auto FractionBitsOf(const double x) -> std::uint64_t
+		{
+			return FRACTION_MASK & BitsOf(x);
+		}
+
+		/// <summary>
+		/// Extract sign bit.
+		/// </summary>
+		/// <param name="x"></param>
+		/// <returns></returns>
+		NOX_FLATTEN NOX_PURE static constexpr auto SignBitOf(const double x) -> std::uint64_t
+		{
+			return SIGN_MASK & BitsOf(x);
+		}
+
+		/// <summary>
+		/// Returns true if x is NAN, else false.
+		/// NAN = Not A Number
+		/// </summary>
+		NOX_FLATTEN NOX_PURE static constexpr auto IsNan(const double x) -> bool
+		{
+			return ExponentBitsOf(x) == EXPONENT_MASK && FractionBitsOf(x) != 0;
+		}
+
+		/// <summary>
+		/// Converts an integer from the "sign and magnitude" to the biased representation.
+		/// See https://en.wikipedia.org/wiki/Signed_number_representations for more info.
+		/// </summary>
+		NOX_FLATTEN NOX_PURE static constexpr auto SignMagnitudeToBiasedRepresentation(const std::uint64_t bits) -> std::uint64_t
+		{
+			if (SIGN_MASK & bits)
+			{
+				return ~bits + 1;
+			}
+			return SIGN_MASK | bits;
+		}
+
+		/// <summary>
+		/// Returns the unsigned distance between bitsA and bitsB.
+		/// bitsA and bitsB must be converted into the biased representation first!
+		/// </summary>
+		/// <param name="bitsA">The first bits as biased representation.</param>
+		/// <param name="bitsB">The second bits as biased representation.</param>
+		/// <returns>The unsigned distance.</returns>
+		NOX_FLATTEN NOX_PURE static constexpr auto ComputeDistanceBetweenSignAndMagnitude(const std::uint64_t bitsA, const std::uint64_t bitsB) -> std::uint64_t
+		{
+			const std::uint64_t biasedA { SignMagnitudeToBiasedRepresentation(bitsA) };
+			const std::uint64_t biasedB { SignMagnitudeToBiasedRepresentation(bitsB) };
+			return biasedA >= biasedB ? biasedA - biasedB : biasedB - biasedA;
+		}
+
+		/// <summary>
+		/// Returns true if x and y are near or equal.
+		/// Returns false if either x or y or both are NAN.
+		/// Huge numbers are treated almost as infinity.
+		/// Uses a ULP based approach.
+		/// See https://randomascii.wordpress.com/2012/02/25/comparing-F32ing-point-numbers-2012-edition/
+		/// </summary>
+		/// <param name="x"></param>
+		/// <param name="y"></param>
+		/// <returns></returns>
+		template <const std::uint32_t U = MAX_ULPS>
+		NOX_FLATTEN NOX_PURE static constexpr auto CompareByUlps(const double x, const double y) -> bool
+		{
+			static_assert(U > 0);
+			// IEEE 754 required that any NAN comparison should yield false.
+			if (IsNan(x) || IsNan(y))
+			{
+				return false;
+			}
+
+			return ComputeDistanceBetweenSignAndMagnitude(BitsOf(x), BitsOf(y)) <= U;
+		}
+
+		/// <summary>
+		/// Returns true if x and y are near or equal.
+		///	Compares using absolute difference and machine epsilon.
+		/// </summary>
+		/// <param name="x"></param>
+		/// <param name="y"></param>
+		/// <returns></returns>
+		NOX_FLATTEN NOX_PURE static constexpr auto CompareByMachineEpsilon(const double x, const double y) -> bool
+		{
+			return std::abs(x - y) < MACHINE_EPSILON;
+		}
+
+		/// <summary>
+		/// Compare by configured floating point mode.
+		/// </summary>
+		/// <param name="x"></param>
+		/// <param name="y"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		NOX_FORCE_INLINE NOX_PURE static inline auto AutoCMP_EQ(const double x, const double y) -> bool
+		{
+			if constexpr (NOX_CORRECT_F64_CMP)
+			{
+				return CompareByMachineEpsilon(x, y);
+			}
+			else
+			{
+				return x == y;
+			}
+		}
+
+		/// <summary>
+		/// Compare by configured floating point mode.
+		/// </summary>
+		/// <param name="x"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		NOX_FORCE_INLINE NOX_PURE static inline auto AutoCMP_IsZero(const double x) -> bool
+		{
+			if constexpr (NOX_CORRECT_F64_CMP)
+			{
+				return IsZero(x);
+			}
+			else
+			{
+				return x == 0.0;
+			}
+		}
+
+		/// <summary>
+		/// Compare by configured floating point mode.
+		/// </summary>
+		/// <param name="x"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		NOX_FORCE_INLINE NOX_PURE static inline auto AutoCMP_IsOne(const double x) -> bool
+		{
+			if constexpr (NOX_CORRECT_F64_CMP)
+			{
+				return IEEE754Binary64::IsOne(x);
+			}
+			else
+			{
+				return x == 1.0;
+			}
+		}
+	};
 }

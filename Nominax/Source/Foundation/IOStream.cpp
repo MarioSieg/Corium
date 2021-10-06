@@ -206,24 +206,45 @@
 #include <array>
 
 #include "../../Include/Nominax/Foundation/IOStream.hpp"
-#include "../../Include/Nominax/Foundation/Print.hpp"
+#include "../../Include/Nominax/Foundation/PanicAssertions.hpp"
+
+#define NOX_VALIDATE_HANDLE()                                                           \
+	do                                                                                  \
+	{                                                                                   \
+	    NOX_DBG_PAS_NOT_NULL(this->Handle_, "IO stream handle is not initialized!");    \
+	}                                                                                   \
+	while(false)
 
 namespace Nominax::Foundation
 {
-    [[nodiscard]]
-    static constexpr auto GetCAccessMode(const FileAccessMode mode) -> std::array<char, 2>
+    auto IOStream::GetCAccessModeProxy(const FileAccessMode accessMode, const FileContentMode contentMode) -> ModeProxy
     {
-        std::array<char, 2> modeProxy { static_cast<char>(mode), '\0' };
+        const ModeProxy modeProxy{ ToUnderlying(accessMode), ToUnderlying(contentMode), '\0' };
         return modeProxy;
     }
 
-    IOStream::IOStream(const std::string& fileName, const FileAccessMode accessMode)
+	auto IOStream::FOpen(const std::string& fileName, const ModeProxy modeProxy) -> NativeHandle*
+	{
+        NativeHandle* handle;
+		#if NOX_OS_WINDOWS && NOX_COM_CLANG
+	        const errno_t err{ fopen_s(&handle, fileName.c_str(), std::data(modeProxy)) };
+	        if (err) [[unlikely]]
+	        {
+	            handle = nullptr;
+	        }
+		#else
+		    handle = std::fopen(fileName.c_str(), std::data(modeProxy));
+		#endif
+        return handle;
+    }
+
+    IOStream::IOStream(const std::string& fileName, const FileAccessMode accessMode, const FileContentMode contentMode)
     : DataStream
     {
         [&]() -> NativeHandle&
         {
-            const auto modeProxy { GetCAccessMode(accessMode) };
-            NativeHandle* const handle { std::fopen(fileName.c_str(), std::data(modeProxy)) };
+            const auto modeProxy { GetCAccessModeProxy(accessMode, contentMode) };
+            NativeHandle* const handle { FOpen(fileName, modeProxy) };
             NOX_PAS(handle, Format("Failed to open file handle: {}", fileName));
             return *handle;
         }()
@@ -258,10 +279,32 @@ namespace Nominax::Foundation
         }
     }
 
-    auto IOStream::TryOpen(const std::string& fileName, const FileAccessMode accessMode) -> std::optional<IOStream>
+    auto IOStream::SeekSize() const -> std::uint64_t
     {
-        const auto modeProxy { GetCAccessMode(accessMode) };
-        NativeHandle* const handle { std::fopen(fileName.c_str(), std::data(modeProxy)) };
+        NOX_VALIDATE_HANDLE();
+        NOX_PAS_EQ(this->ContentMode_, FileContentMode::Binary, "Only supported with binary mode!");
+        std::fseek(this->Handle_, 0, SEEK_END);
+        const long size { std::ftell(this->Handle_) };
+        std::rewind(this->Handle_);
+        return static_cast<std::uint64_t>(size);
+    }
+
+    auto IOStream::ReadAll(std::vector<std::uint8_t>& out) const -> bool
+    {
+        NOX_PAS_EQ(this->ContentMode_, FileContentMode::Binary, "Only supported with binary mode!");
+        const std::uint64_t size { this->SeekSize() };
+        if (!size) [[unlikely]]
+        {
+            return false;
+        }
+        out.resize(size);
+        return this->ReadUnchecked(std::data(out), size * sizeof(std::uint8_t));
+    }
+
+    auto IOStream::TryOpen(const std::string& fileName, const FileAccessMode accessMode, const FileContentMode contentMode) -> std::optional<IOStream>
+    {
+        const auto modeProxy { GetCAccessModeProxy(accessMode, contentMode) };
+        NativeHandle* const handle{ FOpen(fileName, modeProxy) };
         if (!handle) [[unlikely]]
         {
             return std::nullopt;
@@ -269,3 +312,5 @@ namespace Nominax::Foundation
         return IOStream { *handle };
     }
 }
+
+#undef NOX_VALIDATE_HANDLE

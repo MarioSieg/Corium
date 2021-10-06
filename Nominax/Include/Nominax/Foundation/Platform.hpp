@@ -375,9 +375,13 @@
 #define NOX_VERBOSE_ALLOCATOR false
 
 /// <summary>
-/// Use a slower but more correct floating point comparison algorithm.
+/// Uses a slower but more correct floating point comparison algorithm.
+///	Applies to comparisons of equality such as:
+///	x == 0.0
+///	x == 1.0
+///	x == y
 /// </summary>
-#define NOX_OPT_USE_ZERO_EPSILON NOX_DEBUG
+#define NOX_CORRECT_F64_CMP true
 
 /// <summary>
 /// Insert instruction markers into the VM reactor assembly code.

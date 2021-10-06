@@ -209,7 +209,7 @@
 
 namespace Nominax::Foundation
 {
-    /// <summary>
+	/// <summary>
     /// Controller for the logger protocol.
     /// </summary>
     struct ProtocolController final

@@ -205,7 +205,9 @@
 
 #pragma once
 
+#include <string>
 #include <optional>
+#include <vector>
 
 #include "DataStream.hpp"
 
@@ -228,6 +230,22 @@ namespace Nominax::Foundation
     };
 
     /// <summary>
+    /// File content modes.
+    /// </summary>
+    enum class FileContentMode : char
+    {
+        /// <summary>
+        /// Treat file as binary.
+        /// </summary>
+        Binary = 'b',
+
+        /// <summary>
+        /// Treat file as text.
+        /// </summary>
+        Text = 't'
+    };
+
+    /// <summary>
     /// Represents an IO stream to a file system object.
     /// </summary>
     class IOStream : public DataStream
@@ -236,7 +254,12 @@ namespace Nominax::Foundation
         /// <summary>
         /// Access mode.
         /// </summary>
-        FileAccessMode AccessMode_;
+        FileAccessMode AccessMode_ { FileAccessMode::Read };
+
+        /// <summary>
+        /// Content mode.
+        /// </summary>
+        FileContentMode ContentMode_ { FileContentMode::Binary };
 
     public:
         /// <summary>
@@ -244,12 +267,23 @@ namespace Nominax::Foundation
         /// </summary>
         /// <param name="fileName">The name of the file.</param>
         /// <param name="accessMode">The access mode.</param>
-        explicit IOStream(const std::string& fileName, FileAccessMode accessMode);
+        explicit IOStream(const std::string& fileName, FileAccessMode accessMode, FileContentMode contentMode);
 
+        /// <summary>
+        /// Construct with preloaded handle.
+        /// Only load by using IOStream::FOpen()!
+        /// </summary>
+        /// <param name="handle"></param>
         explicit IOStream(NativeHandle& handle);
-
-        static auto TryOpen(const std::string& fileName, FileAccessMode accessMode) -> std::optional<IOStream>;
-
+        
+        /// <summary>
+        /// Try to open the file and return std::nullopt on fail.
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="accessMode"></param>
+        /// <returns></returns>
+        static auto TryOpen(const std::string& fileName, FileAccessMode accessMode, FileContentMode contentMode) -> std::optional<IOStream>;
+        
     	/// <summary>
     	/// Move constructor.
     	/// </summary>
@@ -289,6 +323,13 @@ namespace Nominax::Foundation
     	auto GetAccessMode() const -> FileAccessMode;
 
         /// <summary>
+        /// Query content mode.
+        /// </summary>
+        /// <returns>The content mode the file was opened with.</returns>
+        [[nodiscard]]
+    	auto GetContentMode() const -> FileContentMode;
+
+        /// <summary>
         /// Query access mode.
         /// </summary>
         /// <returns>True if the file is readable, else false.</returns>
@@ -303,6 +344,21 @@ namespace Nominax::Foundation
     	auto IsWriteable() const -> bool;
 
         /// <summary>
+        /// Seeks to the end of the stream to determine the size.
+        /// </summary>
+        /// <returns>The size until EOF in bytes.</returns>
+        [[nodiscard]]
+    	auto SeekSize() const -> std::uint64_t;
+
+        /// <summary>
+        /// Reads the whole data into a vector blob.
+        /// </summary>
+        /// <param name="out"></param>
+        /// <returns>True on success, else false.</returns>
+        [[nodiscard]]
+    	auto ReadAll(std::vector<std::uint8_t>& out) const -> bool;
+
+        /// <summary>
         /// Query native handle.
         /// </summary>
         /// <returns></returns>
@@ -315,6 +371,28 @@ namespace Nominax::Foundation
 		/// <returns></returns>
         [[nodiscard]]
     	auto operator *() const -> const NativeHandle*;
+
+        /// <summary>
+        /// Contains the file open mode including null terminator.
+        /// </summary>
+        using ModeProxy = std::array<char, 3>;
+
+        /// <summary>
+        /// Get access mode proxy data.
+        /// </summary>
+        /// <param name="accessMode"></param>
+        /// <returns></returns>
+        [[nodiscard]]
+        static auto GetCAccessModeProxy(FileAccessMode accessMode, FileContentMode contentMode) -> ModeProxy;
+
+        /// <summary>
+        /// Safe wrapper around std::fopen.
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="modeProxy"></param>
+        /// <returns></returns>
+        [[nodiscard]]
+    	static auto FOpen(const std::string& fileName, ModeProxy modeProxy) -> NativeHandle*;
     };
 
     inline auto IOStream::operator *() -> NativeHandle*
@@ -330,6 +408,11 @@ namespace Nominax::Foundation
     inline auto IOStream::GetAccessMode() const -> FileAccessMode
     {
         return this->AccessMode_;
+    }
+
+    inline auto IOStream::GetContentMode() const -> FileContentMode
+    {
+        return this->ContentMode_;
     }
 
     inline auto IOStream::IsReadable() const -> bool

@@ -205,9 +205,7 @@
 
 #pragma once
 
-#include <vector>
 #include <string>
-#include <string_view>
 
 #include "Signal.hpp"
 #include "InstructionMetaDataRegistry.hpp"
@@ -217,37 +215,107 @@ namespace Nominax::ByteCode
 {
     class Stream;
 
+    /// <summary>
+    /// Compiler for text based byte code and .nxb files.
+    /// </summary>
     struct Compiler final
     {
+        /// <summary>
+        /// Static class.
+        /// </summary>
         Compiler() = delete;
+
+        /// <summary>
+        /// Static class.
+        /// </summary>
+        /// <param name="other"></param>
         Compiler(const Compiler& other) = delete;
+
+        /// <summary>
+        /// Static class.
+        /// </summary>
+        /// <param name="other"></param>
         Compiler(Compiler&& other) = delete;
+
+        /// <summary>
+        /// Static class.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         auto operator =(const Compiler& other) -> Compiler& = delete;
+
+        /// <summary>
+        /// Static class.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         auto operator =(Compiler&& other) -> Compiler& = delete;
+
+        /// <summary>
+        /// Static class.
+        /// </summary>
         ~Compiler() = delete;
 
-        static constexpr std::uint64_t MAX_LINE { 128 };
+
+        /// <summary>
+        /// Character which marks a type name.
+        /// </summary>
         static constexpr char TYPE_MARKER { '%' };
+
+        /// <summary>
+        /// Character which marks an immediate value.
+        /// </summary>
         static constexpr char IMMEDIATE_MARKER { '#' };
+
+        /// <summary>
+        /// Character which marks the beginning of a comment.
+        /// </summary>
+        static constexpr char COMMENT_MARKER { ';' };
+
+        /// <summary>
+        /// Parenthesis which separate the type name.
+        /// </summary>
         static constexpr char LPAREN { '(' }, RPAREN { ')' };
 
+        /// <summary>
+        /// All available type names.
+        /// </summary>
         static constexpr const std::array<const std::string_view, Foundation::ToUnderlying(Signal::Discriminator::Count_)>& TYPE_NAME_LIST
         {
             Signal::DISCRIMINATOR_MNEMONICS
         };
 
+        /// <summary>
+        /// All available instruction mnemonics.
+        /// </summary>
         static constexpr const std::array<const std::string_view, Foundation::ToUnderlying(Instruction::Count_)>& MNEMONIC_LIST
         {
             InstructionMetaDataRegistry::MNEMONIC_TABLE
         };
 
+        /// <summary>
+        /// All available syscall mnemonics.
+        /// </summary>
         static constexpr const std::array<const std::string_view, Foundation::ToUnderlying(SysCall::Count_)>& SYSCALL_MNEMONIC_TABLE
         {
             SysCallMetaDataRegistry::MNEMONIC_TABLE
         };
 
-        using ErrorList = std::vector<std::string>;
+        /// <summary>
+        /// Loads and compiles the .nxb byte code file.
+        /// Panics if any errors are encountered.
+        /// </summary>
+        /// <param name="path">The file path.</param>
+        /// <param name="stream">The output stream.</param>
+        /// <returns></returns>
+    	static auto Compile(const std::string& path, Stream& stream) -> void;
 
-        NOX_COLD static auto Compile(const std::string& path, Stream& stream, ErrorList& errors) -> bool;
+        /// <summary>
+        /// Compiles a single separated byte code token.
+        /// </summary>
+        /// <param name="token"></param>
+        /// <param name="stream"></param>
+        /// <returns></returns>
+        static auto CompileToken(std::string_view token, Stream& stream) -> void;
     };
 }

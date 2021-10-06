@@ -213,7 +213,6 @@
 #include <climits>
 
 #include "Platform.hpp"
-#include <cstdint>
 
 namespace Nominax::Foundation
 {
@@ -590,7 +589,7 @@ namespace Nominax::Foundation
 	/// <param name="args"></param>
 	/// <returns></returns>
 	template <typename Iter, typename Func, typename... Args> requires RandomAccessIterator<Iter>
-	constexpr auto UniformChunkSplit(const std::uint64_t chunkCount, const Iter begin, const Iter end, Func&& func, Args&&...args) -> void
+	constexpr auto UniformChunkSplit(const std::uint64_t chunkCount, Iter&& begin, Iter&& end, Func&& func, Args&&...args) -> void
 	{
 		using ValueType = const typename std::iterator_traits<Iter>::value_type;
 		using Span = std::span<ValueType>;
@@ -655,48 +654,20 @@ namespace Nominax::Foundation
 		}
 	}
 
-	/// <summary>
-	/// Sign EXtend the integer.
-	/// </summary>
-	/// <param name="x"></param>
-	/// <returns></returns>
+	template <typename Iter, typename Pred> requires RandomAccessIterator<Iter>
 	[[nodiscard]]
-	constexpr auto Sex(const std::int8_t x) -> std::uint8_t
+	constexpr auto EnumeratingSearch(Iter&& begin, Iter&& end, Pred&& pred) -> bool
 	{
-		return x >> (CHAR_BIT * sizeof(x) - 1);
-	}
-
-	/// <summary>
-	/// Sign EXtend the integer.
-	/// </summary>
-	/// <param name="x"></param>
-	/// <returns></returns>
-	[[nodiscard]]
-	constexpr auto Sex(const std::int16_t x) -> std::uint16_t
-	{
-		return x >> (CHAR_BIT * sizeof(x) - 1);
-	}
-
-	/// <summary>
-	/// Sign EXtend the integer.
-	/// </summary>
-	/// <param name="x"></param>
-	/// <returns></returns>
-	[[nodiscard]]
-	constexpr auto Sex(const std::int32_t x) -> std::uint32_t
-	{
-		return x >> (CHAR_BIT * sizeof(x) - 1);
-	}
-
-	/// <summary>
-	/// Sign EXtend the integer.
-	/// </summary>
-	/// <param name="x"></param>
-	/// <returns></returns>
-	[[nodiscard]]
-	constexpr auto Sex(const std::int64_t x) -> std::uint64_t
-	{
-		return x >> (CHAR_BIT * sizeof(x) - 1);
+		bool found { false };
+		for (std::uint64_t i { }; begin < end; std::advance(begin, 1), ++i)
+		{
+			if (std::invoke(std::forward<Pred>(pred), *begin, i))
+			{
+				found = true;
+				break;
+			}
+		}
+		return found;
 	}
 
 	/// <summary>

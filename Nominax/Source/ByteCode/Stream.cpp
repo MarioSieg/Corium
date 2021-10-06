@@ -359,7 +359,7 @@ namespace Nominax::ByteCode
             "Discriminator buffer: {:.3F} MB\n",
             Bytes2Megabytes<float>(static_cast<float>(std::size(this->CodeDiscriminatorBuffer_)) * static_cast<float>(sizeof(DiscriminatorStorageType::value_type)))
         );
-        Print(stream,"Total: {:.3F} MB\n", Bytes2Megabytes<float>(static_cast<float>(this->SizeInBytes())));
+        Print(stream, "Total: {:.3F} MB\n", Bytes2Megabytes<float>(static_cast<float>(this->SizeInBytes())));
         Print(stream,"Signal: {}, Size: {:.3} kB, Granularity: {} B", this->Size(), Bytes2Kilobytes(static_cast<float>(this->SizeInBytes())), sizeof(Signal));
         for (std::uint64_t i { 0 }; i < this->Size(); ++i)
         {
@@ -370,19 +370,59 @@ namespace Nominax::ByteCode
             {
                 default:
                 case Signal::Discriminator::MemoryOffset:
-                    Print(stream, " %({})#{}", Signal::DISCRIMINATOR_MNEMONICS[ToUnderlying(dis)], sig.R64.AsU64);
+                    Print
+            		(
+						stream,
+						" {}{}{}{}{}{}",
+						Compiler::TYPE_MARKER,
+						Compiler::LPAREN,
+						Signal::DISCRIMINATOR_MNEMONICS[ToUnderlying(dis)],
+						Compiler::RPAREN,
+						Compiler::IMMEDIATE_MARKER,
+						sig.R64.AsU64
+					);
                 continue;
 
                 case Signal::Discriminator::SysCall:
-                    Print(stream, " %({})#{}", Signal::DISCRIMINATOR_MNEMONICS[ToUnderlying(dis)], SysCallMetaDataRegistry::MNEMONIC_TABLE[sig.R64.AsU64]);
+                    Print
+            		(
+						stream,
+						" {}{}{}{}{}{}",
+						Compiler::TYPE_MARKER,
+						Compiler::LPAREN,
+						Signal::DISCRIMINATOR_MNEMONICS[ToUnderlying(dis)],
+						Compiler::RPAREN,
+						Compiler::IMMEDIATE_MARKER,
+						SysCallMetaDataRegistry::MNEMONIC_TABLE[sig.R64.AsU64]
+					);
                 continue;
 
                 case Signal::Discriminator::Int:
-                    Print(stream, " %({})#{}", Signal::DISCRIMINATOR_MNEMONICS[ToUnderlying(dis)], sig.R64.AsI64);
+                    Print
+            		(
+						stream,
+						" {}{}{}{}{}{}",
+						Compiler::TYPE_MARKER,
+						Compiler::LPAREN,
+						Signal::DISCRIMINATOR_MNEMONICS[ToUnderlying(dis)],
+						Compiler::RPAREN,
+						Compiler::IMMEDIATE_MARKER,
+						sig.R64.AsI64
+					);
                 continue;
 
                 case Signal::Discriminator::Float:
-                    Print(stream, " %({})#{}", Signal::DISCRIMINATOR_MNEMONICS[ToUnderlying(dis)], sig.R64.AsF64);
+                    Print
+            		(
+						stream,
+						" {}{}{}{}{}{}",
+						Compiler::TYPE_MARKER,
+						Compiler::LPAREN,
+						Signal::DISCRIMINATOR_MNEMONICS[ToUnderlying(dis)],
+						Compiler::RPAREN,
+						Compiler::IMMEDIATE_MARKER,
+						sig.R64.AsF64
+					);
                 continue;
 
                 case Signal::Discriminator::Instruction:
