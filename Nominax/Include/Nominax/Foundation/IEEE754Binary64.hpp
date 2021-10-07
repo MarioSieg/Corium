@@ -219,9 +219,6 @@ namespace Nominax::Foundation
 	/// </summary>
 	struct IEEE754Binary64 final
 	{
-		static_assert(std::numeric_limits<float>::is_iec559, "Nominax runtime floating point arithmetic relies on IEEE 754 2008!");
-		static_assert(std::numeric_limits<double>::is_iec559, "Nominax runtime floating point arithmetic relies on IEEE 754 2008!");
-
 		/// <summary>
 		/// Min value.
 		/// </summary>
