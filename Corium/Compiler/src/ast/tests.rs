@@ -753,13 +753,13 @@ mod populators {
         }
     }
 
-    mod local_variable {
+    mod mutable_variable {
         use super::*;
 
         #[test]
         fn int() {
-            let mut result = CoriumParser::parse(Rule::LocalVariable, "let x = 10\n").unwrap();
-            let ast = LocalVariable::populate(result.next().unwrap().into_inner());
+            let mut result = CoriumParser::parse(Rule::MutableVariable, "let x = 10\n").unwrap();
+            let ast = MutableVariable::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "x");
             assert!(matches!(ast.value, Expression::Literal(Literal::Int(10))));
             assert!(ast.type_hint.is_none());
@@ -767,8 +767,8 @@ mod populators {
 
         #[test]
         fn float() {
-            let mut result = CoriumParser::parse(Rule::LocalVariable, "let x = 10.0\n").unwrap();
-            let ast = LocalVariable::populate(result.next().unwrap().into_inner());
+            let mut result = CoriumParser::parse(Rule::MutableVariable, "let x = 10.0\n").unwrap();
+            let ast = MutableVariable::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "x");
             let _f = Literal::Float(10.0);
             assert!(matches!(ast.value, Expression::Literal(_f)));
@@ -777,8 +777,8 @@ mod populators {
 
         #[test]
         fn char() {
-            let mut result = CoriumParser::parse(Rule::LocalVariable, "let x = 'x'\n").unwrap();
-            let ast = LocalVariable::populate(result.next().unwrap().into_inner());
+            let mut result = CoriumParser::parse(Rule::MutableVariable, "let x = 'x'\n").unwrap();
+            let ast = MutableVariable::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "x");
             assert!(matches!(ast.value, Expression::Literal(Literal::Char('x'))));
             assert!(ast.type_hint.is_none());
@@ -786,8 +786,8 @@ mod populators {
 
         #[test]
         fn bool() {
-            let mut result = CoriumParser::parse(Rule::LocalVariable, "let x = true\n").unwrap();
-            let ast = LocalVariable::populate(result.next().unwrap().into_inner());
+            let mut result = CoriumParser::parse(Rule::MutableVariable, "let x = true\n").unwrap();
+            let ast = MutableVariable::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "x");
             assert!(matches!(
                 ast.value,
@@ -799,8 +799,8 @@ mod populators {
         #[test]
         fn string() {
             let mut result =
-                CoriumParser::parse(Rule::LocalVariable, "let x = \"Name\"\n").unwrap();
-            let ast = LocalVariable::populate(result.next().unwrap().into_inner());
+                CoriumParser::parse(Rule::MutableVariable, "let x = \"Name\"\n").unwrap();
+            let ast = MutableVariable::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "x");
             assert!(matches!(
                 ast.value,
@@ -811,8 +811,9 @@ mod populators {
 
         #[test]
         fn type_int() {
-            let mut result = CoriumParser::parse(Rule::LocalVariable, "let x int = 10\n").unwrap();
-            let ast = LocalVariable::populate(result.next().unwrap().into_inner());
+            let mut result =
+                CoriumParser::parse(Rule::MutableVariable, "let x int = 10\n").unwrap();
+            let ast = MutableVariable::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "x");
             assert!(matches!(ast.value, Expression::Literal(Literal::Int(10))));
             assert!(ast.type_hint.is_some());
@@ -822,8 +823,8 @@ mod populators {
         #[test]
         fn type_float() {
             let mut result =
-                CoriumParser::parse(Rule::LocalVariable, "let x float = 10.0\n").unwrap();
-            let ast = LocalVariable::populate(result.next().unwrap().into_inner());
+                CoriumParser::parse(Rule::MutableVariable, "let x float = 10.0\n").unwrap();
+            let ast = MutableVariable::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "x");
             let _f = Literal::Float(10.0);
             assert!(matches!(ast.value, Expression::Literal(_f)));
@@ -834,8 +835,8 @@ mod populators {
         #[test]
         fn type_char() {
             let mut result =
-                CoriumParser::parse(Rule::LocalVariable, "let x char = 'x'\n").unwrap();
-            let ast = LocalVariable::populate(result.next().unwrap().into_inner());
+                CoriumParser::parse(Rule::MutableVariable, "let x char = 'x'\n").unwrap();
+            let ast = MutableVariable::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "x");
             assert!(matches!(ast.value, Expression::Literal(Literal::Char('x'))));
             assert!(ast.type_hint.is_some());
@@ -845,8 +846,8 @@ mod populators {
         #[test]
         fn type_bool() {
             let mut result =
-                CoriumParser::parse(Rule::LocalVariable, "let x bool = true\n").unwrap();
-            let ast = LocalVariable::populate(result.next().unwrap().into_inner());
+                CoriumParser::parse(Rule::MutableVariable, "let x bool = true\n").unwrap();
+            let ast = MutableVariable::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "x");
             assert!(matches!(
                 ast.value,
@@ -859,8 +860,132 @@ mod populators {
         #[test]
         fn type_string() {
             let mut result =
-                CoriumParser::parse(Rule::LocalVariable, "let x string = \"Name\"\n").unwrap();
-            let ast = LocalVariable::populate(result.next().unwrap().into_inner());
+                CoriumParser::parse(Rule::MutableVariable, "let x string = \"Name\"\n").unwrap();
+            let ast = MutableVariable::populate(result.next().unwrap().into_inner());
+            assert_eq!(ast.name.0, "x");
+            assert!(matches!(
+                ast.value,
+                Expression::Literal(Literal::String("Name"))
+            ));
+            assert!(ast.type_hint.is_some());
+            assert_eq!(ast.type_hint.unwrap().full, "string");
+        }
+    }
+
+    mod immutable_variable {
+        use super::*;
+
+        #[test]
+        fn int() {
+            let mut result =
+                CoriumParser::parse(Rule::ImmutableVariable, "const x = 10\n").unwrap();
+            let ast = ImmutableVariable::populate(result.next().unwrap().into_inner());
+            assert_eq!(ast.name.0, "x");
+            assert!(matches!(ast.value, Expression::Literal(Literal::Int(10))));
+            assert!(ast.type_hint.is_none());
+        }
+
+        #[test]
+        fn float() {
+            let mut result =
+                CoriumParser::parse(Rule::ImmutableVariable, "const x = 10.0\n").unwrap();
+            let ast = ImmutableVariable::populate(result.next().unwrap().into_inner());
+            assert_eq!(ast.name.0, "x");
+            let _f = Literal::Float(10.0);
+            assert!(matches!(ast.value, Expression::Literal(_f)));
+            assert!(ast.type_hint.is_none());
+        }
+
+        #[test]
+        fn char() {
+            let mut result =
+                CoriumParser::parse(Rule::ImmutableVariable, "const x = 'x'\n").unwrap();
+            let ast = ImmutableVariable::populate(result.next().unwrap().into_inner());
+            assert_eq!(ast.name.0, "x");
+            assert!(matches!(ast.value, Expression::Literal(Literal::Char('x'))));
+            assert!(ast.type_hint.is_none());
+        }
+
+        #[test]
+        fn bool() {
+            let mut result =
+                CoriumParser::parse(Rule::ImmutableVariable, "const x = true\n").unwrap();
+            let ast = ImmutableVariable::populate(result.next().unwrap().into_inner());
+            assert_eq!(ast.name.0, "x");
+            assert!(matches!(
+                ast.value,
+                Expression::Literal(Literal::Bool(true))
+            ));
+            assert!(ast.type_hint.is_none());
+        }
+
+        #[test]
+        fn string() {
+            let mut result =
+                CoriumParser::parse(Rule::ImmutableVariable, "const x = \"Name\"\n").unwrap();
+            let ast = ImmutableVariable::populate(result.next().unwrap().into_inner());
+            assert_eq!(ast.name.0, "x");
+            assert!(matches!(
+                ast.value,
+                Expression::Literal(Literal::String("Name"))
+            ));
+            assert!(ast.type_hint.is_none());
+        }
+
+        #[test]
+        fn type_int() {
+            let mut result =
+                CoriumParser::parse(Rule::ImmutableVariable, "const x int = 10\n").unwrap();
+            let ast = ImmutableVariable::populate(result.next().unwrap().into_inner());
+            assert_eq!(ast.name.0, "x");
+            assert!(matches!(ast.value, Expression::Literal(Literal::Int(10))));
+            assert!(ast.type_hint.is_some());
+            assert_eq!(ast.type_hint.unwrap().full, "int");
+        }
+
+        #[test]
+        fn type_float() {
+            let mut result =
+                CoriumParser::parse(Rule::ImmutableVariable, "const x float = 10.0\n").unwrap();
+            let ast = ImmutableVariable::populate(result.next().unwrap().into_inner());
+            assert_eq!(ast.name.0, "x");
+            let _f = Literal::Float(10.0);
+            assert!(matches!(ast.value, Expression::Literal(_f)));
+            assert!(ast.type_hint.is_some());
+            assert_eq!(ast.type_hint.unwrap().full, "float");
+        }
+
+        #[test]
+        fn type_char() {
+            let mut result =
+                CoriumParser::parse(Rule::ImmutableVariable, "const x char = 'x'\n").unwrap();
+            let ast = ImmutableVariable::populate(result.next().unwrap().into_inner());
+            assert_eq!(ast.name.0, "x");
+            assert!(matches!(ast.value, Expression::Literal(Literal::Char('x'))));
+            assert!(ast.type_hint.is_some());
+            assert_eq!(ast.type_hint.unwrap().full, "char");
+        }
+
+        #[test]
+        fn type_bool() {
+            let mut result =
+                CoriumParser::parse(Rule::ImmutableVariable, "const x bool = true\n").unwrap();
+            let ast = ImmutableVariable::populate(result.next().unwrap().into_inner());
+            assert_eq!(ast.name.0, "x");
+            assert!(matches!(
+                ast.value,
+                Expression::Literal(Literal::Bool(true))
+            ));
+            assert!(ast.type_hint.is_some());
+            assert_eq!(ast.type_hint.unwrap().full, "bool");
+        }
+
+        #[test]
+        fn type_string() {
+            let mut result =
+                CoriumParser::parse(Rule::ImmutableVariable, "const x string = \"Name\"\n")
+                    .unwrap();
+            let ast = ImmutableVariable::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "x");
             assert!(matches!(
                 ast.value,
@@ -929,7 +1054,7 @@ mod populators {
             let ast = FunctionStatement::populate(result.next().unwrap().into_inner());
             assert!(matches!(
                 ast,
-                FunctionStatement::LocalVariable(LocalVariable {
+                FunctionStatement::MutableVariable(MutableVariable {
                     name: Identifier("x"),
                     type_hint: None,
                     value: Expression::Literal(Literal::Int(10))
@@ -978,7 +1103,7 @@ mod populators {
 
             assert!(matches!(
                 &ast.0[0],
-                FunctionStatement::LocalVariable(LocalVariable {
+                FunctionStatement::MutableVariable(MutableVariable {
                     name: Identifier("x"),
                     value: Expression::Literal(Literal::Int(10)),
                     type_hint: None
@@ -988,7 +1113,7 @@ mod populators {
             let _name = QualifiedName::from("bool");
             assert!(matches!(
                 &ast.0[1],
-                FunctionStatement::LocalVariable(LocalVariable {
+                FunctionStatement::MutableVariable(MutableVariable {
                     name: Identifier("y"),
                     value: Expression::Literal(Literal::Bool(true)),
                     type_hint: Some(_name)
@@ -997,7 +1122,7 @@ mod populators {
 
             assert!(matches!(
                 &ast.0[2],
-                FunctionStatement::LocalVariable(LocalVariable {
+                FunctionStatement::MutableVariable(MutableVariable {
                     name: Identifier("name"),
                     value: Expression::Literal(Literal::String("Hey")),
                     type_hint: None
@@ -1007,7 +1132,7 @@ mod populators {
             let _name = QualifiedName::from("char");
             assert!(matches!(
                 &ast.0[3],
-                FunctionStatement::LocalVariable(LocalVariable {
+                FunctionStatement::MutableVariable(MutableVariable {
                     name: Identifier("z"),
                     value: Expression::Literal(Literal::Char('y')),
                     type_hint: Some(_name)
@@ -1018,7 +1143,7 @@ mod populators {
             let _f = Literal::Float(2.33225);
             assert!(matches!(
                 &ast.0[4],
-                FunctionStatement::LocalVariable(LocalVariable {
+                FunctionStatement::MutableVariable(MutableVariable {
                     name: Identifier("zw"),
                     value: Expression::Literal(_f),
                     type_hint: Some(_name)
@@ -1074,7 +1199,7 @@ mod populators {
             assert_eq!(ast.0.len(), 5);
             assert!(matches!(
                 &ast.0[0],
-                FunctionStatement::LocalVariable(LocalVariable {
+                FunctionStatement::MutableVariable(MutableVariable {
                     name: Identifier("x"),
                     value: Expression::Literal(Literal::Int(10)),
                     type_hint: None
@@ -1095,7 +1220,7 @@ mod populators {
             let _name = QualifiedName::from("bool");
             assert!(matches!(
                 &ast.0[3],
-                FunctionStatement::LocalVariable(LocalVariable {
+                FunctionStatement::MutableVariable(MutableVariable {
                     name: Identifier("z"),
                     value: Expression::Literal(Literal::Bool(true)),
                     type_hint: Some(_name)
@@ -1105,7 +1230,7 @@ mod populators {
             let _f = Literal::Float(2.33225);
             assert!(matches!(
                 &ast.0[4],
-                FunctionStatement::LocalVariable(LocalVariable {
+                FunctionStatement::MutableVariable(MutableVariable {
                     name: Identifier("z"),
                     value: Expression::Literal(_f),
                     type_hint: Some(_name)
@@ -1482,7 +1607,7 @@ mod populators {
             assert_eq!(ast.signature.return_type.unwrap().full, "int");
             assert!(matches!(
                 &ast.block.0[0],
-                FunctionStatement::LocalVariable(LocalVariable {
+                FunctionStatement::MutableVariable(MutableVariable {
                     name: Identifier("result"),
                     type_hint: None,
                     value: Expression::Literal(Literal::String("LOL"))
@@ -1505,7 +1630,7 @@ mod populators {
             let src = "fun f() {\nlet x = 10\n}\n";
             let mut result = CoriumParser::parse(Rule::GlobalStatement, src).unwrap();
             let ast = GlobalStatement::populate(result.next().unwrap().into_inner());
-            let _block = vec![FunctionStatement::LocalVariable(LocalVariable {
+            let _block = vec![FunctionStatement::MutableVariable(MutableVariable {
                 name: Identifier("x"),
                 type_hint: None,
                 value: Expression::Literal(Literal::Int(10)),
@@ -1603,7 +1728,7 @@ mod populators {
                     }
                 })
             ));
-            let _block = Block(vec![FunctionStatement::LocalVariable(LocalVariable {
+            let _block = Block(vec![FunctionStatement::MutableVariable(MutableVariable {
                 name: Identifier("x"),
                 type_hint: Some(QualifiedName::from("int")),
                 value: Expression::Literal(Literal::Int(10)),

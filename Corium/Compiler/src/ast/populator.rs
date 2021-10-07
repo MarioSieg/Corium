@@ -333,8 +333,8 @@ impl<'ast> NestedAstPopulator<'ast> for FunctionStatement<'ast> {
     fn populate(mut rule: RulePairs<'ast>) -> Self {
         let nested = rule.next().unwrap();
         match nested.as_rule() {
-            Rule::LocalVariable => {
-                Self::LocalVariable(LocalVariable::populate(nested.into_inner()))
+            Rule::MutableVariable => {
+                Self::MutableVariable(MutableVariable::populate(nested.into_inner()))
             }
             Rule::ReturnStatement => {
                 Self::ReturnStatement(ReturnStatement::populate(nested.into_inner()))
@@ -350,7 +350,7 @@ impl<'ast> NestedAstPopulator<'ast> for Module<'ast> {
     }
 }
 
-impl<'ast> NestedAstPopulator<'ast> for LocalVariable<'ast> {
+impl<'ast> NestedAstPopulator<'ast> for MutableVariable<'ast> {
     fn populate(mut rule: RulePairs<'ast>) -> Self {
         let name = {
             let inner = rule.next().unwrap();
@@ -381,6 +381,17 @@ impl<'ast> NestedAstPopulator<'ast> for LocalVariable<'ast> {
             name,
             type_hint,
             value,
+        }
+    }
+}
+
+impl<'ast> NestedAstPopulator<'ast> for ImmutableVariable<'ast> {
+    fn populate(rule: RulePairs<'ast>) -> Self {
+        let var = MutableVariable::populate(rule);
+        Self {
+            name: var.name,
+            type_hint: var.type_hint,
+            value: var.value,
         }
     }
 }

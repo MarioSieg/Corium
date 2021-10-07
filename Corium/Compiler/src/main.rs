@@ -222,10 +222,12 @@ fn main() {
     let mut context = context::CompilerContext::new();
 
     for file in options.input_files {
-        let com_unit = context.enqueue_file(file);
-        com_unit.descriptor.dump_ast = options.dump_ast;
-        com_unit.descriptor.dump_asm = options.dump_asm;
-        com_unit.descriptor.opt_level = options.opt_level;
+        let descriptor = unit::FCUDescriptor {
+            dump_ast: options.dump_ast,
+            dump_asm: options.dump_asm,
+            opt_level: options.opt_level,
+        };
+        context.enqueue_file(file, descriptor);
     }
 
     context.compile();

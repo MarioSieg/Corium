@@ -206,7 +206,6 @@
 #[cfg(feature = "concurrent_compilation")]
 use dashmap::DashMap;
 
-use crate::ast::*;
 #[cfg(not(feature = "concurrent_compilation"))]
 use std::collections::HashMap;
 
@@ -215,61 +214,3 @@ pub type SymbolTable<K, V> = DashMap<K, V>;
 
 #[cfg(not(feature = "concurrent_compilation"))]
 pub type SymbolTable<K, V> = HashMap<K, V>;
-
-use std::fmt;
-
-#[derive(Debug)]
-pub struct GlobalSymbolTable<'ast> {
-    pub functions: SymbolTable<Identifier<'ast>, &'ast Function<'ast>>,
-    pub native_functions: SymbolTable<Identifier<'ast>, &'ast NativeFunction<'ast>>,
-}
-
-impl<'ast> GlobalSymbolTable<'ast> {
-    pub fn new() -> Self {
-        Self {
-            functions: SymbolTable::new(),
-            native_functions: SymbolTable::new(),
-        }
-    }
-}
-
-impl<'ast> fmt::Display for GlobalSymbolTable<'ast> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        writeln!(f, "NativeFunctions:")?;
-        for i in &self.native_functions {
-            writeln!(f, "\t{} = {}", i.0, i.1.signature)?;
-        }
-        writeln!(f)?;
-
-        writeln!(f, "Functions:")?;
-        for i in &self.functions {
-            writeln!(f, "\t{} = {}", i.0, i.1.signature)?;
-        }
-        writeln!(f)?;
-
-        Ok(())
-    }
-}
-
-#[derive(Debug)]
-pub struct LocalSymbolTable<'ast> {
-    pub variables: SymbolTable<Identifier<'ast>, LocalVariable<'ast>>,
-}
-
-impl<'ast> LocalSymbolTable<'ast> {
-    pub fn new() -> Self {
-        Self {
-            variables: SymbolTable::new(),
-        }
-    }
-}
-
-impl<'ast> fmt::Display for LocalSymbolTable<'ast> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        writeln!(f, "Locals:")?;
-        for i in &self.variables {
-            writeln!(f, "\t{} = {}", i.0, i.1)?;
-        }
-        Ok(())
-    }
-}

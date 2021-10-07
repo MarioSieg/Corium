@@ -219,10 +219,8 @@ impl CompilerContext {
     }
 
     #[inline]
-    pub fn enqueue_file(&mut self, path: PathBuf) -> &mut FileCompilationUnit {
-        self.queue
-            .push_front(FileCompilationUnit::load(path, FCUDescriptor::default()));
-        self.queue.front_mut().unwrap()
+    pub fn enqueue_file(&mut self, path: PathBuf, desc: FCUDescriptor) {
+        self.queue.push_front(FileCompilationUnit::load(path, desc));
     }
 
     #[inline]
@@ -258,7 +256,7 @@ mod tests {
     #[test]
     fn enqueue_file() {
         let mut ctx = CompilerContext::new();
-        ctx.enqueue_file(PathBuf::from(TEST_FILE_PATH));
+        ctx.enqueue_file(PathBuf::from(TEST_FILE_PATH), FCUDescriptor::default());
         assert_eq!(ctx.get_queue().len(), 1);
         assert!(ctx.has_compilation_units());
     }
@@ -266,6 +264,6 @@ mod tests {
     #[test]
     fn compile() {
         let mut ctx = CompilerContext::new();
-        ctx.enqueue_file(PathBuf::from(TEST_FILE_PATH));
+        ctx.enqueue_file(PathBuf::from(TEST_FILE_PATH), FCUDescriptor::default());
     }
 }

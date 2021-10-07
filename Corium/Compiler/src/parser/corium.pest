@@ -4,7 +4,9 @@ CompilationUnit = {
 
 GlobalStatement = {
     Function |
-    NativeFunction
+    NativeFunction |
+    MutableVariable |
+    ImmutableVariable
 }
 
 Function = {
@@ -24,7 +26,8 @@ Block = {
 }
 
 FunctionStatement = {
-    LocalVariable |
+    MutableVariable |
+    ImmutableVariable |
     ReturnStatement
 }
 
@@ -32,8 +35,12 @@ Module = {
     "module " ~ QualifiedName ~ NEWLINE
 }
 
-LocalVariable = {
+MutableVariable = {
     "let " ~ Identifier ~ (" " ~ QualifiedName)? ~ " = " ~ Expression ~ NEWLINE
+}
+
+ImmutableVariable = {
+    "const " ~ Identifier ~ (" " ~ QualifiedName)? ~ " = " ~ Expression ~ NEWLINE
 }
 
 ReturnStatement = {

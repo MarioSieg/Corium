@@ -205,7 +205,6 @@
 
 use crate::ast::CompilationUnit;
 use crate::parser::parse_and_map;
-use crate::semantic::SemanticAnalysisContext;
 use std::default;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -262,8 +261,6 @@ impl FileCompilationUnit {
         let clock = Instant::now();
 
         let root = parse_and_map(&self.source_code).unwrap();
-        let mut analyzer = SemanticAnalysisContext::new();
-        analyzer.walk(&root);
         self.dump_ast(&root);
 
         self.file_load_time
