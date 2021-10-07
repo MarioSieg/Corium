@@ -234,8 +234,20 @@ impl CompilerContext {
     }
 
     pub fn compile(&mut self) {
+        use colored::Colorize;
+
         while let Some(mut unit) = self.queue.pop_front() {
-            unit.compile();
+            let time = unit.compile();
+            println!(
+                "{}",
+                format!(
+                    "Compiled {} in {}",
+                    unit.get_file_name(),
+                    humantime::Duration::from(time)
+                )
+                .green()
+                .bold()
+            );
         }
     }
 }

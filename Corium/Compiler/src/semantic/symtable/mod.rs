@@ -204,9 +204,12 @@
 //    limitations under the License.
 
 use crate::ast::*;
+use std::collections::HashMap;
 use std::fmt;
 
 pub mod global;
+
+pub type SymbolTable<K, V> = HashMap<K, V>;
 
 pub trait Symtable: fmt::Debug + fmt::Display {
     const NAME: &'static str;
@@ -231,8 +234,8 @@ pub enum FunctionTableRecord<'a> {
 impl<'a> fmt::Display for FunctionTableRecord<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Self::Function(x) => write!(f, "{}", x),
-            Self::NativeFunction(x) => write!(f, "{}", x),
+            Self::Function(x) => write!(f, "{}", x.signature),
+            Self::NativeFunction(x) => write!(f, "{}", x.signature),
         }
     }
 }

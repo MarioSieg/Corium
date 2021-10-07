@@ -203,14 +203,51 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#[cfg(feature = "concurrent_compilation")]
-use dashmap::DashMap;
+use std::fmt;
 
-#[cfg(not(feature = "concurrent_compilation"))]
-use std::collections::HashMap;
+use super::symtable::global::GlobalSymbolTable;
+use super::symtable::{FunctionTableRecord, Symtable};
+use crate::ast::*;
 
-#[cfg(feature = "concurrent_compilation")]
-pub type SymbolTable<K, V> = DashMap<K, V>;
+pub struct SemanticProcessorContext<'a> {
+    pub global: GlobalSymbolTable<'a>,
+}
 
-#[cfg(not(feature = "concurrent_compilation"))]
-pub type SymbolTable<K, V> = HashMap<K, V>;
+impl<'a> SemanticProcessorContext<'a> {
+    pub fn new() -> Self {
+        Self {
+            global: GlobalSymbolTable::new(),
+        }
+    }
+
+    pub fn with_capacity(capacity: usize) -> Self {
+        Self {
+            global: GlobalSymbolTable::with_capacity(capacity),
+        }
+    }
+
+    pub fn walk_root(&mut self, root: &'a CompilationUnit<'a>) {
+        root.statements.iter().for_each(|smt| {
+            self.map_global(smt);
+        });
+    }
+
+    fn map_global(&mut self, smt: &'a GlobalStatement<'a>) {
+        match smt {
+            GlobalStatement::Function(x) => {
+                let symbol = FunctionTableRecord::Function(x);
+                self.global.functions.insert(x.signature.name, symbol);
+            }
+            GlobalStatement::NativeFunction(x) => {
+                let symbol = FunctionTableRecord::NativeFunction(x);
+                self.global.functions.insert(x.signature.name, symbol);
+            }
+        }
+    }
+}
+
+impl<'a> fmt::Display for SemanticProcessorContext<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        writeln!(f, "{}", self.global)
+    }
+}

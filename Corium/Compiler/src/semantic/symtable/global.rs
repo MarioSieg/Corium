@@ -204,7 +204,6 @@
 //    limitations under the License.
 
 use super::*;
-use crate::semantic::table::SymbolTable;
 use std::fmt;
 
 #[derive(Debug)]
