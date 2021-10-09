@@ -1897,7 +1897,7 @@ mod rules {
 
             #[test]
             fn return_statement() {
-                let mut result = CoriumParser::parse(Rule::FunctionStatement, "return\n").unwrap();
+                let mut result = CoriumParser::parse(Rule::LocalStatement, "return\n").unwrap();
                 let mut result = result.next().unwrap().into_inner();
                 let var = result.next().unwrap();
                 assert_eq!(var.as_rule(), Rule::ReturnStatement);
@@ -1907,11 +1907,29 @@ mod rules {
             #[test]
             fn return_statement2() {
                 let mut result =
-                    CoriumParser::parse(Rule::FunctionStatement, "return true\n").unwrap();
+                    CoriumParser::parse(Rule::LocalStatement, "return true\n").unwrap();
                 let mut result = result.next().unwrap().into_inner();
                 let var = result.next().unwrap();
                 assert_eq!(var.as_rule(), Rule::ReturnStatement);
                 assert_eq!(var.as_str(), "return true\n");
+            }
+
+            #[test]
+            fn mutable_variable() {
+                let src = "let x = 10\n";
+                let mut result = CoriumParser::parse(Rule::LocalStatement, src).unwrap();
+                assert_eq!(result.as_str(), src);
+                let inner = result.next().unwrap().into_inner().next().unwrap();
+                assert_eq!(inner.as_rule(), Rule::MutableVariable);
+            }
+
+            #[test]
+            fn immutable_variable() {
+                let src = "const x = 10\n";
+                let mut result = CoriumParser::parse(Rule::LocalStatement, src).unwrap();
+                assert_eq!(result.as_str(), src);
+                let inner = result.next().unwrap().into_inner().next().unwrap();
+                assert_eq!(inner.as_rule(), Rule::ImmutableVariable);
             }
         }
 
@@ -1920,25 +1938,25 @@ mod rules {
 
             #[test]
             fn invalid() {
-                let result = CoriumParser::parse(Rule::FunctionStatement, "HELLO THERE");
+                let result = CoriumParser::parse(Rule::LocalStatement, "HELLO THERE");
                 assert!(result.is_err());
             }
 
             #[test]
             fn invalid2() {
-                let result = CoriumParser::parse(Rule::FunctionStatement, "42742");
+                let result = CoriumParser::parse(Rule::LocalStatement, "42742");
                 assert!(result.is_err());
             }
 
             #[test]
             fn invalid3() {
-                let result = CoriumParser::parse(Rule::FunctionStatement, "fun f()");
+                let result = CoriumParser::parse(Rule::LocalStatement, "fun f()");
                 assert!(result.is_err());
             }
 
             #[test]
             fn separators() {
-                let result = CoriumParser::parse(Rule::FunctionStatement, " \n  \t \t \n\n  \n");
+                let result = CoriumParser::parse(Rule::LocalStatement, " \n  \t \t \n\n  \n");
                 assert!(result.is_err());
             }
         }
@@ -2494,7 +2512,7 @@ mod rules {
                 assert_eq!(block.as_rule(), Rule::Block);
                 assert_eq!(block.as_str(), "return 10\n");
                 let smt = block.into_inner().next().unwrap();
-                assert_eq!(smt.as_rule(), Rule::FunctionStatement);
+                assert_eq!(smt.as_rule(), Rule::LocalStatement);
                 assert_eq!(smt.as_str(), "return 10\n");
                 let ret = smt.into_inner().next().unwrap();
                 assert_eq!(ret.as_rule(), Rule::ReturnStatement);
@@ -2522,14 +2540,14 @@ mod rules {
                 let mut block = block.into_inner();
 
                 let var = block.next().unwrap();
-                assert_eq!(var.as_rule(), Rule::FunctionStatement);
+                assert_eq!(var.as_rule(), Rule::LocalStatement);
                 assert_eq!(var.as_str(), "let result = \"LOL\"\n");
                 let var = var.into_inner().next().unwrap();
                 assert_eq!(var.as_rule(), Rule::MutableVariable);
                 assert_eq!(var.as_str(), "let result = \"LOL\"\n");
 
                 let ret = block.next().unwrap();
-                assert_eq!(ret.as_rule(), Rule::FunctionStatement);
+                assert_eq!(ret.as_rule(), Rule::LocalStatement);
                 assert_eq!(ret.as_str(), "return 23\n");
                 let ret = ret.into_inner().next().unwrap();
                 assert_eq!(ret.as_rule(), Rule::ReturnStatement);
@@ -2732,6 +2750,24 @@ mod rules {
                 assert_eq!(result.as_str(), src);
                 let inner = result.next().unwrap().into_inner().next().unwrap();
                 assert_eq!(inner.as_rule(), Rule::NativeFunction);
+            }
+
+            #[test]
+            fn mutable_variable() {
+                let src = "let x = 10\n";
+                let mut result = CoriumParser::parse(Rule::GlobalStatement, src).unwrap();
+                assert_eq!(result.as_str(), src);
+                let inner = result.next().unwrap().into_inner().next().unwrap();
+                assert_eq!(inner.as_rule(), Rule::MutableVariable);
+            }
+
+            #[test]
+            fn immutable_variable() {
+                let src = "const x = 10\n";
+                let mut result = CoriumParser::parse(Rule::GlobalStatement, src).unwrap();
+                assert_eq!(result.as_str(), src);
+                let inner = result.next().unwrap().into_inner().next().unwrap();
+                assert_eq!(inner.as_rule(), Rule::ImmutableVariable);
             }
         }
 

@@ -204,7 +204,6 @@
 //    limitations under the License.
 
 use crate::error::Error;
-use colored::Colorize;
 use std::default;
 use std::fmt;
 
@@ -222,6 +221,14 @@ impl ErrorList {
     pub fn push(&mut self, item: Error) {
         self.0.push(item)
     }
+
+    pub fn len(&self) -> usize {
+        self.0.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
 }
 
 impl From<Vec<Error>> for ErrorList {
@@ -236,10 +243,20 @@ impl From<Error> for ErrorList {
     }
 }
 
+impl From<ErrorList> for Result<(), ErrorList> {
+    fn from(list: ErrorList) -> Self {
+        if list.is_empty() {
+            Ok(())
+        } else {
+            Err(list)
+        }
+    }
+}
+
 impl fmt::Display for ErrorList {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for error in &self.0 {
-            writeln!(f, "{}", format!("{}", error).red())?
+            writeln!(f, "{}", error)?
         }
         Ok(())
     }

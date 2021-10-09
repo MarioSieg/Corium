@@ -22,10 +22,10 @@ FunctionSignature = {
 }
 
 Block = {
-     (FunctionStatement | StatementSeparator)*
+     (LocalStatement | StatementSeparator)*
 }
 
-FunctionStatement = {
+LocalStatement = {
     MutableVariable |
     ImmutableVariable |
     ReturnStatement

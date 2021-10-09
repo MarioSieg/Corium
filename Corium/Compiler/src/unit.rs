@@ -203,9 +203,8 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::CompilationUnit;
-use crate::parser::parse_and_map;
-use crate::semantic::context::SemanticProcessorContext;
+use crate::error::list::ErrorList;
+use crate::module_compiler::compile;
 use std::default;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -258,33 +257,16 @@ impl FileCompilationUnit {
         })
     }
 
-    pub fn compile(&mut self) -> Duration {
+    pub fn compile(&mut self) -> Result<Duration, ErrorList> {
         let clock = Instant::now();
+        compile(&self.source_code, &self.file_name)?;
+        Ok(self.compute_compile_time(clock))
+    }
 
-        let root = parse_and_map(&self.source_code).unwrap();
-        let mut processor = SemanticProcessorContext::new();
-        processor.walk_root(&root);
-        println!("{}", processor);
-
+    fn compute_compile_time(&self, clock: Instant) -> Duration {
         self.file_load_time
             .checked_add(clock.elapsed())
             .unwrap_or_else(|| Duration::from_secs(0))
-    }
-
-    fn dump_ast(&self, root: &CompilationUnit) {
-        if !self.descriptor.dump_ast {
-            return;
-        }
-        let mut target = self.file.clone();
-        target.set_file_name(format!("{}.AST.txt", self.file_name));
-        let ast = format!("{:#?}", root);
-        #[cfg(debug_assertions)]
-        {
-            println!("{}", ast);
-        }
-        if fs::write(&target, ast).is_err() {
-            eprintln!("Failed to dump AST for file: {:?}", target);
-        }
     }
 
     fn extract_file_name(file: &Path) -> String {
@@ -296,17 +278,22 @@ impl FileCompilationUnit {
     }
 
     #[inline]
-    pub fn get_source_code(&self) -> &String {
+    pub fn source_code(&self) -> &String {
         &self.source_code
     }
 
     #[inline]
-    pub fn get_file_name(&self) -> &String {
+    pub fn file_name(&self) -> &String {
         &self.file_name
     }
 
     #[inline]
-    pub fn get_id(&self) -> &Uuid {
+    pub fn uuid(&self) -> &Uuid {
         &self.id
+    }
+
+    #[inline]
+    pub fn full_file_path(&self) -> &PathBuf {
+        &self.file
     }
 }

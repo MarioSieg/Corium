@@ -1049,12 +1049,26 @@ mod populators {
         use super::*;
 
         #[test]
-        fn local_var() {
-            let mut result = CoriumParser::parse(Rule::FunctionStatement, "let x = 10\n").unwrap();
-            let ast = FunctionStatement::populate(result.next().unwrap().into_inner());
+        fn mutable_variable() {
+            let mut result = CoriumParser::parse(Rule::LocalStatement, "let x = 10\n").unwrap();
+            let ast = LocalStatement::populate(result.next().unwrap().into_inner());
             assert!(matches!(
                 ast,
-                FunctionStatement::MutableVariable(MutableVariable {
+                LocalStatement::MutableVariable(MutableVariable {
+                    name: Identifier("x"),
+                    type_hint: None,
+                    value: Expression::Literal(Literal::Int(10))
+                })
+            ));
+        }
+
+        #[test]
+        fn immutable_variable() {
+            let mut result = CoriumParser::parse(Rule::LocalStatement, "const x = 10\n").unwrap();
+            let ast = LocalStatement::populate(result.next().unwrap().into_inner());
+            assert!(matches!(
+                ast,
+                LocalStatement::ImmutableVariable(ImmutableVariable {
                     name: Identifier("x"),
                     type_hint: None,
                     value: Expression::Literal(Literal::Int(10))
@@ -1064,21 +1078,21 @@ mod populators {
 
         #[test]
         fn return_statement() {
-            let mut result = CoriumParser::parse(Rule::FunctionStatement, "return\n").unwrap();
-            let ast = FunctionStatement::populate(result.next().unwrap().into_inner());
+            let mut result = CoriumParser::parse(Rule::LocalStatement, "return\n").unwrap();
+            let ast = LocalStatement::populate(result.next().unwrap().into_inner());
             assert!(matches!(
                 ast,
-                FunctionStatement::ReturnStatement(ReturnStatement(None))
+                LocalStatement::ReturnStatement(ReturnStatement(None))
             ));
         }
 
         #[test]
         fn return_statement2() {
-            let mut result = CoriumParser::parse(Rule::FunctionStatement, "return true\n").unwrap();
-            let ast = FunctionStatement::populate(result.next().unwrap().into_inner());
+            let mut result = CoriumParser::parse(Rule::LocalStatement, "return true\n").unwrap();
+            let ast = LocalStatement::populate(result.next().unwrap().into_inner());
             assert!(matches!(
                 ast,
-                FunctionStatement::ReturnStatement(ReturnStatement(Some(Expression::Literal(
+                LocalStatement::ReturnStatement(ReturnStatement(Some(Expression::Literal(
                     Literal::Bool(true)
                 ))))
             ));
@@ -1094,7 +1108,7 @@ mod populators {
                 "let x = 10\n",
                 "let y bool = true\n",
                 "let name = \"Hey\"\n",
-                "let z char = 'y'\n",
+                "const z char = 'y'\n",
                 "let zw float = 2.33225\n"
             );
             let mut result = CoriumParser::parse(Rule::Block, source).unwrap();
@@ -1103,7 +1117,7 @@ mod populators {
 
             assert!(matches!(
                 &ast.0[0],
-                FunctionStatement::MutableVariable(MutableVariable {
+                LocalStatement::MutableVariable(MutableVariable {
                     name: Identifier("x"),
                     value: Expression::Literal(Literal::Int(10)),
                     type_hint: None
@@ -1113,7 +1127,7 @@ mod populators {
             let _name = QualifiedName::from("bool");
             assert!(matches!(
                 &ast.0[1],
-                FunctionStatement::MutableVariable(MutableVariable {
+                LocalStatement::MutableVariable(MutableVariable {
                     name: Identifier("y"),
                     value: Expression::Literal(Literal::Bool(true)),
                     type_hint: Some(_name)
@@ -1122,7 +1136,7 @@ mod populators {
 
             assert!(matches!(
                 &ast.0[2],
-                FunctionStatement::MutableVariable(MutableVariable {
+                LocalStatement::MutableVariable(MutableVariable {
                     name: Identifier("name"),
                     value: Expression::Literal(Literal::String("Hey")),
                     type_hint: None
@@ -1132,7 +1146,7 @@ mod populators {
             let _name = QualifiedName::from("char");
             assert!(matches!(
                 &ast.0[3],
-                FunctionStatement::MutableVariable(MutableVariable {
+                LocalStatement::ImmutableVariable(ImmutableVariable {
                     name: Identifier("z"),
                     value: Expression::Literal(Literal::Char('y')),
                     type_hint: Some(_name)
@@ -1143,7 +1157,7 @@ mod populators {
             let _f = Literal::Float(2.33225);
             assert!(matches!(
                 &ast.0[4],
-                FunctionStatement::MutableVariable(MutableVariable {
+                LocalStatement::MutableVariable(MutableVariable {
                     name: Identifier("zw"),
                     value: Expression::Literal(_f),
                     type_hint: Some(_name)
@@ -1164,24 +1178,24 @@ mod populators {
             assert_eq!(ast.0.len(), 4);
             assert!(matches!(
                 &ast.0[0],
-                FunctionStatement::ReturnStatement(ReturnStatement(None))
+                LocalStatement::ReturnStatement(ReturnStatement(None))
             ));
             assert!(matches!(
                 &ast.0[1],
-                FunctionStatement::ReturnStatement(ReturnStatement(Some(Expression::Literal(
+                LocalStatement::ReturnStatement(ReturnStatement(Some(Expression::Literal(
                     Literal::Bool(true)
                 ))))
             ));
             assert!(matches!(
                 &ast.0[2],
-                FunctionStatement::ReturnStatement(ReturnStatement(Some(Expression::Literal(
+                LocalStatement::ReturnStatement(ReturnStatement(Some(Expression::Literal(
                     Literal::String("Hey")
                 ))))
             ));
             let _f = Literal::Float(2.33225);
             assert!(matches!(
                 &ast.0[3],
-                FunctionStatement::ReturnStatement(ReturnStatement(Some(Expression::Literal(_f))))
+                LocalStatement::ReturnStatement(ReturnStatement(Some(Expression::Literal(_f))))
             ));
         }
 
@@ -1199,7 +1213,7 @@ mod populators {
             assert_eq!(ast.0.len(), 5);
             assert!(matches!(
                 &ast.0[0],
-                FunctionStatement::MutableVariable(MutableVariable {
+                LocalStatement::MutableVariable(MutableVariable {
                     name: Identifier("x"),
                     value: Expression::Literal(Literal::Int(10)),
                     type_hint: None
@@ -1207,20 +1221,20 @@ mod populators {
             ));
             assert!(matches!(
                 &ast.0[1],
-                FunctionStatement::ReturnStatement(ReturnStatement(Some(Expression::Literal(
+                LocalStatement::ReturnStatement(ReturnStatement(Some(Expression::Literal(
                     Literal::Bool(true)
                 ))))
             ));
             assert!(matches!(
                 &ast.0[2],
-                FunctionStatement::ReturnStatement(ReturnStatement(Some(Expression::Literal(
+                LocalStatement::ReturnStatement(ReturnStatement(Some(Expression::Literal(
                     Literal::String("Hey")
                 ))))
             ));
             let _name = QualifiedName::from("bool");
             assert!(matches!(
                 &ast.0[3],
-                FunctionStatement::MutableVariable(MutableVariable {
+                LocalStatement::MutableVariable(MutableVariable {
                     name: Identifier("z"),
                     value: Expression::Literal(Literal::Bool(true)),
                     type_hint: Some(_name)
@@ -1230,7 +1244,7 @@ mod populators {
             let _f = Literal::Float(2.33225);
             assert!(matches!(
                 &ast.0[4],
-                FunctionStatement::MutableVariable(MutableVariable {
+                LocalStatement::MutableVariable(MutableVariable {
                     name: Identifier("z"),
                     value: Expression::Literal(_f),
                     type_hint: Some(_name)
@@ -1575,7 +1589,7 @@ mod populators {
             assert_eq!(ast.block.0.len(), 1);
             assert!(matches!(
                 &ast.block.0[0],
-                FunctionStatement::ReturnStatement(ReturnStatement(Some(Expression::Literal(
+                LocalStatement::ReturnStatement(ReturnStatement(Some(Expression::Literal(
                     Literal::Int(10)
                 ))))
             ))
@@ -1607,7 +1621,7 @@ mod populators {
             assert_eq!(ast.signature.return_type.unwrap().full, "int");
             assert!(matches!(
                 &ast.block.0[0],
-                FunctionStatement::MutableVariable(MutableVariable {
+                LocalStatement::MutableVariable(MutableVariable {
                     name: Identifier("result"),
                     type_hint: None,
                     value: Expression::Literal(Literal::String("LOL"))
@@ -1615,7 +1629,7 @@ mod populators {
             ));
             assert!(matches!(
                 &ast.block.0[1],
-                FunctionStatement::ReturnStatement(ReturnStatement(Some(Expression::Literal(
+                LocalStatement::ReturnStatement(ReturnStatement(Some(Expression::Literal(
                     Literal::Int(23)
                 ))))
             ));
@@ -1630,7 +1644,7 @@ mod populators {
             let src = "fun f() {\nlet x = 10\n}\n";
             let mut result = CoriumParser::parse(Rule::GlobalStatement, src).unwrap();
             let ast = GlobalStatement::populate(result.next().unwrap().into_inner());
-            let _block = vec![FunctionStatement::MutableVariable(MutableVariable {
+            let _block = vec![LocalStatement::MutableVariable(MutableVariable {
                 name: Identifier("x"),
                 type_hint: None,
                 value: Expression::Literal(Literal::Int(10)),
@@ -1661,6 +1675,36 @@ mod populators {
                         return_type: None,
                         parameters: None
                     }
+                })
+            ));
+        }
+
+        #[test]
+        fn mutable_variable() {
+            let src = "let x = 10\n";
+            let mut result = CoriumParser::parse(Rule::GlobalStatement, src).unwrap();
+            let ast = GlobalStatement::populate(result.next().unwrap().into_inner());
+            assert!(matches!(
+                ast,
+                GlobalStatement::MutableVariable(MutableVariable {
+                    name: Identifier("x"),
+                    type_hint: None,
+                    value: Expression::Literal(Literal::Int(10))
+                })
+            ));
+        }
+
+        #[test]
+        fn immutable_variable() {
+            let src = "const x = 10\n";
+            let mut result = CoriumParser::parse(Rule::GlobalStatement, src).unwrap();
+            let ast = GlobalStatement::populate(result.next().unwrap().into_inner());
+            assert!(matches!(
+                ast,
+                GlobalStatement::ImmutableVariable(ImmutableVariable {
+                    name: Identifier("x"),
+                    type_hint: None,
+                    value: Expression::Literal(Literal::Int(10))
                 })
             ));
         }
@@ -1728,7 +1772,7 @@ mod populators {
                     }
                 })
             ));
-            let _block = Block(vec![FunctionStatement::MutableVariable(MutableVariable {
+            let _block = Block(vec![LocalStatement::MutableVariable(MutableVariable {
                 name: Identifier("x"),
                 type_hint: Some(QualifiedName::from("int")),
                 value: Expression::Literal(Literal::Int(10)),

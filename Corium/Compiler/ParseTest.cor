@@ -1,21 +1,24 @@
 module test
 
+const PI = 3.14
+const PI = 3.14
+
 native fun test(x int, y int) float
 
 native fun print(value bool, end char = '\n')
 
-fun test() {
+fun test2() {
     let a = 10
     let b = 2.5
     let c = true
     let d = 'x'
     let e = "Hey"
 
-    let a2 int = 10
+    let a int = 32
     let b2 float = 2.5
     let c2 bool = true
     let d2 char = 'x'
-    let e2 string = "Hey"
+    const e2 string = "Hey"
 }
 
 fun compute(x int, y int, normalize bool) int {
@@ -24,11 +27,11 @@ fun compute(x int, y int, normalize bool) int {
 }
 
 fun setValue(name string) {
-    let result = 5
+    const result = 5
     return
 }
 
-fun getPi() float {
+fun print() float {
     return 2.6
 }
 

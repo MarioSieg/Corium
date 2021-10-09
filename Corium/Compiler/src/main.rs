@@ -211,6 +211,7 @@ mod codegen;
 mod context;
 mod error;
 mod literal;
+mod module_compiler;
 mod nominax;
 mod parser;
 mod semantic;

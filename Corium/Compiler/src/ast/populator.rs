@@ -243,6 +243,12 @@ impl<'ast> NestedAstPopulator<'ast> for GlobalStatement<'ast> {
     fn populate(mut rule: RulePairs<'ast>) -> Self {
         let nested = rule.next().unwrap();
         match nested.as_rule() {
+            Rule::MutableVariable => {
+                Self::MutableVariable(MutableVariable::populate(nested.into_inner()))
+            }
+            Rule::ImmutableVariable => {
+                Self::ImmutableVariable(ImmutableVariable::populate(nested.into_inner()))
+            }
             Rule::Function => Self::Function(Function::populate(nested.into_inner())),
             Rule::NativeFunction => {
                 Self::NativeFunction(NativeFunction::populate(nested.into_inner()))
@@ -323,18 +329,21 @@ impl<'ast> NestedAstPopulator<'ast> for FunctionSignature<'ast> {
 impl<'ast> NestedAstPopulator<'ast> for Block<'ast> {
     fn populate(rule: RulePairs<'ast>) -> Self {
         Self(
-            rule.map(|smt| FunctionStatement::populate(smt.into_inner()))
+            rule.map(|smt| LocalStatement::populate(smt.into_inner()))
                 .collect(),
         )
     }
 }
 
-impl<'ast> NestedAstPopulator<'ast> for FunctionStatement<'ast> {
+impl<'ast> NestedAstPopulator<'ast> for LocalStatement<'ast> {
     fn populate(mut rule: RulePairs<'ast>) -> Self {
         let nested = rule.next().unwrap();
         match nested.as_rule() {
             Rule::MutableVariable => {
                 Self::MutableVariable(MutableVariable::populate(nested.into_inner()))
+            }
+            Rule::ImmutableVariable => {
+                Self::ImmutableVariable(ImmutableVariable::populate(nested.into_inner()))
             }
             Rule::ReturnStatement => {
                 Self::ReturnStatement(ReturnStatement::populate(nested.into_inner()))

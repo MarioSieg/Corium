@@ -241,6 +241,8 @@ impl<'ast> fmt::Display for CompilationUnit<'ast> {
 /// Represents a file scope statement.
 #[derive(Clone, Debug)]
 pub enum GlobalStatement<'ast> {
+    MutableVariable(MutableVariable<'ast>),
+    ImmutableVariable(ImmutableVariable<'ast>),
     Function(Function<'ast>),
     NativeFunction(NativeFunction<'ast>),
 }
@@ -252,6 +254,8 @@ impl<'ast> AstComponent for GlobalStatement<'ast> {
 impl<'ast> fmt::Display for GlobalStatement<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
+            Self::MutableVariable(x) => write!(f, "{}", x),
+            Self::ImmutableVariable(x) => write!(f, "{}", x),
             Self::Function(x) => write!(f, "{}", x),
             Self::NativeFunction(x) => write!(f, "{}", x),
         }
@@ -326,7 +330,7 @@ impl<'ast> fmt::Display for FunctionSignature<'ast> {
 }
 
 #[derive(Clone, Debug)]
-pub struct Block<'ast>(pub Vec<FunctionStatement<'ast>>);
+pub struct Block<'ast>(pub Vec<LocalStatement<'ast>>);
 
 impl<'ast> AstComponent for Block<'ast> {
     const CORRESPONDING_RULE: Rule = Rule::Block;
@@ -348,19 +352,21 @@ impl<'ast> Block<'ast> {
 }
 
 #[derive(Clone, Debug)]
-pub enum FunctionStatement<'ast> {
+pub enum LocalStatement<'ast> {
     MutableVariable(MutableVariable<'ast>),
+    ImmutableVariable(ImmutableVariable<'ast>),
     ReturnStatement(ReturnStatement<'ast>),
 }
 
-impl<'ast> AstComponent for FunctionStatement<'ast> {
-    const CORRESPONDING_RULE: Rule = Rule::FunctionStatement;
+impl<'ast> AstComponent for LocalStatement<'ast> {
+    const CORRESPONDING_RULE: Rule = Rule::LocalStatement;
 }
 
-impl<'ast> fmt::Display for FunctionStatement<'ast> {
+impl<'ast> fmt::Display for LocalStatement<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::MutableVariable(x) => write!(f, "{}", x),
+            Self::ImmutableVariable(x) => write!(f, "{}", x),
             Self::ReturnStatement(x) => write!(f, "{}", x),
         }
     }
@@ -609,7 +615,7 @@ pub struct QualifiedName<'ast> {
 
 impl<'ast> fmt::Display for QualifiedName<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.full)
+        write!(f, "`{}`", self.full)
     }
 }
 
@@ -637,7 +643,7 @@ impl<'ast> AstComponent for Identifier<'ast> {
 
 impl<'ast> fmt::Display for Identifier<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.0)
+        write!(f, "`{}`", self.0)
     }
 }
 

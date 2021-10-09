@@ -212,26 +212,28 @@ pub mod list;
 #[derive(Clone, Debug)]
 pub enum Error {
     Io(PathBuf),
-    Parse(String),
-    Definition(String),
+    Syntax(String, String),
+    Semantic(String, String),
 }
 
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Self::Io(path) => {
-                write!(
-                    f,
-                    "Failed to access path: {}",
-                    format!("\"{:?}\"", path).red()
-                )
-            }
-            Self::Parse(error) => {
-                write!(f, "Syntax error:\n{}", error.to_string().red())
-            }
-            Self::Definition(name) => {
-                write!(f, "Symbol error: {}", name.to_string().red())
-            }
+            Self::Io(path) => write!(f, "{} {:?}", "IO error:".red().bold(), path),
+            Self::Syntax(msg, file) => writeln!(
+                f,
+                "{} in file: `{}`: {}",
+                "Syntax error".red().bold(),
+                file,
+                msg
+            ),
+            Self::Semantic(msg, file) => write!(
+                f,
+                "{} in file: `{}`: {}",
+                "Semantic error".red().bold(),
+                file,
+                msg
+            ),
         }
     }
 }

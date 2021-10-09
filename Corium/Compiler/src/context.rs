@@ -203,18 +203,22 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+use crate::error::list::ErrorList;
 use crate::unit::{FCUDescriptor, FileCompilationUnit};
 use std::collections::VecDeque;
 use std::path::PathBuf;
+use std::time::Duration;
 
 pub struct CompilerContext {
     queue: VecDeque<Box<FileCompilationUnit>>,
+    failed_compilations: u32,
 }
 
 impl CompilerContext {
     pub fn new() -> Self {
         Self {
             queue: VecDeque::new(),
+            failed_compilations: 0,
         }
     }
 
@@ -234,20 +238,37 @@ impl CompilerContext {
     }
 
     pub fn compile(&mut self) {
+        while let Some(mut unit) = self.queue.pop_front() {
+            let result = unit.compile();
+            self.print_status(unit.file_name(), result);
+        }
+    }
+
+    fn print_status(&mut self, file: &str, result: Result<Duration, ErrorList>) {
         use colored::Colorize;
 
-        while let Some(mut unit) = self.queue.pop_front() {
-            let time = unit.compile();
-            println!(
-                "{}",
-                format!(
-                    "Compiled {} in {}",
-                    unit.get_file_name(),
+        match result {
+            Ok(time) => {
+                let message = format!(
+                    "{} `{}` in {}",
+                    "Compiled".green().bold(),
+                    file,
                     humantime::Duration::from(time)
-                )
-                .green()
-                .bold()
-            );
+                );
+                println!("{}", message);
+            }
+            Err(errors) => {
+                let suffix = if errors.len() > 1 { "s" } else { "" };
+                let error_info = format!("{} error{}", errors.len(), suffix).red().bold();
+                let message = format!(
+                    "{} `{}` because of {}",
+                    "Failed to compile".red().bold(),
+                    file,
+                    error_info
+                );
+                println!("{}", message);
+                println!("{}", errors);
+            }
         }
     }
 }
