@@ -218,6 +218,11 @@ pub trait AstComponent: Clone + fmt::Display + fmt::Debug {
     const CORRESPONDING_RULE: Rule;
 }
 
+pub trait Statement: AstComponent {
+    fn descriptive_name(&self) -> &'static str;
+    fn code_identifier(&self) -> Identifier;
+}
+
 #[derive(Clone, Debug)]
 pub struct CompilationUnit<'ast> {
     pub module: Module<'ast>,
@@ -258,6 +263,26 @@ impl<'ast> fmt::Display for GlobalStatement<'ast> {
             Self::ImmutableVariable(x) => write!(f, "{}", x),
             Self::Function(x) => write!(f, "{}", x),
             Self::NativeFunction(x) => write!(f, "{}", x),
+        }
+    }
+}
+
+impl<'ast> Statement for GlobalStatement<'ast> {
+    fn descriptive_name(&self) -> &'static str {
+        match self {
+            Self::MutableVariable(_) => "mutable variable",
+            Self::ImmutableVariable(_) => "immutable variable",
+            Self::Function(_) => "function",
+            Self::NativeFunction(_) => "native function",
+        }
+    }
+
+    fn code_identifier(&self) -> Identifier {
+        match self {
+            Self::MutableVariable(x) => x.name,
+            Self::ImmutableVariable(x) => x.name,
+            Self::Function(x) => x.signature.name,
+            Self::NativeFunction(x) => x.signature.name,
         }
     }
 }
@@ -368,6 +393,24 @@ impl<'ast> fmt::Display for LocalStatement<'ast> {
             Self::MutableVariable(x) => write!(f, "{}", x),
             Self::ImmutableVariable(x) => write!(f, "{}", x),
             Self::ReturnStatement(x) => write!(f, "{}", x),
+        }
+    }
+}
+
+impl<'ast> Statement for LocalStatement<'ast> {
+    fn descriptive_name(&self) -> &'static str {
+        match self {
+            Self::MutableVariable(_) => "mutable variable",
+            Self::ImmutableVariable(_) => "immutable variable",
+            Self::ReturnStatement(_) => "return",
+        }
+    }
+
+    fn code_identifier(&self) -> Identifier {
+        match self {
+            Self::MutableVariable(x) => x.name,
+            Self::ImmutableVariable(x) => x.name,
+            Self::ReturnStatement(_) => Identifier("return"),
         }
     }
 }

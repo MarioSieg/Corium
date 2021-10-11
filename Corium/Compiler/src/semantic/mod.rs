@@ -50,8 +50,8 @@ pub fn analyze(root: &CompilationUnit, file: &str) -> Result<(), ErrorList> {
                             _ => false,
                         };
                         if existed {
-                            let smt_type = local_statement_name(statement);
-                            let smt_ident = local_statement_identifier(statement).0.red().bold();
+                            let smt_type = statement.descriptive_name();
+                            let smt_ident = statement.code_identifier().0.red().bold();
                             let message =
                                 format!("Local {} `{}` already defined!", smt_type, smt_ident);
                             errors.push(Error::Semantic(message, file.to_string()));
@@ -66,46 +66,12 @@ pub fn analyze(root: &CompilationUnit, file: &str) -> Result<(), ErrorList> {
                 .is_some(),
         };
         if existed {
-            let smt_type = global_statement_name(statement);
-            let smt_ident = global_statement_identifier(statement).0.red().bold();
+            let smt_type = statement.descriptive_name();
+            let smt_ident = statement.code_identifier().0.red().bold();
             let message = format!("Global {} `{}` already defined!", smt_type, smt_ident);
             errors.push(Error::Semantic(message, file.to_string()));
         }
     }
 
     errors.into()
-}
-
-fn global_statement_name(statement: &GlobalStatement) -> &'static str {
-    match statement {
-        GlobalStatement::MutableVariable(_) => "mutable variable",
-        GlobalStatement::ImmutableVariable(_) => "immutable variable",
-        GlobalStatement::Function(_) => "function",
-        GlobalStatement::NativeFunction(_) => "native function",
-    }
-}
-
-fn global_statement_identifier<'a>(statement: &'a GlobalStatement) -> Identifier<'a> {
-    match statement {
-        GlobalStatement::MutableVariable(x) => x.name,
-        GlobalStatement::ImmutableVariable(x) => x.name,
-        GlobalStatement::Function(x) => x.signature.name,
-        GlobalStatement::NativeFunction(x) => x.signature.name,
-    }
-}
-
-fn local_statement_name(statement: &LocalStatement) -> &'static str {
-    match statement {
-        LocalStatement::MutableVariable(_) => "mutable variable",
-        LocalStatement::ImmutableVariable(_) => "immutable variable",
-        LocalStatement::ReturnStatement(_) => "return",
-    }
-}
-
-fn local_statement_identifier<'a>(statement: &'a LocalStatement) -> Identifier<'a> {
-    match statement {
-        LocalStatement::MutableVariable(x) => x.name,
-        LocalStatement::ImmutableVariable(x) => x.name,
-        LocalStatement::ReturnStatement(_) => Identifier("return"),
-    }
 }
