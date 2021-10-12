@@ -210,13 +210,16 @@ use structopt::StructOpt;
 #[structopt(name = "corium")]
 pub struct Options {
     #[structopt(
-        required = true,
+        required = false,
         short,
         long,
         parse(from_os_str),
         help = "Corium source files"
     )]
     pub input_files: Vec<PathBuf>,
+
+    #[structopt(short, long, parse(from_os_str), help = "Corium source file directory")]
+    pub dir: Option<PathBuf>,
 
     #[structopt(
         required = true,
@@ -261,6 +264,26 @@ impl Options {
             options.jobs = num_cpus::get() as _;
         }
         options.opt_level = options.opt_level.clamp(0, 3);
+        if let Some(dir) = &options.dir {
+            if dir.exists() {
+                let mut i: u32 = 0;
+                for entry in std::fs::read_dir(&dir)
+                    .unwrap_or_else(|_| panic!("Failed to read source directory: {:?}", &dir))
+                {
+                    let path = entry
+                        .unwrap_or_else(|_| panic!("Failed to read source directory: {:?}", &dir))
+                        .path();
+                    options.input_files.push(path);
+                    i += 1;
+                }
+                if i == 0 {
+                    panic!("Failed to load any files from source directory!");
+                }
+                println!("Loaded {} files from source directory!", i);
+            } else {
+                panic!("Source directory {:?} not found!", dir);
+            }
+        }
         options
     }
 }

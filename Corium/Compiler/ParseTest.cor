@@ -23,12 +23,12 @@ fun test2() {
 
 fun compute(x int, y int, normalize bool) int {
     let result = 10
-    return 2
+    return
 }
 
 fun setValue(name string) {
     const result = 5
-    return
+    return result
 }
 
 fun print() float {

@@ -220,16 +220,12 @@ impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Self::Io(path) => write!(f, "{} {:?}", "IO error:".red().bold(), path),
-            Self::Syntax(msg, file) => writeln!(
-                f,
-                "{} in file: `{}`: {}",
-                "Syntax error".red().bold(),
-                file,
-                msg
-            ),
+            Self::Syntax(msg, file) => {
+                writeln!(f, "{} in `{}`: {}!", "Syntax error".red().bold(), file, msg)
+            }
             Self::Semantic(msg, file) => write!(
                 f,
-                "{} in file: `{}`: {}",
+                "{} in `{}`: {}!",
                 "Semantic error".red().bold(),
                 file,
                 msg

@@ -203,14 +203,19 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::error::list::ErrorList;
-use crate::unit::{FCUDescriptor, FileCompilationUnit};
+use crate::unit::{CompilationResult, FCUDescriptor, FileCompilationUnit};
 use std::collections::VecDeque;
 use std::path::PathBuf;
-use std::time::Duration;
+use std::thread::{self, JoinHandle};
+
+struct CompilationJob {
+    pub file: String,
+    pub handle: JoinHandle<CompilationResult>,
+}
 
 pub struct CompilerContext {
     queue: VecDeque<Box<FileCompilationUnit>>,
+    jobs: VecDeque<CompilationJob>,
     failed_compilations: u32,
 }
 
@@ -218,6 +223,7 @@ impl CompilerContext {
     pub fn new() -> Self {
         Self {
             queue: VecDeque::new(),
+            jobs: VecDeque::new(),
             failed_compilations: 0,
         }
     }
@@ -239,12 +245,22 @@ impl CompilerContext {
 
     pub fn compile(&mut self) {
         while let Some(mut unit) = self.queue.pop_front() {
-            let result = unit.compile();
-            self.print_status(unit.file_name(), result);
+            self.jobs.push_front(CompilationJob {
+                file: unit.file_name().clone(),
+                handle: thread::spawn(move || unit.compile()),
+            });
+        }
+        self.await_all_jobs();
+    }
+
+    fn await_all_jobs(&mut self) {
+        while let Some(job) = self.jobs.pop_front() {
+            let result = job.handle.join().expect("Failed to await job thread!");
+            self.print_status(&job.file, result);
         }
     }
 
-    fn print_status(&mut self, file: &str, result: Result<Duration, ErrorList>) {
+    fn print_status(&mut self, file: &str, result: CompilationResult) {
         use colored::Colorize;
 
         match result {
@@ -257,17 +273,20 @@ impl CompilerContext {
                 );
                 println!("{}", message);
             }
-            Err(errors) => {
+            Err((time, errors)) => {
                 let suffix = if errors.len() > 1 { "s" } else { "" };
                 let error_info = format!("{} error{}", errors.len(), suffix).red().bold();
                 let message = format!(
-                    "{} `{}` because of {}",
+                    "{} `{}` because of {} in {}:",
                     "Failed to compile".red().bold(),
                     file,
-                    error_info
+                    error_info,
+                    humantime::Duration::from(time)
                 );
                 println!("{}", message);
-                println!("{}", errors);
+                for error in errors.0 {
+                    println!("    {}", error);
+                }
             }
         }
     }

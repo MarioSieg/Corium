@@ -203,8 +203,8 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+use crate::compiler::compile;
 use crate::error::list::ErrorList;
-use crate::module_compiler::compile;
 use std::default;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -227,6 +227,8 @@ impl default::Default for FCUDescriptor {
         }
     }
 }
+
+pub type CompilationResult = Result<Duration, (Duration, ErrorList)>;
 
 /// Represents a compilation unit.
 /// Each file contains a single compilation unit.
@@ -257,10 +259,16 @@ impl FileCompilationUnit {
         })
     }
 
-    pub fn compile(&mut self) -> Result<Duration, ErrorList> {
+    pub fn compile(&mut self) -> CompilationResult {
         let clock = Instant::now();
-        compile(&self.source_code, &self.file_name)?;
-        Ok(self.compute_compile_time(clock))
+        println!("Compiling `{}`...", self.file_name);
+        let result = compile(&self.source_code, &self.file_name);
+        let time = self.compute_compile_time(clock);
+        if let Err(e) = result {
+            Err((time, e))
+        } else {
+            Ok(time)
+        }
     }
 
     fn compute_compile_time(&self, clock: Instant) -> Duration {

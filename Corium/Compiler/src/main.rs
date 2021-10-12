@@ -208,10 +208,10 @@
 mod ast;
 mod cli;
 mod codegen;
+mod compiler;
 mod context;
 mod error;
 mod literal;
-mod module_compiler;
 mod nominax;
 mod parser;
 mod semantic;
@@ -219,7 +219,6 @@ mod unit;
 
 fn main() {
     let options = cli::Options::parse_and_validate();
-
     let mut context = context::CompilerContext::new();
 
     for file in options.input_files {
