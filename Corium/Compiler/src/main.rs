@@ -211,6 +211,7 @@ mod codegen;
 mod compiler;
 mod context;
 mod error;
+mod intrinsics;
 mod literal;
 mod nominax;
 mod parser;

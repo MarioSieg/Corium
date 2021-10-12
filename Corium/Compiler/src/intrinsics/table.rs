@@ -202,27 +202,3 @@
 //    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
-
-use std::process::Command;
-
-pub use nominax_bytecode_interface as bci;
-
-const NOMINAX_EXE_NAME: &str = if cfg!(windows) {
-    "Nominax.exe"
-} else {
-    "Nominax"
-};
-
-pub fn exec_nominax(args: &[&str]) {
-    let mut nominax = Command::new(NOMINAX_EXE_NAME);
-    for arg in args {
-        nominax.arg(arg);
-    }
-    if let Err(e) = nominax.spawn() {
-        let message = format!(
-            "{} not found!\nMake sure Nominax is installed and inside $PATH!\nDetailed error: {:?}",
-            NOMINAX_EXE_NAME, e
-        );
-        panic!("{}", message);
-    }
-}

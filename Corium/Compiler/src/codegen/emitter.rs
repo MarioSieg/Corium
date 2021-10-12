@@ -1,6 +1,6 @@
-use super::bci::Instruction;
 use super::signal::Signal;
 use super::stream::Stream;
+use crate::nominax::bci::Instruction;
 
 #[derive(Clone, Debug)]
 pub struct Emitter {

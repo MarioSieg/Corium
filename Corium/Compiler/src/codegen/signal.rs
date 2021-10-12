@@ -203,7 +203,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use super::bci;
+use crate::nominax::bci;
 use std::fmt;
 
 /// Represents a single byte code signal.

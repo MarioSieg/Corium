@@ -203,26 +203,32 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use std::process::Command;
+use crate::ast::*;
+use crate::nominax::bci::SysCall;
+use lazy_static::lazy_static;
 
-pub use nominax_bytecode_interface as bci;
+pub mod table;
 
-const NOMINAX_EXE_NAME: &str = if cfg!(windows) {
-    "Nominax.exe"
-} else {
-    "Nominax"
-};
+pub struct Intrinsic<'a> {
+    pub fn_name: Identifier<'a>,
+    pub fn_params: Vec<Parameter<'a>>,
+    pub fn_ret: Option<QualifiedName<'a>>,
+    pub sys_call: SysCall,
+}
 
-pub fn exec_nominax(args: &[&str]) {
-    let mut nominax = Command::new(NOMINAX_EXE_NAME);
-    for arg in args {
-        nominax.arg(arg);
-    }
-    if let Err(e) = nominax.spawn() {
-        let message = format!(
-            "{} not found!\nMake sure Nominax is installed and inside $PATH!\nDetailed error: {:?}",
-            NOMINAX_EXE_NAME, e
-        );
-        panic!("{}", message);
-    }
+lazy_static! {
+    pub static ref INTRINSICS: [Intrinsic<'static>; SysCall::Count_ as _] = [
+
+        // native fun cos(x float) float
+        Intrinsic {
+            fn_name: Identifier("cos"),
+            fn_params: vec![Parameter {
+                name: Identifier("x"),
+                type_hint: QualifiedName::from("float"),
+                value: None
+            }],
+            fn_ret: Some(QualifiedName::from("float")),
+            sys_call: SysCall::COS
+        }
+    ];
 }

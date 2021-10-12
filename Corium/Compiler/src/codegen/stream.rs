@@ -203,8 +203,8 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use super::bci::Instruction;
 use super::signal::Signal;
+use crate::nominax::bci::Instruction;
 use std::fmt;
 
 /// Represents a stream of byte code signals.

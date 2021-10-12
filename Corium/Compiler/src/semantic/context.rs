@@ -83,7 +83,7 @@ impl<'a> Context<'a> {
     pub fn analyze_local(
         &mut self,
         statement: &'a LocalStatement,
-        return_type: &Option<QualifiedName>,
+        ret_type: &Option<QualifiedName>,
     ) {
         match statement {
             LocalStatement::MutableVariable(var) => {
@@ -94,24 +94,26 @@ impl<'a> Context<'a> {
                 let exists = self.local.insert(var.name, Record::ImmutableVariable(var));
                 self.make_local_definition_error(exists, statement);
             }
-            LocalStatement::ReturnStatement(smt) => {
-                if return_type.is_none() && smt.0.is_some() {
-                    let fun_name = self.fun.0.red().bold();
-                    let smt = format!("{}", smt).red().bold();
-                    let message = format!("Unexpected return statement `{}` in function `{}` - function does not return any value", smt, fun_name);
-                    self.errors
-                        .push(Error::Semantic(message, self.file.to_string()));
-                } else if return_type.is_some() && smt.0.is_none() {
-                    let fun_name = self.fun.0.red().bold();
-                    let required_type = return_type.as_ref().unwrap().full.red().bold();
-                    let message = format!(
-                        "Return statement is missing an expression of type `{}` in function `{}`",
-                        required_type, fun_name
-                    );
-                    self.errors
-                        .push(Error::Semantic(message, self.file.to_string()));
-                }
-            }
+            LocalStatement::ReturnStatement(smt) => self.analyze_return(smt, ret_type),
+        }
+    }
+
+    fn analyze_return(&mut self, smt: &ReturnStatement, return_type: &Option<QualifiedName>) {
+        if return_type.is_none() && smt.0.is_some() {
+            let fun_name = self.fun.0.red().bold();
+            let smt = format!("{}", smt).red().bold();
+            let message = format!("Unexpected return statement `{}` in function `{}` - function does not return any value", smt, fun_name);
+            self.errors
+                .push(Error::Semantic(message, self.file.to_string()));
+        } else if return_type.is_some() && smt.0.is_none() {
+            let fun_name = self.fun.0.red().bold();
+            let required_type = return_type.as_ref().unwrap().full.red().bold();
+            let message = format!(
+                "Return statement is missing an expression of type `{}` in function `{}`",
+                required_type, fun_name
+            );
+            self.errors
+                .push(Error::Semantic(message, self.file.to_string()));
         }
     }
 
