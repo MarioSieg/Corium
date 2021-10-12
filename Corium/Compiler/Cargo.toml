@@ -20,6 +20,3 @@ humantime = "2.1.0"
 structopt = "0.3.23"
 nominax_bytecode_interface = { path = "../../Nominax/ByteCodeInterface/Rust/NominaxByteCodeInterface"}
 lazy_static = "1.4.0"
-
-# required for concurrent compilation
-num_cpus = { version = "1.13.0" }

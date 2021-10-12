@@ -972,7 +972,7 @@ TEST(ReactorExecution, IntrinsicRoutine_FMin)
 	ASSERT_EQ(output.SpDiff, 2);
 }
 
-TEST(ReactorExecution, IntrinsicRoutine_Dim)
+TEST(ReactorExecution, IntrinsicRoutine_FDim)
 {
 	constexpr std::array code {
 		Signal {Instruction::NOP}, // first padding
@@ -981,7 +981,7 @@ TEST(ReactorExecution, IntrinsicRoutine_Dim)
 		Signal {Instruction::PUSH},
 		Signal {0.15},
 		Signal {Instruction::SYSCALL},
-		Signal {SysCall::DIM},
+		Signal {SysCall::FDIM},
 		Signal {Instruction::INT},
 		Signal {INT64_C(-12345)},
 	};

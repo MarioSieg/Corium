@@ -220,8 +220,12 @@ mod unit;
 
 fn main() {
     let options = cli::Options::parse_and_validate();
-    let mut context = context::CompilerContext::new();
+    if options.is_none() {
+        return;
+    }
+    let options = options.unwrap();
 
+    let mut context = context::CompilerContext::new();
     for file in options.input_files {
         let descriptor = unit::FCUDescriptor {
             dump_ast: options.dump_ast,
@@ -230,6 +234,5 @@ fn main() {
         };
         context.enqueue_file(file, descriptor);
     }
-
     context.compile();
 }

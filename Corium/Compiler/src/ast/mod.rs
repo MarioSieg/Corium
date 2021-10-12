@@ -342,11 +342,12 @@ impl<'ast> AstComponent for FunctionSignature<'ast> {
 
 impl<'ast> fmt::Display for FunctionSignature<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}(", self.name)?;
-        for param in &self.parameters {
-            write!(f, "{}", param)?;
+        write!(f, "{}", self.name)?;
+        if let Some(params) = &self.parameters {
+            write!(f, "{}", params)?;
+        } else {
+            write!(f, "()")?;
         }
-        write!(f, ")")?;
         if let Some(ret) = &self.return_type {
             write!(f, " {}", ret)?;
         }
@@ -441,12 +442,15 @@ impl<'ast> AstComponent for ParameterList<'ast> {
 
 impl<'ast> fmt::Display for ParameterList<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let last = self.0.len() - 1;
-        for (i, param) in self.0.iter().enumerate() {
-            let spacing = if i != last { ", " } else { "" };
-            write!(f, "{}{}", param, spacing)?;
+        write!(f, "(")?;
+        if !self.0.is_empty() {
+            let last = self.0.len() - 1;
+            for (i, param) in self.0.iter().enumerate() {
+                let spacing = if i != last { ", " } else { "" };
+                write!(f, "{}{}", param, spacing)?;
+            }
         }
-        Ok(())
+        write!(f, ")")
     }
 }
 
@@ -658,7 +662,7 @@ pub struct QualifiedName<'ast> {
 
 impl<'ast> fmt::Display for QualifiedName<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "`{}`", self.full)
+        write!(f, "{}", self.full)
     }
 }
 
@@ -686,7 +690,7 @@ impl<'ast> AstComponent for Identifier<'ast> {
 
 impl<'ast> fmt::Display for Identifier<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "`{}`", self.0)
+        write!(f, "{}", self.0)
     }
 }
 

@@ -1,0 +1,42 @@
+module BuiltinIntrinsics
+
+native fun __builtin_cos (x float) float                         # SYSCALL: 0x00
+native fun __builtin_sin (x float) float                         # SYSCALL: 0x01
+native fun __builtin_tan (x float) float                         # SYSCALL: 0x02
+native fun __builtin_acos (x float) float                        # SYSCALL: 0x03
+native fun __builtin_asin (x float) float                        # SYSCALL: 0x04
+native fun __builtin_atan (x float) float                        # SYSCALL: 0x05
+native fun __builtin_atan2 (x float, y float) float              # SYSCALL: 0x06
+native fun __builtin_cosh (x float) float                        # SYSCALL: 0x07
+native fun __builtin_sinh (x float) float                        # SYSCALL: 0x08
+native fun __builtin_tanh (x float) float                        # SYSCALL: 0x09
+native fun __builtin_acosh (x float) float                       # SYSCALL: 0x0A
+native fun __builtin_asinh (x float) float                       # SYSCALL: 0x0B
+native fun __builtin_atanh (x float) float                       # SYSCALL: 0x0C
+native fun __builtin_exp (x float) float                         # SYSCALL: 0x0D
+native fun __builtin_log (x float) float                         # SYSCALL: 0x0E
+native fun __builtin_log10 (x float) float                       # SYSCALL: 0x0F
+native fun __builtin_exp2 (x float) float                        # SYSCALL: 0x10
+native fun __builtin_ilogb (x float) float                       # SYSCALL: 0x11
+native fun __builtin_log2 (x float) float                        # SYSCALL: 0x12
+native fun __builtin_pow (x float, y float) float                # SYSCALL: 0x13
+native fun __builtin_sqrt (x float) float                        # SYSCALL: 0x14
+native fun __builtin_cbrt (x float) float                        # SYSCALL: 0x15
+native fun __builtin_hypot (x float, y float) float              # SYSCALL: 0x16
+native fun __builtin_ceil (x float) float                        # SYSCALL: 0x17
+native fun __builtin_floor (x float) float                       # SYSCALL: 0x18
+native fun __builtin_round (x float) float                       # SYSCALL: 0x19
+native fun __builtin_rint (x float) float                        # SYSCALL: 0x1A
+native fun __builtin_imax (x int, y int) int                     # SYSCALL: 0x1B
+native fun __builtin_imin (x int, y int) int                     # SYSCALL: 0x1C
+native fun __builtin_fmax (x float, y float) float               # SYSCALL: 0x1D
+native fun __builtin_fmin (x float, y float) float               # SYSCALL: 0x1E
+native fun __builtin_fdim (x float, y float) float               # SYSCALL: 0x1F
+native fun __builtin_iabs (x int) int                            # SYSCALL: 0x20
+native fun __builtin_fabs (x float) float                        # SYSCALL: 0x21
+native fun __builtin_print_int (x int)                           # SYSCALL: 0x22
+native fun __builtin_print_float (x float)                       # SYSCALL: 0x23
+native fun __builtin_print_char (x char)                         # SYSCALL: 0x24
+native fun __builtin_print_bool (x bool)                         # SYSCALL: 0x25
+native fun __builtin_flush ()                                    # SYSCALL: 0x26
+native fun __builtin_newline ()                                  # SYSCALL: 0x26

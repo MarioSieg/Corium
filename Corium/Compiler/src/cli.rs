@@ -209,26 +209,19 @@ use structopt::StructOpt;
 #[derive(StructOpt, Debug)]
 #[structopt(name = "corium")]
 pub struct Options {
-    #[structopt(
-        required = false,
-        short,
-        long,
-        parse(from_os_str),
-        help = "Corium source files"
-    )]
+    #[structopt(short, long, parse(from_os_str), help = "Corium source files")]
     pub input_files: Vec<PathBuf>,
 
     #[structopt(short, long, parse(from_os_str), help = "Corium source file directory")]
     pub dir: Option<PathBuf>,
 
     #[structopt(
-        required = true,
         short,
         long,
         parse(from_os_str),
         help = "The Nominax bytecode output file"
     )]
-    pub output_file: PathBuf,
+    pub output_file: Option<PathBuf>,
 
     #[structopt(
         short = "O",
@@ -247,21 +240,16 @@ pub struct Options {
     #[structopt(long, help = "Dump Nominax bytecode per module")]
     pub dump_asm: bool,
 
-    #[structopt(
-        short = "j",
-        long,
-        help = "The amount of threads to use for compilation. 0 = amount of hardware threads",
-        default_value = "0"
-    )]
-    pub jobs: u16,
+    #[structopt(long, help = "Dump all intrinsic functions")]
+    pub dump_intrinsics: bool,
 }
 
 impl Options {
-    pub fn parse_and_validate() -> Self {
+    pub fn parse_and_validate() -> Option<Self> {
         let mut options = Self::from_args();
-        #[cfg(feature = "concurrent_compilation")]
-        if options.jobs == 0 {
-            options.jobs = num_cpus::get() as _;
+        if options.dump_intrinsics {
+            crate::intrinsics::dump_all();
+            return None;
         }
         options.opt_level = options.opt_level.clamp(0, 3);
         if let Some(dir) = &options.dir {
@@ -284,6 +272,6 @@ impl Options {
                 panic!("Source directory {:?} not found!", dir);
             }
         }
-        options
+        Some(options)
     }
 }

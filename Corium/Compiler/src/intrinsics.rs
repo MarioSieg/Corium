@@ -202,3 +202,127 @@
 //    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
+
+use crate::ast::*;
+use crate::nominax::bci::SysCall;
+use lazy_static::lazy_static;
+use std::fmt;
+
+pub const INTRINSIC_PREFIX: &str = "__builtin_";
+
+pub struct Intrinsic<'a> {
+    pub fn_name: Identifier<'a>,
+    pub fn_params: ParameterList<'a>,
+    pub fn_ret: Option<QualifiedName<'a>>,
+    pub sys_call: SysCall,
+}
+
+impl<'a> fmt::Display for Intrinsic<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut intrin = format!(
+            "native fun {}{} {}",
+            INTRINSIC_PREFIX, self.fn_name.0, self.fn_params
+        );
+        if let Some(ret) = &self.fn_ret {
+            intrin += &format!(" {}", ret);
+        }
+        write!(f, "{:<64} # SYSCALL: {:#04X}", intrin, self.sys_call as u64)
+    }
+}
+
+macro_rules! intrinsic_param {
+    ($pname:expr, $ptype:expr) => {
+        Parameter {
+            name: Identifier($pname),
+            type_hint: QualifiedName::from($ptype),
+            value: None,
+        }
+    };
+}
+
+// function name, return type, syscall, params...
+macro_rules! intrinsic {
+    ($fname:expr, $fret:expr, $call:expr) => {
+        Intrinsic {
+            fn_name: Identifier($fname),
+            fn_params: ParameterList(Vec::new()),
+            fn_ret: Some(QualifiedName::from($fret)),
+            sys_call: $call,
+        }
+    };
+    ($fname:expr, $call:expr) => {
+        Intrinsic {
+            fn_name: Identifier($fname),
+            fn_params: ParameterList(Vec::new()),
+            fn_ret: None,
+            sys_call: $call,
+        }
+    };
+    ($fname:expr, $fret:expr, $call:expr, $($pname:expr, $ptype:expr), +) => {
+        Intrinsic {
+            fn_name: Identifier($fname),
+            fn_params: ParameterList(vec![$(intrinsic_param![$pname, $ptype]), +]),
+            fn_ret: Some(QualifiedName::from($fret)),
+            sys_call: $call,
+        }
+    };
+    ($fname:expr, $call:expr, $($pname:expr, $ptype:expr), +) => {
+        Intrinsic {
+            fn_name: Identifier($fname),
+            fn_params: ParameterList(vec![$(intrinsic_param![$pname, $ptype]), +]),
+            fn_ret: None,
+            sys_call: $call,
+        }
+    };
+}
+
+lazy_static! {
+    pub static ref INTRINSICS: [Intrinsic<'static>; SysCall::Count_ as _] = [
+        intrinsic!("cos", "float", SysCall::COS, "x", "float"),
+        intrinsic!("sin", "float", SysCall::SIN, "x", "float"),
+        intrinsic!("tan", "float", SysCall::TAN, "x", "float"),
+        intrinsic!("acos", "float", SysCall::ACOS, "x", "float"),
+        intrinsic!("asin", "float", SysCall::ASIN, "x", "float"),
+        intrinsic!("atan", "float", SysCall::ATAN, "x", "float"),
+        intrinsic!("atan2", "float", SysCall::ATAN2, "x", "float", "y", "float"),
+        intrinsic!("cosh", "float", SysCall::COSH, "x", "float"),
+        intrinsic!("sinh", "float", SysCall::SINH, "x", "float"),
+        intrinsic!("tanh", "float", SysCall::TANH, "x", "float"),
+        intrinsic!("acosh", "float", SysCall::ACOSH, "x", "float"),
+        intrinsic!("asinh", "float", SysCall::ASINH, "x", "float"),
+        intrinsic!("atanh", "float", SysCall::ATANH, "x", "float"),
+        intrinsic!("exp", "float", SysCall::EXP, "x", "float"),
+        intrinsic!("log", "float", SysCall::LOG, "x", "float"),
+        intrinsic!("log10", "float", SysCall::LOG10, "x", "float"),
+        intrinsic!("exp2", "float", SysCall::EXP2, "x", "float"),
+        intrinsic!("ilogb", "float", SysCall::ILOGB, "x", "float"),
+        intrinsic!("log2", "float", SysCall::LOG2, "x", "float"),
+        intrinsic!("pow", "float", SysCall::POW, "x", "float", "y", "float"),
+        intrinsic!("sqrt", "float", SysCall::SQRT, "x", "float"),
+        intrinsic!("cbrt", "float", SysCall::CBRT, "x", "float"),
+        intrinsic!("hypot", "float", SysCall::HYPOT, "x", "float", "y", "float"),
+        intrinsic!("ceil", "float", SysCall::CEIL, "x", "float"),
+        intrinsic!("floor", "float", SysCall::FLOOR, "x", "float"),
+        intrinsic!("round", "float", SysCall::ROUND, "x", "float"),
+        intrinsic!("rint", "float", SysCall::RINT, "x", "float"),
+        intrinsic!("imax", "int", SysCall::IMAX, "x", "int", "y", "int"),
+        intrinsic!("imin", "int", SysCall::IMIN, "x", "int", "y", "int"),
+        intrinsic!("fmax", "float", SysCall::FMAX, "x", "float", "y", "float"),
+        intrinsic!("fmin", "float", SysCall::FMIN, "x", "float", "y", "float"),
+        intrinsic!("fdim", "float", SysCall::FDIM, "x", "float", "y", "float"),
+        intrinsic!("iabs", "int", SysCall::IABS, "x", "int"),
+        intrinsic!("fabs", "float", SysCall::FABS, "x", "float"),
+        intrinsic!("print_int", SysCall::PRINT_INT, "x", "int"),
+        intrinsic!("print_float", SysCall::PRINT_FLOAT, "x", "float"),
+        intrinsic!("print_char", SysCall::PRINT_CHAR, "x", "char"),
+        intrinsic!("print_bool", SysCall::PRINT_BOOL, "x", "bool"),
+        intrinsic!("flush", SysCall::FLUSH),
+        intrinsic!("newline", SysCall::FLUSH),
+    ];
+}
+
+pub fn dump_all() {
+    for intrinsic in INTRINSICS.iter() {
+        println!("{}", intrinsic);
+    }
+}
