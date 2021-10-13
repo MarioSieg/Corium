@@ -18,7 +18,7 @@ NativeFunction = {
 }
 
 FunctionSignature = {
-    "fun " ~ Identifier ~ "(" ~ ParameterList? ~ ")" ~ (" " ~ QualifiedName)?
+    "function " ~ Identifier ~ "(" ~ ParameterList? ~ ")" ~ (" " ~ QualifiedName)?
 }
 
 Block = {

@@ -248,7 +248,7 @@ impl Options {
     pub fn parse_and_validate() -> Option<Self> {
         let mut options = Self::from_args();
         if options.dump_intrinsics {
-            crate::intrinsics::dump_all();
+            crate::intrinsics::Intrinsic::dump_all();
             return None;
         }
         options.opt_level = options.opt_level.clamp(0, 3);

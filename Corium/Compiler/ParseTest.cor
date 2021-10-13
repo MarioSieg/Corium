@@ -3,11 +3,11 @@ module test
 const PI = 3.14
 const PI = 3.14
 
-native fun test(x int, y int) float
+native function test(x int, y int) float
 
-native fun print(value bool, end char = '\n')
+native function print(value bool, end char = '\n')
 
-fun test2() {
+function test2() {
     let a = 10
     let b = 2.5
     let c = true
@@ -21,41 +21,41 @@ fun test2() {
     const e2 string = "Hey"
 }
 
-fun compute(x int, y int, normalize bool) int {
+function compute(x int, y int, normalize bool) int {
     let result = 10
     return
 }
 
-fun setValue(name string) {
+function setValue(name string) {
     const result = 5
     return result
 }
 
-fun print() float {
+function print() float {
     return 2.6
 }
 
-fun loop() int {
+function loop() int {
     return 10
 }
 
-fun retIdent() int {
+function retIdent() int {
     let result = 10
     return result
 }
 
-fun unaryPlus() int {
+function unaryPlus() int {
     return +10
 }
 
-fun unaryMinus() float {
+function unaryMinus() float {
     return -0.3
 }
 
-fun unaryNot(x bool) bool {
+function unaryNot(x bool) bool {
     return !x
 }
 
-fun unaryCom(x int) int {
+function unaryCom(x int) int {
     return ~x
 }

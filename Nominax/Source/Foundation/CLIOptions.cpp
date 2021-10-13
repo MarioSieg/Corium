@@ -240,19 +240,19 @@ namespace Nominax::Foundation
         const bool nolog { createAndCheckFlag("-nl", "--nolog", "Disable protocol logging of the runtime system.") };
 
         // check if no arguments where submitted (1 arg is always .exe dir)
-        if (std::size(parser.GetArgs()) <= 1 || help)
+        if (std::size(parser.GetArgs()) <= 1 || help) [[unlikely]]
         {
-            [[unlikely]]
+            Print("Usage: Nominax <BytecodeFile> <Options ...>\n");
             parser.DisplayToConsole();
             return false;
         }
-        else if (version)
+        else if (version) [[unlikely]]
         {
             [[unlikely]]
             SYSTEM_VERSION.DisplayToConsole();
             return false;
         }
-        else if (dumpISA)
+        else if (dumpISA) [[unlikely]]
         {
             [[unlikely]]
             ByteCode::InstructionMetaDataRegistry::PrintInstructionSetTable(ProtocolController::GetProtocolStream());

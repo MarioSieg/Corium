@@ -203,126 +203,273 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::*;
+use crate::ast::BuiltinType;
 use crate::nominax::bci::SysCall;
-use lazy_static::lazy_static;
 use std::fmt;
 
 pub const INTRINSIC_PREFIX: &str = "__builtin_";
 
 pub struct Intrinsic<'a> {
-    pub fn_name: Identifier<'a>,
-    pub fn_params: ParameterList<'a>,
-    pub fn_ret: Option<QualifiedName<'a>>,
+    pub fn_name: &'a str,
+    pub fn_param_types: &'a [BuiltinType],
+    pub fn_ret: Option<BuiltinType>,
     pub sys_call: SysCall,
-}
-
-impl<'a> fmt::Display for Intrinsic<'a> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let mut intrin = format!(
-            "native fun {}{} {}",
-            INTRINSIC_PREFIX, self.fn_name.0, self.fn_params
-        );
-        if let Some(ret) = &self.fn_ret {
-            intrin += &format!(" {}", ret);
-        }
-        write!(f, "{:<64} # SYSCALL: {:#04X}", intrin, self.sys_call as u64)
-    }
-}
-
-macro_rules! intrinsic_param {
-    ($pname:expr, $ptype:expr) => {
-        Parameter {
-            name: Identifier($pname),
-            type_hint: QualifiedName::from($ptype),
-            value: None,
-        }
-    };
 }
 
 // function name, return type, syscall, params...
 macro_rules! intrinsic {
-    ($fname:expr, $fret:expr, $call:expr) => {
+        ($fname:expr, $fret:expr, $call:expr, $($ptype:expr), +) => {
         Intrinsic {
-            fn_name: Identifier($fname),
-            fn_params: ParameterList(Vec::new()),
-            fn_ret: Some(QualifiedName::from($fret)),
+            fn_name: $fname,
+            fn_param_types: &[$($ptype), +],
+            fn_ret: Some($fret),
+            sys_call: $call,
+        }
+    };
+        ($fname:expr,  $call:expr, $($ptype:expr), +) => {
+        Intrinsic {
+            fn_name: $fname,
+            fn_param_types: &[$($ptype), +],
+            fn_ret: None,
+            sys_call: $call,
+        }
+    };
+        ($fname:expr, $fret:expr, $call:expr) => {
+        Intrinsic {
+            fn_name: $fname,
+            fn_param_types: &[],
+            fn_ret: Some($fret),
             sys_call: $call,
         }
     };
     ($fname:expr, $call:expr) => {
         Intrinsic {
-            fn_name: Identifier($fname),
-            fn_params: ParameterList(Vec::new()),
-            fn_ret: None,
-            sys_call: $call,
-        }
-    };
-    ($fname:expr, $fret:expr, $call:expr, $($pname:expr, $ptype:expr), +) => {
-        Intrinsic {
-            fn_name: Identifier($fname),
-            fn_params: ParameterList(vec![$(intrinsic_param![$pname, $ptype]), +]),
-            fn_ret: Some(QualifiedName::from($fret)),
-            sys_call: $call,
-        }
-    };
-    ($fname:expr, $call:expr, $($pname:expr, $ptype:expr), +) => {
-        Intrinsic {
-            fn_name: Identifier($fname),
-            fn_params: ParameterList(vec![$(intrinsic_param![$pname, $ptype]), +]),
+            fn_name: $fname,
+            fn_param_types: &[],
             fn_ret: None,
             sys_call: $call,
         }
     };
 }
 
-lazy_static! {
-    pub static ref INTRINSICS: [Intrinsic<'static>; SysCall::Count_ as _] = [
-        intrinsic!("cos", "float", SysCall::COS, "x", "float"),
-        intrinsic!("sin", "float", SysCall::SIN, "x", "float"),
-        intrinsic!("tan", "float", SysCall::TAN, "x", "float"),
-        intrinsic!("acos", "float", SysCall::ACOS, "x", "float"),
-        intrinsic!("asin", "float", SysCall::ASIN, "x", "float"),
-        intrinsic!("atan", "float", SysCall::ATAN, "x", "float"),
-        intrinsic!("atan2", "float", SysCall::ATAN2, "x", "float", "y", "float"),
-        intrinsic!("cosh", "float", SysCall::COSH, "x", "float"),
-        intrinsic!("sinh", "float", SysCall::SINH, "x", "float"),
-        intrinsic!("tanh", "float", SysCall::TANH, "x", "float"),
-        intrinsic!("acosh", "float", SysCall::ACOSH, "x", "float"),
-        intrinsic!("asinh", "float", SysCall::ASINH, "x", "float"),
-        intrinsic!("atanh", "float", SysCall::ATANH, "x", "float"),
-        intrinsic!("exp", "float", SysCall::EXP, "x", "float"),
-        intrinsic!("log", "float", SysCall::LOG, "x", "float"),
-        intrinsic!("log10", "float", SysCall::LOG10, "x", "float"),
-        intrinsic!("exp2", "float", SysCall::EXP2, "x", "float"),
-        intrinsic!("ilogb", "float", SysCall::ILOGB, "x", "float"),
-        intrinsic!("log2", "float", SysCall::LOG2, "x", "float"),
-        intrinsic!("pow", "float", SysCall::POW, "x", "float", "y", "float"),
-        intrinsic!("sqrt", "float", SysCall::SQRT, "x", "float"),
-        intrinsic!("cbrt", "float", SysCall::CBRT, "x", "float"),
-        intrinsic!("hypot", "float", SysCall::HYPOT, "x", "float", "y", "float"),
-        intrinsic!("ceil", "float", SysCall::CEIL, "x", "float"),
-        intrinsic!("floor", "float", SysCall::FLOOR, "x", "float"),
-        intrinsic!("round", "float", SysCall::ROUND, "x", "float"),
-        intrinsic!("rint", "float", SysCall::RINT, "x", "float"),
-        intrinsic!("imax", "int", SysCall::IMAX, "x", "int", "y", "int"),
-        intrinsic!("imin", "int", SysCall::IMIN, "x", "int", "y", "int"),
-        intrinsic!("fmax", "float", SysCall::FMAX, "x", "float", "y", "float"),
-        intrinsic!("fmin", "float", SysCall::FMIN, "x", "float", "y", "float"),
-        intrinsic!("fdim", "float", SysCall::FDIM, "x", "float", "y", "float"),
-        intrinsic!("iabs", "int", SysCall::IABS, "x", "int"),
-        intrinsic!("fabs", "float", SysCall::FABS, "x", "float"),
-        intrinsic!("print_int", SysCall::PRINT_INT, "x", "int"),
-        intrinsic!("print_float", SysCall::PRINT_FLOAT, "x", "float"),
-        intrinsic!("print_char", SysCall::PRINT_CHAR, "x", "char"),
-        intrinsic!("print_bool", SysCall::PRINT_BOOL, "x", "bool"),
+impl<'a> Intrinsic<'a> {
+    pub const INTRINSICS: [Self; SysCall::Count_ as _] = [
+        intrinsic!("cos", BuiltinType::Float, SysCall::COS, BuiltinType::Float),
+        intrinsic!("sin", BuiltinType::Float, SysCall::SIN, BuiltinType::Float),
+        intrinsic!("tan", BuiltinType::Float, SysCall::TAN, BuiltinType::Float),
+        intrinsic!(
+            "acos",
+            BuiltinType::Float,
+            SysCall::ACOS,
+            BuiltinType::Float
+        ),
+        intrinsic!(
+            "asin",
+            BuiltinType::Float,
+            SysCall::ASIN,
+            BuiltinType::Float
+        ),
+        intrinsic!(
+            "atan",
+            BuiltinType::Float,
+            SysCall::ATAN,
+            BuiltinType::Float
+        ),
+        intrinsic!(
+            "atan2",
+            BuiltinType::Float,
+            SysCall::ATAN2,
+            BuiltinType::Float,
+            BuiltinType::Float
+        ),
+        intrinsic!(
+            "cosh",
+            BuiltinType::Float,
+            SysCall::COSH,
+            BuiltinType::Float
+        ),
+        intrinsic!(
+            "sinh",
+            BuiltinType::Float,
+            SysCall::SINH,
+            BuiltinType::Float
+        ),
+        intrinsic!(
+            "tanh",
+            BuiltinType::Float,
+            SysCall::TANH,
+            BuiltinType::Float
+        ),
+        intrinsic!(
+            "acosh",
+            BuiltinType::Float,
+            SysCall::ACOSH,
+            BuiltinType::Float
+        ),
+        intrinsic!(
+            "asinh",
+            BuiltinType::Float,
+            SysCall::ASINH,
+            BuiltinType::Float
+        ),
+        intrinsic!(
+            "atanh",
+            BuiltinType::Float,
+            SysCall::ATANH,
+            BuiltinType::Float
+        ),
+        intrinsic!("exp", BuiltinType::Float, SysCall::EXP, BuiltinType::Float),
+        intrinsic!("log", BuiltinType::Float, SysCall::LOG, BuiltinType::Float),
+        intrinsic!(
+            "log10",
+            BuiltinType::Float,
+            SysCall::LOG10,
+            BuiltinType::Float
+        ),
+        intrinsic!(
+            "exp2",
+            BuiltinType::Float,
+            SysCall::EXP2,
+            BuiltinType::Float
+        ),
+        intrinsic!(
+            "ilogb",
+            BuiltinType::Float,
+            SysCall::ILOGB,
+            BuiltinType::Float
+        ),
+        intrinsic!(
+            "log2",
+            BuiltinType::Float,
+            SysCall::LOG2,
+            BuiltinType::Float
+        ),
+        intrinsic!(
+            "pow",
+            BuiltinType::Float,
+            SysCall::POW,
+            BuiltinType::Float,
+            BuiltinType::Float
+        ),
+        intrinsic!(
+            "sqrt",
+            BuiltinType::Float,
+            SysCall::SQRT,
+            BuiltinType::Float
+        ),
+        intrinsic!(
+            "cbrt",
+            BuiltinType::Float,
+            SysCall::CBRT,
+            BuiltinType::Float
+        ),
+        intrinsic!(
+            "hypot",
+            BuiltinType::Float,
+            SysCall::HYPOT,
+            BuiltinType::Float,
+            BuiltinType::Float
+        ),
+        intrinsic!(
+            "ceil",
+            BuiltinType::Float,
+            SysCall::CEIL,
+            BuiltinType::Float
+        ),
+        intrinsic!(
+            "floor",
+            BuiltinType::Float,
+            SysCall::FLOOR,
+            BuiltinType::Float
+        ),
+        intrinsic!(
+            "round",
+            BuiltinType::Float,
+            SysCall::ROUND,
+            BuiltinType::Float
+        ),
+        intrinsic!(
+            "rint",
+            BuiltinType::Float,
+            SysCall::RINT,
+            BuiltinType::Float
+        ),
+        intrinsic!(
+            "imax",
+            BuiltinType::Int,
+            SysCall::IMAX,
+            BuiltinType::Int,
+            BuiltinType::Int
+        ),
+        intrinsic!(
+            "imin",
+            BuiltinType::Int,
+            SysCall::IMIN,
+            BuiltinType::Int,
+            BuiltinType::Int
+        ),
+        intrinsic!(
+            "fmax",
+            BuiltinType::Float,
+            SysCall::FMAX,
+            BuiltinType::Float,
+            BuiltinType::Float
+        ),
+        intrinsic!(
+            "fmin",
+            BuiltinType::Float,
+            SysCall::FMIN,
+            BuiltinType::Float,
+            BuiltinType::Float
+        ),
+        intrinsic!(
+            "fdim",
+            BuiltinType::Float,
+            SysCall::FDIM,
+            BuiltinType::Float,
+            BuiltinType::Float
+        ),
+        intrinsic!("iabs", BuiltinType::Int, SysCall::IABS, BuiltinType::Int),
+        intrinsic!(
+            "fabs",
+            BuiltinType::Float,
+            SysCall::FABS,
+            BuiltinType::Float
+        ),
+        intrinsic!("print_int", SysCall::PRINT_INT, BuiltinType::Int),
+        intrinsic!("print_float", SysCall::PRINT_FLOAT, BuiltinType::Float),
+        intrinsic!("print_char", SysCall::PRINT_CHAR, BuiltinType::Char),
+        intrinsic!("print_bool", SysCall::PRINT_BOOL, BuiltinType::Bool),
         intrinsic!("flush", SysCall::FLUSH),
         intrinsic!("newline", SysCall::FLUSH),
     ];
+
+    pub fn dump_all() {
+        for intrinsic in Self::INTRINSICS.iter() {
+            println!("{}", intrinsic);
+        }
+    }
 }
 
-pub fn dump_all() {
-    for intrinsic in INTRINSICS.iter() {
-        println!("{}", intrinsic);
+impl<'a> fmt::Display for Intrinsic<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "native function {}{} (", INTRINSIC_PREFIX, self.fn_name)?;
+        if !self.fn_param_types.is_empty() {
+            let last = self.fn_param_types.len() - 1;
+            for (i, param) in self.fn_param_types.iter().enumerate() {
+                let spacing = if i != last { ", " } else { "" };
+                write!(
+                    f,
+                    "{}{}",
+                    format!("{:?}", param).to_ascii_lowercase(),
+                    spacing
+                )?;
+            }
+        }
+        write!(f, ")")?;
+        if let Some(ret) = &self.fn_ret {
+            write!(f, " {}", format!("{:?}", ret).to_ascii_lowercase())?;
+        }
+        Ok(())
     }
 }

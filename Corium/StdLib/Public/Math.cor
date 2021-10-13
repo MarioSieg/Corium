@@ -1,0 +1,137 @@
+module Math
+
+function cos (x float) float {
+    return __builtin_cos(x)
+}
+
+function sin (x float) float {
+    return __builtin_sin(x)
+}
+
+function tan (x float) float {
+    return __builtin_tan(x)
+}
+
+function acos (x float) float {
+    return __builtin_acos(x)
+}
+
+function asin (x float) float {
+    return __builtin_asin(x)
+}
+
+function atan (x float) float {
+    return __builtin_atan(x)
+}
+
+function atan2 (x float, y float) float {
+    return __builtin_atan2(x, y)
+}
+
+function cosh (x float) float {
+    return __builtin_cosh(x)
+}
+
+function sinh (x float) float {
+    return __builtin_sinh(x)
+}
+
+function tanh (x float) float {
+    return __builtin_tanh(x)
+}
+
+function acosh (x float) float {
+    return __builtin_acosh(x)
+}
+
+function asinh (x float) float {
+    return __builtin_asinh(x)
+}
+
+function atanh (x float) float {
+    return __builtin_atanh(x)
+}
+
+function exp (x float) float {
+    return __builtin_exp(x)
+}
+
+function log (x float) float {
+    return __builtin_log(x)
+}
+
+function log10 (x float) float {
+    return __builtin_log10(x)
+}
+
+function exp2 (x float) float {
+    return __builtin_exp2(x)
+}
+
+function ilogb (x float) float {
+    return __builtin_ilogb(x)
+}
+
+function log2 (x float) float {
+    return __builtin_log2(x)
+}
+
+function pow (x float, y float) float {
+    return __builtin_pow(x, y)
+}
+
+function sqrt (x float) float {
+    return __builtin_sqrt(x)
+}
+
+function cbrt (x float) float {
+    return __builtin_cbrt(x)
+}
+
+function hypot (x float, y float) float {
+    return __builtin_hypot(x, y)
+}
+
+function ceil (x float) float {
+    return __builtin_ceil(x)
+}
+
+function floor (x float) float {
+    return __builtin_floor(x)
+}
+
+function round (x float) float {
+    return __builtin_round(x)
+}
+
+function rint (x float) float {
+    return __builtin_rint(x)
+}
+
+function imax (x int, y int) int {
+    return __builtin_imax(x, y)
+}
+
+function imin (x int, y int) int {
+    return __builtin_imin(x, y)
+}
+
+function fmax (x float, y float) float {
+    return __builtin_fmax(x, y)
+}
+
+function fmin (x float, y float) float {
+    return __builtin_fmin(x, y)
+}
+
+function fdim (x float, y float) float {
+    return __builtin_fdim(x, y)
+}
+
+function iabs (x int) int {
+    return __builtin_iabs(x)
+}
+
+function fabs (x float) float {
+    return __builtin_fabs(x)
+}

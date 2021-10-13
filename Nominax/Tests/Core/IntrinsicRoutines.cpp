@@ -999,7 +999,6 @@ TEST(ReactorExecution, IntrinsicRoutine_FDim)
 	ASSERT_EQ(output.SpDiff, 2);
 }
 
-
 TEST(ReactorExecution, IntrinsicRoutine_IAbs)
 {
 	constexpr std::array code {

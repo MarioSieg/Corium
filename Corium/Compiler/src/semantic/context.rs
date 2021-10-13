@@ -1,12 +1,12 @@
+use super::error;
 use super::record::Record;
-use super::symtable::SymbolTable;
+use super::table::SymbolTable;
 use crate::ast::*;
-use crate::error::{list::ErrorList, Error};
-use colored::Colorize;
+use crate::error::list::ErrorList;
 
 pub struct Context<'a> {
     pub file: &'a str,
-    pub fun: Identifier<'a>,
+    pub function: Identifier<'a>,
     pub errors: ErrorList,
     pub global: SymbolTable<'a>,
     pub local: SymbolTable<'a>,
@@ -16,49 +16,10 @@ impl<'a> Context<'a> {
     pub fn new(file: &'a str) -> Self {
         Self {
             file,
-            fun: Identifier("?"),
+            function: Identifier("?"),
             errors: ErrorList::new(),
             global: SymbolTable::new(),
             local: SymbolTable::new(),
-        }
-    }
-
-    #[cold]
-    fn make_local_definition_error(
-        &mut self,
-        record: Option<Record<'a>>,
-        statement: &LocalStatement,
-    ) {
-        if let Some(rec) = record {
-            let smt_type = statement.descriptive_name();
-            let smt_ident = statement.code_identifier().0.red().bold();
-            let fun_name = self.fun.0.red().bold();
-            let rec_name = rec.descriptive_name();
-            let message = format!(
-                "Local {} `{}` in function `{}` already defined as {} before",
-                smt_type, smt_ident, fun_name, rec_name
-            );
-            self.errors
-                .push(Error::Semantic(message, self.file.to_string()));
-        }
-    }
-
-    #[cold]
-    fn make_global_definition_error(
-        &mut self,
-        record: Option<Record<'a>>,
-        statement: &GlobalStatement,
-    ) {
-        if let Some(rec) = record {
-            let smt_type = statement.descriptive_name();
-            let smt_ident = statement.code_identifier().0.red().bold();
-            let rec_name = rec.descriptive_name();
-            let message = format!(
-                "Global {} `{}` already defined as {} before",
-                smt_type, smt_ident, rec_name
-            );
-            self.errors
-                .push(Error::Semantic(message, self.file.to_string()));
         }
     }
 
@@ -77,7 +38,11 @@ impl<'a> Context<'a> {
                 .global
                 .insert(x.signature.name, Record::NativeFunction(x)),
         };
-        self.make_global_definition_error(existing, statement);
+        if let Some(existing) = existing {
+            self.errors.push(error::make_global_definition_error(
+                &existing, statement, self.file,
+            ));
+        }
     }
 
     pub fn analyze_local(
@@ -87,12 +52,25 @@ impl<'a> Context<'a> {
     ) {
         match statement {
             LocalStatement::MutableVariable(var) => {
-                let exists = self.local.insert(var.name, Record::MutableVariable(var));
-                self.make_local_definition_error(exists, statement);
+                if let Some(existing) = self.local.insert(var.name, Record::MutableVariable(var)) {
+                    self.errors.push(error::make_local_definition_error(
+                        &existing,
+                        statement,
+                        self.file,
+                        self.function,
+                    ));
+                }
             }
             LocalStatement::ImmutableVariable(var) => {
-                let exists = self.local.insert(var.name, Record::ImmutableVariable(var));
-                self.make_local_definition_error(exists, statement);
+                if let Some(existing) = self.local.insert(var.name, Record::ImmutableVariable(var))
+                {
+                    self.errors.push(error::make_local_definition_error(
+                        &existing,
+                        statement,
+                        self.file,
+                        self.function,
+                    ));
+                }
             }
             LocalStatement::ReturnStatement(smt) => self.analyze_return(smt, ret_type),
         }
@@ -100,20 +78,18 @@ impl<'a> Context<'a> {
 
     fn analyze_return(&mut self, smt: &ReturnStatement, return_type: &Option<QualifiedName>) {
         if return_type.is_none() && smt.0.is_some() {
-            let fun_name = self.fun.0.red().bold();
-            let smt = format!("{}", smt).red().bold();
-            let message = format!("Unexpected return statement `{}` in function `{}` - function does not return any value", smt, fun_name);
             self.errors
-                .push(Error::Semantic(message, self.file.to_string()));
+                .push(error::make_return_statement_error_unexpected(
+                    smt,
+                    self.function,
+                    self.file,
+                ))
         } else if return_type.is_some() && smt.0.is_none() {
-            let fun_name = self.fun.0.red().bold();
-            let required_type = return_type.as_ref().unwrap().full.red().bold();
-            let message = format!(
-                "Return statement is missing an expression of type `{}` in function `{}`",
-                required_type, fun_name
-            );
-            self.errors
-                .push(Error::Semantic(message, self.file.to_string()));
+            self.errors.push(error::make_return_statement_error_invalid(
+                return_type.as_ref().unwrap(),
+                self.function,
+                self.file,
+            ))
         }
     }
 
@@ -128,7 +104,7 @@ impl<'a> Context<'a> {
 
     #[inline]
     pub fn enter_local_scope(&mut self, name: Identifier<'a>) {
-        self.fun = name;
+        self.function = name;
     }
 
     #[inline]
@@ -136,3 +112,6 @@ impl<'a> Context<'a> {
         self.local.clear();
     }
 }
+
+#[cfg(test)]
+mod tests {}

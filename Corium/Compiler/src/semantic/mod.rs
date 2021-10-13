@@ -2,8 +2,9 @@ use crate::ast::*;
 use crate::error::list::ErrorList;
 
 pub mod context;
+pub mod error;
 pub mod record;
-pub mod symtable;
+pub mod table;
 
 use context::Context;
 

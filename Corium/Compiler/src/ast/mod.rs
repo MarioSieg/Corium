@@ -705,3 +705,14 @@ pub type Bool = bool;
 
 /// Represents a Corium "char".
 pub type Char = char;
+
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
+#[repr(u8)]
+pub enum BuiltinType {
+    Int,
+    Float,
+    Bool,
+    Char,
+    String,
+    Object,
+}
