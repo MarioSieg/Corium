@@ -203,6 +203,8 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+#pragma once
+
 #include <cstdint>
 
 #include "../Foundation/Platform.hpp"
@@ -213,19 +215,19 @@ namespace Nominax::JIT
     /// <summary>
     /// Machine code scalar.
     /// </summary>
-    using MachCode = std::uint8_t;
+    using MScalar = std::uint8_t;
 #else
     /// <summary>
     /// Machine code scalar.
     /// </summary>
-    using MachCode = std::uint32_t;
+    using MScalar = std::uint32_t;
 #endif
 
     /// <summary>
     /// Machine code scalar encoding a breakpoint or trap instruction.
     /// Used to fill the JIT execbuf and to pad aligned subroutines.
     /// </summary>
-    constexpr MachCode TRAP
+    constexpr MScalar TRAP
     {
         []
         {
@@ -248,9 +250,9 @@ namespace Nominax::JIT
     /// <param name="needle"></param>
     /// <param name="end"></param>
     /// <returns></returns>
-    inline auto Invoke(const MachCode* const needle,  const MachCode* const end)
+    inline auto Invoke(MScalar* const needle, MScalar* const end)
     {
-        __builtin___clear_cache(reinterpret_cast<char*>(const_cast<MachCode*>(needle)), reinterpret_cast<char*>(const_cast<MachCode*>(end)));
-        reinterpret_cast<auto(*)()->void>(const_cast<MachCode*>(needle))();
+        __builtin___clear_cache(reinterpret_cast<char*>(needle), reinterpret_cast<char*>(end));
+        reinterpret_cast<auto(*)()->void>(needle)();
     }
 }

@@ -235,7 +235,7 @@ auto main(const int argc, const char* const* const argv) -> int
     byteCode.Epilogue();
     byteCode.DisplayToConsole();
 
-    EnvironmentDescriptor environmentDescriptor { };
+    Core::EnvironmentDescriptor environmentDescriptor { };
 
     if (!options.NoConfig)
     {
@@ -246,7 +246,7 @@ auto main(const int argc, const char* const* const argv) -> int
         }
     }
 
-	Environment environment { };
+	Core::Environment environment { };
 	environment.Boot(environmentDescriptor);
     environment.Execute(std::move(byteCode));
 	environment.Shutdown();

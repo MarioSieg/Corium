@@ -203,22 +203,112 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../Include/Nominax/JIT/ExecutableImageBuffer.hpp"
+#pragma once
+
+#include <span>
+
+#include "../Foundation/MappedMemory.hpp"
+#include "Execution.hpp"
 
 namespace Nominax::JIT
 {
-    ExecutableImageBuffer::ExecutableImageBuffer(const std::span<const MachCode> source) :
-        Foundation::MappedMemory { std::size(source) * sizeof(MachCode), ALLOCATION_FLAGS },
-        Buffer_ { static_cast<const MachCode*>(this->Region_) },
-        BufferEnd_ { Buffer_ + GetByteSize() / sizeof(MachCode) }
+    /// <summary>
+    /// Represents a buffer which allows execution of it's contents
+    /// using page protection flags.
+    /// 3 stages:
+    /// 1. Allocate with Read | Write | Exec
+    /// 2. Copy machine code to self
+    /// 3. Protect with Read | Exec, Lock?
+    /// </summary>
+    class ExecutableBuffer final : public Foundation::MappedMemory
     {
-        const std::span<MachCode> region
+        const MScalar* const Buffer_;
+        const MScalar* const BufferEnd_;
+
+    public:
+        /// <summary>
+        /// Flags used for allocation, before copying the machine code.
+        /// </summary>
+        static constexpr auto ALLOCATION_FLAGS { Foundation::MemoryPageProtectionFlags::ReadWriteExecute };
+
+        /// <summary>
+        /// Flags used for security protection after copying the machine codes.
+        /// </summary>
+        static constexpr auto SECURITY_FLAGS { Foundation::MemoryPageProtectionFlags::ReadExecute };
+
+        /// <summary>
+        /// If true, the protection is locked after copying the machine code.
+        /// </summary>
+        static constexpr bool LOCK_PROTECTION { true };
+
+        /// <summary>
+        /// 3 stages:
+        /// 1. Allocate with Read | Write | Exec
+        /// 2. Copy machine code to self
+        /// 3. Protect with Read | Exec, Lock?
+        /// </summary>
+        /// <param name="source"></param>
+        explicit ExecutableBuffer(std::span<const MScalar> source);
+
+        /// <summary>
+        /// No copy.
+        /// </summary>
+        /// <param name="other"></param>
+        ExecutableBuffer(const ExecutableBuffer& other) = delete;
+
+        /// <summary>
+        /// No move.
+        /// </summary>
+        /// <param name="other"></param>
+        ExecutableBuffer(ExecutableBuffer&& other) = delete;
+
+        /// <summary>
+        /// No copy.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        auto operator =(const ExecutableBuffer& other) -> ExecutableBuffer& = delete;
+
+        /// <summary>
+        /// No move.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        auto operator =(ExecutableBuffer&& other) -> ExecutableBuffer& = delete;
+
+		/// <summary>
+		/// Destructor.
+		/// </summary>
+        ~ExecutableBuffer() override = default;
+
+        /// <summary>
+        /// Invoke using call instruction.
+        /// </summary>
+        /// <returns></returns>
+        auto Call() const -> void;
+
+        /// <summary>
+        /// Access as span.
+        /// </summary>
+        /// <returns></returns>
+        [[nodiscard]]
+        auto AsSpan() const -> std::span<const MScalar>;
+    };
+
+    inline auto ExecutableBuffer::Call() const -> void
+    {
+        auto* const needle { const_cast<MScalar*>(this->Buffer_) };
+        auto* const end { const_cast<MScalar*>(this->BufferEnd_) };
+        Invoke(needle, end);
+    }
+
+
+    inline auto ExecutableBuffer::AsSpan() const -> std::span<const MScalar>
+    {
+        return
         {
-            const_cast<MachCode*>(this->Buffer_),
-            const_cast<MachCode*>(this->BufferEnd_)
+            this->Buffer_,
+            this->BufferEnd_
         };
-        std::copy(std::begin(source), std::end(source), std::begin(region));
-        const bool prot { this->Protect(SECURITY_FLAGS, LOCK_PROTECTION) };
-        NOX_PAS(prot, "Protection of execbuf failed!");
     }
 }

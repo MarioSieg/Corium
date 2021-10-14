@@ -203,110 +203,335 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <span>
+#pragma once
 
-#include "../Foundation/MappedMemory.hpp"
+#include <cstdint>
+#include <iterator>
 
-#include "Execution.hpp"
-
-namespace Nominax::JIT
+namespace Nominax::STL
 {
-    /// <summary>
-    /// Represents a buffer which allows execution of it's contents
-    /// using page protection flags.
-    /// 3 stages:
-    /// 1. Allocate with Read | Write | Exec
-    /// 2. Copy machine code to self
-    /// 3. Protect with Read | Exec, Lock?
-    /// </summary>
-    class ExecutableImageBuffer final : public Foundation::MappedMemory
+	struct IteratorDebugFlags final
+	{
+		IteratorDebugFlags() = delete;
+		IteratorDebugFlags(IteratorDebugFlags&& other) = delete;
+		IteratorDebugFlags(const IteratorDebugFlags& other) = delete;
+		auto operator =(IteratorDebugFlags&& other) -> IteratorDebugFlags& = delete;
+		auto operator =(const IteratorDebugFlags& other) -> IteratorDebugFlags& = delete;
+		~IteratorDebugFlags() = delete;
+
+		enum Enum : std::uint8_t
+		{
+			None = 0 << 0,
+			Valid = 1 << 0,
+			Current = 1 << 1,
+			Deref = 1 << 2
+		};
+	};
+
+	struct InputIteratorTag
+	{
+		InputIteratorTag() = delete;
+		InputIteratorTag(InputIteratorTag&& other) = delete;
+		InputIteratorTag(const InputIteratorTag& other) = delete;
+		auto operator =(InputIteratorTag&& other) -> InputIteratorTag& = delete;
+		auto operator =(const InputIteratorTag& other) -> InputIteratorTag& = delete;
+		~InputIteratorTag() = delete;
+	};
+
+	struct OutputIteratorTag
+	{
+		OutputIteratorTag() = delete;
+		OutputIteratorTag(OutputIteratorTag&& other) = delete;
+		OutputIteratorTag(const OutputIteratorTag& other) = delete;
+		auto operator =(OutputIteratorTag&& other) -> OutputIteratorTag& = delete;
+		auto operator =(const OutputIteratorTag& other) -> OutputIteratorTag& = delete;
+		~OutputIteratorTag() = delete;
+	};
+
+	struct ForwardIteratorTag : InputIteratorTag
+	{
+		ForwardIteratorTag() = delete;
+		ForwardIteratorTag(ForwardIteratorTag&& other) = delete;
+		ForwardIteratorTag(const ForwardIteratorTag& other) = delete;
+		auto operator =(ForwardIteratorTag&& other) -> ForwardIteratorTag& = delete;
+		auto operator =(const ForwardIteratorTag& other) -> ForwardIteratorTag& = delete;
+		~ForwardIteratorTag() = delete;
+	};
+
+	struct BidirectionalIteratorTag : ForwardIteratorTag
+	{
+		BidirectionalIteratorTag() = delete;
+		BidirectionalIteratorTag(BidirectionalIteratorTag&& other) = delete;
+		BidirectionalIteratorTag(const BidirectionalIteratorTag& other) = delete;
+		auto operator =(BidirectionalIteratorTag&& other) -> BidirectionalIteratorTag& = delete;
+		auto operator =(const BidirectionalIteratorTag& other) -> BidirectionalIteratorTag& = delete;
+		~BidirectionalIteratorTag() = delete;
+	};
+
+	struct RandomAccessIteratorTag : BidirectionalIteratorTag
+	{
+		RandomAccessIteratorTag() = delete;
+		RandomAccessIteratorTag(RandomAccessIteratorTag&& other) = delete;
+		RandomAccessIteratorTag(const RandomAccessIteratorTag& other) = delete;
+		auto operator =(RandomAccessIteratorTag&& other) -> RandomAccessIteratorTag& = delete;
+		auto operator =(const RandomAccessIteratorTag& other) -> RandomAccessIteratorTag& = delete;
+		~RandomAccessIteratorTag() = delete;
+	};
+
+    template <typename T>
+    struct Iterator final
     {
-        const MachCode* const Buffer_;
-        const MachCode* const BufferEnd_;
+    private:
+        T* Ptr_;
 
     public:
-        /// <summary>
-        /// Flags used for allocation, before copying the machine code.
-        /// </summary>
-        static constexpr auto ALLOCATION_FLAGS { Foundation::MemoryPageProtectionFlags::ReadWriteExecute };
+        using Offset = std::uint64_t;
+		using Category = RandomAccessIteratorTag;
+		using ValueType = T;
+		using DifferenceType = std::ptrdiff_t;
+		using Pointer = T*;
+		using Reference = T&;
 
-        /// <summary>
-        /// Flags used for security protection after copying the machine codes.
-        /// </summary>
-        static constexpr auto SECURITY_FLAGS { Foundation::MemoryPageProtectionFlags::ReadExecute };
+        /// STL interface
+        using iterator_category = std::random_access_iterator_tag;
+        using value_type = ValueType;
+        using difference_type = DifferenceType;
+        using pointer = Pointer;
+        using reference = Reference;
 
-        /// <summary>
-        /// If true, the protection is locked after copying the machine code.
-        /// </summary>
-        static constexpr bool LOCK_PROTECTION { true };
+        constexpr Iterator() noexcept;
+		constexpr explicit Iterator(T* ptr) noexcept;
+        constexpr Iterator(const Iterator& other) noexcept = default;
+        constexpr Iterator(Iterator&& other) noexcept = default;
+        constexpr auto operator =(const Iterator& other) noexcept -> Iterator& = default;
+        constexpr auto operator =(Iterator&& other) noexcept -> Iterator& = default;
+        ~Iterator() = default;
 
-        /// <summary>
-        /// 3 stages:
-        /// 1. Allocate with Read | Write | Exec
-        /// 2. Copy machine code to self
-        /// 3. Protect with Read | Exec, Lock?
-        /// </summary>
-        /// <param name="source"></param>
-        ExecutableImageBuffer(std::span<const MachCode> source);
+        [[nodiscard]]
+        constexpr auto AsSTD() const -> std::iterator<iterator_category, value_type, difference_type, pointer, reference>;
 
-        /// <summary>
-        /// No copy.
-        /// </summary>
-        /// <param name="other"></param>
-        ExecutableImageBuffer(const ExecutableImageBuffer& other) = delete;
-
-        /// <summary>
-        /// No move.
-        /// </summary>
-        /// <param name="other"></param>
-        ExecutableImageBuffer(ExecutableImageBuffer&& other) = delete;
-
-        /// <summary>
-        /// No copy.
-        /// </summary>
-        /// <param name="other"></param>
-        /// <returns></returns>
-        auto operator =(const ExecutableImageBuffer& other) -> ExecutableImageBuffer& = delete;
-
-        /// <summary>
-        /// No move.
-        /// </summary>
-        /// <param name="other"></param>
-        /// <returns></returns>
-        auto operator =(ExecutableImageBuffer&& other) -> ExecutableImageBuffer& = delete;
-
-		/// <summary>
-		/// Destructor.
-		/// </summary>
-        ~ExecutableImageBuffer() override = default;
-
-        /// <summary>
-        /// Invoke using call instruction.
-        /// </summary>
-        /// <returns></returns>
-        auto Call() const -> void;
-
-        /// <summary>
-        /// Access as span.
-        /// </summary>
-        /// <returns></returns>
-        auto AsSpan() const -> std::span<const MachCode>;
+        constexpr auto operator +(Offset offset) const noexcept -> Offset;
+        constexpr auto operator -(Offset offset) const noexcept -> Offset;
+        constexpr auto operator *(Offset offset) const noexcept -> Offset;
+        constexpr auto operator /(Offset offset) const noexcept -> Offset;
+        constexpr auto operator +=(Offset offset) noexcept -> Offset&;
+        constexpr auto operator -=(Offset offset) noexcept -> Offset&;
+        constexpr auto operator *=(Offset offset) noexcept -> Offset&;
+        constexpr auto operator /=(Offset offset) noexcept -> Offset&;
+        constexpr auto operator ==(Iterator other) const noexcept -> bool;
+        constexpr auto operator !=(Iterator other) const noexcept -> bool;
+        constexpr auto operator <(Iterator other) const noexcept -> bool;
+        constexpr auto operator >(Iterator other) const noexcept -> bool;
+        constexpr auto operator <=(Iterator other) const noexcept -> bool;
+        constexpr auto operator >=(Iterator other) const noexcept -> bool;
+        constexpr auto operator ++() noexcept -> Iterator&;
+        constexpr auto operator ++(int) noexcept -> Iterator;
+        constexpr auto operator --() noexcept -> Iterator&;
+        constexpr auto operator --(int) noexcept -> Iterator;
+        constexpr auto operator [](Offset index) const noexcept -> T&;
+        constexpr auto operator *() const noexcept -> T&;
+        constexpr explicit operator bool() const noexcept;
     };
 
-    inline auto ExecutableImageBuffer::Call() const -> void
+    template <typename T>
+    constexpr Iterator<T>::Iterator() noexcept : Ptr_ { nullptr } { }
+
+    template <typename T>
+    constexpr Iterator<T>::Iterator(T* const ptr) noexcept : Ptr_ { ptr } { }
+
+    template<typename T>
+    constexpr auto Iterator<T>::AsSTD() const -> std::iterator<iterator_category, value_type, difference_type, pointer, reference>
     {
-        const MachCode* const needle { this->Buffer_ };
-        const MachCode* const end { this->BufferEnd_ };
-        Invoke(needle, end);
+        return { this->Ptr_ };
     }
 
+	template<typename T>
+	constexpr auto Iterator<T>::operator +(const Iterator::Offset offset) const noexcept -> Iterator::Offset
+	{
+		return { this->Ptr_ + offset };
+	}
 
-    inline auto ExecutableImageBuffer::AsSpan() const -> std::span<const MachCode>
-    {
-        return
-        {
-            this->Buffer_,
-            this->BufferEnd_
-        };
-    }
+	template<typename T>
+	constexpr auto Iterator<T>::operator -(const Iterator::Offset offset) const noexcept -> Iterator::Offset
+	{
+		return { this->Ptr_ + offset };
+	}
+
+	template<typename T>
+	constexpr auto Iterator<T>::operator *(const Iterator::Offset offset) const noexcept -> Iterator::Offset
+	{
+		return { this->Ptr_ + offset };
+	}
+
+	template<typename T>
+	constexpr auto Iterator<T>::operator /(const Iterator::Offset offset) const noexcept -> Iterator::Offset
+	{
+		return { this->Ptr_ + offset };
+	}
+
+	template<typename T>
+	constexpr auto Iterator<T>::operator +=(const Iterator::Offset offset) noexcept -> Iterator::Offset&
+	{
+		this->Ptr_ += offset;
+		return *this;
+	}
+
+	template<typename T>
+	constexpr auto Iterator<T>::operator -=(const Iterator::Offset offset) noexcept -> Iterator::Offset&
+	{
+		this->Ptr_ -= offset;
+		return *this;
+	}
+
+	template<typename T>
+	constexpr auto Iterator<T>::operator *=(const Iterator::Offset offset) noexcept -> Iterator::Offset&
+	{
+		this->Ptr_ *= offset;
+		return *this;
+	}
+
+	template<typename T>
+	constexpr auto Iterator<T>::operator /=(const Iterator::Offset offset) noexcept -> Iterator::Offset&
+	{
+		this->Ptr_ /= offset;
+		return *this;
+	}
+
+	template<typename T>
+	constexpr auto Iterator<T>::operator ==(const Iterator other) const noexcept -> bool
+	{
+		return this->Ptr_ == other.Ptr_;
+	}
+
+	template<typename T>
+	constexpr auto Iterator<T>::operator !=(const Iterator other) const noexcept -> bool
+	{
+		return this->Ptr_ != other.Ptr_;
+	}
+
+	template<typename T>
+	constexpr auto Iterator<T>::operator <(const Iterator other) const noexcept -> bool
+	{
+		return this->Ptr_ < other.Ptr_;
+	}
+
+	template<typename T>
+	constexpr auto Iterator<T>::operator >(const Iterator other) const noexcept -> bool
+	{
+		return this->Ptr_ > other.Ptr_;
+	}
+
+	template<typename T>
+	constexpr auto Iterator<T>::operator <=(const Iterator other) const noexcept -> bool
+	{
+		return this->Ptr_ <= other.Ptr_;
+	}
+
+	template<typename T>
+	constexpr auto Iterator<T>::operator >=(const Iterator other) const noexcept -> bool
+	{
+		return this->Ptr_ >= other.Ptr_;
+	}
+
+	template<typename T>
+	constexpr auto Iterator<T>::operator ++() noexcept -> Iterator&
+	{
+		++this->Ptr_;
+		return *this;
+	}
+
+	template<typename T>
+	constexpr auto Iterator<T>::operator ++(int) noexcept -> Iterator
+	{
+		auto* const tmp { this->Ptr_ };
+		++this->Ptr_;
+		return tmp;
+	}
+
+	template<typename T>
+	constexpr auto Iterator<T>::operator --() noexcept -> Iterator&
+	{
+		--this->Ptr_;
+		return *this;
+	}
+
+	template<typename T>
+	constexpr auto Iterator<T>::operator --(int) noexcept -> Iterator
+	{
+		auto* const tmp { this->Ptr_ };
+		++this->Ptr_;
+		return tmp;
+	}
+
+	template<typename T>
+	constexpr auto Iterator<T>::operator [](const Offset index) const noexcept -> T&
+	{
+		return *(this->Ptr_ + index);
+	}
+
+	template<typename T>
+	constexpr auto Iterator<T>::operator *() const noexcept -> T&
+	{
+		return *this->Ptr_;
+	}
+
+	template<typename T>
+	constexpr Iterator<T>::operator bool() const noexcept
+	{
+		return this->Ptr_;
+	}
+
+	template<typename T>
+	struct IteratorTraits final
+	{
+		IteratorTraits() = delete;
+		IteratorTraits(const IteratorTraits& other) = delete;
+		IteratorTraits(IteratorTraits&& other) = delete;
+		auto operator =(const IteratorTraits& other) -> IteratorTraits& = delete;
+		auto operator =(IteratorTraits&& other) -> IteratorTraits& = delete;
+		~IteratorTraits() = delete;
+
+		using Offset = typename T::Offset;
+		using Category = typename T::Category;
+		using ValueType = typename T::ValueType;
+		using DifferenceType = typename T::DifferenceType;
+		using Pointer = typename T::Pointer;
+		using Reference = typename T::Reference;
+	};
+
+	template<typename T>
+	struct IteratorTraits<T*> final
+	{
+		IteratorTraits() = delete;
+		IteratorTraits(const IteratorTraits& other) = delete;
+		IteratorTraits(IteratorTraits&& other) = delete;
+		auto operator =(const IteratorTraits& other) -> IteratorTraits& = delete;
+		auto operator =(IteratorTraits&& other) -> IteratorTraits& = delete;
+		~IteratorTraits() = delete;
+
+		using Offset = std::uint64_t;
+		using Category = RandomAccessIteratorTag;
+		using ValueType = T;
+		using DifferenceType = std::ptrdiff_t;
+		using Pointer = T*;
+		using Reference = T&;
+	};
+
+	template<typename T>
+	struct IteratorTraits<const T*> final
+	{
+		IteratorTraits() = delete;
+		IteratorTraits(const IteratorTraits& other) = delete;
+		IteratorTraits(IteratorTraits&& other) = delete;
+		auto operator =(const IteratorTraits& other) -> IteratorTraits& = delete;
+		auto operator =(IteratorTraits&& other) -> IteratorTraits& = delete;
+		~IteratorTraits() = delete;
+
+		using Offset = std::uint64_t;
+		using Category = RandomAccessIteratorTag;
+		using ValueType = T;
+		using DifferenceType = std::ptrdiff_t;
+		using Pointer = const T*;
+		using Reference = const T&;
+	};
 }

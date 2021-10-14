@@ -1,5 +1,3 @@
-module Math
-
 function cos (x float) float {
     return __builtin_cos(x)
 }
