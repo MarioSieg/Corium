@@ -1,5 +1,5 @@
 // Author: Mario Sieg
-// Project: Nominax
+// Project: Corium
 //
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -203,22 +203,122 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../Include/Nominax/JIT/ExecutableBuffer.hpp"
+use super::error;
+use crate::ast::*;
+use crate::error::Error;
+use crate::semantic::record::Record;
+use crate::semantic::table::SymbolTable;
 
-namespace Nominax::JIT
-{
-    ExecutableBuffer::ExecutableBuffer(const std::span<const MachineScalar> source) :
-        Foundation::MappedMemory { std::size(source) * sizeof(MachineScalar), ALLOCATION_FLAGS },
-        Buffer_ { static_cast<const MachineScalar*>(this->Region_) },
-        BufferEnd_ { Buffer_ + GetByteSize() / sizeof(MachineScalar) }
-    {
-        const std::span<MachineScalar> region
-        {
-            const_cast<MachineScalar*>(this->Buffer_),
-            const_cast<MachineScalar*>(this->BufferEnd_)
+pub trait GlobalSemanticAnalysis<'a> {
+    fn analyze(&'a self, table: &mut SymbolTable<'a>, file: &str) -> Result<(), Error>;
+}
+
+pub trait LocalSemanticAnalysis<'a> {
+    fn analyze(
+        &'a self,
+        table: &mut SymbolTable<'a>,
+        file: &str,
+        return_type: &Option<QualifiedName>,
+        function: Identifier,
+    ) -> Result<(), Error>;
+}
+
+impl<'a> GlobalSemanticAnalysis<'a> for GlobalStatement<'a> {
+    fn analyze(&'a self, table: &mut SymbolTable<'a>, file: &str) -> Result<(), Error> {
+        let existing = match self {
+            GlobalStatement::MutableVariable(x) => table.insert(x.name, Record::MutableVariable(x)),
+            GlobalStatement::ImmutableVariable(x) => {
+                table.insert(x.name, Record::ImmutableVariable(x))
+            }
+            GlobalStatement::Function(x) => {
+                x.analyze(table, file, &x.signature.return_type, x.signature.name)?;
+                table.insert(x.signature.name, Record::Function(x))
+            }
+            GlobalStatement::NativeFunction(x) => {
+                table.insert(x.signature.name, Record::NativeFunction(x))
+            }
         };
-        std::copy(std::begin(source), std::end(source), std::begin(region));
-        const bool prot { this->Protect(SECURITY_FLAGS, LOCK_PROTECTION) };
-        NOX_PAS(prot, "Protection of execbuf failed!");
+        if let Some(existing) = existing {
+            Err(error::make_global_definition_error(&existing, self, file))
+        } else {
+            Ok(())
+        }
+    }
+}
+
+impl<'a> LocalSemanticAnalysis<'a> for LocalStatement<'a> {
+    fn analyze(
+        &'a self,
+        table: &mut SymbolTable<'a>,
+        file: &str,
+        return_type: &Option<QualifiedName>,
+        function: Identifier,
+    ) -> Result<(), Error> {
+        match self {
+            LocalStatement::MutableVariable(variable) => {
+                if let Some(existing) =
+                    table.insert(variable.name, Record::MutableVariable(variable))
+                {
+                    Err(error::make_local_definition_error(
+                        &existing, self, file, function,
+                    ))
+                } else {
+                    Ok(())
+                }
+            }
+            LocalStatement::ImmutableVariable(variable) => {
+                if let Some(existing) =
+                    table.insert(variable.name, Record::ImmutableVariable(variable))
+                {
+                    Err(error::make_local_definition_error(
+                        &existing, self, file, function,
+                    ))
+                } else {
+                    Ok(())
+                }
+            }
+            LocalStatement::ReturnStatement(statement) => {
+                statement.analyze(table, file, return_type, function)
+            }
+        }
+    }
+}
+
+impl<'a> LocalSemanticAnalysis<'a> for ReturnStatement<'a> {
+    fn analyze(
+        &'a self,
+        _table: &mut SymbolTable<'a>,
+        file: &str,
+        return_type: &Option<QualifiedName>,
+        function: Identifier,
+    ) -> Result<(), Error> {
+        if return_type.is_none() && self.0.is_some() {
+            Err(error::make_return_statement_error_unexpected(
+                self, function, file,
+            ))
+        } else if return_type.is_some() && self.0.is_none() {
+            Err(error::make_return_statement_error_invalid(
+                return_type.as_ref().unwrap(),
+                function,
+                file,
+            ))
+        } else {
+            Ok(())
+        }
+    }
+}
+
+impl<'a> LocalSemanticAnalysis<'a> for Function<'a> {
+    fn analyze(
+        &'a self,
+        table: &mut SymbolTable<'a>,
+        file: &str,
+        return_type: &Option<QualifiedName>,
+        function: Identifier,
+    ) -> Result<(), Error> {
+        for local in &self.block.0 {
+            local.analyze(table, file, return_type, function)?;
+        }
+        Ok(())
     }
 }

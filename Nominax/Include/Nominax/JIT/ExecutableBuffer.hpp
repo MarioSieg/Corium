@@ -222,8 +222,8 @@ namespace Nominax::JIT
     /// </summary>
     class ExecutableBuffer final : public Foundation::MappedMemory
     {
-        const MScalar* const Buffer_;
-        const MScalar* const BufferEnd_;
+        const MachineScalar* const Buffer_;
+        const MachineScalar* const BufferEnd_;
 
     public:
         /// <summary>
@@ -248,7 +248,7 @@ namespace Nominax::JIT
         /// 3. Protect with Read | Exec, Lock?
         /// </summary>
         /// <param name="source"></param>
-        explicit ExecutableBuffer(std::span<const MScalar> source);
+        explicit ExecutableBuffer(std::span<const MachineScalar> source);
 
         /// <summary>
         /// No copy.
@@ -292,18 +292,18 @@ namespace Nominax::JIT
         /// </summary>
         /// <returns></returns>
         [[nodiscard]]
-        auto AsSpan() const -> std::span<const MScalar>;
+        auto AsSpan() const -> std::span<const MachineScalar>;
     };
 
     inline auto ExecutableBuffer::Call() const -> void
     {
-        auto* const needle { const_cast<MScalar*>(this->Buffer_) };
-        auto* const end { const_cast<MScalar*>(this->BufferEnd_) };
+        auto* const needle { const_cast<MachineScalar*>(this->Buffer_) };
+        auto* const end { const_cast<MachineScalar*>(this->BufferEnd_) };
         Invoke(needle, end);
     }
 
 
-    inline auto ExecutableBuffer::AsSpan() const -> std::span<const MScalar>
+    inline auto ExecutableBuffer::AsSpan() const -> std::span<const MachineScalar>
     {
         return
         {

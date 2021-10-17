@@ -219,11 +219,7 @@ namespace Nominax::Foundation
 		#if NOX_ARCH_X86_64
 			asm("int3");
 		#elif NOX_ARCH_AARCH64
-			#if NOX_OS_MAC || NOX_OS_IOS
-				asm("trap");
-			#else
-				asm("bkpt 0");
-			#endif
+			asm("brk 0");
 		#else
 			*reinterpret_cast<volatile std::int32_t*>(3) = 3;
 		#endif

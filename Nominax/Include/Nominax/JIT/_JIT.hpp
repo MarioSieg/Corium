@@ -205,5 +205,9 @@
 
 #pragma once
 
+#include "Analysis.hpp"
 #include "ExecutableBuffer.hpp"
 #include "Execution.hpp"
+#include "Machine.hpp"
+#include "MachineContext.hpp"
+#include "MachineStream.hpp"

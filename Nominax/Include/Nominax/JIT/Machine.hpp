@@ -203,22 +203,76 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../Include/Nominax/JIT/ExecutableBuffer.hpp"
+#pragma once
+
+#include <cstdint>
+
+#include "../Foundation/Platform.hpp"
 
 namespace Nominax::JIT
 {
-    ExecutableBuffer::ExecutableBuffer(const std::span<const MachineScalar> source) :
-        Foundation::MappedMemory { std::size(source) * sizeof(MachineScalar), ALLOCATION_FLAGS },
-        Buffer_ { static_cast<const MachineScalar*>(this->Region_) },
-        BufferEnd_ { Buffer_ + GetByteSize() / sizeof(MachineScalar) }
-    {
-        const std::span<MachineScalar> region
-        {
-            const_cast<MachineScalar*>(this->Buffer_),
-            const_cast<MachineScalar*>(this->BufferEnd_)
-        };
-        std::copy(std::begin(source), std::end(source), std::begin(region));
-        const bool prot { this->Protect(SECURITY_FLAGS, LOCK_PROTECTION) };
-        NOX_PAS(prot, "Protection of execbuf failed!");
-    }
+	/// <summary>
+	/// Machine code scalar.
+	/// </summary>
+#if NOX_ARCH_X86_64
+    using MachineScalar = std::uint8_t;
+#elif NOX_ARCH_AARCH64
+	using MachineScalar = std::uint32_t;
+#endif
+
+	/// <summary>
+	/// Max machine instruction length in bytes.
+	/// </summary>
+	constexpr std::uint8_t MAX_INSTRUCTION_LENGTH_BYTES { NOX_ARCH_X86_64 ? 15 : 4 };
+	static_assert(MAX_INSTRUCTION_LENGTH_BYTES);
+
+	/// <summary>
+	/// Max machine instruction length in machine scalars.
+	/// </summary>
+	constexpr std::uint8_t MAX_INSTRUCTION_LENGTH_SCALARS { MAX_INSTRUCTION_LENGTH_BYTES / sizeof(MachineScalar)  };
+	static_assert(MAX_INSTRUCTION_LENGTH_SCALARS);
+
+	/// <summary>
+	/// Breakpoint trap machine code for buffer padding.
+	/// </summary>
+	constexpr MachineScalar TRAP { NOX_ARCH_X86_64 ? /* int3 */ 0xCC : /* brk 0 */ 0x000020D4 };
+	static_assert(MAX_INSTRUCTION_LENGTH_BYTES);
+
+	enum class MachineSize : std::uint8_t
+	{
+		/// <summary>
+		/// Byte - 8-bit.
+		/// </summary>
+		Byte = 1,
+
+		/// <summary>
+		/// Word - 16-bit.
+		/// </summary>
+		Word = 2,
+
+		/// <summary>
+		/// Double Word - 32-bit
+		/// </summary>
+		DWord = 4,
+
+		/// <summary>
+		/// Quad Word - 64-bit
+		/// </summary>
+		QWord = 8,
+
+		/// <summary>
+		/// Octa Word - 128-bit
+		/// </summary>
+		OWordWord = 16,
+
+		/// <summary>
+		/// Double Octa Word - 256-bit
+		/// </summary>
+		DOWord = 32,
+
+		/// <summary>
+		/// Quad Octa Word - 512-bit
+		/// </summary>
+		QOWord = 64
+	};
 }

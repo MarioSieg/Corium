@@ -203,22 +203,17 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../Include/Nominax/JIT/ExecutableBuffer.hpp"
+#pragma once
+
+#include "Execution.hpp"
+
+#include <bit>
+#include <vector>
 
 namespace Nominax::JIT
 {
-    ExecutableBuffer::ExecutableBuffer(const std::span<const MachineScalar> source) :
-        Foundation::MappedMemory { std::size(source) * sizeof(MachineScalar), ALLOCATION_FLAGS },
-        Buffer_ { static_cast<const MachineScalar*>(this->Region_) },
-        BufferEnd_ { Buffer_ + GetByteSize() / sizeof(MachineScalar) }
-    {
-        const std::span<MachineScalar> region
-        {
-            const_cast<MachineScalar*>(this->Buffer_),
-            const_cast<MachineScalar*>(this->BufferEnd_)
-        };
-        std::copy(std::begin(source), std::end(source), std::begin(region));
-        const bool prot { this->Protect(SECURITY_FLAGS, LOCK_PROTECTION) };
-        NOX_PAS(prot, "Protection of execbuf failed!");
-    }
+	struct MachineStream final
+	{
+
+	};
 }

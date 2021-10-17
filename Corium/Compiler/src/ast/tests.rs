@@ -206,6 +206,56 @@
 use crate::ast::{populator::*, *};
 use crate::parser::*;
 
+#[test]
+fn mangled_name_no_params() {
+    let fun = FunctionSignature {
+        name: Identifier("f"),
+        parameters: None,
+        return_type: None,
+    };
+    assert_eq!(fun.overloaded_mangled_name(), "f");
+}
+
+#[test]
+fn mangled_name_one_param() {
+    let fun = FunctionSignature {
+        name: Identifier("myFunc"),
+        parameters: Some(ParameterList(vec![Parameter {
+            name: Identifier("y"),
+            type_hint: QualifiedName::from("std.Blob"),
+            value: None,
+        }])),
+        return_type: None,
+    };
+    assert_eq!(fun.overloaded_mangled_name(), "myFunc_std.Blob");
+}
+
+#[test]
+fn mangled_name_params() {
+    let fun = FunctionSignature {
+        name: Identifier("myFunc"),
+        parameters: Some(ParameterList(vec![
+            Parameter {
+                name: Identifier("y"),
+                type_hint: QualifiedName::from("int"),
+                value: None,
+            },
+            Parameter {
+                name: Identifier("x"),
+                type_hint: QualifiedName::from("float"),
+                value: None,
+            },
+            Parameter {
+                name: Identifier("z"),
+                type_hint: QualifiedName::from("char"),
+                value: None,
+            },
+        ])),
+        return_type: None,
+    };
+    assert_eq!(fun.overloaded_mangled_name(), "myFunc_int_float_char");
+}
+
 mod populators {
     use super::*;
 
