@@ -155,7 +155,7 @@ namespace Nominax::ByteCode
 
 		            case Signal::Discriminator::SysCall:
 		            {
-		                SysCall call;
+		                SysCall call { };
 		                const bool found
 		                {
 		                    EnumeratingSearch
