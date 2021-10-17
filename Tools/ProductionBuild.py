@@ -302,6 +302,8 @@ with open(info_path, "r") as infofile:
 print("Beginning setup...")
 
 osname = platform.system()
+if osname == "Darwin":
+    osname = "MacOS"
 arch = platform.uname()[4]
 if arch == "x86_64" or arch == "AMD64":
     arch = "x86_64"
@@ -315,7 +317,8 @@ print("Arch: " + arch)
 print("Working directory: " + str(wk_dir))
 print("Build dir: " + build_dir)
 print("Base output dir: " + out_dir)
-out_dir = f"{out_dir}/{osname.capitalize()}/{arch}"
+os_build_name = osname.capitalize() if osname != "MacOS" else osname
+out_dir = f"{out_dir}/{os_build_name}/{arch}"
 print("Final out dir: " + out_dir)
 
 print("Checking if the correct prerequisites are installed and inside $PATH...\n")
@@ -377,7 +380,7 @@ print("Preparing toolchains for build...")
 threads = multiprocessing.cpu_count()
 
 def build_corium_compiler():
-    if osname == "Linux":
+    if osname == "Linux" or osname == "MacOS":
         os.system("source $HOME/.cargo/env")
     target_working_dir = toolchains["Rust"].working_dir
     print(f"Switching working directory from {os.getcwd()} to {os.getcwd()}/{target_working_dir}")
