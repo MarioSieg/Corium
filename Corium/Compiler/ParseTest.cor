@@ -1,11 +1,11 @@
-module test
-
 const PI = 3.14
 const PI = 3.14
 
 native function test(x int, y int) float
 
-native function print(value bool, end char = '\n')
+native function print(value string, end char = '\n')
+
+const PI = 3.14
 
 function test2() {
     let a = 10
@@ -14,7 +14,7 @@ function test2() {
     let d = 'x'
     let e = "Hey"
 
-    let a int = 32
+    let a int = 2.5
     let b2 float = 2.5
     let c2 bool = true
     let d2 char = 'x'
@@ -23,7 +23,7 @@ function test2() {
 
 function compute(x int, y int, normalize bool) int {
     let result = 10
-    return
+    return result
 }
 
 function setValue(name string) {

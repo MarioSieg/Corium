@@ -214,6 +214,8 @@ pub mod table;
 #[cfg(test)]
 mod tests;
 
+const PARAM_MANGLE_SEPARATOR: char = '_';
+
 pub trait AstComponent: Clone + fmt::Display + fmt::Debug {
     const CORRESPONDING_RULE: Rule;
 }
@@ -352,6 +354,19 @@ impl<'ast> fmt::Display for FunctionSignature<'ast> {
             write!(f, " {}", ret)?;
         }
         Ok(())
+    }
+}
+
+impl<'ast> FunctionSignature<'ast> {
+    pub fn overloaded_mangled_name(&self) -> String {
+        let mut result = self.name.0.to_string();
+        if let Some(params) = &self.parameters {
+            for param in &params.0 {
+                result.push(PARAM_MANGLE_SEPARATOR);
+                result.push_str(param.type_hint.full);
+            }
+        }
+        result
     }
 }
 
