@@ -204,7 +204,7 @@
 #    limitations under the License.
 
 #ifdef __APPLE__
-#define SUBROUTINE(x) x##_
+#define SUBROUTINE(x) _##x
 #else
 #define SUBROUTINE(x) x
 #endif
