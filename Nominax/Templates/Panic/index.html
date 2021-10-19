@@ -1,0 +1,28 @@
+R"(
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="style.css" media="screen" type="text/css"/>
+        <div class="main">
+            <h2 class="headline">NOMINAX Runtime Panic</h2>
+            <h4 class="help">
+                The Nominax runtime system encountered an internal error and paniced!<br/>
+                Please submit this report and help to fix the problem!<br />
+                Please
+                <a href="mailto:mt3000@gmx.de?subject=NominaxRuntimePanic">send</a>
+                index.html and style.css to the Nominax panic center!<br>
+                Thank you for your support and sorry for the inconvenience :(<br/>
+            </h4>
+            <h2 class="headline">Diagnostics</h2>
+            <div class="file">$FILE</div>
+            <div class="line">$LINE</div>
+            <div class="routine">$ROUTINE</div>
+            <div class="message">$MESSAGE</div>
+            <br>
+            <h2 class="headline">Register Dump</h2>
+            <div class="registers">%rax = 10</div>
+            <div class="registers">%rip = 10</div>
+        </div>
+    </head>
+</html>
+)"

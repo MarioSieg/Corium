@@ -220,6 +220,7 @@
 #include "DebugAllocator.hpp"
 #include "DyLib.hpp"
 #include "DyProc.hpp"
+#include "EmbeddedHTML.hpp"
 #include "IOStream.hpp"
 #include "IAllocator.hpp"
 #include "IDisplay.hpp"

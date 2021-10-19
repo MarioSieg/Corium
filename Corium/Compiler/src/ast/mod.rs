@@ -227,7 +227,7 @@ pub trait Statement: AstComponent {
 
 #[derive(Clone, Debug)]
 pub struct CompilationUnit<'ast> {
-    pub module: Module<'ast>,
+    pub module: Option<Module<'ast>>,
     pub statements: Vec<GlobalStatement<'ast>>,
 }
 
@@ -237,7 +237,9 @@ impl<'ast> AstComponent for CompilationUnit<'ast> {
 
 impl<'ast> fmt::Display for CompilationUnit<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.module)?;
+        if let Some(module) = &self.module {
+            write!(f, "{}", module)?;
+        }
         for smt in &self.statements {
             write!(f, "{}", smt)?;
         }

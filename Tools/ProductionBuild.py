@@ -210,9 +210,71 @@ import platform
 import shutil
 import shlex
 import subprocess
+import datetime
 import multiprocessing
 
 os.chdir("../")
+
+version_lock_file = "Tools/SDKVersionLock.txt"
+
+class SDKVersion:
+    def __init__(self):
+        self.major = 0
+        self.minor = 0
+
+    def __init__(self, major: int, minor: int):
+        self.major = major
+        self.minor = minor
+
+    def __str__(self) -> str:
+        return f"v.{self.major}.{self.minor}"
+
+    def set(self, major: int, minor: int):
+        self.major = major
+        self.minor = minor
+
+    def increment(self):
+        self.minor += 1
+        if self.minor >= 10:
+            self.minor = 0
+            self.major += 1
+
+def set_version(ver: SDKVersion):
+    with open(version_lock_file, "wt") as f:
+        f.write(f"{ver.major}.{ver.minor}")
+
+def get_version() -> SDKVersion:
+    try:
+        with open(version_lock_file, "rt") as f:
+            version_str = f.read()
+            subver = version_str.split(".")
+            major = int(subver[0])
+            minor = int(subver[1])
+            return SDKVersion(major, minor)
+    except:
+        ver = SDKVersion(0, 0)
+        set_version(ver)
+        return ver
+
+def generate_sdk_info(sdk_root: str):
+    sdk_info_file = sdk_root + "SDK.txt"
+    time = datetime.datetime.now().strftime("%m/%d/%Y %H:%M:%S")
+    content = ""
+    content += f"DATE={time}\n"
+    content += f"SDK_VERSION={get_version()}\n"
+    content += f"CORIUM_HOME={os.getcwd()}\n"
+    with open(sdk_info_file, "wt") as f:
+        f.write(content)
+
+def create_archieve() -> str:
+    file_name = f"CoriumSDK_{os_build_name}_{arch}"
+    if not os.path.isdir(release_dir):
+        mkdir(release_dir)
+    file_path = f"{release_dir}/{file_name}"
+    if os.path.isfile(file_path):
+        os.remove(file_path)
+    shutil.make_archive(file_path, "zip", out_dir)
+    return file_name
 
 def is_shell_tool_installed(cmd: str) -> bool:
     return shutil.which(cmd) is not None
@@ -282,7 +344,9 @@ toolchains = {
 }
 
 build_dir = "_Build_"
-out_dir_base = "Bin"
+out_dir_base = "_Bin_"
+release_dir = "Release"
+sdk_root = "SDK/"
 out_dir = out_dir_base
 
 # BEGIN SETUP #
@@ -290,7 +354,12 @@ out_dir = out_dir_base
 info_path = "Tools/ProductionBuildInfo.txt"
 
 print("Production build generator Copyright 2021 Mario Sieg \"pinsrq\" <mt3000@gmx.de>")
+print("SDK root: " + sdk_root)
 print("Info path: " + info_path)
+
+if not os.path.isdir(sdk_root):
+    print("Could not find SDK root directory: " + sdk_root)
+    exit(-1)
 
 if not os.path.isfile(info_path):
     print(f"Could not find info file: {info_path}! Maybe running in wrong path? Should be at the root of the Corium dir!")
@@ -318,9 +387,10 @@ print("Working directory: " + str(wk_dir))
 print("Build dir: " + build_dir)
 print("Base output dir: " + out_dir)
 os_build_name = osname.capitalize() if osname != "MacOS" else osname
-out_dir = f"{out_dir}/{os_build_name}/{arch}"
+out_dir = f"{out_dir}/{os_build_name}/{arch}/CoriumSDK/"
 print("Final out dir: " + out_dir)
-
+sdk = out_dir
+print("SDK target: " + sdk)
 print("Checking if the correct prerequisites are installed and inside $PATH...\n")
 
 # Check prerequisites:
@@ -392,7 +462,8 @@ def build_corium_compiler():
     print("Target file: " + target_file)
     target_file_path = f"../../{compiler_build_dir}/release/{target_file}"
     print("Target file path: " + target_file_path)
-    output_file = mk_exe_name(f"../../{out_dir}/Corium")
+    mkdir(f"../../{out_dir}/Corium")
+    output_file = mk_exe_name(f"../../{out_dir}/Corium/Corium")
     if os.path.isfile(output_file):
         os.remove(output_file)
     print("Output file: " + output_file)
@@ -459,7 +530,8 @@ def build_nominax_runtime():
     print("Target file: " + target_file)
     target_file_path = f"../{nominax_build_dir}{target_file}"
     print("Target file path: " + target_file_path)
-    output_file = mk_exe_name(f"../{out_dir}/Nominax")
+    mkdir(f"../{out_dir}/Nominax")
+    output_file = mk_exe_name(f"../{out_dir}/Nominax/Nominax")
     if os.path.isfile(output_file):
         os.remove(output_file)
     print("Output file: " + output_file)
@@ -474,6 +546,7 @@ def build_nominax_runtime():
     os.chdir("../")
     print(f"OK! New working directory is: {os.getcwd()}")
 
+
 print("Compiling might take a long time depending on your hardware")
 print(f"Compiling with {threads} threads...")
 
@@ -483,6 +556,24 @@ build_corium_compiler()
 
 print("Building Nominax runtime...")
 build_nominax_runtime()
+
+print("Reading SDK version information...")
+version = get_version()
+print("Current version: " + str(version))
+new_version = SDKVersion(version.major, version.minor)
+new_version.increment()
+print(f"Updating from {version} to {new_version}...")
+set_version(new_version)
+
+print("Generating SDK info file...")
+generate_sdk_info(sdk_root)
+
+print("Setting up Corium SDK...")
+shutil.copytree(sdk_root, sdk, dirs_exist_ok=True)
+
+print("Creating SDK archieve...")
+archieve = create_archieve()
+print("Created: " + archieve)
 
 print("\nAll work done, no errors :)")
 print(f"The binaries are here: {os.getcwd()}/{out_dir}")

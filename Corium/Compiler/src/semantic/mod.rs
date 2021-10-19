@@ -208,7 +208,8 @@ use crate::error::list::ErrorList;
 
 pub mod analyzers;
 pub mod context;
-pub mod error;
+pub mod global_state;
+pub mod local_state;
 pub mod record;
 pub mod table;
 

@@ -1,5 +1,5 @@
 CompilationUnit = {
-    SOI ~ Module ~ (GlobalStatement | StatementSeparator)* ~ EOI
+    SOI ~ Module? ~ (GlobalStatement | StatementSeparator)* ~ EOI
 }
 
 GlobalStatement = {
@@ -18,7 +18,7 @@ NativeFunction = {
 }
 
 FunctionSignature = {
-    "function " ~ Identifier ~ "(" ~ ParameterList? ~ ")" ~ (" " ~ QualifiedName)?
+    "function " ~ Identifier ~ " (" ~ ParameterList? ~ ")" ~ (" " ~ QualifiedName)?
 }
 
 Block = {

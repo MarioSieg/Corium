@@ -218,22 +218,19 @@ pub trait AtomicAstPopulator<'ast>: AstComponent {
 pub trait AstPopulator<'ast>: NestedAstPopulator<'ast> + AtomicAstPopulator<'ast> {}
 
 impl<'ast> NestedAstPopulator<'ast> for CompilationUnit<'ast> {
-    fn populate(mut rule: RulePairs<'ast>) -> Self {
-        let module = {
-            let inner = rule.next().unwrap();
-            debug_assert_eq!(inner.as_rule(), Rule::Module);
-            Module::populate(inner.into_inner())
-        };
+    fn populate(rule: RulePairs<'ast>) -> Self {
+        let mut statements = Vec::new();
+        let mut module = None;
 
-        let statements = rule
-            .filter_map(|inner| {
-                if inner.as_rule() == Rule::GlobalStatement {
-                    Some(GlobalStatement::populate(inner.into_inner()))
-                } else {
-                    None
+        for inner in rule {
+            match inner.as_rule() {
+                Rule::GlobalStatement => {
+                    statements.push(GlobalStatement::populate(inner.into_inner()))
                 }
-            })
-            .collect();
+                Rule::Module => module = Some(Module::populate(inner.into_inner())),
+                _ => (),
+            }
+        }
 
         Self { module, statements }
     }

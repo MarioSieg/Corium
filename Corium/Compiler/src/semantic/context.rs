@@ -203,53 +203,28 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use super::table::SymbolTable;
 use crate::ast::*;
 use crate::error::list::ErrorList;
 use crate::error::Error;
-use crate::semantic::analyzers::{GlobalSemanticAnalysis, LocalSemanticAnalysis};
+use crate::semantic::analyzers::GlobalSemanticAnalysis;
+use crate::semantic::global_state::GlobalState;
 
 pub struct Context<'a> {
-    pub file: &'a str,
-    pub function: Identifier<'a>,
     pub errors: ErrorList,
-    pub global: SymbolTable<'a>,
-    pub local: SymbolTable<'a>,
+    pub global: GlobalState<'a>,
 }
 
 impl<'a> Context<'a> {
     pub fn new(file: &'a str) -> Self {
         Self {
-            file,
-            function: Identifier("?"),
             errors: ErrorList::new(),
-            global: SymbolTable::new(),
-            local: SymbolTable::new(),
+            global: GlobalState::new(file),
         }
     }
 
     pub fn analyze_global(&mut self, statement: &'a GlobalStatement) {
-        let result = statement.analyze(&mut self.global, self.file);
+        let result = statement.analyze(&mut self.global);
         self.push_if_err(result);
-    }
-
-    pub fn analyze_local(
-        &mut self,
-        statement: &'a LocalStatement,
-        ret_type: &Option<QualifiedName>,
-    ) {
-        let result = statement.analyze(&mut self.local, self.file, ret_type, self.function);
-        self.push_if_err(result);
-    }
-
-    #[inline]
-    pub fn enter_local_scope(&mut self, name: Identifier<'a>) {
-        self.function = name;
-    }
-
-    #[inline]
-    pub fn exit_local_scope(&mut self) {
-        self.local.clear();
     }
 
     #[inline]

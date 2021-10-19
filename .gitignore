@@ -4,6 +4,7 @@ out/
 Build/
 dist/
 gen/
+_Bin_/
 CMakeSettings.json
 CMakeLists.txt.user
 reactor.asm
