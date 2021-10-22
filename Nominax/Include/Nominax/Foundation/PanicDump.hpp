@@ -205,4 +205,41 @@
 
 #pragma once
 
-#include "Iterator.hpp"
+#include <string>
+#include <string_view>
+
+#include "Platform.hpp"
+#include "Print.hpp"
+#include "SourceLocation.hpp"
+
+namespace Nominax::Foundation
+{
+	/// <summary>
+	/// The root dir of the panic outputs.
+	/// </summary>
+	constexpr std::string_view PANIC_OUTPUT_DIR { "Panics" };
+
+	/// <summary>
+	/// If true, panic dumps are created.
+	/// </summary>
+	constexpr bool ENABLE_PANIC_DUMPS { NOX_TEST };
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <returns></returns>
+	NOX_COLD extern auto GetPanicDumpDirName() -> std::string;
+
+	/// <summary>
+	/// Creates a new panic dump directory with crash information.
+	/// </summary>
+	/// <param name="directory"></param>
+	/// <returns></returns>
+	NOX_COLD extern auto CreatePanicDump
+	(
+		std::string_view message,
+		const Foundation::SourceLocation& srcLoc,
+		const void* regCache,
+		const std::string& directory = GetPanicDumpDirName()
+	) -> void;
+}

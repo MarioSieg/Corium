@@ -1950,7 +1950,7 @@ mod rules {
 
             #[test]
             fn invalid3() {
-                let result = CoriumParser::parse(Rule::LocalStatement, "function f()");
+                let result = CoriumParser::parse(Rule::LocalStatement, "function f ()");
                 assert!(result.is_err());
             }
 
@@ -2100,8 +2100,8 @@ mod rules {
             #[test]
             fn simple() {
                 let mut result =
-                    CoriumParser::parse(Rule::FunctionSignature, "function f()").unwrap();
-                assert_eq!(result.as_str(), "function f()");
+                    CoriumParser::parse(Rule::FunctionSignature, "function f ()").unwrap();
+                assert_eq!(result.as_str(), "function f ()");
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
                 assert_eq!(ident.as_rule(), Rule::Identifier);
@@ -2111,8 +2111,8 @@ mod rules {
             #[test]
             fn return_type() {
                 let mut result =
-                    CoriumParser::parse(Rule::FunctionSignature, "function f() int").unwrap();
-                assert_eq!(result.as_str(), "function f() int");
+                    CoriumParser::parse(Rule::FunctionSignature, "function f () int").unwrap();
+                assert_eq!(result.as_str(), "function f () int");
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
                 assert_eq!(ident.as_rule(), Rule::Identifier);
@@ -2125,8 +2125,8 @@ mod rules {
             #[test]
             fn param() {
                 let mut result =
-                    CoriumParser::parse(Rule::FunctionSignature, "function f(x float)").unwrap();
-                assert_eq!(result.as_str(), "function f(x float)");
+                    CoriumParser::parse(Rule::FunctionSignature, "function f (x float)").unwrap();
+                assert_eq!(result.as_str(), "function f (x float)");
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
                 assert_eq!(ident.as_rule(), Rule::Identifier);
@@ -2140,12 +2140,12 @@ mod rules {
             fn params() {
                 let mut result = CoriumParser::parse(
                     Rule::FunctionSignature,
-                    "function f(x float, name string, ok bool = true)",
+                    "function f (x float, name string, ok bool = true)",
                 )
                 .unwrap();
                 assert_eq!(
                     result.as_str(),
-                    "function f(x float, name string, ok bool = true)"
+                    "function f (x float, name string, ok bool = true)"
                 );
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
@@ -2159,9 +2159,9 @@ mod rules {
             #[test]
             fn param_ret() {
                 let mut result =
-                    CoriumParser::parse(Rule::FunctionSignature, "function f(x float) float")
+                    CoriumParser::parse(Rule::FunctionSignature, "function f (x float) float")
                         .unwrap();
-                assert_eq!(result.as_str(), "function f(x float) float");
+                assert_eq!(result.as_str(), "function f (x float) float");
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
                 assert_eq!(ident.as_rule(), Rule::Identifier);
@@ -2176,8 +2176,8 @@ mod rules {
 
             #[test]
             fn many_params() {
-                let mut result = CoriumParser::parse(Rule::FunctionSignature, "function f(x float, name string, ok bool = true, a int, b int, c float, d char, z string) char").unwrap();
-                assert_eq!(result.as_str(), "function f(x float, name string, ok bool = true, a int, b int, c float, d char, z string) char");
+                let mut result = CoriumParser::parse(Rule::FunctionSignature, "function f (x float, name string, ok bool = true, a int, b int, c float, d char, z string) char").unwrap();
+                assert_eq!(result.as_str(), "function f (x float, name string, ok bool = true, a int, b int, c float, d char, z string) char");
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
                 assert_eq!(ident.as_rule(), Rule::Identifier);
@@ -2241,8 +2241,8 @@ mod rules {
             #[test]
             fn simple() {
                 let mut result =
-                    CoriumParser::parse(Rule::NativeFunction, "native function f()\n").unwrap();
-                assert_eq!(result.as_str(), "native function f()\n");
+                    CoriumParser::parse(Rule::NativeFunction, "native function f ()\n").unwrap();
+                assert_eq!(result.as_str(), "native function f ()\n");
                 let mut result = result.next().unwrap().into_inner();
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
@@ -2253,8 +2253,9 @@ mod rules {
             #[test]
             fn return_type() {
                 let mut result =
-                    CoriumParser::parse(Rule::NativeFunction, "native function f() int\n").unwrap();
-                assert_eq!(result.as_str(), "native function f() int\n");
+                    CoriumParser::parse(Rule::NativeFunction, "native function f () int\n")
+                        .unwrap();
+                assert_eq!(result.as_str(), "native function f () int\n");
                 let mut result = result.next().unwrap().into_inner();
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
@@ -2268,9 +2269,9 @@ mod rules {
             #[test]
             fn param() {
                 let mut result =
-                    CoriumParser::parse(Rule::NativeFunction, "native function f(x float)\n")
+                    CoriumParser::parse(Rule::NativeFunction, "native function f (x float)\n")
                         .unwrap();
-                assert_eq!(result.as_str(), "native function f(x float)\n");
+                assert_eq!(result.as_str(), "native function f (x float)\n");
                 let mut result = result.next().unwrap().into_inner();
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
@@ -2285,12 +2286,12 @@ mod rules {
             fn params() {
                 let mut result = CoriumParser::parse(
                     Rule::NativeFunction,
-                    "native function f(x float, name string, ok bool = true)\n",
+                    "native function f (x float, name string, ok bool = true)\n",
                 )
                 .unwrap();
                 assert_eq!(
                     result.as_str(),
-                    "native function f(x float, name string, ok bool = true)\n"
+                    "native function f (x float, name string, ok bool = true)\n"
                 );
                 let mut result = result.next().unwrap().into_inner();
                 let mut result = result.next().unwrap().into_inner();
@@ -2304,10 +2305,12 @@ mod rules {
 
             #[test]
             fn param_ret() {
-                let mut result =
-                    CoriumParser::parse(Rule::NativeFunction, "native function f(x float) float\n")
-                        .unwrap();
-                assert_eq!(result.as_str(), "native function f(x float) float\n");
+                let mut result = CoriumParser::parse(
+                    Rule::NativeFunction,
+                    "native function f (x float) float\n",
+                )
+                .unwrap();
+                assert_eq!(result.as_str(), "native function f (x float) float\n");
                 let mut result = result.next().unwrap().into_inner();
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
@@ -2323,8 +2326,8 @@ mod rules {
 
             #[test]
             fn many_params() {
-                let mut result = CoriumParser::parse(Rule::NativeFunction, "native function f(x float, name string, ok bool = true, a int, b int, c float, d char, z string) char\n").unwrap();
-                assert_eq!(result.as_str(), "native function f(x float, name string, ok bool = true, a int, b int, c float, d char, z string) char\n");
+                let mut result = CoriumParser::parse(Rule::NativeFunction, "native function f (x float, name string, ok bool = true, a int, b int, c float, d char, z string) char\n").unwrap();
+                assert_eq!(result.as_str(), "native function f (x float, name string, ok bool = true, a int, b int, c float, d char, z string) char\n");
                 let mut result = result.next().unwrap().into_inner();
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
@@ -2380,7 +2383,7 @@ mod rules {
 
             #[test]
             fn ret_newline() {
-                let result = CoriumParser::parse(Rule::NativeFunction, "native function f()");
+                let result = CoriumParser::parse(Rule::NativeFunction, "native function f ()");
                 assert!(result.is_err());
             }
         }
@@ -2395,8 +2398,8 @@ mod rules {
             #[test]
             fn simple() {
                 let mut result =
-                    CoriumParser::parse(Rule::Function, "function f() {\n}\n").unwrap();
-                assert_eq!(result.as_str(), "function f() {\n}\n");
+                    CoriumParser::parse(Rule::Function, "function f () {\n}\n").unwrap();
+                assert_eq!(result.as_str(), "function f () {\n}\n");
                 let mut result = result.next().unwrap().into_inner();
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
@@ -2407,8 +2410,8 @@ mod rules {
             #[test]
             fn return_type() {
                 let mut result =
-                    CoriumParser::parse(Rule::Function, "function f() int {\n}\n").unwrap();
-                assert_eq!(result.as_str(), "function f() int {\n}\n");
+                    CoriumParser::parse(Rule::Function, "function f () int {\n}\n").unwrap();
+                assert_eq!(result.as_str(), "function f () int {\n}\n");
                 let mut result = result.next().unwrap().into_inner();
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
@@ -2422,8 +2425,8 @@ mod rules {
             #[test]
             fn param() {
                 let mut result =
-                    CoriumParser::parse(Rule::Function, "function f(x float) {\n}\n").unwrap();
-                assert_eq!(result.as_str(), "function f(x float) {\n}\n");
+                    CoriumParser::parse(Rule::Function, "function f (x float) {\n}\n").unwrap();
+                assert_eq!(result.as_str(), "function f (x float) {\n}\n");
                 let mut result = result.next().unwrap().into_inner();
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
@@ -2438,12 +2441,12 @@ mod rules {
             fn params() {
                 let mut result = CoriumParser::parse(
                     Rule::Function,
-                    "function f(x float, name string, ok bool = true) {\n}\n",
+                    "function f (x float, name string, ok bool = true) {\n}\n",
                 )
                 .unwrap();
                 assert_eq!(
                     result.as_str(),
-                    "function f(x float, name string, ok bool = true) {\n}\n"
+                    "function f (x float, name string, ok bool = true) {\n}\n"
                 );
                 let mut result = result.next().unwrap().into_inner();
                 let mut result = result.next().unwrap().into_inner();
@@ -2458,9 +2461,9 @@ mod rules {
             #[test]
             fn param_ret() {
                 let mut result =
-                    CoriumParser::parse(Rule::Function, "function f(x float) float {\n}\n")
+                    CoriumParser::parse(Rule::Function, "function f (x float) float {\n}\n")
                         .unwrap();
-                assert_eq!(result.as_str(), "function f(x float) float {\n}\n");
+                assert_eq!(result.as_str(), "function f (x float) float {\n}\n");
                 let mut result = result.next().unwrap().into_inner();
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
@@ -2476,8 +2479,8 @@ mod rules {
 
             #[test]
             fn many_params() {
-                let mut result = CoriumParser::parse(Rule::Function, "function f(x float, name string, ok bool = true, a int, b int, c float, d char, z string) char {\n}\n").unwrap();
-                assert_eq!(result.as_str(), "function f(x float, name string, ok bool = true, a int, b int, c float, d char, z string) char {\n}\n");
+                let mut result = CoriumParser::parse(Rule::Function, "function f (x float, name string, ok bool = true, a int, b int, c float, d char, z string) char {\n}\n").unwrap();
+                assert_eq!(result.as_str(), "function f (x float, name string, ok bool = true, a int, b int, c float, d char, z string) char {\n}\n");
                 let mut result = result.next().unwrap().into_inner();
                 let mut result = result.next().unwrap().into_inner();
                 let ident = result.next().unwrap();
@@ -2494,8 +2497,8 @@ mod rules {
             #[test]
             fn simple_block() {
                 let mut result =
-                    CoriumParser::parse(Rule::Function, "function f() {\n}\n").unwrap();
-                assert_eq!(result.as_str(), "function f() {\n}\n");
+                    CoriumParser::parse(Rule::Function, "function f () {\n}\n").unwrap();
+                assert_eq!(result.as_str(), "function f () {\n}\n");
                 let mut result = result.next().unwrap().into_inner();
                 let mut inner = result.next().unwrap().into_inner();
                 let ident = inner.next().unwrap();
@@ -2508,8 +2511,8 @@ mod rules {
             #[test]
             fn ret() {
                 let mut result =
-                    CoriumParser::parse(Rule::Function, "function f() {\nreturn 10\n}\n").unwrap();
-                assert_eq!(result.as_str(), "function f() {\nreturn 10\n}\n");
+                    CoriumParser::parse(Rule::Function, "function f () {\nreturn 10\n}\n").unwrap();
+                assert_eq!(result.as_str(), "function f () {\nreturn 10\n}\n");
                 let mut result = result.next().unwrap().into_inner();
                 let mut inner = result.next().unwrap().into_inner();
                 let ident = inner.next().unwrap();
@@ -2529,7 +2532,7 @@ mod rules {
             #[test]
             fn complex() {
                 let src = concat!(
-                    "function compute(x int) int {\n",
+                    "function compute (x int) int {\n",
                     "    let result = \"LOL\"\n",
                     "    return 23\n",
                     "}\n"
@@ -2603,25 +2606,25 @@ mod rules {
 
             #[test]
             fn no_body() {
-                let result = CoriumParser::parse(Rule::Function, "function f() int");
+                let result = CoriumParser::parse(Rule::Function, "function f () int");
                 assert!(result.is_err());
             }
 
             #[test]
             fn no_newline() {
-                let result = CoriumParser::parse(Rule::Function, "function f() int {}");
+                let result = CoriumParser::parse(Rule::Function, "function f () int {}");
                 assert!(result.is_err());
             }
 
             #[test]
             fn no_newline2() {
-                let result = CoriumParser::parse(Rule::Function, "function f() int {}\n");
+                let result = CoriumParser::parse(Rule::Function, "function f () int {}\n");
                 assert!(result.is_err());
             }
 
             #[test]
             fn no_newline3() {
-                let result = CoriumParser::parse(Rule::Function, "function f() int {\n}");
+                let result = CoriumParser::parse(Rule::Function, "function f () int {\n}");
                 assert!(result.is_err());
             }
         }
@@ -2743,7 +2746,7 @@ mod rules {
 
             #[test]
             fn function() {
-                let src = "function f() {\n}\n";
+                let src = "function f () {\n}\n";
                 let mut result = CoriumParser::parse(Rule::GlobalStatement, src).unwrap();
                 assert_eq!(result.as_str(), src);
                 let inner = result.next().unwrap().into_inner().next().unwrap();
@@ -2752,7 +2755,7 @@ mod rules {
 
             #[test]
             fn native_function() {
-                let src = "native function f()\n";
+                let src = "native function f ()\n";
                 let mut result = CoriumParser::parse(Rule::GlobalStatement, src).unwrap();
                 assert_eq!(result.as_str(), src);
                 let inner = result.next().unwrap().into_inner().next().unwrap();
@@ -2810,11 +2813,11 @@ mod rules {
             fn module_functions() {
                 let src = concat!(
                     "module test\n",
-                    "native function f()\n",
-                    "function y() {\n",
+                    "native function f ()\n",
+                    "function test () {\n",
                     "let x = 10\n",
                     "}\n",
-                    "native function z()\n"
+                    "native function z ()\n"
                 );
                 let mut result = CoriumParser::parse(Rule::CompilationUnit, src).unwrap();
                 assert_eq!(result.as_str(), src);

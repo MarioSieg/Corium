@@ -1,3 +1,3 @@
-DATE=10/18/2021 22:01:53
-SDK_VERSION=v.0.4
-CORIUM_HOME=/home/mario/Documents/Mario/Projects/Corium
+DATE=10/20/2021 12:33:07
+SDK_VERSION=v.0.5
+CORIUM_HOME=C:\Users\Mario\Documents\GitHub\Corium

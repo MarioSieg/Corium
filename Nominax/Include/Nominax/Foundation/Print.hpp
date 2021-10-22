@@ -210,6 +210,10 @@
 #include <fmt/chrono.h>
 #include <fmt/color.h>
 
+#define FMT_CONSTEVAL constexpr
+
+#include <type_traits>
+
 #include "DataStream.hpp"
 #include "ProtocolController.hpp"
 #include "Platform.hpp"
@@ -256,8 +260,7 @@ namespace Nominax::Foundation
     /// <param name="formatString">The format string.</param>
     /// <param name="args">The arguments to format.</param>
     template <typename... Args>
-    NOX_COLD
-    inline auto Print([[maybe_unused]] DataStream& stream, [[maybe_unused]] const std::string_view formatString, [[maybe_unused]] Args&&...args) -> void
+    NOX_COLD inline auto Print([[maybe_unused]] DataStream& stream, const std::string_view formatString, Args&&...args) -> void
     {
         fmt::print(*stream, formatString, std::forward<Args>(args)...);
     }
@@ -267,8 +270,7 @@ namespace Nominax::Foundation
 	/// </summary>
 	/// <param name="x"></param>
 	/// <returns></returns>
-    NOX_COLD
-    inline auto Print(const char x) -> void
+    NOX_COLD inline auto Print(const char x) -> void
 	{
         if constexpr (!NOX_TEST)
         {

@@ -248,9 +248,41 @@ namespace Nominax::Foundation
             NOX_PAS(handle, Format("Failed to open file handle: {}", fileName));
             return *handle;
         }()
-    }, AccessMode_ { accessMode } { }
+    },
+    AccessMode_ { accessMode },
+    ContentMode_ { contentMode } { }
 
     IOStream::IOStream(NativeHandle& handle) : DataStream { handle } { }
+
+    auto IOStream::WriteToTextFile(const std::string& fileName, const std::string_view content) -> bool
+    {
+        auto stream { IOStream::TryOpen(fileName, FileAccessMode::Write, FileContentMode::Text) };
+        if (!stream)
+        {
+            [[unlikely]]
+            return false;
+        }
+        return (*stream).WriteUnchecked(content);
+    }
+
+    auto IOStream::ReadFromTextFile(const std::string& fileName, std::string& out) -> bool
+    {
+        auto streamOpt { IOStream::TryOpen(fileName, FileAccessMode::Read, FileContentMode::Text) };
+        if (!streamOpt)
+        {
+            [[unlikely]]
+            return false;
+        }
+        const IOStream& stream { *streamOpt };
+        const std::uint64_t size { stream.SeekSize() };
+        if (!size)
+        {
+            [[unlikely]]
+            return false;
+        }
+        out.resize(size);
+        return stream.ReadUnchecked(static_cast<void*>(std::data(out)), size * sizeof(char));
+    }
 
     IOStream::IOStream(IOStream&& other) : DataStream { **other }, AccessMode_ { other.AccessMode_ }
     {

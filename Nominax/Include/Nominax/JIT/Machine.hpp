@@ -235,7 +235,12 @@ namespace Nominax::JIT
 	/// <summary>
 	/// Breakpoint trap machine code for buffer padding.
 	/// </summary>
-	constexpr MachineScalar TRAP { NOX_ARCH_X86_64 ? /* int3 */ 0xCC : /* brk 0 */ 0x000020D4 };
+	constexpr auto TRAP 
+	{
+		NOX_ARCH_X86_64 
+		? /* int3 */ static_cast<MachineScalar>(0xCC)
+		: /* brk 0 */ static_cast<MachineScalar>(0x000020D4)
+	};
 	static_assert(MAX_INSTRUCTION_LENGTH_BYTES);
 
 	enum class MachineSize : std::uint8_t

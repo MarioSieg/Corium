@@ -229,22 +229,22 @@ namespace Nominax::Foundation
 
         const auto&
         [
-            OperatingSystemName,
-            ArchitectureName,
-            CompilerName,
-            ThreadCount,
-            CpuName,
-            TotalSystemMemory,
-            UsedSystemMemory,
-            PageSize
+            operatingSystemName,
+            architectureName,
+            compilerName,
+            threadCount,
+            cpuName,
+            totalSystemMemory,
+            usedSystemMemory,
+            pageSize
         ] { *this };
 
         Print(stream, "Date: {:%A %c}\n", SafeLocalTime(std::time(nullptr)));
-        Print(stream, "CPU: {}\n", CpuName);
-        Print(stream, "CPU Hardware threads: {}\n", ThreadCount);
-        Print(stream, "CPU Machine class: {}\n", static_cast<char>(MachineRating(ThreadCount)));
-        Print(stream, "System memory: {}MB\n", Bytes2Megabytes(TotalSystemMemory));
-        Print(stream, "Process memory: {}MB\n", Bytes2Megabytes(UsedSystemMemory));
-        Print(stream, "Page size: {}B\n", PageSize);
+        Print(stream, "CPU: {}\n", cpuName);
+        Print(stream, "CPU Hardware threads: {}\n", threadCount);
+        Print(stream, "CPU Machine class: {}\n", static_cast<char>(MachineRating(threadCount)));
+        Print(stream, "System memory: {}MB\n", Bytes2Megabytes(totalSystemMemory));
+        Print(stream, "Process memory: {}MB\n", Bytes2Megabytes(usedSystemMemory));
+        Print(stream, "Page size: {}B\n", pageSize);
     }
 }

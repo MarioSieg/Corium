@@ -210,7 +210,6 @@
 #include "Core/_Core.hpp"
 #include "Foundation/_Foundation.hpp"
 #include "JIT/_JIT.hpp"
-#include "STL/_STL.hpp"
 
 // Re-exports the most used modules.
 namespace Nominax::Prelude
@@ -218,5 +217,4 @@ namespace Nominax::Prelude
 	using namespace Nominax;
 	using namespace ByteCode;
 	using namespace Foundation;
-    using namespace STL;
 }

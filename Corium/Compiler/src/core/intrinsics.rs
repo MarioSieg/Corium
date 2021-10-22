@@ -207,8 +207,6 @@ use crate::ast::BuiltinType;
 use crate::nominax::bci::SysCall;
 use std::fmt;
 
-pub const INTRINSIC_PREFIX: &str = "__builtin_";
-
 pub struct Intrinsic<'a> {
     pub fn_name: &'a str,
     pub fn_param_types: &'a [BuiltinType],
@@ -453,7 +451,7 @@ impl<'a> Intrinsic<'a> {
 
 impl<'a> fmt::Display for Intrinsic<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "native function {}{} (", INTRINSIC_PREFIX, self.fn_name)?;
+        write!(f, "native function {} (", self.fn_name)?;
         if !self.fn_param_types.is_empty() {
             let last = self.fn_param_types.len() - 1;
             for (i, param) in self.fn_param_types.iter().enumerate() {
@@ -470,6 +468,6 @@ impl<'a> fmt::Display for Intrinsic<'a> {
         if let Some(ret) = &self.fn_ret {
             write!(f, " {}", format!("{:?}", ret).to_ascii_lowercase())?;
         }
-        Ok(())
+        write!(f, " <- Nominax Syscall: {:#X}", self.sys_call as u64)
     }
 }

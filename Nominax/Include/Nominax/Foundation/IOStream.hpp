@@ -206,6 +206,7 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 #include <optional>
 #include <vector>
 
@@ -267,7 +268,7 @@ namespace Nominax::Foundation
         /// </summary>
         /// <param name="fileName">The name of the file.</param>
         /// <param name="accessMode">The access mode.</param>
-        explicit IOStream(const std::string& fileName, FileAccessMode accessMode, FileContentMode contentMode);
+        IOStream(const std::string& fileName, FileAccessMode accessMode, FileContentMode contentMode);
 
         /// <summary>
         /// Construct with preloaded handle.
@@ -275,20 +276,12 @@ namespace Nominax::Foundation
         /// </summary>
         /// <param name="handle"></param>
         explicit IOStream(NativeHandle& handle);
-        
+
         /// <summary>
-        /// Try to open the file and return std::nullopt on fail.
+        /// Move constructor.
         /// </summary>
-        /// <param name="fileName"></param>
-        /// <param name="accessMode"></param>
-        /// <returns></returns>
-        static auto TryOpen(const std::string& fileName, FileAccessMode accessMode, FileContentMode contentMode) -> std::optional<IOStream>;
-        
-    	/// <summary>
-    	/// Move constructor.
-    	/// </summary>
-    	/// <param name="other"></param>
-    	IOStream(IOStream&& other);
+        /// <param name="other"></param>
+        IOStream(IOStream&& other);
 
         /// <summary>
         /// No copy.
@@ -301,19 +294,45 @@ namespace Nominax::Foundation
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
-        auto operator =(const IOStream& other) -> IOStream& = delete;
+        auto operator =(const IOStream& other)->IOStream & = delete;
 
         /// <summary>
         /// Move assignment operator.
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
-        auto operator =(IOStream&& other) -> IOStream&;
+        auto operator =(IOStream&& other)->IOStream&;
 
         /// <summary>
         /// Destructor
         /// </summary>
         ~IOStream() override;
+        
+        /// <summary>
+        /// Try to open the file and return std::nullopt on fail.
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="accessMode"></param>
+        /// <returns></returns>
+        static auto TryOpen(const std::string& fileName, FileAccessMode accessMode, FileContentMode contentMode) -> std::optional<IOStream>;
+        
+        /// <summary>
+        /// Write whole content to text file.
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="content"></param>
+        /// <returns>true on success, else false.</returns>
+        [[nodiscard]]
+        static auto WriteToTextFile(const std::string& fileName, std::string_view content) -> bool;
+
+        /// <summary>
+        /// Read whole content from text file.
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="out"></param>
+        /// <returns>true on success, else false.</returns>
+        [[nodiscard]]
+        static auto ReadFromTextFile(const std::string& fileName, std::string& out) -> bool;
 
         /// <summary>
         /// Query access mode.

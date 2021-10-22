@@ -1,5 +1,5 @@
 // Author: Mario Sieg
-// Project: Nominax
+// Project: Corium
 //
 //                                  Apache License
 //                            Version 2.0, January 2004
@@ -203,335 +203,48 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+use std::path::PathBuf;
+use structopt::StructOpt;
 
-#include <cstdint>
-#include <iterator>
+#[derive(StructOpt, Debug)]
+#[structopt(name = "corium")]
+pub enum Options {
+    New {
+        name: String,
+    },
+    Compile {
+        #[structopt(
+            short,
+            long,
+            parse(from_os_str),
+            help = "Corium source files to compile."
+        )]
+        input_files: Vec<PathBuf>,
 
-namespace Nominax::STL
-{
-	struct IteratorDebugFlags final
-	{
-		IteratorDebugFlags() = delete;
-		IteratorDebugFlags(IteratorDebugFlags&& other) = delete;
-		IteratorDebugFlags(const IteratorDebugFlags& other) = delete;
-		auto operator =(IteratorDebugFlags&& other) -> IteratorDebugFlags& = delete;
-		auto operator =(const IteratorDebugFlags& other) -> IteratorDebugFlags& = delete;
-		~IteratorDebugFlags() = delete;
+        #[structopt(
+            short,
+            long,
+            parse(from_os_str),
+            help = "The Nominax bytecode output file."
+        )]
+        output_file: Option<PathBuf>,
 
-		enum Enum : std::uint8_t
-		{
-			None = 0 << 0,
-			Valid = 1 << 0,
-			Current = 1 << 1,
-			Deref = 1 << 2
-		};
-	};
+        #[structopt(
+            short = "O",
+            long,
+            default_value = "0",
+            help = "Optimization level from 0 (lowest) to 3 (highest)."
+        )]
+        opt_level: u8,
 
-	struct InputIteratorTag
-	{
-		InputIteratorTag() = delete;
-		InputIteratorTag(InputIteratorTag&& other) = delete;
-		InputIteratorTag(const InputIteratorTag& other) = delete;
-		auto operator =(InputIteratorTag&& other) -> InputIteratorTag& = delete;
-		auto operator =(const InputIteratorTag& other) -> InputIteratorTag& = delete;
-		~InputIteratorTag() = delete;
-	};
+        #[structopt(long, help = "Enables verbose printing.")]
+        verbose: bool,
 
-	struct OutputIteratorTag
-	{
-		OutputIteratorTag() = delete;
-		OutputIteratorTag(OutputIteratorTag&& other) = delete;
-		OutputIteratorTag(const OutputIteratorTag& other) = delete;
-		auto operator =(OutputIteratorTag&& other) -> OutputIteratorTag& = delete;
-		auto operator =(const OutputIteratorTag& other) -> OutputIteratorTag& = delete;
-		~OutputIteratorTag() = delete;
-	};
+        #[structopt(long, help = "Enable AST dump per file.")]
+        dump_ast: bool,
 
-	struct ForwardIteratorTag : InputIteratorTag
-	{
-		ForwardIteratorTag() = delete;
-		ForwardIteratorTag(ForwardIteratorTag&& other) = delete;
-		ForwardIteratorTag(const ForwardIteratorTag& other) = delete;
-		auto operator =(ForwardIteratorTag&& other) -> ForwardIteratorTag& = delete;
-		auto operator =(const ForwardIteratorTag& other) -> ForwardIteratorTag& = delete;
-		~ForwardIteratorTag() = delete;
-	};
-
-	struct BidirectionalIteratorTag : ForwardIteratorTag
-	{
-		BidirectionalIteratorTag() = delete;
-		BidirectionalIteratorTag(BidirectionalIteratorTag&& other) = delete;
-		BidirectionalIteratorTag(const BidirectionalIteratorTag& other) = delete;
-		auto operator =(BidirectionalIteratorTag&& other) -> BidirectionalIteratorTag& = delete;
-		auto operator =(const BidirectionalIteratorTag& other) -> BidirectionalIteratorTag& = delete;
-		~BidirectionalIteratorTag() = delete;
-	};
-
-	struct RandomAccessIteratorTag : BidirectionalIteratorTag
-	{
-		RandomAccessIteratorTag() = delete;
-		RandomAccessIteratorTag(RandomAccessIteratorTag&& other) = delete;
-		RandomAccessIteratorTag(const RandomAccessIteratorTag& other) = delete;
-		auto operator =(RandomAccessIteratorTag&& other) -> RandomAccessIteratorTag& = delete;
-		auto operator =(const RandomAccessIteratorTag& other) -> RandomAccessIteratorTag& = delete;
-		~RandomAccessIteratorTag() = delete;
-	};
-
-    template <typename T>
-    struct Iterator final
-    {
-    private:
-        T* Ptr_;
-
-    public:
-        using Offset = std::uint64_t;
-		using Category = RandomAccessIteratorTag;
-		using ValueType = T;
-		using DifferenceType = std::ptrdiff_t;
-		using Pointer = T*;
-		using Reference = T&;
-
-        /// STL interface
-        using iterator_category = std::random_access_iterator_tag;
-        using value_type = ValueType;
-        using difference_type = DifferenceType;
-        using pointer = Pointer;
-        using reference = Reference;
-
-        constexpr Iterator() noexcept;
-		constexpr explicit Iterator(T* ptr) noexcept;
-        constexpr Iterator(const Iterator& other) noexcept = default;
-        constexpr Iterator(Iterator&& other) noexcept = default;
-        constexpr auto operator =(const Iterator& other) noexcept -> Iterator& = default;
-        constexpr auto operator =(Iterator&& other) noexcept -> Iterator& = default;
-        ~Iterator() = default;
-
-        [[nodiscard]]
-        constexpr auto AsSTD() const -> std::iterator<iterator_category, value_type, difference_type, pointer, reference>;
-
-        constexpr auto operator +(Offset offset) const noexcept -> Offset;
-        constexpr auto operator -(Offset offset) const noexcept -> Offset;
-        constexpr auto operator *(Offset offset) const noexcept -> Offset;
-        constexpr auto operator /(Offset offset) const noexcept -> Offset;
-        constexpr auto operator +=(Offset offset) noexcept -> Offset&;
-        constexpr auto operator -=(Offset offset) noexcept -> Offset&;
-        constexpr auto operator *=(Offset offset) noexcept -> Offset&;
-        constexpr auto operator /=(Offset offset) noexcept -> Offset&;
-        constexpr auto operator ==(Iterator other) const noexcept -> bool;
-        constexpr auto operator !=(Iterator other) const noexcept -> bool;
-        constexpr auto operator <(Iterator other) const noexcept -> bool;
-        constexpr auto operator >(Iterator other) const noexcept -> bool;
-        constexpr auto operator <=(Iterator other) const noexcept -> bool;
-        constexpr auto operator >=(Iterator other) const noexcept -> bool;
-        constexpr auto operator ++() noexcept -> Iterator&;
-        constexpr auto operator ++(int) noexcept -> Iterator;
-        constexpr auto operator --() noexcept -> Iterator&;
-        constexpr auto operator --(int) noexcept -> Iterator;
-        constexpr auto operator [](Offset index) const noexcept -> T&;
-        constexpr auto operator *() const noexcept -> T&;
-        constexpr explicit operator bool() const noexcept;
-    };
-
-    template <typename T>
-    constexpr Iterator<T>::Iterator() noexcept : Ptr_ { nullptr } { }
-
-    template <typename T>
-    constexpr Iterator<T>::Iterator(T* const ptr) noexcept : Ptr_ { ptr } { }
-
-    template<typename T>
-    constexpr auto Iterator<T>::AsSTD() const -> std::iterator<iterator_category, value_type, difference_type, pointer, reference>
-    {
-        return { this->Ptr_ };
-    }
-
-	template<typename T>
-	constexpr auto Iterator<T>::operator +(const Iterator::Offset offset) const noexcept -> Iterator::Offset
-	{
-		return { this->Ptr_ + offset };
-	}
-
-	template<typename T>
-	constexpr auto Iterator<T>::operator -(const Iterator::Offset offset) const noexcept -> Iterator::Offset
-	{
-		return { this->Ptr_ + offset };
-	}
-
-	template<typename T>
-	constexpr auto Iterator<T>::operator *(const Iterator::Offset offset) const noexcept -> Iterator::Offset
-	{
-		return { this->Ptr_ + offset };
-	}
-
-	template<typename T>
-	constexpr auto Iterator<T>::operator /(const Iterator::Offset offset) const noexcept -> Iterator::Offset
-	{
-		return { this->Ptr_ + offset };
-	}
-
-	template<typename T>
-	constexpr auto Iterator<T>::operator +=(const Iterator::Offset offset) noexcept -> Iterator::Offset&
-	{
-		this->Ptr_ += offset;
-		return *this;
-	}
-
-	template<typename T>
-	constexpr auto Iterator<T>::operator -=(const Iterator::Offset offset) noexcept -> Iterator::Offset&
-	{
-		this->Ptr_ -= offset;
-		return *this;
-	}
-
-	template<typename T>
-	constexpr auto Iterator<T>::operator *=(const Iterator::Offset offset) noexcept -> Iterator::Offset&
-	{
-		this->Ptr_ *= offset;
-		return *this;
-	}
-
-	template<typename T>
-	constexpr auto Iterator<T>::operator /=(const Iterator::Offset offset) noexcept -> Iterator::Offset&
-	{
-		this->Ptr_ /= offset;
-		return *this;
-	}
-
-	template<typename T>
-	constexpr auto Iterator<T>::operator ==(const Iterator other) const noexcept -> bool
-	{
-		return this->Ptr_ == other.Ptr_;
-	}
-
-	template<typename T>
-	constexpr auto Iterator<T>::operator !=(const Iterator other) const noexcept -> bool
-	{
-		return this->Ptr_ != other.Ptr_;
-	}
-
-	template<typename T>
-	constexpr auto Iterator<T>::operator <(const Iterator other) const noexcept -> bool
-	{
-		return this->Ptr_ < other.Ptr_;
-	}
-
-	template<typename T>
-	constexpr auto Iterator<T>::operator >(const Iterator other) const noexcept -> bool
-	{
-		return this->Ptr_ > other.Ptr_;
-	}
-
-	template<typename T>
-	constexpr auto Iterator<T>::operator <=(const Iterator other) const noexcept -> bool
-	{
-		return this->Ptr_ <= other.Ptr_;
-	}
-
-	template<typename T>
-	constexpr auto Iterator<T>::operator >=(const Iterator other) const noexcept -> bool
-	{
-		return this->Ptr_ >= other.Ptr_;
-	}
-
-	template<typename T>
-	constexpr auto Iterator<T>::operator ++() noexcept -> Iterator&
-	{
-		++this->Ptr_;
-		return *this;
-	}
-
-	template<typename T>
-	constexpr auto Iterator<T>::operator ++(int) noexcept -> Iterator
-	{
-		auto* const tmp { this->Ptr_ };
-		++this->Ptr_;
-		return tmp;
-	}
-
-	template<typename T>
-	constexpr auto Iterator<T>::operator --() noexcept -> Iterator&
-	{
-		--this->Ptr_;
-		return *this;
-	}
-
-	template<typename T>
-	constexpr auto Iterator<T>::operator --(int) noexcept -> Iterator
-	{
-		auto* const tmp { this->Ptr_ };
-		++this->Ptr_;
-		return tmp;
-	}
-
-	template<typename T>
-	constexpr auto Iterator<T>::operator [](const Offset index) const noexcept -> T&
-	{
-		return *(this->Ptr_ + index);
-	}
-
-	template<typename T>
-	constexpr auto Iterator<T>::operator *() const noexcept -> T&
-	{
-		return *this->Ptr_;
-	}
-
-	template<typename T>
-	constexpr Iterator<T>::operator bool() const noexcept
-	{
-		return this->Ptr_;
-	}
-
-	template<typename T>
-	struct IteratorTraits final
-	{
-		IteratorTraits() = delete;
-		IteratorTraits(const IteratorTraits& other) = delete;
-		IteratorTraits(IteratorTraits&& other) = delete;
-		auto operator =(const IteratorTraits& other) -> IteratorTraits& = delete;
-		auto operator =(IteratorTraits&& other) -> IteratorTraits& = delete;
-		~IteratorTraits() = delete;
-
-		using Offset = typename T::Offset;
-		using Category = typename T::Category;
-		using ValueType = typename T::ValueType;
-		using DifferenceType = typename T::DifferenceType;
-		using Pointer = typename T::Pointer;
-		using Reference = typename T::Reference;
-	};
-
-	template<typename T>
-	struct IteratorTraits<T*> final
-	{
-		IteratorTraits() = delete;
-		IteratorTraits(const IteratorTraits& other) = delete;
-		IteratorTraits(IteratorTraits&& other) = delete;
-		auto operator =(const IteratorTraits& other) -> IteratorTraits& = delete;
-		auto operator =(IteratorTraits&& other) -> IteratorTraits& = delete;
-		~IteratorTraits() = delete;
-
-		using Offset = std::uint64_t;
-		using Category = RandomAccessIteratorTag;
-		using ValueType = T;
-		using DifferenceType = std::ptrdiff_t;
-		using Pointer = T*;
-		using Reference = T&;
-	};
-
-	template<typename T>
-	struct IteratorTraits<const T*> final
-	{
-		IteratorTraits() = delete;
-		IteratorTraits(const IteratorTraits& other) = delete;
-		IteratorTraits(IteratorTraits&& other) = delete;
-		auto operator =(const IteratorTraits& other) -> IteratorTraits& = delete;
-		auto operator =(IteratorTraits&& other) -> IteratorTraits& = delete;
-		~IteratorTraits() = delete;
-
-		using Offset = std::uint64_t;
-		using Category = RandomAccessIteratorTag;
-		using ValueType = T;
-		using DifferenceType = std::ptrdiff_t;
-		using Pointer = const T*;
-		using Reference = const T&;
-	};
+        #[structopt(long, help = "Enable Nominax bytecode dump per file.")]
+        dump_asm: bool,
+    },
+    DumpIntrinsics,
 }

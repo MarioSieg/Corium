@@ -351,6 +351,12 @@
 #	define NOX_COM_NAME "MinGW"
 #endif
 
+#if NOX_COM_CLANG
+#	define NOX_NO_UNIQUE_ADDRESS
+#else
+#	define NOX_NO_UNIQUE_ADDRESS [[no_unique_address]]
+#endif
+
 #if NOX_ARCH_X86_64
 #   define NOX_ARCH_PROXY ::Nominax::Assembler::X86_64
 #elif NOX_ARCH_AARCH64

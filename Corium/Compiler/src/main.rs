@@ -206,33 +206,52 @@
 #![allow(dead_code)]
 
 mod ast;
-mod cli;
 mod codegen;
-mod compiler;
-mod context;
+mod core;
 mod error;
-mod intrinsics;
-mod literal;
+mod misc;
 mod nominax;
 mod parser;
 mod semantic;
-mod unit;
+
+use misc::cli::Options;
+use structopt::StructOpt;
 
 fn main() {
-    let options = cli::Options::parse_and_validate();
-    if options.is_none() {
-        return;
-    }
-    let options = options.unwrap();
+    let options = Options::from_args();
 
-    let mut context = context::CompilerContext::new();
-    for file in options.input_files {
-        let descriptor = unit::FCUDescriptor {
-            dump_ast: options.dump_ast,
-            dump_asm: options.dump_asm,
-            opt_level: options.opt_level,
-        };
-        context.enqueue_file(file, descriptor);
+    match options {
+        Options::New { name } => {
+            let working_dir = std::env::current_dir()
+                .unwrap_or_else(|_| panic!("Failed to retrieve working dir!"));
+
+            if let Err(e) = misc::project::Project::create(name.clone(), working_dir) {
+                panic!("Failed to create project `{}` because {}", name, e);
+            } else {
+                println!("Created project `{}`", name);
+            }
+        }
+        Options::Compile {
+            input_files,
+            output_file: _output_file,
+            opt_level,
+            verbose: _verbose,
+            dump_ast,
+            dump_asm,
+        } => {
+            let mut context = core::context::CompilerContext::new();
+            for file in input_files {
+                let descriptor = core::unit::FCUDescriptor {
+                    dump_ast,
+                    dump_asm,
+                    opt_level,
+                };
+                context.enqueue_file(file, descriptor);
+            }
+            context.compile();
+        }
+        Options::DumpIntrinsics => {
+            core::intrinsics::Intrinsic::dump_all();
+        }
     }
-    context.compile();
 }

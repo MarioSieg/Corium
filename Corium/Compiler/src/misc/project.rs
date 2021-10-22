@@ -203,105 +203,89 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::compiler::compile;
-use crate::error::list::ErrorList;
-use std::default;
+use serde::{Deserialize, Serialize};
 use std::fs;
-use std::path::{Path, PathBuf};
-use std::time::{Duration, Instant};
-use uuid::Uuid;
+use std::path::PathBuf;
 
-/// FileCompilationUnitDescriptor
-pub struct FCUDescriptor {
-    pub dump_ast: bool,
-    pub dump_asm: bool,
-    pub opt_level: u8,
+#[derive(Serialize, Deserialize, Debug, Clone, Eq, PartialEq)]
+pub struct Project {
+    pub name: String,
+    pub source_dir: PathBuf,
+    pub version: Option<String>,
+    pub description: Option<String>,
+    pub authors: Option<Vec<String>>,
+    pub custom_corium_sdk: Option<PathBuf>,
+    pub documentation_path: Option<PathBuf>,
+    pub readme_file: Option<PathBuf>,
+    pub compiler_flags: Option<Vec<String>>,
+    pub nominax_flags: Option<Vec<String>>,
 }
 
-impl default::Default for FCUDescriptor {
+impl Project {
+    pub const ROOT_FILE_NAME: &'static str = "Corium.toml";
+    pub const DEFAULT_SOURCE_DIR: &'static str = "Source";
+    pub const DEFAULT_MAIN_FILE_NAME: &'static str = "App.cor";
+    pub const DEFAULT_MAIN_FILE_CONTENT: &'static str = include_str!("../../../Templates/App.cor");
+
+    pub fn new(name: String, source_dir: PathBuf) -> Self {
+        Self {
+            name,
+            source_dir,
+            ..Default::default()
+        }
+    }
+
+    pub fn create(name: String, path: PathBuf) -> Result<Project, String> {
+        if name.is_empty() || path.as_os_str().is_empty() {
+            return Err(format!("Invalid name of path: {:?} or {:?}", name, path));
+        }
+
+        let dir = path.join(&name);
+        if fs::create_dir(&dir).is_err() {
+            return Err(format!("Failed to create directory: {:?}", &dir));
+        }
+
+        let source_dir = dir.join(Self::DEFAULT_SOURCE_DIR);
+        if fs::create_dir(&source_dir).is_err() {
+            return Err(format!("Failed to create directory: {:?}", &source_dir));
+        }
+
+        let main_file = source_dir.join(Self::DEFAULT_MAIN_FILE_NAME);
+        if fs::write(&main_file, Self::DEFAULT_MAIN_FILE_CONTENT).is_err() {
+            return Err(format!("Failed to create main file: {:?}", &main_file));
+        }
+
+        let project_file = dir.join(Self::ROOT_FILE_NAME);
+        let project = Project::new(name.clone(), PathBuf::from(name.as_str()));
+        match toml::to_string_pretty(&project) {
+            Ok(str) => {
+                if fs::write(&project_file, str).is_err() {
+                    Err(format!(
+                        "Failed to create project root file: {:?}",
+                        &project_file
+                    ))
+                } else {
+                    Ok(project)
+                }
+            }
+            Err(e) => Err(format!("Failed to create project root file: {:?}", e)),
+        }
+    }
+}
+
+impl Default for Project {
     fn default() -> Self {
         Self {
-            dump_ast: false,
-            dump_asm: false,
-            opt_level: 0,
+            name: String::new(),
+            source_dir: PathBuf::new(),
+            version: None,
+            description: None,
+            authors: None,
+            custom_corium_sdk: None,
+            documentation_path: None,
+            readme_file: None,
+            compiler_flags: None,
+            nominax_flags: None,
         }
-    }
-}
-
-pub type CompilationResult = Result<Duration, (Duration, ErrorList)>;
-
-/// Represents a compilation unit.
-/// Each file contains a single compilation unit.
-pub struct FileCompilationUnit {
-    source_code: String,
-    file: PathBuf,
-    file_name: String,
-    id: Uuid,
-    file_load_time: Duration,
-    pub descriptor: FCUDescriptor,
-}
-
-impl FileCompilationUnit {
-    pub fn load(file: PathBuf, descriptor: FCUDescriptor) -> Box<Self> {
-        let clock = Instant::now();
-        let source_code = fs::read_to_string(&file)
-            .unwrap_or_else(|_| panic!("Failed to read source file: {:?}", &file));
-        let file_name = Self::extract_file_name(&file);
-        let id = Uuid::new_v4();
-        let file_load_time = clock.elapsed();
-        Box::new(Self {
-            source_code,
-            file,
-            file_name,
-            id,
-            file_load_time,
-            descriptor,
-        })
-    }
-
-    pub fn compile(&mut self) -> CompilationResult {
-        let clock = Instant::now();
-        println!("Compiling `{}`...", self.file_name);
-        let result = compile(&self.source_code, &self.file_name);
-        let time = self.compute_compile_time(clock);
-        if let Err(e) = result {
-            Err((time, e))
-        } else {
-            Ok(time)
-        }
-    }
-
-    fn compute_compile_time(&self, clock: Instant) -> Duration {
-        self.file_load_time
-            .checked_add(clock.elapsed())
-            .unwrap_or_else(|| Duration::from_secs(0))
-    }
-
-    fn extract_file_name(file: &Path) -> String {
-        file.file_name()
-            .unwrap_or_else(|| panic!("Missing file name: {:?}", file))
-            .to_str()
-            .unwrap_or_else(|| panic!("Failed to convert path: {:?}", file))
-            .into()
-    }
-
-    #[inline]
-    pub fn source_code(&self) -> &String {
-        &self.source_code
-    }
-
-    #[inline]
-    pub fn file_name(&self) -> &String {
-        &self.file_name
-    }
-
-    #[inline]
-    pub fn uuid(&self) -> &Uuid {
-        &self.id
-    }
-
-    #[inline]
-    pub fn full_file_path(&self) -> &PathBuf {
-        &self.file
     }
 }

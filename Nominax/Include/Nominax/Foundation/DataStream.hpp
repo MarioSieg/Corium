@@ -208,6 +208,7 @@
 #include <cstdio>
 #include <cstdint>
 #include <span>
+#include <string_view>
 #include <type_traits>
 
 #include "Platform.hpp"
@@ -279,6 +280,13 @@ namespace Nominax::Foundation
         auto Write(const void* buffer, std::uint64_t size) const -> void;
 
         /// <summary>
+        /// Write string view and panic on fail.
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        auto Write(std::string_view str) const -> void;
+
+        /// <summary>
         /// Read buffer and panic on fail.
         /// </summary>
         /// <param name="buffer">Raw memory pointer.</param>
@@ -294,6 +302,14 @@ namespace Nominax::Foundation
         /// <returns>True on success, else false.</returns>
         [[nodiscard]]
     	auto WriteUnchecked(const void* buffer, std::uint64_t size) const -> bool;
+
+        /// <summary>
+        /// Write string view and return result.
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        [[nodiscard]]
+        auto WriteUnchecked(std::string_view str) const -> bool;
 
         /// <summary>
         /// 

@@ -248,7 +248,7 @@ auto main(const int argc, const char* const* const argv) -> int
 
 	Core::Environment environment { };
 	environment.Boot(environmentDescriptor);
-    environment.Execute(std::move(byteCode));
+    const auto _ { environment.Execute(std::move(byteCode)) };
 	environment.Shutdown();
 
 	return 0;

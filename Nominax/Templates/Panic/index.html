@@ -14,14 +14,13 @@ R"(
                 Thank you for your support and sorry for the inconvenience :(<br/>
             </h4>
             <h2 class="headline">Diagnostics</h2>
-            <div class="file">$FILE</div>
-            <div class="line">$LINE</div>
-            <div class="routine">$ROUTINE</div>
-            <div class="message">$MESSAGE</div>
+            <div class="file">File: $FILE</div>
+            <div class="line">Line: $LINE</div>
+            <div class="routine">Routine: $ROUTINE</div>
+            <div class="message">Message: $MESSAGE</div>
             <br>
             <h2 class="headline">Register Dump</h2>
-            <div class="registers">%rax = 10</div>
-            <div class="registers">%rip = 10</div>
+            $REGISTERS
         </div>
     </head>
 </html>

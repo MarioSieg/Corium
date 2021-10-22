@@ -185,9 +185,13 @@ enum class terminal_color : uint8_t {
 
 enum class emphasis : uint8_t {
   bold = 1,
-  italic = 1 << 1,
-  underline = 1 << 2,
-  strikethrough = 1 << 3
+  faint = 1 << 1,
+  italic = 1 << 2,
+  underline = 1 << 3,
+  blink = 1 << 4,
+  reverse = 1 << 5,
+  conceal = 1 << 6,
+  strikethrough = 1 << 7,
 };
 
 // rgb is a struct for red, green and blue colors.
@@ -206,8 +210,7 @@ struct rgb {
   uint8_t b;
 };
 
-FMT_MODULE_EXPORT_END
-namespace detail {
+FMT_BEGIN_DETAIL_NAMESPACE
 
 // color is a struct of either a rgb color or a terminal color.
 struct color_type {
@@ -230,8 +233,8 @@ struct color_type {
     uint32_t rgb_color;
   } value;
 };
-}  // namespace detail
-FMT_MODULE_EXPORT_BEGIN
+
+FMT_END_DETAIL_NAMESPACE
 
 /** A text style consisting of foreground and background colors and emphasis. */
 class text_style {
@@ -370,8 +373,7 @@ FMT_CONSTEXPR inline text_style operator|(emphasis lhs,
   return text_style(lhs) | rhs;
 }
 
-FMT_MODULE_EXPORT_END
-namespace detail {
+FMT_BEGIN_DETAIL_NAMESPACE
 
 template <typename Char> struct ansi_color_escape {
   FMT_CONSTEXPR ansi_color_escape(detail::color_type text_color,
@@ -411,16 +413,18 @@ template <typename Char> struct ansi_color_escape {
     buffer[19] = static_cast<Char>(0);
   }
   FMT_CONSTEXPR ansi_color_escape(emphasis em) FMT_NOEXCEPT {
-    uint8_t em_codes[4] = {};
-    uint8_t em_bits = static_cast<uint8_t>(em);
-    if (em_bits & static_cast<uint8_t>(emphasis::bold)) em_codes[0] = 1;
-    if (em_bits & static_cast<uint8_t>(emphasis::italic)) em_codes[1] = 3;
-    if (em_bits & static_cast<uint8_t>(emphasis::underline)) em_codes[2] = 4;
-    if (em_bits & static_cast<uint8_t>(emphasis::strikethrough))
-      em_codes[3] = 9;
+    uint8_t em_codes[num_emphases] = {};
+    if (has_emphasis(em, emphasis::bold)) em_codes[0] = 1;
+    if (has_emphasis(em, emphasis::faint)) em_codes[1] = 2;
+    if (has_emphasis(em, emphasis::italic)) em_codes[2] = 3;
+    if (has_emphasis(em, emphasis::underline)) em_codes[3] = 4;
+    if (has_emphasis(em, emphasis::blink)) em_codes[4] = 5;
+    if (has_emphasis(em, emphasis::reverse)) em_codes[5] = 7;
+    if (has_emphasis(em, emphasis::conceal)) em_codes[6] = 8;
+    if (has_emphasis(em, emphasis::strikethrough)) em_codes[7] = 9;
 
     size_t index = 0;
-    for (int i = 0; i < 4; ++i) {
+    for (size_t i = 0; i < num_emphases; ++i) {
       if (!em_codes[i]) continue;
       buffer[index++] = static_cast<Char>('\x1b');
       buffer[index++] = static_cast<Char>('[');
@@ -437,7 +441,8 @@ template <typename Char> struct ansi_color_escape {
   }
 
  private:
-  Char buffer[7u + 3u * 4u + 1u];
+  static constexpr size_t num_emphases = 8;
+  Char buffer[7u + 3u * num_emphases + 1u];
 
   static FMT_CONSTEXPR void to_esc(uint8_t c, Char* out,
                                    char delimiter) FMT_NOEXCEPT {
@@ -445,6 +450,10 @@ template <typename Char> struct ansi_color_escape {
     out[1] = static_cast<Char>('0' + c / 10 % 10);
     out[2] = static_cast<Char>('0' + c % 10);
     out[3] = static_cast<Char>(delimiter);
+  }
+  static FMT_CONSTEXPR bool has_emphasis(emphasis em,
+                                         emphasis mask) FMT_NOEXCEPT {
+    return static_cast<uint8_t>(em) & static_cast<uint8_t>(mask);
   }
 };
 
@@ -509,11 +518,11 @@ void vformat_to(buffer<Char>& buf, const text_style& ts,
     auto background = detail::make_background_color<Char>(ts.get_background());
     buf.append(background.begin(), background.end());
   }
-  detail::vformat_to(buf, format_str, args);
+  detail::vformat_to(buf, format_str, args, {});
   if (has_style) detail::reset_color<Char>(buf);
 }
-}  // namespace detail
-FMT_MODULE_EXPORT_BEGIN
+
+FMT_END_DETAIL_NAMESPACE
 
 template <typename S, typename Char = char_t<S>>
 void vprint(std::FILE* f, const text_style& ts, const S& format,
@@ -584,8 +593,8 @@ inline std::basic_string<Char> vformat(
 template <typename S, typename... Args, typename Char = char_t<S>>
 inline std::basic_string<Char> format(const text_style& ts, const S& format_str,
                                       const Args&... args) {
-  return vformat(ts, to_string_view(format_str),
-                 fmt::make_args_checked<Args...>(format_str, args...));
+  return fmt::vformat(ts, to_string_view(format_str),
+                      fmt::make_args_checked<Args...>(format_str, args...));
 }
 
 /**
@@ -596,7 +605,7 @@ template <typename OutputIt, typename Char,
 OutputIt vformat_to(
     OutputIt out, const text_style& ts, basic_string_view<Char> format_str,
     basic_format_args<buffer_context<type_identity_t<Char>>> args) {
-  decltype(detail::get_buffer<Char>(out)) buf(detail::get_buffer_init(out));
+  auto&& buf = detail::get_buffer<Char>(out);
   detail::vformat_to(buf, ts, format_str, args);
   return detail::get_iterator(buf);
 }

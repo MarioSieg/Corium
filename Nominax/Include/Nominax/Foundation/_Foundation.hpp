@@ -237,6 +237,7 @@
 #include "SigBus.hpp"
 #include "Panic.hpp"
 #include "PanicAssertions.hpp"
+#include "PanicDump.hpp"
 #include "Platform.hpp"
 #include "Print.hpp"
 #include "ProtocolController.hpp"

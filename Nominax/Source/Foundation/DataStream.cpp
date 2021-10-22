@@ -15,6 +15,11 @@ namespace Nominax::Foundation
         NOX_PAS(WriteUnchecked(buffer, size), "Data stream write failed!");
     }
 
+    auto DataStream::Write(const std::string_view str) const -> void
+    {
+        NOX_PAS(WriteUnchecked(str), "Data stream write failed!");
+    }
+
     auto DataStream::Read(void* const buffer, const std::uint64_t size) const -> void
     {
         NOX_PAS(ReadUnchecked(buffer, size), "Data stream read failed!");
@@ -24,6 +29,12 @@ namespace Nominax::Foundation
     {
         NOX_VALIDATE_HANDLE();
         return NOX_EXPECT_VALUE(std::fwrite(buffer, sizeof(std::uint8_t), size, this->Handle_) == size, true);
+    }
+
+    auto DataStream::WriteUnchecked(const std::string_view str) const -> bool
+    {
+        NOX_VALIDATE_HANDLE();
+        return NOX_EXPECT_VALUE(std::fwrite(std::data(str), sizeof(std::string_view::value_type), std::size(str), this->Handle_) == std::size(str), true);
     }
 
     auto DataStream::ReadUnchecked(void* const buffer, const std::uint64_t size) const -> bool

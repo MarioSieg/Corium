@@ -4,7 +4,7 @@
 import errno, os, re, sys
 from subprocess import check_call, CalledProcessError, Popen, PIPE, STDOUT
 
-versions = ['1.0.0', '1.1.0', '2.0.0', '3.0.2', '4.0.0', '4.1.0', '5.0.0', '5.1.0', '5.2.0', '5.2.1', '5.3.0', '6.0.0', '6.1.0', '6.1.1', '6.1.2', '6.2.0', '6.2.1', '7.0.0', '7.0.1', '7.0.2', '7.0.3', '7.1.0', '7.1.1', '7.1.2', '7.1.3']
+versions = ['1.0.0', '1.1.0', '2.0.0', '3.0.2', '4.0.0', '4.1.0', '5.0.0', '5.1.0', '5.2.0', '5.2.1', '5.3.0', '6.0.0', '6.1.0', '6.1.1', '6.1.2', '6.2.0', '6.2.1', '7.0.0', '7.0.1', '7.0.2', '7.0.3', '7.1.0', '7.1.1', '7.1.2', '7.1.3', '8.0.0', '8.0.1']
 
 class Pip:
   def __init__(self, venv_dir):
@@ -24,9 +24,10 @@ def create_build_env(venv_dir='virtualenv'):
   # Install Sphinx and Breathe. Require the exact version of Sphinx which is
   # compatible with Breathe.
   pip = Pip(venv_dir)
+  pip.install('wheel')
   pip.install('six')
   pip.install('sphinx-doc/sphinx', 'v3.3.0')
-  pip.install('michaeljones/breathe', 'v4.23.0')
+  pip.install('michaeljones/breathe', 'v4.25.0')
 
 def build_docs(version='dev', **kwargs):
   doc_dir = kwargs.get('doc_dir', os.path.dirname(os.path.realpath(__file__)))
@@ -44,7 +45,8 @@ def build_docs(version='dev', **kwargs):
       GENERATE_RTF      = NO
       CASE_SENSE_NAMES  = NO
       INPUT             = {0}/chrono.h {0}/color.h {0}/core.h {0}/compile.h \
-                          {0}/format.h {0}/os.h {0}/ostream.h {0}/printf.h
+                          {0}/format.h {0}/os.h {0}/ostream.h {0}/printf.h \
+                          {0}/xchar.h
       QUIET             = YES
       JAVADOC_AUTOBRIEF = YES
       AUTOLINK_SUPPORT  = NO
@@ -56,6 +58,7 @@ def build_docs(version='dev', **kwargs):
       MACRO_EXPANSION   = YES
       PREDEFINED        = _WIN32=1 \
                           __linux__=1 \
+                          FMT_ENABLE_IF(...)= \
                           FMT_USE_VARIADIC_TEMPLATES=1 \
                           FMT_USE_RVALUE_REFERENCES=1 \
                           FMT_USE_USER_DEFINED_LITERALS=1 \
@@ -64,10 +67,13 @@ def build_docs(version='dev', **kwargs):
                           "FMT_BEGIN_NAMESPACE=namespace fmt {{" \
                           "FMT_END_NAMESPACE=}}" \
                           "FMT_STRING_ALIAS=1" \
+                          "FMT_VARIADIC(...)=" \
+                          "FMT_VARIADIC_W(...)=" \
                           "FMT_DOC=1"
       EXCLUDE_SYMBOLS   = fmt::formatter fmt::printf_formatter fmt::arg_join \
                           fmt::basic_format_arg::handle
     '''.format(include_dir, doxyxml_dir).encode('UTF-8'))
+  out = out.decode('utf-8')
   internal_symbols = [
     'fmt::detail::.*',
     'basic_data<>',
@@ -87,7 +93,7 @@ def build_docs(version='dev', **kwargs):
 
   html_dir = os.path.join(work_dir, 'html')
   main_versions = reversed(versions[-3:])
-  check_call([os.path.join('virtualenv', 'bin', 'sphinx-build'),
+  check_call([os.path.join(work_dir, 'virtualenv', 'bin', 'sphinx-build'),
               '-Dbreathe_projects.format=' + os.path.abspath(doxyxml_dir),
               '-Dversion=' + version, '-Drelease=' + version,
               '-Aversion=' + version, '-Aversions=' + ','.join(main_versions),

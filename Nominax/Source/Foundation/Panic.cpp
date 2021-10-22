@@ -219,6 +219,7 @@ namespace Nominax::Foundation
         const RegisterCache regCache { };
         PrintPanicMessage(message, srcLoc);
         regCache.DisplayToConsole();
+        CreatePanicDump(message, srcLoc, &regCache);
         std::fflush(stdout);
         std::fflush(stderr);
 		std::flush(std::cout);

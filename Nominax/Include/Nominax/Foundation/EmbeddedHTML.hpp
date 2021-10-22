@@ -208,14 +208,21 @@
 #include <string_view>
 #include <utility>
 
-namespace Nominax::Foundation
+namespace Nominax::Foundation::EmbeddedHTML
 {
-	using HTMLPair = std::pair<const std::string_view, const std::string_view>;
-
-	constexpr HTMLPair PANIC_HTML
+	namespace Panic
 	{
-		#include "../../../Templates/Panic/index.html"
-		,
-		#include "../../../Templates/Panic/style.css"
-	};
+		constexpr std::string_view HTML
+		{
+			#include "../../../Templates/Panic/index.html"
+		};
+		constexpr std::string_view CSS
+		{
+			#include "../../../Templates/Panic/style.css"
+		};
+		constexpr std::string_view FMT_FILE { "$FILE" };
+		constexpr std::string_view FMT_LINE { "$LINE" };
+		constexpr std::string_view FMT_ROUTINE { "$ROUTINE" };
+		constexpr std::string_view FMT_MESSAGE { "$MESSAGE" };
+	}
 }
