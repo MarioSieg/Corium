@@ -15,7 +15,7 @@ namespace Nominax::Foundation
 
 	auto GetPanicDumpDirName() -> std::string
 	{
-		std::string time { Format("{}/NominaxPanic {:%A %c}/", PANIC_OUTPUT_DIR, SafeLocalTime(std::time(nullptr))) };
+		std::string time { Format(NOX_FMT("{}/NominaxPanic {:%A %c}/"), PANIC_OUTPUT_DIR, SafeLocalTime(std::time(nullptr))) };
 		std::replace(std::begin(time), std::end(time), ':', ' ');
 		return time;
 	}

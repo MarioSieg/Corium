@@ -276,7 +276,7 @@ namespace Nominax::Foundation
 		if (!this->ReadFromFile(std::move(path)))
 		{
 			[[unlikely]]
-            Panic(Format("Failed to read text file from path: {}", path.string()));
+			PanicF({}, NOX_FMT("Failed to read text file from path: {}"), path.string());
 		}
 	}
 

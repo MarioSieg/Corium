@@ -316,7 +316,7 @@ namespace Nominax::Core
 		JumpTable jumpTable { QueryJumpTable(routine) };
 		Print
 		(
-			"Execution Routine: {}, Registry ID: {:X}, Fetch: {}, Hypervisor Registry Size: {}\n",
+			NOX_FMT("Execution Routine: {}, Registry ID: {:X}, Fetch: {}, Hypervisor Registry Size: {}\n"),
 			GetReactorCoreSpecializationName(specialization),
 			static_cast<std::uint64_t>(specialization),
 			++QueryCounter,
@@ -327,7 +327,7 @@ namespace Nominax::Core
 			[[unlikely]]
             Print
             (
-                "Current query count is: {}! Multiple queries should be avoided, consider caching the routine link!\n",
+                NOX_FMT("Current query count is: {}! Multiple queries should be avoided, consider caching the routine link!\n"),
                 QueryCounter
             );
 		}

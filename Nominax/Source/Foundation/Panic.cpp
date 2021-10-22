@@ -239,15 +239,15 @@ namespace Nominax::Foundation
 
     NOX_COLD static auto PrintPanicMessage(const std::string_view message, const Foundation::SourceLocation& srcLoc) -> void
     {
-        Print("\n! NOMINAX RUNTIME Panic !\n");
+        Print(NOX_FMT("\n! NOMINAX RUNTIME Panic !\n"));
 		Print(PANIC_MESSAGE);
         Print
         (
-            "File: {}\nLine: {}\nRoutine: {}\n",
+            NOX_FMT("File: {}\nLine: {}\nRoutine: {}\n"),
             srcLoc.GetFileName(),
             srcLoc.GetLine(),
             srcLoc.GetFunctionName()
         );
-        Print("Message: {}\n", message);
+        Print(NOX_FMT("Message: {}\n"), message);
     }
 }

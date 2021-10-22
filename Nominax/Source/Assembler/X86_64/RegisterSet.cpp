@@ -237,7 +237,7 @@ namespace Nominax::Assembler::X86_64
             {
                 Print(stream, '\n');
             }
-            Print(stream, "{} = {:016X} ", GPR_LUT[i], regset[i].AsU64);
+            Print(stream, NOX_FMT("{} = {:016X} "), GPR_LUT[i], regset[i].AsU64);
         }
         Print(stream, '\n');
     }
@@ -246,8 +246,8 @@ namespace Nominax::Assembler::X86_64
     {
         for (std::uint64_t i { 0 }; i < std::size(regset); ++i)
         {
-            Print(stream, "%xmm{}{} = ", i, i < 10 ? " " : "");
-            Print(stream, "{:016X}{:016X}\n", regset[i].AsU64S[0], regset[i].AsU64S[1]);
+            Print(stream, NOX_FMT("%xmm{}{} = "), i, i < 10 ? " " : "");
+            Print(stream, NOX_FMT("{:016X}{:016X}\n"), regset[i].AsU64S[0], regset[i].AsU64S[1]);
         }
     }
 
@@ -255,11 +255,11 @@ namespace Nominax::Assembler::X86_64
     {
         for (std::uint64_t i { 0 }; i < std::size(regset); ++i)
         {
-            Print(stream, "%ymm{}{} = ", i, i < 10 ? " " : "");
+            Print(stream, NOX_FMT("%ymm{}{} = "), i, i < 10 ? " " : "");
             Print
             (
                 stream,
-                "{:016X}{:016X}{:016X}{:016X}\n",
+                NOX_FMT("{:016X}{:016X}{:016X}{:016X}\n"),
                 regset[i].AsU64S[0],
                 regset[i].AsU64S[1],
                 regset[i].AsU64S[2],
@@ -272,11 +272,11 @@ namespace Nominax::Assembler::X86_64
     {
         for (std::uint64_t i { 0 }; i < std::size(regset); ++i)
         {
-            Print(stream, "%zmm{}{} = ", i, i < 10 ? " " : "");
+            Print(stream, NOX_FMT("%zmm{}{} = "), i, i < 10 ? " " : "");
             Print
             (
                 stream,
-                "{:016X}{:016X}{:016X}{:016X}{:016X}{:016X}{:016X}{:016X}\n",
+                NOX_FMT("{:016X}{:016X}{:016X}{:016X}{:016X}{:016X}{:016X}{:016X}\n"),
                 regset[i].AsU64S[0],
                 regset[i].AsU64S[1],
                 regset[i].AsU64S[2],
@@ -293,8 +293,8 @@ namespace Nominax::Assembler::X86_64
     {
         for (std::uint64_t i { 0 }; i < std::size(regset); ++i)
         {
-            Print(stream, "%k{} = ", i);
-            Print(stream, "{:04X}\n", regset[i]);
+            Print(stream, NOX_FMT("%k{} = "), i);
+            Print(stream, NOX_FMT("{:04X}\n"), regset[i]);
         }
     }
 
@@ -302,8 +302,8 @@ namespace Nominax::Assembler::X86_64
     {
         for (std::uint64_t i { 0 }; i < std::size(regset); ++i)
         {
-            Print(stream, "%k{} = ", i);
-            Print(stream, "{:016X}\n", regset[i]);
+            Print(stream, NOX_FMT("%k{} = "), i);
+            Print(stream, NOX_FMT("{:016X}\n"), regset[i]);
         }
     }
 }

@@ -242,7 +242,7 @@ namespace Nominax::Foundation
         // check if no arguments where submitted (1 arg is always .exe dir)
         if (std::size(parser.GetArgs()) <= 1 || help) [[unlikely]]
         {
-            Print("Usage: Nominax <BytecodeFile> <Options ...>\n");
+            Print(NOX_FMT("Usage: Nominax <BytecodeFile> <Options ...>\n"));
             parser.DisplayToConsole();
             return false;
         }
@@ -273,9 +273,9 @@ namespace Nominax::Foundation
     {
         using Foundation::Print;
 
-        Print(stream, "Force sandbox VM: {}\n", this->ForceSandboxVM);
-        Print(stream, "Force fallback VM: {}\n", this->ForceFallbackVM);
-        Print(stream, "Power safe mode: {}\n", this->PowerSafeMode);
-        Print(stream, "Config disabled: {}\n", this->NoConfig);
+        Print(stream, NOX_FMT("Force sandbox VM: {}\n"), this->ForceSandboxVM);
+        Print(stream, NOX_FMT("Force fallback VM: {}\n"), this->ForceFallbackVM);
+        Print(stream, NOX_FMT("Power safe mode: {}\n"), this->PowerSafeMode);
+        Print(stream, NOX_FMT("Config disabled: {}\n"), this->NoConfig);
     }
 }

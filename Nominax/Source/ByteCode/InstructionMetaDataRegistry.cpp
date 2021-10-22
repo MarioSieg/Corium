@@ -212,7 +212,7 @@ namespace Nominax::ByteCode
     {
         using Foundation::Print;
 
-        Print(stream, "OP | {0: <8} | {1: <2} | S+ | S- | S+- | C | {2: <4} | {3: <4}\n", "Mnemonic", "IA", "OP1", "OP2");
+        Print(stream, NOX_FMT("OP | {0: <8} | {1: <2} | S+ | S- | S+- | C | {2: <4} | {3: <4}\n"), "Mnemonic", "IA", "OP1", "OP2");
 
         const auto getOperandName
         {
@@ -246,7 +246,7 @@ namespace Nominax::ByteCode
             Print
             (
                 stream,
-                "{0:02X} | {1: <8} | {2:2} | {3:2} | {4:2} | {5:3} | {6: <1} | {7: <4} | {7: <4}\n",
+                NOX_FMT("{0:02X} | {1: <8} | {2:2} | {3:2} | {4:2} | {5:3} | {6: <1} | {7: <4} | {7: <4}\n"),
                 i,
                 MNEMONIC_TABLE[i],
                 std::size(OPERAND_TYPE_TABLE[i]),

@@ -239,12 +239,12 @@ namespace Nominax::Foundation
             pageSize
         ] { *this };
 
-        Print(stream, "Date: {:%A %c}\n", SafeLocalTime(std::time(nullptr)));
-        Print(stream, "CPU: {}\n", cpuName);
-        Print(stream, "CPU Hardware threads: {}\n", threadCount);
-        Print(stream, "CPU Machine class: {}\n", static_cast<char>(MachineRating(threadCount)));
-        Print(stream, "System memory: {}MB\n", Bytes2Megabytes(totalSystemMemory));
-        Print(stream, "Process memory: {}MB\n", Bytes2Megabytes(usedSystemMemory));
-        Print(stream, "Page size: {}B\n", pageSize);
+        Print(stream, NOX_FMT("Date: {:%A %c}\n"), SafeLocalTime(std::time(nullptr)));
+        Print(stream, NOX_FMT("CPU: {}\n"), cpuName);
+        Print(stream, NOX_FMT("CPU Hardware threads: {}\n"), threadCount);
+        Print(stream, NOX_FMT("CPU Machine class: {}\n"), static_cast<char>(MachineRating(threadCount)));
+        Print(stream, NOX_FMT("System memory: {}MB\n"), Bytes2Megabytes(totalSystemMemory));
+        Print(stream, NOX_FMT("Process memory: {}MB\n"), Bytes2Megabytes(usedSystemMemory));
+        Print(stream, NOX_FMT("Page size: {}B\n"), pageSize);
     }
 }

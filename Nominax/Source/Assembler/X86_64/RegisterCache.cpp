@@ -254,7 +254,7 @@ namespace Nominax::Assembler::X86_64
     {
         using Foundation::Print;
 
-        Print(stream, "%rip = {:016X}", this->RIP.AsU64);
+        Print(stream, NOX_FMT("%rip = {:016X}"), this->RIP.AsU64);
         DumpRegisterSet(stream, this->GPRSet);
         if (this->AVXSet)
         {

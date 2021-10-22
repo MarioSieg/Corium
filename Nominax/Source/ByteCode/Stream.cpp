@@ -346,21 +346,21 @@ namespace Nominax::ByteCode
     {
         using namespace Foundation;
 
-        Print(stream, "Stream size: {}\n", this->Size());
+        Print(stream, NOX_FMT("Stream size: {}\n"), this->Size());
         Print
         (
             stream,
-            "Code buffer: {:.3F} MB\n",
+            NOX_FMT("Code buffer: {:.3F} MB\n"),
             Bytes2Megabytes<float>(static_cast<float>(std::size(this->CodeBuffer_)) * static_cast<float>(sizeof(CodeStorageType::value_type)))
         );
         Print
         (
             stream,
-            "Discriminator buffer: {:.3F} MB\n",
+            NOX_FMT("Discriminator buffer: {:.3F} MB\n"),
             Bytes2Megabytes<float>(static_cast<float>(std::size(this->CodeDiscriminatorBuffer_)) * static_cast<float>(sizeof(DiscriminatorStorageType::value_type)))
         );
-        Print(stream, "Total: {:.3F} MB\n", Bytes2Megabytes<float>(static_cast<float>(this->SizeInBytes())));
-        Print(stream,"Signal: {}, Size: {:.3} kB, Granularity: {} B", this->Size(), Bytes2Kilobytes(static_cast<float>(this->SizeInBytes())), sizeof(Signal));
+        Print(stream, NOX_FMT("Total: {:.3F} MB\n"), Bytes2Megabytes<float>(static_cast<float>(this->SizeInBytes())));
+        Print(stream, NOX_FMT("Signal: {}, Size: {:.3} kB, Granularity: {} B"), this->Size(), Bytes2Kilobytes(static_cast<float>(this->SizeInBytes())), sizeof(Signal));
         for (std::uint64_t i { 0 }; i < this->Size(); ++i)
         {
             const Signal sig { this->CodeBuffer_[i] };
@@ -373,7 +373,7 @@ namespace Nominax::ByteCode
                     Print
             		(
 						stream,
-						" {}{}{}{}{}{}",
+						NOX_FMT(" {}{}{}{}{}{}"),
 						Compiler::TYPE_MARKER,
 						Compiler::LPAREN,
 						Signal::DISCRIMINATOR_MNEMONICS[ToUnderlying(dis)],
@@ -387,7 +387,7 @@ namespace Nominax::ByteCode
                     Print
             		(
 						stream,
-						" {}{}{}{}{}{}",
+						NOX_FMT(" {}{}{}{}{}{}"),
 						Compiler::TYPE_MARKER,
 						Compiler::LPAREN,
 						Signal::DISCRIMINATOR_MNEMONICS[ToUnderlying(dis)],
@@ -401,7 +401,7 @@ namespace Nominax::ByteCode
                     Print
             		(
 						stream,
-						" {}{}{}{}{}{}",
+						NOX_FMT(" {}{}{}{}{}{}"),
 						Compiler::TYPE_MARKER,
 						Compiler::LPAREN,
 						Signal::DISCRIMINATOR_MNEMONICS[ToUnderlying(dis)],
@@ -415,7 +415,7 @@ namespace Nominax::ByteCode
                     Print
             		(
 						stream,
-						" {}{}{}{}{}{}",
+						NOX_FMT(" {}{}{}{}{}{}"),
 						Compiler::TYPE_MARKER,
 						Compiler::LPAREN,
 						Signal::DISCRIMINATOR_MNEMONICS[ToUnderlying(dis)],
@@ -426,7 +426,7 @@ namespace Nominax::ByteCode
                 continue;
 
                 case Signal::Discriminator::Instruction:
-                    Print(stream, "\n{}", InstructionMetaDataRegistry::MNEMONIC_TABLE[sig.R64.AsU64]);
+                    Print(stream, NOX_FMT("\n{}"), InstructionMetaDataRegistry::MNEMONIC_TABLE[sig.R64.AsU64]);
                 continue;
             }
         }

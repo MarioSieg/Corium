@@ -234,7 +234,7 @@ namespace Nominax::Foundation
 	{
 		IAllocator::Allocate(out, size);
 		const auto [count, suffix] { GetMemoryUnitInfo(size) };
-		Print("Allocate({:#X}, {} {})\n", reinterpret_cast<std::uintptr_t>(out), count, suffix);
+		Print(NOX_FMT("Allocate({:#X}, {} {})\n"), std::bit_cast<std::uintptr_t>(out), count, suffix);
 		++this->Allocations_;
 		this->BytesAllocated_ += size;
 	}
@@ -243,13 +243,13 @@ namespace Nominax::Foundation
 	{
 		IAllocator::Reallocate(out, size);
 		const auto [count, suffix] { GetMemoryUnitInfo(size) };
-		Print("Reallocate({:#X}, {} {})\n", reinterpret_cast<std::uintptr_t>(out), count, suffix);
+		Print(NOX_FMT("Reallocate({:#X}, {} {})\n"), std::bit_cast<std::uintptr_t>(out), count, suffix);
 		++this->Reallocations_;
 	}
 
 	auto DebugAllocator::Deallocate(void*& out) const -> void
 	{
-		Print("Deallocate({:#X})\n", reinterpret_cast<std::uintptr_t>(out));
+		Print(NOX_FMT("Deallocate({:#X})\n"), std::bit_cast<std::uintptr_t>(out));
 		IAllocator::Deallocate(out);
 		++this->Deallocations_;
 	}
@@ -258,7 +258,7 @@ namespace Nominax::Foundation
 	{
 		IAllocator::AllocateAligned(out, size, alignment);
 		const auto [count, suffix] { GetMemoryUnitInfo(size) };
-		Print("AllocateAligned({:#X}, {} {}, {} A)\n", reinterpret_cast<std::uintptr_t>(out), count, suffix, alignment);
+		Print(NOX_FMT("AllocateAligned({:#X}, {} {}, {} A)\n"), std::bit_cast<std::uintptr_t>(out), count, suffix, alignment);
 		++this->Allocations_;
 		this->BytesAllocated_ += size;
 	}
@@ -267,13 +267,13 @@ namespace Nominax::Foundation
 	{
 		IAllocator::ReallocateAligned(out, size, alignment);
 		const auto [count, suffix] { GetMemoryUnitInfo(size) };
-		Print("ReallocateAligned({:#X}, {} {}, {} A)\n", reinterpret_cast<std::uintptr_t>(out), count, suffix, alignment);
+		Print(NOX_FMT("ReallocateAligned({:#X}, {} {}, {} A)\n"), std::bit_cast<std::uintptr_t>(out), count, suffix, alignment);
 		++this->Reallocations_;
 	}
 
 	auto DebugAllocator::DeallocateAligned(void*& out) const -> void
 	{
-		Print("DeallocateAligned({:#X})\n", reinterpret_cast<std::uintptr_t>(out));
+		Print(NOX_FMT("DeallocateAligned({:#X})\n"), std::bit_cast<std::uintptr_t>(out));
 		IAllocator::DeallocateAligned(out);
 		++this->Deallocations_;
 	}
@@ -281,14 +281,14 @@ namespace Nominax::Foundation
     auto DebugAllocator::Display(DataStream& stream) const -> void
     {
         const auto [count, suffix] { GetMemoryUnitInfo(this->BytesAllocated_) };
-        Print(stream, "Allocations: {}\n", this->Allocations_);
-        Print(stream, "Reallocations: {}\n", this->Reallocations_);
-        Print(stream, "Deallocations: {}\n", this->Deallocations_);
-        Print(stream, "Total: {} {}\n", count, suffix);
+        Print(stream, NOX_FMT("Allocations: {}\n"), this->Allocations_);
+        Print(stream, NOX_FMT("Reallocations: {}\n"), this->Reallocations_);
+        Print(stream, NOX_FMT("Deallocations: {}\n"), this->Deallocations_);
+        Print(stream, NOX_FMT("Total: {} {}\n"), count, suffix);
         if (this->Allocations_ != this->Deallocations_)
         {
-            Print(stream, "Missing allocations: {}\n", this->Allocations_ - this->Deallocations_);
+            Print(stream, NOX_FMT("Missing allocations: {}\n"), this->Allocations_ - this->Deallocations_);
         }
-        Print(stream, "Warning! Some global shutdown deallocations might not be tracked!\n");
+        Print(stream, NOX_FMT("Warning! Some global shutdown deallocations might not be tracked!\n"));
     }
 }

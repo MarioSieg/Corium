@@ -241,29 +241,29 @@ namespace Nominax::Foundation
 			{
 				continue;
 			}
-            Print(out, "{}{}{}\n", SECTION_BEGIN, section.c_str(), SECTION_END);
+            Print(out, NOX_FMT("{}{}{}\n"), SECTION_BEGIN, section.c_str(), SECTION_END);
 			for (const auto& [key, value] : entries)
 			{
-                Print(out, "{} {} ", key.c_str(), EQU);
+                Print(out, NOX_FMT("{} {} "), key.c_str(), EQU);
                 std::visit
                 (
                     Overload
                     {
                         [&out](const std::string& val)
                         {
-                            Print(out, "\"{}\"", val.c_str());
+                            Print(out, NOX_FMT("\"{}\""), val.c_str());
                         },
                         [&out](const std::int64_t val)
                         {
-                            Print(out, "{}", val);
+                            Print(out, NOX_FMT("{}"), val);
                         },
                         [&out](const double val)
                         {
-                            Print(out, "{}", val);
+                            Print(out, NOX_FMT("{}"), val);
                         },
                         [&out](const bool val)
                         {
-                            Print(out, "{}", val ? "true" : "false");
+                            Print(out, NOX_FMT("{}"), val ? "true" : "false");
                         }
                     }, value
                 );

@@ -253,7 +253,7 @@ namespace Nominax::Foundation
     {
         for (const auto& option : this->Options_)
         {
-            Print(stream, "{0: <3} | {1: <12} | {2: <20}\n", option.Short, option.Long, option.Description);
+            Print(stream, NOX_FMT("{0: <3} | {1: <12} | {2: <20}\n"), option.Short, option.Long, option.Description);
         }
     }
 }

@@ -228,7 +228,7 @@ auto main(const int argc, const char* const* const argv) -> int
         PanicF({}, "Bytecode file does not exist: `{}`", path);
     }
 
-    Print("Compiling byte code: `{}`", path);
+    Print(NOX_FMT("Compiling byte code: `{}`"), path);
     Stream byteCode { };
     byteCode.Prologue();
     Compiler::Compile(path, byteCode);

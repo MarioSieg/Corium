@@ -275,7 +275,7 @@ namespace Nominax::Foundation
 
     auto CPUFeatureDetector::Display(DataStream& stream) const -> void
     {
-        Print(stream, "CPU Features:");
+        Print(stream, NOX_FMT("CPU Features:"));
         #if NOX_ARCH_X86_64
             for (std::uint64_t i { 0 }, j { 0 }; i < std::size(this->FeatureBits_); ++i)
             {
@@ -285,7 +285,7 @@ namespace Nominax::Foundation
                     {
                         Print(stream, '\n');
                     }
-                    Print(stream, "{} ", Assembler::X86_64::CPU_FEATURE_BIT_NAMES[i]);
+                    Print(stream, NOX_FMT("{} "), Assembler::X86_64::CPU_FEATURE_BIT_NAMES[i]);
                 }
             }
         #endif

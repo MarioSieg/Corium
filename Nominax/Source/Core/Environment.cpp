@@ -285,7 +285,7 @@ namespace Nominax::Core
 	[[nodiscard]]
 	NOX_ALLOC_SIZE(1) static inline auto AllocatePool(const std::uint64_t size, const std::string_view poolId) -> std::uint8_t*
 	{
-		Print("Allocating {} pool with size: {} MB\n", poolId, Bytes2Megabytes(static_cast<double>(size)));
+		Print(NOX_FMT("Allocating {} pool with size: {} MB\n"), poolId, Bytes2Megabytes(static_cast<double>(size)));
 		auto* NOX_RESTRICT const mem { new(std::nothrow) std::uint8_t[size] };
 		if (!mem) [[unlikely]]
 		{
@@ -293,7 +293,7 @@ namespace Nominax::Core
             (
                 Format
                 (
-                    "Allocation of monotonic {} pool with size {} MB failed!",
+                    NOX_FMT("Allocation of monotonic {} pool with size {} MB failed!"),
                     poolId,
                     Bytes2Megabytes(static_cast<double>(size))
                 )
@@ -493,7 +493,7 @@ namespace Nominax::Core
 		std::ios_base::sync_with_stdio(false);
 		SYSTEM_VERSION.DisplayToConsole();
         NATIVE_TYPE_REGISTRY.DisplayToConsole();
-		Print("\nBooting runtime environment...\nApp: \"{}\"\n", descriptor.AppName);
+		Print(NOX_FMT("\nBooting runtime environment...\nApp: \"{}\"\n"), descriptor.AppName);
 		const auto tik { std::chrono::high_resolution_clock::now() };
 
 		// Invoke hook:
@@ -501,7 +501,7 @@ namespace Nominax::Core
 
 		Print
 		(
-			"Monotonic system pool fixed size: {} MB, Fallback: {} MB\n",
+			NOX_FMT("Monotonic system pool fixed size: {} MB, Fallback: {} MB\n"),
 			Bytes2Megabytes(descriptor.SystemPoolSize),
 			Bytes2Megabytes(FALLBACK_SYSTEM_POOL_SIZE)
 		);
@@ -536,11 +536,14 @@ namespace Nominax::Core
 
 		Print
 		(
-            "Runtime environment online!\n"
-			"Process memory snapshot: {:.1f} % [{:.1f} MB / {:.1f} MB]\n"
-			"Monotonic system pool snapshot: {:.1f} % [{:.1f} MB / {:.1f} MB]\n"
-			"Boot time: {}\n"
-			"\n",
+           	NOX_FMT
+			(
+				"Runtime environment online!\n"
+				"Process memory snapshot: {:.1f} % [{:.1f} MB / {:.1f} MB]\n"
+				"Monotonic system pool snapshot: {:.1f} % [{:.1f} MB / {:.1f} MB]\n"
+				"Boot time: {}\n"
+				"\n"
+			),
             memUsagePercent,
             Bytes2Megabytes(static_cast<float>(memSnapshot)),
             Bytes2Megabytes(static_cast<float>(this->Context_->SysInfoSnapshot.TotalSystemMemory)),
@@ -563,7 +566,7 @@ namespace Nominax::Core
         DISPATCH_HOOK(OnPreExecutionHook, image);
 
         // Info
-        Print("Executing...\n");
+        Print(NOX_FMT("Executing...\n"));
         std::FILE* const outStream  { stdout };
         std::fflush(outStream);
 
@@ -576,7 +579,7 @@ namespace Nominax::Core
 
         // Print exec info:
         const auto time { duration_cast<duration<double, std::ratio<1>>>(micros) };
-        Print("Execution #{} done! Runtime {:.4}\n", this->Context_->ExecutionCount, time);
+        Print(NOX_FMT("Execution #{} done! Runtime {:.4}\n"), this->Context_->ExecutionCount, time);
         std::fflush(outStream);
 
         // Invoke hook:
