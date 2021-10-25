@@ -233,11 +233,7 @@ namespace Nominax::Assembler::X86_64
         };
         for (std::uint64_t i { 0 }; i < std::size(regset); ++i)
         {
-            if (i % 2 == 0)
-            {
-                Print(stream, '\n');
-            }
-            Print(stream, NOX_FMT("{} = {:016X} "), GPR_LUT[i], regset[i].AsU64);
+            Print(stream, NOX_FMT("\n{} = {:016X} "), GPR_LUT[i], regset[i].AsU64);
         }
         Print(stream, '\n');
     }

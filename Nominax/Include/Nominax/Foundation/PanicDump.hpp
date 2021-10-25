@@ -222,7 +222,7 @@ namespace Nominax::Foundation
 	/// <summary>
 	/// If true, panic dumps are created.
 	/// </summary>
-	constexpr bool ENABLE_PANIC_DUMPS { NOX_TEST };
+	constexpr bool ENABLE_PANIC_DUMPS { !NOX_TEST };
 
 	/// <summary>
 	/// 

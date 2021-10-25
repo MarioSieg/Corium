@@ -214,15 +214,12 @@ namespace Nominax::Foundation::EmbeddedHTML
 	{
 		constexpr std::string_view HTML
 		{
-			#include "../../../Templates/Panic/index.html"
-		};
-		constexpr std::string_view CSS
-		{
-			#include "../../../Templates/Panic/style.css"
+			#include "../../../Templates/Panic.html"
 		};
 		constexpr std::string_view FMT_FILE { "$FILE" };
 		constexpr std::string_view FMT_LINE { "$LINE" };
 		constexpr std::string_view FMT_ROUTINE { "$ROUTINE" };
 		constexpr std::string_view FMT_MESSAGE { "$MESSAGE" };
+		constexpr std::string_view FMT_REGISTERS { "$REGISTERS" };
 	}
 }
