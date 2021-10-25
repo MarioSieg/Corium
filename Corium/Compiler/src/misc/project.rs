@@ -205,7 +205,7 @@
 
 use serde::{Deserialize, Serialize};
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 #[derive(Serialize, Deserialize, Debug, Clone, Eq, PartialEq)]
 pub struct Project {
@@ -235,12 +235,17 @@ impl Project {
         }
     }
 
+    /// Create a new project and save the root file.
     pub fn create(name: String, path: PathBuf) -> Result<Project, String> {
         if name.is_empty() || path.as_os_str().is_empty() {
             return Err(format!("Invalid name of path: {:?} or {:?}", name, path));
         }
 
         let dir = path.join(&name);
+        if dir.exists() {
+            return Err(format!("Folder {:?} already exists", dir));
+        }
+
         if fs::create_dir(&dir).is_err() {
             return Err(format!("Failed to create directory: {:?}", &dir));
         }
@@ -258,8 +263,8 @@ impl Project {
         let project_file = dir.join(Self::ROOT_FILE_NAME);
         let project = Project::new(name.clone(), PathBuf::from(name.as_str()));
         match toml::to_string_pretty(&project) {
-            Ok(str) => {
-                if fs::write(&project_file, str).is_err() {
+            Ok(content) => {
+                if fs::write(&project_file, content).is_err() {
                     Err(format!(
                         "Failed to create project root file: {:?}",
                         &project_file
@@ -269,6 +274,33 @@ impl Project {
                 }
             }
             Err(e) => Err(format!("Failed to create project root file: {:?}", e)),
+        }
+    }
+
+    /// Open a project from root file.
+    pub fn open(dir: &Path) -> Result<Project, String> {
+        if dir.exists() {
+            match fs::read_to_string(dir) {
+                Ok(content) => match toml::from_str::<Project>(&content) {
+                    Ok(proj) => {
+                        if proj.source_dir.exists() || fs::create_dir(&proj.source_dir).is_ok() {
+                            Ok(proj)
+                        } else {
+                            Err(format!("The source directory {:?} for the project was not found and creation of it failed!", &proj.source_dir))
+                        }
+                    }
+                    Err(e) => Err(format!(
+                        "Failed to read project file {:?} because of {}",
+                        dir, e
+                    )),
+                },
+                Err(e) => Err(format!(
+                    "Failed to read project file {:?} because of {}",
+                    dir, e
+                )),
+            }
+        } else {
+            Err(format!("Project file {:?} does not exist!", dir))
         }
     }
 }
