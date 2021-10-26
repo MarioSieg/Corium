@@ -1,3 +1,3 @@
-DATE=10/25/2021 00:25:20
-SDK_VERSION=v.2.7
-CORIUM_HOME=C:\Users\mt300\Documents\GitHub\Corium
+DATE=10/26/2021 13:42:07
+SDK_VERSION=v.3.0
+CORIUM_HOME=C:\Users\Mario\Documents\GitHub\Corium

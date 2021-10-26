@@ -205,6 +205,7 @@
 
 use crate::misc;
 use crate::misc::project::Project;
+use std::env;
 use std::path::PathBuf;
 use structopt::StructOpt;
 
@@ -249,21 +250,35 @@ pub enum Options {
         dump_asm: bool,
     },
     Build,
+    Clean,
+    Rebuild,
+    Delete,
     DumpIntrinsics,
+}
+
+#[inline]
+fn go_one_dir_up() {
+    env::set_current_dir(env::current_dir().unwrap().join("../")).unwrap();
+}
+
+#[inline]
+fn check_project_dir() {
+    if !std::env::current_dir()
+        .unwrap()
+        .join(Project::ROOT_FILE)
+        .exists()
+    {
+        panic!("Project root fie `{}` not found in current path! Make sure you are inside a project directory!", Project::ROOT_FILE);
+    }
 }
 
 impl Options {
     pub fn process(self) {
         match self {
             Options::New { name } => {
-                let working_dir = std::env::current_dir()
+                let working_dir = env::current_dir()
                     .unwrap_or_else(|_| panic!("Failed to retrieve working dir!"));
-
-                if let Err(e) = misc::project::Project::create(name.clone(), working_dir) {
-                    panic!("Failed to create project `{}` because {}", name, e);
-                } else {
-                    println!("Created project `{}`", name);
-                }
+                misc::project::Project::create(name.clone(), working_dir);
             }
             Options::Compile {
                 input_files,
@@ -285,16 +300,20 @@ impl Options {
                 context.compile();
             }
             Options::Build => {
-                let working_dir = std::env::current_dir().expect("Could not query current path!");
-                match Project::open(&working_dir) {
-                    Ok(project) => {
-                        dbg!(&project);
-                        dbg!(project.get_source_files());
-                    }
-                    Err(error) => {
-                        panic!("{}", error);
-                    }
-                }
+                let project = Project::open(env::current_dir().unwrap());
+                dbg!(project);
+            }
+            Options::Clean => {
+                let project = Project::open(env::current_dir().unwrap());
+                project.clean();
+                println!("Cleaned project {}", project.name());
+            }
+            Options::Rebuild => {
+                Options::Clean.process();
+                Options::Build.process();
+            }
+            Options::Delete => {
+                Project::open(env::current_dir().unwrap()).delete();
             }
             Options::DumpIntrinsics => {
                 crate::core::intrinsics::Intrinsic::dump_all();
