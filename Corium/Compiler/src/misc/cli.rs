@@ -203,6 +203,8 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+use crate::misc;
+use crate::misc::project::Project;
 use std::path::PathBuf;
 use structopt::StructOpt;
 
@@ -246,5 +248,57 @@ pub enum Options {
         #[structopt(long, help = "Enable Nominax bytecode dump per file.")]
         dump_asm: bool,
     },
+    Build,
     DumpIntrinsics,
+}
+
+impl Options {
+    pub fn process(self) {
+        match self {
+            Options::New { name } => {
+                let working_dir = std::env::current_dir()
+                    .unwrap_or_else(|_| panic!("Failed to retrieve working dir!"));
+
+                if let Err(e) = misc::project::Project::create(name.clone(), working_dir) {
+                    panic!("Failed to create project `{}` because {}", name, e);
+                } else {
+                    println!("Created project `{}`", name);
+                }
+            }
+            Options::Compile {
+                input_files,
+                output_file: _output_file,
+                opt_level,
+                verbose: _verbose,
+                dump_ast,
+                dump_asm,
+            } => {
+                let mut context = crate::core::context::CompilerContext::new();
+                for file in input_files {
+                    let descriptor = crate::core::unit::FCUDescriptor {
+                        dump_ast,
+                        dump_asm,
+                        opt_level,
+                    };
+                    context.enqueue_file(file, descriptor);
+                }
+                context.compile();
+            }
+            Options::Build => {
+                let working_dir = std::env::current_dir().expect("Could not query current path!");
+                match Project::open(&working_dir) {
+                    Ok(project) => {
+                        dbg!(&project);
+                        dbg!(project.get_source_files());
+                    }
+                    Err(error) => {
+                        panic!("{}", error);
+                    }
+                }
+            }
+            Options::DumpIntrinsics => {
+                crate::core::intrinsics::Intrinsic::dump_all();
+            }
+        }
+    }
 }
