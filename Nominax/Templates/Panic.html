@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+R"(
 <html lang="en">
 <style>
     * {
@@ -45,33 +45,34 @@
 </style>
 <body>
 
-<h2>Nominax Runtime Panic</h2>
-The Nominax runtime system encountered an internal error and paniced!<br>
-Please send this report and help to fix the problem!<br>
-<button href="mailto:mt3000@gmx.de?subject=NominaxRuntimePanic">Send Report</button>
-<br>
-Thank you for your support and sorry for the inconvenience :(<br>
+    <h2>Nominax Runtime Panic</h2>
+    The Nominax runtime system encountered an internal error and paniced!<br>
+    Please send this report and help to fix the problem!<br>
+    <button onclick="window.open('mailto:nominax@gmx.net?subject=NominaxRuntimePanic&body=File: $FILE%0D%0ALine: $LINE%0D%0ARoutine: $ROUTINE%0D%0AMessage: $MESSAGE')">Send Report</button>
+    <br>
+    Thank you for your support and sorry for the inconvenience :(<br>
 
-<div class="divider"/>
+    <div class="divider" />
 
-<h2>Diagnostics</h2>
-<div class="error bold">
-    <p>File: $FILE</p>
-    <p>Line: $LINE</p>
-    <p>Routine: $ROUTINE</p>
-    <p> Message: $MESSAGE</p>
-</div>
+    <h2>Diagnostics</h2>
+    <div class="error bold">
+        <p>File: $FILE</p>
+        <p>Line: $LINE</p>
+        <p>Routine: $ROUTINE</p>
+        <p> Message: $MESSAGE</p>
+    </div>
 
-<div class="divider"/>
+    <div class="divider" />
 
-<h2>Register Dump</h2>
+    <h2>Register Dump</h2>
 
-<table style="width:100%">
-    <tr>
-        <th>Register</th>
-        <th>Value</th>
-    </tr>
-    $REGISTERS
-</table>
+    <table style="width:100%">
+        <tr>
+            <th>Register</th>
+            <th>Value</th>
+        </tr>
+        $REGISTERS
+    </table>
 </body>
 </html>
+)"
