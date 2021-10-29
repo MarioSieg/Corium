@@ -205,12 +205,18 @@
 
 use serde::{Deserialize, Serialize};
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
+use walkdir::WalkDir;
 
 #[derive(Serialize, Deserialize, Debug, Clone, Eq, PartialEq)]
 pub struct Project {
-    pub name: String,
-    pub source_dir: PathBuf,
+    name: String,
+    source_dir: PathBuf,
+    build_dir: PathBuf,
+
+    #[serde(skip)]
+    root_dir: PathBuf,
+
     pub version: Option<String>,
     pub description: Option<String>,
     pub authors: Option<Vec<String>>,
@@ -222,86 +228,120 @@ pub struct Project {
 }
 
 impl Project {
-    pub const ROOT_FILE_NAME: &'static str = "Corium.toml";
-    pub const DEFAULT_SOURCE_DIR: &'static str = "Source";
-    pub const DEFAULT_MAIN_FILE_NAME: &'static str = "App.cor";
-    pub const DEFAULT_MAIN_FILE_CONTENT: &'static str = include_str!("../../../Templates/App.cor");
+    pub const ROOT_FILE: &'static str = "Corium.toml";
+    pub const SOURCE_FILE_EXT: &'static str = ".cor";
+    pub const APP_FILE: &'static str = "App.cor";
+    pub const APP_FILE_CONTENT: &'static str = include_str!("../../../Templates/App.cor");
+    pub const SOURCE_DIR: &'static str = "Source";
+    pub const BUILD_DIR: &'static str = "Build";
 
-    pub fn new(name: String, source_dir: PathBuf) -> Self {
+    pub fn new(name: String, parent_dir: PathBuf) -> Self {
+        let root_dir = parent_dir.join(&name);
         Self {
             name,
-            source_dir,
+            source_dir: root_dir.join(Self::SOURCE_DIR),
+            build_dir: root_dir.join(Self::BUILD_DIR),
+            root_dir,
             ..Default::default()
         }
     }
 
-    /// Create a new project and save the root file.
-    pub fn create(name: String, path: PathBuf) -> Result<Project, String> {
-        if name.is_empty() || path.as_os_str().is_empty() {
-            return Err(format!("Invalid name of path: {:?} or {:?}", name, path));
-        }
-
-        let dir = path.join(&name);
-        if dir.exists() {
-            return Err(format!("Folder {:?} already exists", dir));
-        }
-
-        if fs::create_dir(&dir).is_err() {
-            return Err(format!("Failed to create directory: {:?}", &dir));
-        }
-
-        let source_dir = dir.join(Self::DEFAULT_SOURCE_DIR);
-        if fs::create_dir(&source_dir).is_err() {
-            return Err(format!("Failed to create directory: {:?}", &source_dir));
-        }
-
-        let main_file = source_dir.join(Self::DEFAULT_MAIN_FILE_NAME);
-        if fs::write(&main_file, Self::DEFAULT_MAIN_FILE_CONTENT).is_err() {
-            return Err(format!("Failed to create main file: {:?}", &main_file));
-        }
-
-        let project_file = dir.join(Self::ROOT_FILE_NAME);
-        let project = Project::new(name.clone(), PathBuf::from(name.as_str()));
-        match toml::to_string_pretty(&project) {
-            Ok(content) => {
-                if fs::write(&project_file, content).is_err() {
-                    Err(format!(
-                        "Failed to create project root file: {:?}",
-                        &project_file
-                    ))
-                } else {
-                    Ok(project)
-                }
-            }
-            Err(e) => Err(format!("Failed to create project root file: {:?}", e)),
-        }
+    pub fn create(name: String, parent_dir: PathBuf) -> Self {
+        let root_dir = parent_dir.join(&name);
+        fs::create_dir(&root_dir)
+            .unwrap_or_else(|_| panic!("Directory {:?} already exists!", root_dir));
+        let project = Self::new(name, parent_dir);
+        fs::create_dir(&project.source_dir()).unwrap();
+        fs::write(project.app_file_name(), Self::APP_FILE_CONTENT).unwrap();
+        fs::write(
+            project.root_file_name(),
+            toml::to_string_pretty(&project).unwrap(),
+        )
+        .unwrap();
+        project
     }
 
-    /// Open a project from root file.
-    pub fn open(dir: &Path) -> Result<Project, String> {
-        if dir.exists() {
-            match fs::read_to_string(dir) {
-                Ok(content) => match toml::from_str::<Project>(&content) {
-                    Ok(proj) => {
-                        if proj.source_dir.exists() || fs::create_dir(&proj.source_dir).is_ok() {
-                            Ok(proj)
-                        } else {
-                            Err(format!("The source directory {:?} for the project was not found and creation of it failed!", &proj.source_dir))
-                        }
-                    }
-                    Err(e) => Err(format!(
-                        "Failed to read project file {:?} because of {}",
-                        dir, e
-                    )),
-                },
-                Err(e) => Err(format!(
-                    "Failed to read project file {:?} because of {}",
-                    dir, e
-                )),
-            }
-        } else {
-            Err(format!("Project file {:?} does not exist!", dir))
+    pub fn open(root_dir: PathBuf) -> Self {
+        assert!(
+            root_dir.exists() && root_dir.is_dir(),
+            "Could not find project dir: {:?}",
+            root_dir
+        );
+        let root_file = root_dir.join(Self::ROOT_FILE);
+        assert!(
+            root_file.exists(),
+            "Could not find project root file: {:?}",
+            &root_file
+        );
+        let content = fs::read_to_string(&root_file).unwrap();
+        let mut project = toml::from_str::<Self>(&content).unwrap();
+        project.root_dir = root_dir;
+        assert!(
+            project.source_dir().exists(),
+            "Missing source dir of project: {:?}",
+            &project.root_dir
+        );
+        project
+    }
+
+    pub fn clean(&self) {
+        let build_dir = self.build_dir();
+        if !build_dir.exists() {
+            return;
         }
+        fs::remove_dir_all(build_dir)
+            .unwrap_or_else(|_| panic!("Failed to clean project: {:?}", self.root_dir()))
+    }
+
+    #[inline]
+    pub fn delete(self) {
+        fs::remove_dir_all(self.root_dir())
+            .unwrap_or_else(|_| panic!("Failed to clean project: {:?}", self.root_dir()))
+    }
+
+    pub fn source_files(&self) -> Vec<PathBuf> {
+        let mut result = Vec::new();
+        for entry in WalkDir::new(self.source_dir())
+            .follow_links(true)
+            .into_iter()
+            .filter_map(|e| e.ok())
+        {
+            let f_name = entry.file_name().to_string_lossy();
+            if f_name.ends_with(Self::SOURCE_FILE_EXT) {
+                result.push(PathBuf::from(entry.path()));
+            }
+        }
+        result
+    }
+
+    #[inline]
+    pub fn name(&self) -> &String {
+        &self.name
+    }
+
+    #[inline]
+    pub fn root_dir(&self) -> &PathBuf {
+        &self.root_dir
+    }
+
+    #[inline]
+    pub fn source_dir(&self) -> &PathBuf {
+        &self.source_dir
+    }
+
+    #[inline]
+    pub fn build_dir(&self) -> &PathBuf {
+        &self.build_dir
+    }
+
+    #[inline]
+    pub fn root_file_name(&self) -> PathBuf {
+        self.root_dir.join(Self::ROOT_FILE)
+    }
+
+    #[inline]
+    pub fn app_file_name(&self) -> PathBuf {
+        self.source_dir.join(Self::APP_FILE)
     }
 }
 
@@ -309,7 +349,9 @@ impl Default for Project {
     fn default() -> Self {
         Self {
             name: String::new(),
-            source_dir: PathBuf::new(),
+            source_dir: PathBuf::from(Self::SOURCE_DIR),
+            build_dir: PathBuf::from(Self::BUILD_DIR),
+            root_dir: PathBuf::new(),
             version: None,
             description: None,
             authors: None,

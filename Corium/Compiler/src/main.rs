@@ -219,39 +219,5 @@ use structopt::StructOpt;
 
 fn main() {
     let options = Options::from_args();
-
-    match options {
-        Options::New { name } => {
-            let working_dir = std::env::current_dir()
-                .unwrap_or_else(|_| panic!("Failed to retrieve working dir!"));
-
-            if let Err(e) = misc::project::Project::create(name.clone(), working_dir) {
-                panic!("Failed to create project `{}` because {}", name, e);
-            } else {
-                println!("Created project `{}`", name);
-            }
-        }
-        Options::Compile {
-            input_files,
-            output_file: _output_file,
-            opt_level,
-            verbose: _verbose,
-            dump_ast,
-            dump_asm,
-        } => {
-            let mut context = core::context::CompilerContext::new();
-            for file in input_files {
-                let descriptor = core::unit::FCUDescriptor {
-                    dump_ast,
-                    dump_asm,
-                    opt_level,
-                };
-                context.enqueue_file(file, descriptor);
-            }
-            context.compile();
-        }
-        Options::DumpIntrinsics => {
-            core::intrinsics::Intrinsic::dump_all();
-        }
-    }
+    options.process();
 }

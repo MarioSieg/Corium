@@ -203,6 +203,9 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+use crate::misc;
+use crate::misc::project::Project;
+use std::env;
 use std::path::PathBuf;
 use structopt::StructOpt;
 
@@ -246,5 +249,75 @@ pub enum Options {
         #[structopt(long, help = "Enable Nominax bytecode dump per file.")]
         dump_asm: bool,
     },
+    Build,
+    Clean,
+    Rebuild,
+    Delete,
     DumpIntrinsics,
+}
+
+#[inline]
+fn go_one_dir_up() {
+    env::set_current_dir(env::current_dir().unwrap().join("../")).unwrap();
+}
+
+#[inline]
+fn check_project_dir() {
+    if !std::env::current_dir()
+        .unwrap()
+        .join(Project::ROOT_FILE)
+        .exists()
+    {
+        panic!("Project root fie `{}` not found in current path! Make sure you are inside a project directory!", Project::ROOT_FILE);
+    }
+}
+
+impl Options {
+    pub fn process(self) {
+        match self {
+            Options::New { name } => {
+                let working_dir = env::current_dir()
+                    .unwrap_or_else(|_| panic!("Failed to retrieve working dir!"));
+                misc::project::Project::create(name.clone(), working_dir);
+            }
+            Options::Compile {
+                input_files,
+                output_file: _output_file,
+                opt_level,
+                verbose: _verbose,
+                dump_ast,
+                dump_asm,
+            } => {
+                let mut context = crate::core::context::CompilerContext::new();
+                for file in input_files {
+                    let descriptor = crate::core::unit::FCUDescriptor {
+                        dump_ast,
+                        dump_asm,
+                        opt_level,
+                    };
+                    context.enqueue_file(file, descriptor);
+                }
+                context.compile();
+            }
+            Options::Build => {
+                let project = Project::open(env::current_dir().unwrap());
+                dbg!(project);
+            }
+            Options::Clean => {
+                let project = Project::open(env::current_dir().unwrap());
+                project.clean();
+                println!("Cleaned project {}", project.name());
+            }
+            Options::Rebuild => {
+                Options::Clean.process();
+                Options::Build.process();
+            }
+            Options::Delete => {
+                Project::open(env::current_dir().unwrap()).delete();
+            }
+            Options::DumpIntrinsics => {
+                crate::core::intrinsics::Intrinsic::dump_all();
+            }
+        }
+    }
 }

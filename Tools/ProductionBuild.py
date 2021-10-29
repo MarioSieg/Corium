@@ -601,9 +601,9 @@ generate_sdk_info(sdk_root)
 print("Setting up Corium SDK...")
 shutil.copytree(sdk_root, sdk, dirs_exist_ok=True)
 
-print("Generating environment symlinks...")
-mk_symlink(corium_exe, f"{out_dir}/Environment/corium")
-mk_symlink(nominax_exe, f"{out_dir}/Environment/nominax")
+#print("Generating environment symlinks...")
+#mk_symlink(corium_exe, f"{out_dir}/Environment/corium")
+#mk_symlink(nominax_exe, f"{out_dir}/Environment/nominax")
 
 print("Creating SDK archieve...")
 archieve = create_archieve()
