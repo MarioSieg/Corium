@@ -969,7 +969,7 @@ mod rules {
                 let mut result = result.next().unwrap().into_inner();
 
                 let operator = result.next().unwrap();
-                assert_eq!(operator.as_rule(), Rule::UnaryOperator);
+                assert_eq!(operator.as_rule(), Rule::Operator);
                 assert_eq!(operator.as_str(), "+");
 
                 let inner = result.next().unwrap();
@@ -991,7 +991,7 @@ mod rules {
                 let mut result = result.next().unwrap().into_inner();
 
                 let operator = result.next().unwrap();
-                assert_eq!(operator.as_rule(), Rule::UnaryOperator);
+                assert_eq!(operator.as_rule(), Rule::Operator);
                 assert_eq!(operator.as_str(), "-");
 
                 let inner = result.next().unwrap();
@@ -1009,12 +1009,12 @@ mod rules {
 
             #[test]
             fn unary_not_literal() {
-                let mut result = CoriumParser::parse(Rule::Expression, "!true").unwrap();
+                let mut result = CoriumParser::parse(Rule::Expression, "not true").unwrap();
                 let mut result = result.next().unwrap().into_inner();
 
                 let operator = result.next().unwrap();
-                assert_eq!(operator.as_rule(), Rule::UnaryOperator);
-                assert_eq!(operator.as_str(), "!");
+                assert_eq!(operator.as_rule(), Rule::Operator);
+                assert_eq!(operator.as_str(), "not");
 
                 let inner = result.next().unwrap();
                 assert_eq!(inner.as_rule(), Rule::Expression);
@@ -1035,7 +1035,7 @@ mod rules {
                 let mut result = result.next().unwrap().into_inner();
 
                 let operator = result.next().unwrap();
-                assert_eq!(operator.as_rule(), Rule::UnaryOperator);
+                assert_eq!(operator.as_rule(), Rule::Operator);
                 assert_eq!(operator.as_str(), "~");
 
                 let inner = result.next().unwrap();
@@ -1077,33 +1077,33 @@ mod rules {
 
             #[test]
             fn plus() {
-                let mut result = CoriumParser::parse(Rule::UnaryOperator, "+").unwrap();
+                let mut result = CoriumParser::parse(Rule::Operator, "+").unwrap();
                 let result = result.next().unwrap();
-                assert_eq!(result.as_rule(), Rule::UnaryOperator);
+                assert_eq!(result.as_rule(), Rule::Operator);
                 assert_eq!(result.as_str(), "+");
             }
 
             #[test]
             fn minus() {
-                let mut result = CoriumParser::parse(Rule::UnaryOperator, "-").unwrap();
+                let mut result = CoriumParser::parse(Rule::Operator, "-").unwrap();
                 let result = result.next().unwrap();
-                assert_eq!(result.as_rule(), Rule::UnaryOperator);
+                assert_eq!(result.as_rule(), Rule::Operator);
                 assert_eq!(result.as_str(), "-");
             }
 
             #[test]
             fn not() {
-                let mut result = CoriumParser::parse(Rule::UnaryOperator, "!").unwrap();
+                let mut result = CoriumParser::parse(Rule::Operator, "not").unwrap();
                 let result = result.next().unwrap();
-                assert_eq!(result.as_rule(), Rule::UnaryOperator);
-                assert_eq!(result.as_str(), "!");
+                assert_eq!(result.as_rule(), Rule::Operator);
+                assert_eq!(result.as_str(), "not");
             }
 
             #[test]
             fn complement() {
-                let mut result = CoriumParser::parse(Rule::UnaryOperator, "~").unwrap();
+                let mut result = CoriumParser::parse(Rule::Operator, "~").unwrap();
                 let result = result.next().unwrap();
-                assert_eq!(result.as_rule(), Rule::UnaryOperator);
+                assert_eq!(result.as_rule(), Rule::Operator);
                 assert_eq!(result.as_str(), "~");
             }
         }
@@ -1112,14 +1112,14 @@ mod rules {
             use super::*;
 
             #[test]
-            fn ampersand() {
-                let result = CoriumParser::parse(Rule::UnaryOperator, "&");
+            fn qutation_mark() {
+                let result = CoriumParser::parse(Rule::Operator, "?");
                 assert!(result.is_err());
             }
 
             #[test]
             fn dollar() {
-                let result = CoriumParser::parse(Rule::UnaryOperator, "$");
+                let result = CoriumParser::parse(Rule::Operator, "$");
                 assert!(result.is_err());
             }
         }

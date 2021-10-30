@@ -203,7 +203,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::BuiltinType;
+use crate::ast::builtin_types::BuiltinType;
 use crate::nominax::bci::SysCall;
 use std::fmt;
 

@@ -438,7 +438,7 @@ mod populators {
             assert!(matches!(
                 ast,
                 Expression::UnaryOperation {
-                    op: UnaryOperator::Minus,
+                    op: Operator::Subtraction,
                     sub: _sub
                 }
             ));
@@ -452,7 +452,7 @@ mod populators {
             assert!(matches!(
                 ast,
                 Expression::UnaryOperation {
-                    op: UnaryOperator::Plus,
+                    op: Operator::Addition,
                     sub: _sub
                 }
             ));
@@ -460,13 +460,13 @@ mod populators {
 
         #[test]
         fn unary_not_bool_literal() {
-            let mut result = CoriumParser::parse(Rule::Expression, "!false").unwrap();
+            let mut result = CoriumParser::parse(Rule::Expression, "not false").unwrap();
             let ast = Expression::populate(result.next().unwrap().into_inner());
             let _sub = Box::new(Expression::Literal(Literal::Bool(false)));
             assert!(matches!(
                 ast,
                 Expression::UnaryOperation {
-                    op: UnaryOperator::Not,
+                    op: Operator::LogicalNot,
                     sub: _sub
                 }
             ));
@@ -480,7 +480,7 @@ mod populators {
             assert!(matches!(
                 ast,
                 Expression::UnaryOperation {
-                    op: UnaryOperator::Complement,
+                    op: Operator::BitwiseComplement,
                     sub: _sub
                 }
             ));
@@ -519,30 +519,30 @@ mod populators {
 
         #[test]
         fn plus() {
-            let result = CoriumParser::parse(Rule::UnaryOperator, "+").unwrap();
-            let ast = UnaryOperator::merge(result.as_str());
-            assert_eq!(ast, UnaryOperator::Plus);
+            let result = CoriumParser::parse(Rule::Operator, "+").unwrap();
+            let ast = Operator::merge(result.as_str());
+            assert_eq!(ast, Operator::Addition);
         }
 
         #[test]
         fn minus() {
-            let result = CoriumParser::parse(Rule::UnaryOperator, "-").unwrap();
-            let ast = UnaryOperator::merge(result.as_str());
-            assert_eq!(ast, UnaryOperator::Minus);
+            let result = CoriumParser::parse(Rule::Operator, "-").unwrap();
+            let ast = Operator::merge(result.as_str());
+            assert_eq!(ast, Operator::Subtraction);
         }
 
         #[test]
         fn not() {
-            let result = CoriumParser::parse(Rule::UnaryOperator, "!").unwrap();
-            let ast = UnaryOperator::merge(result.as_str());
-            assert_eq!(ast, UnaryOperator::Not);
+            let result = CoriumParser::parse(Rule::Operator, "not").unwrap();
+            let ast = Operator::merge(result.as_str());
+            assert_eq!(ast, Operator::LogicalNot);
         }
 
         #[test]
         fn complement() {
-            let result = CoriumParser::parse(Rule::UnaryOperator, "~").unwrap();
-            let ast = UnaryOperator::merge(result.as_str());
-            assert_eq!(ast, UnaryOperator::Complement);
+            let result = CoriumParser::parse(Rule::Operator, "~").unwrap();
+            let ast = Operator::merge(result.as_str());
+            assert_eq!(ast, Operator::BitwiseComplement);
         }
     }
 

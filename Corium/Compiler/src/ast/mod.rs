@@ -204,15 +204,19 @@
 //    limitations under the License.
 
 use crate::parser::Rule;
+use num_derive::FromPrimitive;
 use std::convert;
 use std::default;
 use std::fmt;
 
+pub mod builtin_types;
 pub mod populator;
 pub mod table;
 
 #[cfg(test)]
 mod tests;
+
+use builtin_types::*;
 
 const PARAM_MANGLE_SEPARATOR: char = '_';
 
@@ -552,7 +556,7 @@ pub enum Expression<'ast> {
 
     /// Unary operation (operation with one operand).
     UnaryOperation {
-        op: UnaryOperator,
+        op: Operator,
         sub: Box<Expression<'ast>>,
     },
 }
@@ -576,33 +580,73 @@ impl<'ast> fmt::Display for Expression<'ast> {
 
 /// Represents an unary operator having one operand. E.g. +10 or -0.5 or !x
 #[repr(u8)]
-#[derive(Clone, Eq, PartialEq, Debug)]
-pub enum UnaryOperator {
+#[derive(Copy, Clone, Eq, PartialEq, Debug, FromPrimitive)]
+pub enum Operator {
+    // Arithmetic
     /// +
-    Plus,
+    Addition,
 
     /// -
-    Minus,
+    Subtraction,
 
-    /// ! -> logical not
-    Not,
+    /// *
+    Multiplication,
 
-    /// ~ -> bitwise not
-    Complement,
+    /// /
+    Division,
+
+    /// %
+    Modulo,
+
+    // Bitwise
+    /// &
+    BitwiseAnd,
+
+    /// |
+    BitwiseOr,
+
+    /// ^
+    BitwiseXor,
+
+    /// ~
+    BitwiseComplement,
+
+    /// <<
+    BitwiseShiftLeft,
+
+    /// >>
+    BitwiseShiftRight,
+
+    /// <<<
+    BitwiseRotateLeft,
+
+    /// >>>
+    BitwiseRotateRight,
+
+    // Logical
+    /// not
+    LogicalNot,
+
+    /// and
+    LogicalAnd,
+
+    /// or
+    LogicalOr,
 }
 
-impl AstComponent for UnaryOperator {
-    const CORRESPONDING_RULE: Rule = Rule::UnaryOperator;
+impl Operator {
+    pub const TOKENS: [&'static str; Self::LogicalOr as usize + 1] = [
+        "+", "-", "*", "/", "%", "&", "|", "^", "~", "<<", ">>", "<<<", ">>>", "not", "and", "or",
+    ];
 }
 
-impl fmt::Display for UnaryOperator {
+impl AstComponent for Operator {
+    const CORRESPONDING_RULE: Rule = Rule::Operator;
+}
+
+impl fmt::Display for Operator {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Self::Plus => write!(f, "+"),
-            Self::Minus => write!(f, "-"),
-            Self::Not => write!(f, "!"),
-            Self::Complement => write!(f, "~"),
-        }
+        write!(f, "{}", Self::TOKENS[*self as usize])
     }
 }
 
@@ -709,27 +753,4 @@ impl<'ast> fmt::Display for Identifier<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.0)
     }
-}
-
-/// Represents a Corium "int".
-pub type Int = i64;
-
-/// Represents a Corium "float".
-pub type Float = f64;
-
-/// Represents a Corium "bool".
-pub type Bool = bool;
-
-/// Represents a Corium "char".
-pub type Char = char;
-
-#[derive(Copy, Clone, Eq, PartialEq, Debug)]
-#[repr(u8)]
-pub enum BuiltinType {
-    Int,
-    Float,
-    Bool,
-    Char,
-    String,
-    Object,
 }

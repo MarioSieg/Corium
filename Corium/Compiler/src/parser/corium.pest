@@ -57,16 +57,33 @@ Parameter = {
 
 Expression = {
     Literal |
+    Operator ~ Whitespace ~ Expression |
     Identifier |
-    "(" ~ Expression ~ ")" |
-    UnaryOperator ~ Expression
+    "(" ~ Expression ~ ")"
 }
 
-UnaryOperator = {
-    "+" |
-    "-" |
-    "!" |
-    "~"
+Operator = {
+   // Arithmetic
+   "+" |   // addition
+   "-" |   // subtraction
+   "*" |   // multiplication
+   "/" |   // division
+   "%" |   // modulo
+
+   // Bitwise
+   "&" |   // and
+   "|" |   // or
+   "^" |   // xor
+   "~" |   // complement
+   "<<" |  // shift left
+   ">>" |  // shift right
+   "<<<" | // rotate left
+   ">>>" | // rotate right
+
+   // Logical
+   "not" | // not
+   "and" | // and
+   "or"    // or
 }
 
 Literal = {
@@ -109,6 +126,10 @@ Char = @{
     !("\"" | "\\") ~ ANY
     | "\\" ~ ("\"" | "\\" | "n" | "r" | "t")
     | "\\" ~ ("u" ~ ASCII_HEX_DIGIT{8})
+}
+
+Whitespace = _ {
+    WHITE_SPACE*
 }
 
 StatementSeparator = _{

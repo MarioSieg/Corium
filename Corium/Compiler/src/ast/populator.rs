@@ -205,6 +205,7 @@
 
 use crate::ast::*;
 use crate::parser::*;
+use num_traits::FromPrimitive;
 use std::str::FromStr;
 
 pub trait NestedAstPopulator<'ast>: AstComponent {
@@ -467,9 +468,9 @@ impl<'ast> NestedAstPopulator<'ast> for Expression<'ast> {
                 debug_assert_eq!(inner.as_rule(), Rule::Expression);
                 Self::Sub(Box::new(Self::populate(inner.into_inner())))
             }
-            Rule::UnaryOperator => {
-                debug_assert_eq!(inner.as_rule(), Rule::UnaryOperator);
-                let op = UnaryOperator::merge(inner.as_str());
+            Rule::Operator => {
+                debug_assert_eq!(inner.as_rule(), Rule::Operator);
+                let op = Operator::merge(inner.as_str());
                 let sub = {
                     let inner = rule.next().unwrap();
                     debug_assert_eq!(inner.as_rule(), Rule::Expression);
@@ -482,15 +483,14 @@ impl<'ast> NestedAstPopulator<'ast> for Expression<'ast> {
     }
 }
 
-impl<'ast> AtomicAstPopulator<'ast> for UnaryOperator {
+impl<'ast> AtomicAstPopulator<'ast> for Operator {
     fn merge(span: &'ast str) -> Self {
-        match span {
-            "+" => UnaryOperator::Plus,
-            "-" => UnaryOperator::Minus,
-            "!" => UnaryOperator::Not,
-            "~" => UnaryOperator::Complement,
-            _ => unreachable!(),
+        for (i, tok) in Self::TOKENS.iter().enumerate() {
+            if *tok == span {
+                return Self::from_u8(i as u8).unwrap();
+            }
         }
+        unreachable!()
     }
 }
 

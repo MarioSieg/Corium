@@ -23,3 +23,5 @@ structopt = "0.3.23"
 toml = "0.5.8"
 serde = { version = "1.0.130", features = ["derive"] }
 walkdir = "2.3.2"
+num-traits = "0.2.14"
+num-derive = "0.3.3"
