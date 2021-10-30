@@ -206,9 +206,8 @@
 #pragma once
 
 #include <array>
-#include <type_traits>
-
 #include <cstdint>
+#include <type_traits>
 
 namespace Nominax::Foundation
 {

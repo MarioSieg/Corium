@@ -207,7 +207,7 @@
 
 #include <bit>
 
-#include "Algorithm.hpp"
+#include "Algorithm/Math.hpp"
 #include <cstdint>
 
 namespace Nominax::Foundation
@@ -283,6 +283,6 @@ namespace Nominax::Foundation
 	/// <returns></returns>
 	inline auto ComputeMinAlignmentRequiredForSize(const std::uint64_t size) -> std::uint64_t
 	{
-		return size >= alignof(std::max_align_t) ? alignof(std::max_align_t) : static_cast<std::uint64_t>(1) << ILog2(size);
+		return size >= alignof(std::max_align_t) ? alignof(std::max_align_t) : static_cast<std::uint64_t>(1) << Algorithm::ILog2(size);
 	}
 }

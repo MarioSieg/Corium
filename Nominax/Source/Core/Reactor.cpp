@@ -276,7 +276,7 @@ namespace Nominax::Core
 		const ReactorValidationResult validationResult { this->Input_.Validate() };
 		if (validationResult != ReactorValidationResult::Ok) [[unlikely]]
 		{
-			const std::string_view message { REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[Foundation::ToUnderlying(validationResult)] };
+			const std::string_view message { REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[Foundation::Algorithm::ToUnderlying(validationResult)] };
 			Foundation::PanicF({}, NOX_FMT("Reactor {:#X} validation failed with the following reason: {}"), this->Id_, message);
 		}
 		ReactorCoreExecutionRoutine* const routine { this->RoutineLink_.ExecutionRoutine };

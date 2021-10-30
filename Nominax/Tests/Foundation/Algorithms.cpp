@@ -206,15 +206,15 @@
 #include "../TestBase.hpp"
 
 using Variant = std::variant<int, short, float>;
-static_assert(VariantIndexOf<Variant, int>() == 0);
-static_assert(VariantIndexOf<Variant, short>() == 1);
-static_assert(VariantIndexOf<Variant, float>() == 2);
+static_assert(Algorithm::VariantIndexOf<Variant, int>() == 0);
+static_assert(Algorithm::VariantIndexOf<Variant, short>() == 1);
+static_assert(Algorithm::VariantIndexOf<Variant, float>() == 2);
 
 TEST(Algorithms, UniformChunkSplit)
 {
 	constexpr std::array                                                                       values {2, 5, 1, 4, 5, 9};
 	std::uint64_t                                                                              i {0};
-	UniformChunkSplit(2, std::begin(values), std::end(values), [&i](const std::span<const int> range, const std::uint64_t index)
+	Algorithm::UniformChunkSplit(2, std::begin(values), std::end(values), [&i](const std::span<const int> range, const std::uint64_t index)
 	{
 		ASSERT_EQ(range.size(), 3);
 		ASSERT_EQ(index, 6 / 2 * i++);
@@ -225,7 +225,7 @@ TEST(Algorithms, UniformChunkSplit2)
 {
 	constexpr std::array                                                                       values {2, 5, 1, 4, 5, 9, 2, 5, 1, 4, 5, 9};
 	std::uint64_t                                                                              i {0};
-	UniformChunkSplit(1, std::begin(values), std::end(values), [&i](const std::span<const int> range, const std::uint64_t index)
+	Algorithm::UniformChunkSplit(1, std::begin(values), std::end(values), [&i](const std::span<const int> range, const std::uint64_t index)
 	{
 		ASSERT_EQ(index, i++);
 		ASSERT_EQ(range.size(), 12);
@@ -236,7 +236,7 @@ TEST(Algorithms, UniformChunkSplit3)
 {
 	constexpr std::array                                                                                             values {2, 5, 1, 4, 5, 9, 2, 5, 1, 4, 5, 9};
 	std::uint64_t                                                                                                    i {0};
-	UniformChunkSplit(4, std::begin(values), std::end(values), [&i, size = values.size()](const std::span<const int> range, const std::uint64_t index)
+	Algorithm::UniformChunkSplit(4, std::begin(values), std::end(values), [&i, size = values.size()](const std::span<const int> range, const std::uint64_t index)
 	{
 		ASSERT_EQ(range.size(), 3);
 		ASSERT_EQ(index, size / 4 * i++);
@@ -246,7 +246,7 @@ TEST(Algorithms, UniformChunkSplit3)
 TEST(Algorithms, UniformChunkSplitSingleZero)
 {
 	constexpr std::array                                                                            values {2, 5, 1, 4, 5, 9};
-	UniformChunkSplit(0, std::begin(values), std::end(values), [&values](const std::span<const int> range, const std::uint64_t index)
+	Algorithm::UniformChunkSplit(0, std::begin(values), std::end(values), [&values](const std::span<const int> range, const std::uint64_t index)
 	{
 		ASSERT_EQ(range.size(), values.size());
 		ASSERT_EQ(index, 0);
@@ -256,7 +256,7 @@ TEST(Algorithms, UniformChunkSplitSingleZero)
 TEST(Algorithms, UniformChunkSplitSingleOne)
 {
 	constexpr std::array                                                                            values {2, 5, 1, 4, 5, 9};
-	UniformChunkSplit(1, std::begin(values), std::end(values), [&values](const std::span<const int> range, const std::uint64_t index)
+	Algorithm::UniformChunkSplit(1, std::begin(values), std::end(values), [&values](const std::span<const int> range, const std::uint64_t index)
 	{
 		ASSERT_EQ(range.size(), values.size());
 		ASSERT_EQ(index, 0);
@@ -266,122 +266,122 @@ TEST(Algorithms, UniformChunkSplitSingleOne)
 TEST(Algorithms, AdvanceRef)
 {
 	constexpr std::array values {1, 2, 3};
-	ASSERT_EQ(AdvanceRef(values[0]), 2);
-	ASSERT_EQ(AdvanceRef(values[1]), 3);
+	ASSERT_EQ(Algorithm::AdvanceRef(values[0]), 2);
+	ASSERT_EQ(Algorithm::AdvanceRef(values[1]), 3);
 }
 
 TEST(Algorithms, DistanceRef)
 {
 	constexpr std::array values {1, 2, 3};
-	ASSERT_EQ(DistanceRef(values[0], values.data()), 0);
-	ASSERT_EQ(DistanceRef(values[1], values.data()), 1);
-	ASSERT_EQ(DistanceRef(values[2], values.data()), 2);
+	ASSERT_EQ(Algorithm::DistanceRef(values[0], values.data()), 0);
+	ASSERT_EQ(Algorithm::DistanceRef(values[1], values.data()), 1);
+	ASSERT_EQ(Algorithm::DistanceRef(values[2], values.data()), 2);
 }
 
 TEST(Algorithms, ILog2)
 {
-	ASSERT_EQ(ILog2(8), 3);
-	ASSERT_EQ(ILog2(8), std::log(8) / std::log(2));
+	ASSERT_EQ(Algorithm::ILog2(8), 3);
+	ASSERT_EQ(Algorithm::ILog2(8), std::log(8) / std::log(2));
 }
 
 TEST(Algorithms, ILog22)
 {
-	ASSERT_EQ(ILog2(16), 4);
-	ASSERT_EQ(ILog2(8), std::log2(8));
+	ASSERT_EQ(Algorithm::ILog2(16), 4);
+	ASSERT_EQ(Algorithm::ILog2(8), std::log2(8));
 }
 
 TEST(Algorithms, ILog2DeBruijn)
 {
-	ASSERT_EQ(ILog2DeBruijn(8), 3);
-	ASSERT_EQ(ILog2DeBruijn(8), std::log(8) / std::log(2));
+	ASSERT_EQ(Algorithm::ILog2DeBruijn(8), 3);
+	ASSERT_EQ(Algorithm::ILog2DeBruijn(8), std::log(8) / std::log(2));
 }
 
 TEST(Algorithms, ILog2DeBruijn2)
 {
-	ASSERT_EQ(ILog2DeBruijn(16), 4);
-	ASSERT_EQ(ILog2DeBruijn(8), std::log2(8));
+	ASSERT_EQ(Algorithm::ILog2DeBruijn(16), 4);
+	ASSERT_EQ(Algorithm::ILog2DeBruijn(8), std::log2(8));
 }
 
 TEST(Algorithms, RoundUpPow2)
 {
-	ASSERT_EQ(RoundUpPow2(1), 1);
-	ASSERT_EQ(RoundUpPow2(3), 4);
-	ASSERT_EQ(RoundUpPow2(5), 8);
-	ASSERT_EQ(RoundUpPow2(10), 16);
-	ASSERT_EQ(RoundUpPow2(240), 256);
+	ASSERT_EQ(Algorithm::RoundUpPow2(1), 1);
+	ASSERT_EQ(Algorithm::RoundUpPow2(3), 4);
+	ASSERT_EQ(Algorithm::RoundUpPow2(5), 8);
+	ASSERT_EQ(Algorithm::RoundUpPow2(10), 16);
+	ASSERT_EQ(Algorithm::RoundUpPow2(240), 256);
 }
 
 TEST(Algorithms, ComputeRequiredBytes)
 {
-	ASSERT_EQ(ComputeRequiredBytes(0), 1);
-	ASSERT_EQ(ComputeRequiredBytes(1), 1);
-	ASSERT_EQ(ComputeRequiredBytes(0xFF), 1);
-	ASSERT_EQ(ComputeRequiredBytes(0xFF + 1), 2);
-	ASSERT_EQ(ComputeRequiredBytes(0xFFFF), 2);
-	ASSERT_EQ(ComputeRequiredBytes(0xFFFF + 1), 4);
-	ASSERT_EQ(ComputeRequiredBytes(0xFFFFFFFF), 4);
-	ASSERT_EQ(ComputeRequiredBytes(UINT64_C(0xFFFFFFFF) + 1), 8);
-	ASSERT_EQ(ComputeRequiredBytes(0xFFFFFFFFFFFFFFFF), 8);
+	ASSERT_EQ(Algorithm::ComputeRequiredBytes(0), 1);
+	ASSERT_EQ(Algorithm::ComputeRequiredBytes(1), 1);
+	ASSERT_EQ(Algorithm::ComputeRequiredBytes(0xFF), 1);
+	ASSERT_EQ(Algorithm::ComputeRequiredBytes(0xFF + 1), 2);
+	ASSERT_EQ(Algorithm::ComputeRequiredBytes(0xFFFF), 2);
+	ASSERT_EQ(Algorithm::ComputeRequiredBytes(0xFFFF + 1), 4);
+	ASSERT_EQ(Algorithm::ComputeRequiredBytes(0xFFFFFFFF), 4);
+	ASSERT_EQ(Algorithm::ComputeRequiredBytes(UINT64_C(0xFFFFFFFF) + 1), 8);
+	ASSERT_EQ(Algorithm::ComputeRequiredBytes(0xFFFFFFFFFFFFFFFF), 8);
 }
 
 TEST(Algorithms, IsPow2)
 {
-	ASSERT_TRUE(IsPowerOfTwo(0));
-	ASSERT_TRUE(IsPowerOfTwo(1));
-	ASSERT_TRUE(IsPowerOfTwo(2));
-	ASSERT_TRUE(IsPowerOfTwo(4));
-	ASSERT_FALSE(IsPowerOfTwo(5));
-	ASSERT_FALSE(IsPowerOfTwo(6));
-	ASSERT_FALSE(IsPowerOfTwo(67));
-	ASSERT_FALSE(IsPowerOfTwo(255));
-	ASSERT_TRUE(IsPowerOfTwo(256));
-	ASSERT_TRUE(IsPowerOfTwo(512));
+	ASSERT_TRUE(Algorithm::IsPowerOfTwo(0));
+	ASSERT_TRUE(Algorithm::IsPowerOfTwo(1));
+	ASSERT_TRUE(Algorithm::IsPowerOfTwo(2));
+	ASSERT_TRUE(Algorithm::IsPowerOfTwo(4));
+	ASSERT_FALSE(Algorithm::IsPowerOfTwo(5));
+	ASSERT_FALSE(Algorithm::IsPowerOfTwo(6));
+	ASSERT_FALSE(Algorithm::IsPowerOfTwo(67));
+	ASSERT_FALSE(Algorithm::IsPowerOfTwo(255));
+	ASSERT_TRUE(Algorithm::IsPowerOfTwo(256));
+	ASSERT_TRUE(Algorithm::IsPowerOfTwo(512));
 }
 
 TEST(Algorithms, BitRotLeft32)
 {
-	ASSERT_EQ(Rol32(2, 4), std::rotl<std::uint32_t>(2, 4));
-	ASSERT_EQ(Rol32(1234567, 22), std::rotl<std::uint32_t>(1234567, 22));
+	ASSERT_EQ(Algorithm::Rol32(2, 4), std::rotl<std::uint32_t>(2, 4));
+	ASSERT_EQ(Algorithm::Rol32(1234567, 22), std::rotl<std::uint32_t>(1234567, 22));
 }
 
 TEST(Algorithms, BitRotLeft64)
 {
-	ASSERT_EQ(Rol64(2, 4), std::rotl<std::uint64_t>(2, 4));
-	ASSERT_EQ(Rol64(1234567, 22), std::rotl<std::uint64_t>(1234567, 22));
+	ASSERT_EQ(Algorithm::Rol64(2, 4), std::rotl<std::uint64_t>(2, 4));
+	ASSERT_EQ(Algorithm::Rol64(1234567, 22), std::rotl<std::uint64_t>(1234567, 22));
 }
 
 TEST(Algorithms, BitRotRight32)
 {
-	ASSERT_EQ(Ror32(2, 4), std::rotr<std::uint32_t>(2, 4));
-	ASSERT_EQ(Ror32(1234567, 22), std::rotr<std::uint32_t>(1234567, 22));
+	ASSERT_EQ(Algorithm::Ror32(2, 4), std::rotr<std::uint32_t>(2, 4));
+	ASSERT_EQ(Algorithm::Ror32(1234567, 22), std::rotr<std::uint32_t>(1234567, 22));
 }
 
 TEST(Algorithms, BitRotRight64)
 {
-	ASSERT_EQ(Ror64(2, 4), std::rotr<std::uint64_t>(2, 4));
-	ASSERT_EQ(Ror64(1234567, 22), std::rotr<std::uint64_t>(1234567, 22));
+	ASSERT_EQ(Algorithm::Ror64(2, 4), std::rotr<std::uint64_t>(2, 4));
+	ASSERT_EQ(Algorithm::Ror64(1234567, 22), std::rotr<std::uint64_t>(1234567, 22));
 }
 
 TEST(Algorithms, BitRotLeft32Generic)
 {
-	ASSERT_EQ(Rol32(2, 4), RolGeneric<std::uint32_t>(2, 4));
-	ASSERT_EQ(Rol32(1234567, 22), RolGeneric<std::uint32_t>(1234567, 22));
+	ASSERT_EQ(Algorithm::Rol32(2, 4), Algorithm::RolGeneric<std::uint32_t>(2, 4));
+	ASSERT_EQ(Algorithm::Rol32(1234567, 22), Algorithm::RolGeneric<std::uint32_t>(1234567, 22));
 }
 
 TEST(Algorithms, BitRotLeft64Generic)
 {
-	ASSERT_EQ(Rol64(2, 4), RolGeneric<std::uint64_t>(2, 4));
-	ASSERT_EQ(Rol64(1234567, 22), RolGeneric<std::uint64_t>(1234567, 22));
+	ASSERT_EQ(Algorithm::Rol64(2, 4), Algorithm::RolGeneric<std::uint64_t>(2, 4));
+	ASSERT_EQ(Algorithm::Rol64(1234567, 22), Algorithm::RolGeneric<std::uint64_t>(1234567, 22));
 }
 
 TEST(Algorithms, BitRotRight32Generic)
 {
-	ASSERT_EQ(Ror32(2, 4), RorGeneric<std::uint32_t>(2, 4));
-	ASSERT_EQ(Ror32(1234567, 22), RorGeneric<std::uint32_t>(1234567, 22));
+	ASSERT_EQ(Algorithm::Ror32(2, 4), Algorithm::RorGeneric<std::uint32_t>(2, 4));
+	ASSERT_EQ(Algorithm::Ror32(1234567, 22), Algorithm::RorGeneric<std::uint32_t>(1234567, 22));
 }
 
 TEST(Algorithms, BitRotRight64Generic)
 {
-	ASSERT_EQ(Ror64(2, 4), RorGeneric<std::uint64_t>(2, 4));
-	ASSERT_EQ(Ror64(1234567, 22), RorGeneric<std::uint64_t>(1234567, 22));
+	ASSERT_EQ(Algorithm::Ror64(2, 4), Algorithm::RorGeneric<std::uint64_t>(2, 4));
+	ASSERT_EQ(Algorithm::Ror64(1234567, 22), Algorithm::RorGeneric<std::uint64_t>(1234567, 22));
 }

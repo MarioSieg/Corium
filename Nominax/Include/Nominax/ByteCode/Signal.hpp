@@ -206,6 +206,7 @@
 #pragma once
 
 #include <cstdint>
+#include <string_view>
 
 #include "Instruction.hpp"
 
@@ -275,7 +276,7 @@ namespace Nominax::ByteCode
         /// <summary>
         /// Contains the name of all discriminators.
         /// </summary>
-        static constexpr std::array<const std::string_view, Foundation::ToUnderlying(Discriminator::Count_)> DISCRIMINATOR_NAMES
+        static constexpr std::array<const std::string_view, Foundation::Algorithm::ToUnderlying(Discriminator::Count_)> DISCRIMINATOR_NAMES
         {
             "MemoryOffset",
             "Int",
@@ -291,7 +292,7 @@ namespace Nominax::ByteCode
         /// <summary>
         /// Contains the name of all discriminators.
         /// </summary>
-        static constexpr std::array<const std::string_view, Foundation::ToUnderlying(Discriminator::Count_)> DISCRIMINATOR_MNEMONICS
+        static constexpr std::array<const std::string_view, Foundation::Algorithm::ToUnderlying(Discriminator::Count_)> DISCRIMINATOR_MNEMONICS
         {
             "mof",
             "imm",

@@ -203,7 +203,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "Algorithm.hpp"
+#include "Algorithm/Math.hpp"
 #include "MappedMemory.hpp"
 #include "PanicAssertions.hpp"
 
@@ -218,7 +218,7 @@ namespace Nominax::Foundation
     concept MappedMemoryType = requires
     {
         std::is_trivial_v<T>;
-        IsPowerOfTwo(alignof(T));
+        Algorithm::IsPowerOfTwo(alignof(T));
     };
 
     /// <summary>
@@ -373,7 +373,7 @@ namespace Nominax::Foundation
         /// </summary>
         /// <param name="idx">The index in the buffer.</param>
         /// <return>The T at index "idx".</return>
-        auto operator[](std::uint64_t idx) -> T&;
+        auto operator [](std::uint64_t idx) -> T&;
 
         /// <summary>
         /// Subscript operator.
@@ -381,19 +381,19 @@ namespace Nominax::Foundation
         /// </summary>
         /// <param name="idx">The index in the buffer.</param>
         /// <return>The T at index "idx".</return>
-        auto operator[](std::uint64_t idx) const -> const T&;
+        auto operator [](std::uint64_t idx) const -> const T&;
 
         /// <summary>
         /// Dereference operator.
         /// </summary>
         /// <return>The first element in the buffer.</return>
-        auto operator*() const -> const T&;
+        auto operator *() const -> const T&;
 
         /// <summary>
         /// Dereference operator.
         /// </summary>
         /// <return>The first element in the buffer.</return>
-        auto operator*() -> T&;
+        auto operator *() -> T&;
     };
 
     template <typename T> requires MappedMemoryType<T>

@@ -205,82 +205,10 @@
 
 #pragma once
 
-#include <span>
-
-#include "SysCall.hpp"
-
-#include "../Foundation/Algorithm/_Algorithm.hpp"
-#include "../Foundation/Record.hpp"
-
-namespace Nominax::ByteCode
-{
-	/// <summary>
-	/// Contains all byte code instructions with opcodes.
-	/// </summary>
-	enum class alignas(alignof(std::uint64_t)) Instruction : std::uint64_t
-	{
-        #include "ExportInstructionEnum.hpp"
-    };
-
-	/// <summary>
-	/// Instruction category.
-	/// </summary>
-	enum class InstructionCategory : std::uint8_t
-	{
-        #include "ExportInstructionCategoryEnum.hpp"
-	};
-
-    /// <summary>
-    /// Instruction category sigils.
-    /// </summary>
-    constexpr std::array<const char, Foundation::Algorithm::ToUnderlying(InstructionCategory::Count_)> INSTRUCTION_CATEGORY_SIGILS
-    {
-        'C',
-        'M',
-        'B',
-        'A',
-        'I',
-        'V'
-    };
-
-    /// <summary>
-    /// Represents an unsigned stack offset.
-    /// </summary>
-    enum class alignas(alignof(std::uint64_t)) MemOffset : std::uint64_t;
-
-	/// <summary>
-	/// Represents a jump address which
-	/// is essentially an index to a instruction.
-	/// For dynamic signals only.
-	/// </summary>
-	enum class alignas(alignof(std::uint64_t)) JumpAddress : std::uint64_t;
-
-	/// <summary>
-	/// Subroutine invocation id for custom intrinsic routine.
-	/// </summary>
-	enum class alignas(alignof(std::uint64_t)) UserIntrinsicInvocationID : std::uint64_t;
-
-	/// <summary>
-	/// Custom intrinsic routine function prototype.
-	/// Contains the stack pointer as parameter.
-	/// </summary>
-	using IntrinsicRoutine = auto (Foundation::Record*) -> void;
-	static_assert(std::is_function_v<IntrinsicRoutine>);
-
-	/// <summary>
-	/// Represents a function pointer registry which contains intrinsic
-	/// routines which are invoked using
-	/// user intrinsic virtual machine calls.
-	/// </summary>
-	using UserIntrinsicRoutineRegistry = std::span<IntrinsicRoutine*>;
-
-    /// <summary>
-    /// Index of a type descriptor.
-    /// </summary>
-    enum class alignas(alignof(std::uint64_t)) TypeID : std::uint64_t;
-
-    /// <summary>
-    /// Index to a structure field.
-    /// </summary>
-    enum class alignas(alignof(std::uint64_t)) FieldOffset : std::uint64_t;
-}
+#include "BitRotation.hpp"
+#include "Enum.hpp"
+#include "Generic.hpp"
+#include "FP16Half.hpp"
+#include "Math.hpp"
+#include "Ref.hpp"
+#include "Variant.hpp"

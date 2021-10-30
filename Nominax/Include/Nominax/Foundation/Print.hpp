@@ -219,7 +219,6 @@
 #include "DataStream.hpp"
 #include "ProtocolController.hpp"
 #include "Platform.hpp"
-#include "Algorithm.hpp"
 
 namespace Nominax::Foundation
 {

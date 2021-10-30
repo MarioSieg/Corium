@@ -210,7 +210,7 @@
 #include <string_view>
 
 #include "../Assembler/_Assembler.hpp"
-#include "Algorithm.hpp"
+#include "Algorithm/Enum.hpp"
 #include "Platform.hpp"
 
 namespace Nominax::Foundation
@@ -223,15 +223,15 @@ namespace Nominax::Foundation
 	/// <summary>
 	/// Feature mask.
 	/// </summary>
-	using CPUFeatureMask = std::array<bool, ToUnderlying(CPUFeature::Count_)>;
+	using CPUFeatureMask = std::array<bool, Algorithm::ToUnderlying(CPUFeature::Count_)>;
 
 	/// <summary>
 	/// Bitmask storage type.
 	/// </summary>
-	using CPUFeatureMaskBitStorage = std::bitset<ToUnderlying(CPUFeature::Count_)>;
+	using CPUFeatureMaskBitStorage = std::bitset<Algorithm::ToUnderlying(CPUFeature::Count_)>;
 
 	/// <summary>
 	/// Feature mask.
 	/// </summary>
-	using CPUFeatureMaskBuffer = std::array<std::uint8_t, ToUnderlying(CPUFeature::Count_) / CHAR_BIT>;
+	using CPUFeatureMaskBuffer = std::array<std::uint8_t, Algorithm::ToUnderlying(CPUFeature::Count_) / CHAR_BIT>;
 }

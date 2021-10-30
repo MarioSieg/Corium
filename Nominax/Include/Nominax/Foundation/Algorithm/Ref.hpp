@@ -205,82 +205,41 @@
 
 #pragma once
 
-#include <span>
+#include <cstdint>
+#include <cstddef>
+#include <type_traits>
+#include <utility>
 
-#include "SysCall.hpp"
-
-#include "../Foundation/Algorithm/_Algorithm.hpp"
-#include "../Foundation/Record.hpp"
-
-namespace Nominax::ByteCode
+namespace Nominax::Foundation::Algorithm
 {
 	/// <summary>
-	/// Contains all byte code instructions with opcodes.
+	/// Calculates and returns the next element in the array using pointer arithmetic.
+	/// Is is important that T is a reference to an element in the array and NOT the last one.
+	/// This is useful to get the next element when using std::for_each with parallel execution.
 	/// </summary>
-	enum class alignas(alignof(std::uint64_t)) Instruction : std::uint64_t
+	/// <typeparam name="T"></typeparam>
+	/// <param name="iter"></param>
+	/// <param name="begin"></param>
+	/// <returns></returns>
+	template <typename T> requires std::is_reference_v<T>
+	[[nodiscard]]
+	constexpr auto DistanceRef(T&& iter, const std::remove_reference_t<T>* const begin) -> std::ptrdiff_t
 	{
-        #include "ExportInstructionEnum.hpp"
-    };
+		return std::addressof(iter) - begin;
+	}
 
 	/// <summary>
-	/// Instruction category.
+	/// Calculates and returns the next element in the array using pointer arithmetic.
+	/// Is is important that T is a reference to an element in the array and NOT the last one.
+	/// This is useful to get the next element when using std::for_each with parallel execution.
 	/// </summary>
-	enum class InstructionCategory : std::uint8_t
+	/// <typeparam name="T"></typeparam>
+	/// <param name="iter"></param>
+	/// <returns></returns>
+	template <typename T> requires std::is_reference_v<T>
+	[[nodiscard]]
+	constexpr auto AdvanceRef(T&& iter) -> T&&
 	{
-        #include "ExportInstructionCategoryEnum.hpp"
-	};
-
-    /// <summary>
-    /// Instruction category sigils.
-    /// </summary>
-    constexpr std::array<const char, Foundation::Algorithm::ToUnderlying(InstructionCategory::Count_)> INSTRUCTION_CATEGORY_SIGILS
-    {
-        'C',
-        'M',
-        'B',
-        'A',
-        'I',
-        'V'
-    };
-
-    /// <summary>
-    /// Represents an unsigned stack offset.
-    /// </summary>
-    enum class alignas(alignof(std::uint64_t)) MemOffset : std::uint64_t;
-
-	/// <summary>
-	/// Represents a jump address which
-	/// is essentially an index to a instruction.
-	/// For dynamic signals only.
-	/// </summary>
-	enum class alignas(alignof(std::uint64_t)) JumpAddress : std::uint64_t;
-
-	/// <summary>
-	/// Subroutine invocation id for custom intrinsic routine.
-	/// </summary>
-	enum class alignas(alignof(std::uint64_t)) UserIntrinsicInvocationID : std::uint64_t;
-
-	/// <summary>
-	/// Custom intrinsic routine function prototype.
-	/// Contains the stack pointer as parameter.
-	/// </summary>
-	using IntrinsicRoutine = auto (Foundation::Record*) -> void;
-	static_assert(std::is_function_v<IntrinsicRoutine>);
-
-	/// <summary>
-	/// Represents a function pointer registry which contains intrinsic
-	/// routines which are invoked using
-	/// user intrinsic virtual machine calls.
-	/// </summary>
-	using UserIntrinsicRoutineRegistry = std::span<IntrinsicRoutine*>;
-
-    /// <summary>
-    /// Index of a type descriptor.
-    /// </summary>
-    enum class alignas(alignof(std::uint64_t)) TypeID : std::uint64_t;
-
-    /// <summary>
-    /// Index to a structure field.
-    /// </summary>
-    enum class alignas(alignof(std::uint64_t)) FieldOffset : std::uint64_t;
+		return *(std::addressof(iter) + 1);
+	}
 }

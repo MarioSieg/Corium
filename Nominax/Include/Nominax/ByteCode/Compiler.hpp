@@ -280,7 +280,7 @@ namespace Nominax::ByteCode
         /// <summary>
         /// All available type names.
         /// </summary>
-        static constexpr const std::array<const std::string_view, Foundation::ToUnderlying(Signal::Discriminator::Count_)>& TYPE_NAME_LIST
+        static constexpr const std::array<const std::string_view, Foundation::Algorithm::ToUnderlying(Signal::Discriminator::Count_)>& TYPE_NAME_LIST
         {
             Signal::DISCRIMINATOR_MNEMONICS
         };
@@ -288,7 +288,7 @@ namespace Nominax::ByteCode
         /// <summary>
         /// All available instruction mnemonics.
         /// </summary>
-        static constexpr const std::array<const std::string_view, Foundation::ToUnderlying(Instruction::Count_)>& MNEMONIC_LIST
+        static constexpr const std::array<const std::string_view, Foundation::Algorithm::ToUnderlying(Instruction::Count_)>& MNEMONIC_LIST
         {
             InstructionMetaDataRegistry::MNEMONIC_TABLE
         };
@@ -296,7 +296,7 @@ namespace Nominax::ByteCode
         /// <summary>
         /// All available syscall mnemonics.
         /// </summary>
-        static constexpr const std::array<const std::string_view, Foundation::ToUnderlying(SysCall::Count_)>& SYSCALL_MNEMONIC_TABLE
+        static constexpr const std::array<const std::string_view, Foundation::Algorithm::ToUnderlying(SysCall::Count_)>& SYSCALL_MNEMONIC_TABLE
         {
             SysCallMetaDataRegistry::MNEMONIC_TABLE
         };

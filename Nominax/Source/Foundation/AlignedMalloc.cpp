@@ -207,7 +207,7 @@
 #include <cstdlib>
 
 #include "../../Include/Nominax/Foundation/AlignedMalloc.hpp"
-#include "../../Include/Nominax/Foundation/Algorithm.hpp"
+#include "../../Include/Nominax/Foundation/Algorithm/Math.hpp"
 #include "../../Include/Nominax/Foundation/PanicAssertions.hpp"
 
 namespace Nominax::Foundation

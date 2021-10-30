@@ -207,6 +207,7 @@
 
 #include "../../Include/Nominax/Foundation/IOStream.hpp"
 #include "../../Include/Nominax/Foundation/PanicAssertions.hpp"
+#include "../../Include/Nominax/Foundation/Algorithm/Enum.hpp"
 
 #define NOX_VALIDATE_HANDLE()                                                           \
 	do                                                                                  \
@@ -219,7 +220,7 @@ namespace Nominax::Foundation
 {
     auto IOStream::GetCAccessModeProxy(const FileAccessMode accessMode, const FileContentMode contentMode) -> ModeProxy
     {
-        const ModeProxy modeProxy{ ToUnderlying(accessMode), ToUnderlying(contentMode), '\0' };
+        const ModeProxy modeProxy{ Algorithm::ToUnderlying(accessMode), Algorithm::ToUnderlying(contentMode), '\0' };
         return modeProxy;
     }
 

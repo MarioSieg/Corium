@@ -205,82 +205,136 @@
 
 #pragma once
 
-#include <span>
+#include <cstdint>
+#include <type_traits>
 
-#include "SysCall.hpp"
+#include "../Platform.hpp"
 
-#include "../Foundation/Algorithm/_Algorithm.hpp"
-#include "../Foundation/Record.hpp"
-
-namespace Nominax::ByteCode
+namespace Nominax::Foundation::Algorithm
 {
 	/// <summary>
-	/// Contains all byte code instructions with opcodes.
+	/// Generic bit rotation left.
 	/// </summary>
-	enum class alignas(alignof(std::uint64_t)) Instruction : std::uint64_t
+	/// <param name="value"></param>
+	/// <param name="shift"></param>
+	/// <returns>The bit shifted value.</returns>
+	template <typename T> requires std::is_unsigned_v<T>
+	[[nodiscard]]
+	NOX_FORCE_INLINE NOX_PURE constexpr auto RolGeneric(const T value, const std::uint8_t shift) -> T
 	{
-        #include "ExportInstructionEnum.hpp"
-    };
+		return ((value) << (shift)) | ((value) >> (-static_cast<std::int32_t>(shift) & (CHAR_BIT * sizeof(value) - 1)));
+	}
 
 	/// <summary>
-	/// Instruction category.
+	/// Generic bit rotation right.
 	/// </summary>
-	enum class InstructionCategory : std::uint8_t
+	/// <param name="value"></param>
+	/// <param name="shift"></param>
+	/// <returns>The bit shifted value.</returns>
+	template <typename T> requires std::is_unsigned_v<T>
+	[[nodiscard]]
+	NOX_FORCE_INLINE NOX_PURE constexpr auto RorGeneric(const T value, const std::uint8_t shift) -> T
 	{
-        #include "ExportInstructionCategoryEnum.hpp"
-	};
-
-    /// <summary>
-    /// Instruction category sigils.
-    /// </summary>
-    constexpr std::array<const char, Foundation::Algorithm::ToUnderlying(InstructionCategory::Count_)> INSTRUCTION_CATEGORY_SIGILS
-    {
-        'C',
-        'M',
-        'B',
-        'A',
-        'I',
-        'V'
-    };
-
-    /// <summary>
-    /// Represents an unsigned stack offset.
-    /// </summary>
-    enum class alignas(alignof(std::uint64_t)) MemOffset : std::uint64_t;
+		return (((value) << (-static_cast<std::int32_t>(shift) & (CHAR_BIT * sizeof(value) - 1))) | ((value) >> (shift)));
+	}
 
 	/// <summary>
-	/// Represents a jump address which
-	/// is essentially an index to a instruction.
-	/// For dynamic signals only.
+	/// Fast, platform dependent implementation for a bitwise left rotation.
 	/// </summary>
-	enum class alignas(alignof(std::uint64_t)) JumpAddress : std::uint64_t;
+	[[nodiscard]]
+	NOX_FORCE_INLINE NOX_PURE inline auto Rol32
+	(
+		std::uint32_t      value,
+		const std::uint8_t shift
+	) -> std::uint32_t
+	{
+		#if NOX_OS_WINDOWS && NOX_USE_ARCH_OPT && NOX_ARCH_X86_64 && !NOX_COM_GCC
+			return _rotl(value, shift);
+		#elif !NOX_OS_WINDOWS && NOX_USE_ARCH_OPT && NOX_ARCH_X86_64
+			asm volatile
+			(
+				"roll %%cl, %0"
+				: "=r"(value)
+				: "0" (value), "c"(shift)
+			);
+			return value;
+		#else
+			return RolGeneric<decltype(value)>(value, shift);
+		#endif
+	}
 
 	/// <summary>
-	/// Subroutine invocation id for custom intrinsic routine.
+	/// Fast, platform dependent implementation for a bitwise right rotation.
 	/// </summary>
-	enum class alignas(alignof(std::uint64_t)) UserIntrinsicInvocationID : std::uint64_t;
+	[[nodiscard]]
+	NOX_REACTOR_ROUTINE NOX_PURE inline auto Ror32
+	(
+		std::uint32_t      value,
+		const std::uint8_t shift
+	) -> std::uint32_t
+	{
+		#if NOX_OS_WINDOWS && NOX_USE_ARCH_OPT && NOX_ARCH_X86_64 && !NOX_COM_GCC
+			return _rotr(value, shift);
+		#elif !NOX_OS_WINDOWS && NOX_USE_ARCH_OPT && NOX_ARCH_X86_64
+			asm volatile
+			(
+				"rorl %%cl, %0"
+				: "=r"(value)
+				: "0" (value), "c"(shift)
+			);
+			return value;
+		#else
+			return RorGeneric<decltype(value)>(value, shift);
+		#endif
+	}
 
 	/// <summary>
-	/// Custom intrinsic routine function prototype.
-	/// Contains the stack pointer as parameter.
+	/// Fast, platform dependent implementation for a bitwise left rotation.
 	/// </summary>
-	using IntrinsicRoutine = auto (Foundation::Record*) -> void;
-	static_assert(std::is_function_v<IntrinsicRoutine>);
+	[[nodiscard]]
+	NOX_REACTOR_ROUTINE NOX_PURE inline auto Rol64
+	(
+		std::uint64_t      value,
+		const std::uint8_t shift
+	) -> std::uint64_t
+	{
+		#if NOX_OS_WINDOWS && NOX_USE_ARCH_OPT && NOX_ARCH_X86_64 && !NOX_COM_GCC
+			return _rotl64(value, shift);
+		#elif !NOX_OS_WINDOWS && NOX_USE_ARCH_OPT && NOX_ARCH_X86_64
+			asm volatile
+			(
+				"rolq %%cl, %0"
+				: "=r"(value)
+				: "0" (value), "c"(shift)
+			);
+			return value;
+		#else
+			return RolGeneric<decltype(value)>(value, shift);
+		#endif
+	}
 
 	/// <summary>
-	/// Represents a function pointer registry which contains intrinsic
-	/// routines which are invoked using
-	/// user intrinsic virtual machine calls.
+	/// Fast, platform dependent implementation for a bitwise right rotation.
 	/// </summary>
-	using UserIntrinsicRoutineRegistry = std::span<IntrinsicRoutine*>;
-
-    /// <summary>
-    /// Index of a type descriptor.
-    /// </summary>
-    enum class alignas(alignof(std::uint64_t)) TypeID : std::uint64_t;
-
-    /// <summary>
-    /// Index to a structure field.
-    /// </summary>
-    enum class alignas(alignof(std::uint64_t)) FieldOffset : std::uint64_t;
+	[[nodiscard]]
+	NOX_REACTOR_ROUTINE NOX_PURE inline auto Ror64
+	(
+		std::uint64_t      value,
+		const std::uint8_t shift
+	) -> std::uint64_t
+	{
+		#if NOX_OS_WINDOWS && NOX_USE_ARCH_OPT && NOX_ARCH_X86_64 && !NOX_COM_GCC
+			return _rotr64(value, shift);
+		#elif !NOX_OS_WINDOWS && NOX_USE_ARCH_OPT && NOX_ARCH_X86_64
+			asm volatile
+			(
+				"rorq %%cl, %0"
+				: "=r"(value)
+				: "0" (value), "c"(shift)
+			);
+			return value;
+		#else
+			return RorGeneric<decltype(value)>(value, shift);
+		#endif
+	}
 }

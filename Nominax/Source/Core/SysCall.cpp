@@ -207,6 +207,7 @@
 
 #include "SysCall.hpp"
 #include "../../Include/Nominax/SCM/_SCM.hpp"
+#include "../../Include/Nominax/Foundation/Algorithm/Enum.hpp"
 
 namespace Nominax::Core
 {
@@ -239,7 +240,7 @@ namespace Nominax::Core
     /// </summary>
     NOX_HOT auto SysCallIntrin(Foundation::Record* NOX_RESTRICT const sp, uint64_t gate) -> void
     {
-        static constexpr std::array<const void* NOX_RESTRICT const, Foundation::ToUnderlying(ByteCode::SysCall::Count_)> JUMP_TABLE
+        static constexpr std::array<const void* NOX_RESTRICT const, Foundation::Algorithm::ToUnderlying(ByteCode::SysCall::Count_)> JUMP_TABLE
         {
             &&NOX_SYSCALL_GATE_ID(cos),
             &&NOX_SYSCALL_GATE_ID(sin),

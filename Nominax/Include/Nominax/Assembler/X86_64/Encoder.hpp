@@ -209,6 +209,7 @@
 #include "Emitter.hpp"
 
 #include "../../Foundation/PanicAssertions.hpp"
+#include "../../Foundation/Algorithm/Enum.hpp"
 
 namespace Nominax::Assembler::X86_64
 {
@@ -248,14 +249,14 @@ namespace Nominax::Assembler::X86_64
 
     constexpr auto CheckModRM(const MODField mod, const std::uint8_t r1, const std::uint8_t r2) -> bool
     {
-        const std::uint8_t m { Foundation::ToUnderlying(mod) };
+        const std::uint8_t m { Foundation::Algorithm::ToUnderlying(mod) };
         return (~((m >> 6) & ~3) & ~(r1 & ~7) & ~(r2 & ~7)) & true;
     }
 
     constexpr auto EncodeModRM(const MODField mod, const std::uint8_t r1, const std::uint8_t r2) -> std::uint8_t
     {
         NOX_DBG_PAS(CheckModRM(mod, r1, r2), "Invalid ModRM byte.");
-        const std::uint8_t m { Foundation::ToUnderlying(mod) };
+        const std::uint8_t m { Foundation::Algorithm::ToUnderlying(mod) };
         return m | ((r1 & 7) << 3) | (r2 & 7);
     }
 

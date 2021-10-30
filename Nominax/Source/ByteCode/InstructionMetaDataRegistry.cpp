@@ -229,7 +229,7 @@ namespace Nominax::ByteCode
                 }
                 std::string result {  };
                 result.reserve(32);
-                for (std::underlying_type_t<Signal::Discriminator> j { }; j < Foundation::ToUnderlying(Signal::Discriminator::Count_); ++j)
+                for (std::underlying_type_t<Signal::Discriminator> j { }; j < Foundation::Algorithm::ToUnderlying(Signal::Discriminator::Count_); ++j)
                 {
                     if (flags & ComputeDiscBit(static_cast<Signal::Discriminator>(j)))
                     {
@@ -241,7 +241,7 @@ namespace Nominax::ByteCode
             }
         };
 
-        for (std::underlying_type_t<Instruction> i { }; i < Foundation::ToUnderlying(Instruction::Count_); ++i)
+        for (std::underlying_type_t<Instruction> i { }; i < Foundation::Algorithm::ToUnderlying(Instruction::Count_); ++i)
         {
             Print
             (
@@ -253,7 +253,7 @@ namespace Nominax::ByteCode
                 PUSH_RECORD_TABLE[i],
                 POP_RECORD_TABLE[i],
                 STACK_DIFF_TABLE[i],
-                INSTRUCTION_CATEGORY_SIGILS[Foundation::ToUnderlying(CATEGORY_TABLE[i])],
+                INSTRUCTION_CATEGORY_SIGILS[Foundation::Algorithm::ToUnderlying(CATEGORY_TABLE[i])],
                 getOperandName(i, 0),
                 getOperandName(i, 1)
             );

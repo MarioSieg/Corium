@@ -210,21 +210,23 @@
 #include <cstdio>
 #include <limits>
 
-#include "../Foundation/DataStream.hpp"
 #include "SysCallProxy.hpp"
 
 namespace Nominax::SCM
 {
-    using Foundation::DataStream;
-
-    NOX_SYSCALL_LIB_ATTRIBS auto GetNativeRuntimeOutputStream() -> DataStream
+    NOX_SYSCALL_LIB_ATTRIBS auto NativeOutputStream() noexcept -> std::FILE*
     {
-        return DataStream::StdOut();
+        return stdout;
     }
 
-    NOX_SYSCALL_LIB_ATTRIBS auto PrintNative(const char* const data, const std::uint64_t len) -> void
+    NOX_SYSCALL_LIB_ATTRIBS auto PrintNativeASCII(const char* const data, const std::uint64_t len) noexcept -> void
     {
-        GetNativeRuntimeOutputStream().Write(data, len);
+        std::fwrite(data, len, 1, NativeOutputStream());
+    }
+
+    NOX_SYSCALL_LIB_ATTRIBS auto PrintNativeASCII(const char chr) noexcept -> void
+    {
+        std::putc(chr, NativeOutputStream());
     }
 
     /// <summary>
@@ -250,7 +252,7 @@ namespace Nominax::SCM
         char* const bufBegin { &*std::begin(scratchBuf) };
         char* const bufEnd { &*std::end(scratchBuf) };
         const char* const end { std::to_chars(bufBegin, bufEnd, ARG1.AsI64).ptr };
-        PrintNative(bufBegin, end - bufBegin);
+        PrintNativeASCII(bufBegin, end - bufBegin);
     }
 
     /// <summary>
@@ -276,7 +278,7 @@ namespace Nominax::SCM
         char* const bufBegin { &*std::begin(scratchBuf) };
         char* const bufEnd { &*std::end(scratchBuf) };
         const char* const end { std::to_chars(bufBegin, bufEnd, ARG1.AsF64).ptr };
-        PrintNative(bufBegin, end - bufBegin);
+        PrintNativeASCII(bufBegin, end - bufBegin);
     }
 
     /// <summary>
@@ -302,7 +304,7 @@ namespace Nominax::SCM
         char* const bufBegin { &*std::begin(scratchBuf) };
         char* const bufEnd { &*std::end(scratchBuf) };
         const char* const end { std::to_chars(bufBegin, bufEnd, ARG1.AsU64).ptr };
-        PrintNative(bufBegin, end - bufBegin);
+        PrintNativeASCII(bufBegin, end - bufBegin);
     }
 
     /// <summary>
@@ -325,7 +327,7 @@ namespace Nominax::SCM
     NOX_SYSCALL_PROXY(PRINT_BOOL)
     {
         const std::string_view scratchBuf { ARG1.AsBool ? "true" : "false" };
-        PrintNative(std::data(scratchBuf), std::size(scratchBuf));
+        PrintNativeASCII(std::data(scratchBuf), std::size(scratchBuf));
     }
 
     /// <summary>
@@ -347,7 +349,7 @@ namespace Nominax::SCM
     /// <returns>None.</returns>
     NOX_SYSCALL_PROXY(FLUSH)
     {
-        GetNativeRuntimeOutputStream().Flush();
+        std::fflush(NativeOutputStream());
     }
 
     /// <summary>
@@ -369,6 +371,6 @@ namespace Nominax::SCM
     /// <returns>None.</returns>
     NOX_SYSCALL_PROXY(NEWLINE)
     {
-        GetNativeRuntimeOutputStream().NewLine();
+        PrintNativeASCII('\n');
     }
 }

@@ -225,15 +225,15 @@ namespace Nominax::Core
 		return output;
 	}
 
-	static constexpr std::array<ReactorCoreExecutionRoutine*, Foundation::ToUnderlying(ReactorCoreSpecialization::Count)> REACTOR_REGISTRY
+	static constexpr std::array<ReactorCoreExecutionRoutine*, Foundation::Algorithm::ToUnderlying(ReactorCoreSpecialization::Count)> REACTOR_REGISTRY
 	{
 		&ReactorCore_Fallback,
 		&ReactorCore_Debug,
 
 		#if NOX_ARCH_X86_64
 
-			&ReactorCore_Avx,
-			&ReactorCore_Avx512F,
+		&ReactorCore_Avx,
+		&ReactorCore_Avx512F,
 
 		#endif
 	};

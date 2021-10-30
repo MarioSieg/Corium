@@ -204,7 +204,7 @@
 //    limitations under the License.
 
 #include "../../Include/Nominax/Foundation/INIFile.hpp"
-#include "../../Include/Nominax/Foundation/Algorithm.hpp"
+#include "../../Include/Nominax/Foundation/Algorithm/Variant.hpp"
 #include "../../Include/Nominax/Foundation/Print.hpp"
 
 namespace Nominax::Foundation
@@ -247,7 +247,7 @@ namespace Nominax::Foundation
                 Print(out, NOX_FMT("{} {} "), key.c_str(), EQU);
                 std::visit
                 (
-                    Overload
+                    Algorithm::Overload
                     {
                         [&out](const std::string& val)
                         {

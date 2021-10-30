@@ -307,7 +307,7 @@ namespace Nominax::ByteCode
 		{
 			[&](const Signal::Discriminator& iterator)
 			{
-				const std::ptrdiff_t index { Foundation::DistanceRef(iterator, bufBegin) };
+				const std::ptrdiff_t index { Foundation::Algorithm::DistanceRef(iterator, bufBegin) };
 				const Signal signal { codeBuf[index] };
 				auto result { ValidationResultCode::Ok };
 
@@ -383,8 +383,8 @@ namespace Nominax::ByteCode
 
 	auto ValidateSystemIntrinsicCall(const SysCall id) -> bool
 	{
-		constexpr auto max { Foundation::ToUnderlying(SysCall::Count_) - 1 };
-		const auto value { Foundation::ToUnderlying(id) };
+		constexpr auto max { Foundation::Algorithm::ToUnderlying(SysCall::Count_) - 1 };
+		const auto value { Foundation::Algorithm::ToUnderlying(id) };
 		static_assert(std::is_unsigned_v<decltype(value)>);
 		return NOX_EXPECT_VALUE(value <= max, true);
 	}
@@ -392,7 +392,7 @@ namespace Nominax::ByteCode
 	auto ValidateUserIntrinsicCall(const UserIntrinsicRoutineRegistry& routines, const UserIntrinsicInvocationID id) -> bool
 	{
 		static_assert(std::is_unsigned_v<std::underlying_type_t<decltype(id)>>);
-		return NOX_EXPECT_VALUE(Foundation::ToUnderlying(id) < std::size(routines), true);
+		return NOX_EXPECT_VALUE(Foundation::Algorithm::ToUnderlying(id) < std::size(routines), true);
 	}
 
 	auto ValidateInstructionArguments

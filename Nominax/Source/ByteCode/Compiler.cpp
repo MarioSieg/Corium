@@ -8,7 +8,7 @@
 
 namespace Nominax::ByteCode
 {
-    using Foundation::EnumeratingSearch;
+    using Foundation::Algorithm::EnumeratingSearch;
     using Foundation::Panic;
     using Foundation::PanicF;
     using Foundation::Format;
@@ -158,7 +158,7 @@ namespace Nominax::ByteCode
 		                SysCall call { };
 		                const bool found
 		                {
-		                    EnumeratingSearch
+							EnumeratingSearch
 		                    (
 		                        std::cbegin(SYSCALL_MNEMONIC_TABLE),
 		                        std::cend(SYSCALL_MNEMONIC_TABLE),
@@ -175,7 +175,7 @@ namespace Nominax::ByteCode
 		                };
 		                if (!found) [[unlikely]]
 		                {
-		                    PanicF({}, NOX_FMT("Invalid syscall: \"{}\"!"), SYSCALL_MNEMONIC_TABLE[Foundation::ToUnderlying(call)]);
+		                    PanicF({}, NOX_FMT("Invalid syscall: \"{}\"!"), SYSCALL_MNEMONIC_TABLE[Foundation::Algorithm::ToUnderlying(call)]);
 		                }
 		                stream.Emit(call);
 		            }

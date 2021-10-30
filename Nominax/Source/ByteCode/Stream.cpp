@@ -376,7 +376,7 @@ namespace Nominax::ByteCode
 						NOX_FMT(" {}{}{}{}{}{}"),
 						Compiler::TYPE_MARKER,
 						Compiler::LPAREN,
-						Signal::DISCRIMINATOR_MNEMONICS[ToUnderlying(dis)],
+						Signal::DISCRIMINATOR_MNEMONICS[Algorithm::ToUnderlying(dis)],
 						Compiler::RPAREN,
 						Compiler::IMMEDIATE_MARKER,
 						sig.R64.AsU64
@@ -390,7 +390,7 @@ namespace Nominax::ByteCode
 						NOX_FMT(" {}{}{}{}{}{}"),
 						Compiler::TYPE_MARKER,
 						Compiler::LPAREN,
-						Signal::DISCRIMINATOR_MNEMONICS[ToUnderlying(dis)],
+						Signal::DISCRIMINATOR_MNEMONICS[Algorithm::ToUnderlying(dis)],
 						Compiler::RPAREN,
 						Compiler::IMMEDIATE_MARKER,
 						SysCallMetaDataRegistry::MNEMONIC_TABLE[sig.R64.AsU64]
@@ -404,7 +404,7 @@ namespace Nominax::ByteCode
 						NOX_FMT(" {}{}{}{}{}{}"),
 						Compiler::TYPE_MARKER,
 						Compiler::LPAREN,
-						Signal::DISCRIMINATOR_MNEMONICS[ToUnderlying(dis)],
+						Signal::DISCRIMINATOR_MNEMONICS[Algorithm::ToUnderlying(dis)],
 						Compiler::RPAREN,
 						Compiler::IMMEDIATE_MARKER,
 						sig.R64.AsI64
@@ -418,7 +418,7 @@ namespace Nominax::ByteCode
 						NOX_FMT(" {}{}{}{}{}{}"),
 						Compiler::TYPE_MARKER,
 						Compiler::LPAREN,
-						Signal::DISCRIMINATOR_MNEMONICS[ToUnderlying(dis)],
+						Signal::DISCRIMINATOR_MNEMONICS[Algorithm::ToUnderlying(dis)],
 						Compiler::RPAREN,
 						Compiler::IMMEDIATE_MARKER,
 						sig.R64.AsF64

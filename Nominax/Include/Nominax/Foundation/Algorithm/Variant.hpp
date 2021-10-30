@@ -205,82 +205,44 @@
 
 #pragma once
 
-#include <span>
+#include <cstdint>
+#include <type_traits>
+#include <variant>
 
-#include "SysCall.hpp"
-
-#include "../Foundation/Algorithm/_Algorithm.hpp"
-#include "../Foundation/Record.hpp"
-
-namespace Nominax::ByteCode
+namespace Nominax::Foundation::Algorithm
 {
 	/// <summary>
-	/// Contains all byte code instructions with opcodes.
+	/// Visit overload helper.
 	/// </summary>
-	enum class alignas(alignof(std::uint64_t)) Instruction : std::uint64_t
+	template <typename... Ts>
+	struct Overload : Ts...
 	{
-        #include "ExportInstructionEnum.hpp"
-    };
-
-	/// <summary>
-	/// Instruction category.
-	/// </summary>
-	enum class InstructionCategory : std::uint8_t
-	{
-        #include "ExportInstructionCategoryEnum.hpp"
+		using Ts::operator()...;
 	};
 
-    /// <summary>
-    /// Instruction category sigils.
-    /// </summary>
-    constexpr std::array<const char, Foundation::Algorithm::ToUnderlying(InstructionCategory::Count_)> INSTRUCTION_CATEGORY_SIGILS
-    {
-        'C',
-        'M',
-        'B',
-        'A',
-        'I',
-        'V'
-    };
-
-    /// <summary>
-    /// Represents an unsigned stack offset.
-    /// </summary>
-    enum class alignas(alignof(std::uint64_t)) MemOffset : std::uint64_t;
+	/// <summary>
+	/// Visit overload helper.
+	/// </summary>
+	template <typename... Ts>
+	Overload(Ts ...) -> Overload<Ts...>;
 
 	/// <summary>
-	/// Represents a jump address which
-	/// is essentially an index to a instruction.
-	/// For dynamic signals only.
+	/// Computes the index of T inside the variant type.
 	/// </summary>
-	enum class alignas(alignof(std::uint64_t)) JumpAddress : std::uint64_t;
-
-	/// <summary>
-	/// Subroutine invocation id for custom intrinsic routine.
-	/// </summary>
-	enum class alignas(alignof(std::uint64_t)) UserIntrinsicInvocationID : std::uint64_t;
-
-	/// <summary>
-	/// Custom intrinsic routine function prototype.
-	/// Contains the stack pointer as parameter.
-	/// </summary>
-	using IntrinsicRoutine = auto (Foundation::Record*) -> void;
-	static_assert(std::is_function_v<IntrinsicRoutine>);
-
-	/// <summary>
-	/// Represents a function pointer registry which contains intrinsic
-	/// routines which are invoked using
-	/// user intrinsic virtual machine calls.
-	/// </summary>
-	using UserIntrinsicRoutineRegistry = std::span<IntrinsicRoutine*>;
-
-    /// <summary>
-    /// Index of a type descriptor.
-    /// </summary>
-    enum class alignas(alignof(std::uint64_t)) TypeID : std::uint64_t;
-
-    /// <summary>
-    /// Index to a structure field.
-    /// </summary>
-    enum class alignas(alignof(std::uint64_t)) FieldOffset : std::uint64_t;
+	/// <typeparam name="VariantType"></typeparam>
+	/// <typeparam name="T"></typeparam>
+	/// <returns></returns>
+	template <typename VariantType, typename T, const std::uint64_t Index = 0>
+	[[nodiscard]]
+	constexpr auto VariantIndexOf() -> std::uint64_t
+	{
+		if constexpr (Index == std::variant_size_v<VariantType> || std::is_same_v<std::variant_alternative_t<Index, VariantType>, T>)
+		{
+			return Index;
+		}
+		else
+		{
+			return VariantIndexOf<VariantType, T, Index + 1>();
+		}
+	}
 }

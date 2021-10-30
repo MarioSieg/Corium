@@ -243,7 +243,7 @@ namespace Nominax::Core
         InterruptStatus_Count_
     };
 
-    constexpr std::array<const std::string_view, Foundation::ToUnderlying(InterruptStatus::InterruptStatus_Count_)> INTERRUPT_STATUS_NAMES
+    constexpr std::array<const std::string_view, Foundation::Algorithm::ToUnderlying(InterruptStatus::InterruptStatus_Count_)> INTERRUPT_STATUS_NAMES
     {
         "OK",
         "StackOverflow",

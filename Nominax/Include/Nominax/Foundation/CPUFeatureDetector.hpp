@@ -287,12 +287,12 @@ namespace Nominax::Foundation
 
 	inline auto CPUFeatureDetector::operator[](const CPUFeature bit) -> bool&
 	{
-		return this->FeatureBits_[ToUnderlying(bit)];
+		return this->FeatureBits_[Algorithm::ToUnderlying(bit)];
 	}
 
 	inline auto CPUFeatureDetector::operator[](const CPUFeature bit) const -> bool
 	{
-		return this->FeatureBits_[ToUnderlying(bit)];
+		return this->FeatureBits_[Algorithm::ToUnderlying(bit)];
 	}
 
 	inline auto CPUFeatureDetector::operator*() const -> const CPUFeatureMask&

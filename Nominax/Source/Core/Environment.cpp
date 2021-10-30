@@ -598,7 +598,7 @@ namespace Nominax::Core
 			Format
 			(
 				"Byte code validation failed for stream! {}",
-				ByteCode::BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES[ToUnderlying(buildResult)]
+				ByteCode::BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES[Algorithm::ToUnderlying(buildResult)]
 			)
 		);
 		return (*this)(codeImage);
@@ -615,7 +615,7 @@ namespace Nominax::Core
 			Format
 			(
 				"Byte code validation failed for stream! {}",
-				ByteCode::BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES[ToUnderlying(buildResult)]
+				ByteCode::BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES[Algorithm::ToUnderlying(buildResult)]
 			)
 		);
 		return (*this)(codeImage);

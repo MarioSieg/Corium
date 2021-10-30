@@ -215,7 +215,7 @@
 #include "../../Include/Nominax/ByteCode/Instruction.hpp"
 #include "../../Include/Nominax/Foundation/VectorLib.hpp"
 #include "../../Include/Nominax/Foundation/IEEE754Binaries.hpp"
-#include "../../Include/Nominax/Foundation/Algorithm.hpp"
+#include "../../Include/Nominax/Foundation/Algorithm/BitRotation.hpp"
 #include "../../Include/Nominax/Foundation/CPU.hpp"
 
 namespace Nominax::Core
@@ -223,8 +223,8 @@ namespace Nominax::Core
 	using Foundation::Record;
 	using Foundation::BreakpointInterrupt;
 	using Foundation::NoOperation;
-	using Foundation::Rol64;
-	using Foundation::Ror64;
+	using Foundation::Algorithm::Rol64;
+	using Foundation::Algorithm::Ror64;
 
 	using Foundation::VectorLib::F64_X4_Add_Unaligned;
 	using Foundation::VectorLib::F64_X4_Sub_Unaligned;
@@ -285,7 +285,7 @@ namespace Nominax::Core
 		JumpTable* const outJumpTable
 	) -> bool
 	{
-		static constexpr std::array<const void* NOX_RESTRICT const, Foundation::ToUnderlying(Instruction::Count_)> JUMP_TABLE
+		static constexpr std::array<const void* NOX_RESTRICT const, Foundation::Algorithm::ToUnderlying(Instruction::Count_)> JUMP_TABLE
 		{
 			&&$int$,
 			&&$syscall$,

@@ -205,82 +205,110 @@
 
 #pragma once
 
-#include <span>
+#include <bit>
+#include <cstdint>
 
-#include "SysCall.hpp"
-
-#include "../Foundation/Algorithm/_Algorithm.hpp"
-#include "../Foundation/Record.hpp"
-
-namespace Nominax::ByteCode
+namespace Nominax::Foundation::Algorithm
 {
 	/// <summary>
-	/// Contains all byte code instructions with opcodes.
+	/// Convert half precision 16-bit float to 32-bit single precision float.
 	/// </summary>
-	enum class alignas(alignof(std::uint64_t)) Instruction : std::uint64_t
+	/// <param name="src"></param>
+	/// <returns></returns>
+	constexpr auto FP16ToFP32(const std::uint16_t src) noexcept -> float
 	{
-        #include "ExportInstructionEnum.hpp"
-    };
+		const std::uint32_t h { src };
+		std::uint32_t sign { (h >> 15) & 1 };
+		std::uint32_t exp { (h >> 10) & 0x1F };
+		std::uint32_t man { (h & 0x3FF) << 13 };
+
+		if (exp == 0x1F)
+		{
+			man = man ? (sign = 0, 0x7FFFFF) : 0;
+			exp = 0xFF;
+		}
+		else if (!exp)
+		{
+			if (man)
+			{
+				exp = 0x71;
+				std::uint32_t msb;
+				do
+				{
+					msb = man & 0x400000;
+					man <<= 1;
+					++exp;
+				} while (!msb);
+				man &= 0x7FFFFF;
+			}
+		}
+		else
+		{
+			exp += 0x70;
+		}
+		sign <<= 31;
+		exp <<= 23;
+		return static_cast<float>(sign | exp | man);
+	}
 
 	/// <summary>
-	/// Instruction category.
+	/// Convert 32-bit single precision float to half precision 16-bit float.
 	/// </summary>
-	enum class InstructionCategory : std::uint8_t
+	/// <param name="src"></param>
+	/// <returns></returns>
+	constexpr auto FP32ToFP16(const float src) noexcept -> std::uint16_t
 	{
-        #include "ExportInstructionCategoryEnum.hpp"
-	};
+		const std::uint32_t x { std::bit_cast<std::uint32_t>(src) };
+		const std::uint32_t u { x & 0x7FFFFFFF };
 
-    /// <summary>
-    /// Instruction category sigils.
-    /// </summary>
-    constexpr std::array<const char, Foundation::Algorithm::ToUnderlying(InstructionCategory::Count_)> INSTRUCTION_CATEGORY_SIGILS
-    {
-        'C',
-        'M',
-        'B',
-        'A',
-        'I',
-        'V'
-    };
+		if (u > 0x7F800000)
+		{
+			// Remove +NaN/-NaN
+			return 0x7FFF;
+		}
 
-    /// <summary>
-    /// Represents an unsigned stack offset.
-    /// </summary>
-    enum class alignas(alignof(std::uint64_t)) MemOffset : std::uint64_t;
+		const std::uint32_t sign { (x >> 16) & 0x8000 };
+		if (u > 0x477FEFFF)
+		{
+			return sign | 0x7C00U;
+		}
+		if (u < 0x33000001)
+		{
+			return sign | 0x0000;
+		}
 
-	/// <summary>
-	/// Represents a jump address which
-	/// is essentially an index to a instruction.
-	/// For dynamic signals only.
-	/// </summary>
-	enum class alignas(alignof(std::uint64_t)) JumpAddress : std::uint64_t;
+		std::uint32_t exp { (u >> 23) & 0xFF };
+		std::uint32_t man { u & 0x7FFFFF };
+		std::uint32_t shi;
 
-	/// <summary>
-	/// Subroutine invocation id for custom intrinsic routine.
-	/// </summary>
-	enum class alignas(alignof(std::uint64_t)) UserIntrinsicInvocationID : std::uint64_t;
+		if (exp > 0x70)
+		{
+			shi = 13;
+			exp -= 0x70;
+		}
+		else
+		{
+			shi = 0x7E - exp;
+			exp = 0;
+			man |= 0x800000;
+		}
 
-	/// <summary>
-	/// Custom intrinsic routine function prototype.
-	/// Contains the stack pointer as parameter.
-	/// </summary>
-	using IntrinsicRoutine = auto (Foundation::Record*) -> void;
-	static_assert(std::is_function_v<IntrinsicRoutine>);
+		const std::uint32_t lsb { static_cast<std::uint32_t>(1) << shi };
+		const std::uint32_t lsbS1 { lsb >> 1 };
+		const std::uint32_t lsbM1 { lsb - 1 };
+		const std::uint32_t rem { man & lsbM1 };
+		man >>= shi;
+		if (rem > lsbM1 || (rem == lsbS1 && man & 1))
+		{
+			++man;
+			if ((man & 0x3FF) == 0)
+			{
+				++exp;
+				man = 0;
+			}
+		}
 
-	/// <summary>
-	/// Represents a function pointer registry which contains intrinsic
-	/// routines which are invoked using
-	/// user intrinsic virtual machine calls.
-	/// </summary>
-	using UserIntrinsicRoutineRegistry = std::span<IntrinsicRoutine*>;
-
-    /// <summary>
-    /// Index of a type descriptor.
-    /// </summary>
-    enum class alignas(alignof(std::uint64_t)) TypeID : std::uint64_t;
-
-    /// <summary>
-    /// Index to a structure field.
-    /// </summary>
-    enum class alignas(alignof(std::uint64_t)) FieldOffset : std::uint64_t;
+		exp <<= 10;
+		return static_cast<std::uint16_t>(sign | exp | man);
+	}
 }

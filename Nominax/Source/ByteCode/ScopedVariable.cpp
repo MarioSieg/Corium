@@ -210,8 +210,8 @@
 
 namespace Nominax::ByteCode
 {
-	using Foundation::ILog2;
-	using Foundation::IsPowerOfTwo;
+	using Foundation::Algorithm::ILog2;
+	using Foundation::Algorithm::IsPowerOfTwo;
 
 	template <>
 	// ReSharper disable once CppMemberFunctionMayBeConst
