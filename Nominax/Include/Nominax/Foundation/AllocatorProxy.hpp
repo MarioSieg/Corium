@@ -205,7 +205,7 @@
 
 #pragma once
 
-#include "Platform.hpp"
+#include "CompileTimeConfig.hpp"
 #include "IAllocator.hpp"
 #include "DebugAllocator.hpp"
 
@@ -218,13 +218,13 @@ namespace Nominax::Foundation
 	{
 		[]
 		{
-			if constexpr (NOX_DEBUG || NOX_VERBOSE_ALLOCATOR)
+			if constexpr (NOX_DEBUG || CompileTimeConfig::EnableVerboseAllocator)
 			{
-				return &GlobalDebugAllocator;
+				return static_cast<IAllocator*>(&GlobalDebugAllocator);
 			}
 			else
 			{
-				return &GlobalRuntimeAllocator;
+				return static_cast<IAllocator*>(&GlobalRuntimeAllocator);
 			}
 		}()
 	};

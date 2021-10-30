@@ -376,20 +376,6 @@
 #define NOX_REACTOR_ASM_MARKERS NOX_DEBUG
 
 /// <summary>
-/// Dump allocations.
-/// </summary>
-#define NOX_VERBOSE_ALLOCATOR false
-
-/// <summary>
-/// Uses a slower but more correct floating point comparison algorithm.
-///	Applies to comparisons of equality such as:
-///	x == 0.0
-///	x == 1.0
-///	x == y
-/// </summary>
-#define NOX_CORRECT_F64_CMP true
-
-/// <summary>
 /// Insert instruction markers into the VM reactor assembly code.
 /// </summary>
 #define NOX_REACTOR_ASM_MARKERS NOX_DEBUG

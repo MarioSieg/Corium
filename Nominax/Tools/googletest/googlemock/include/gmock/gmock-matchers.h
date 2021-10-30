@@ -1122,6 +1122,45 @@ class EndsWithMatcher {
   const StringType suffix_;
 };
 
+// Implements the polymorphic WhenBase64Unescaped(matcher) matcher, which can be
+// used as a Matcher<T> as long as T can be converted to a string.
+class WhenBase64UnescapedMatcher {
+ public:
+  using is_gtest_matcher = void;
+
+  explicit WhenBase64UnescapedMatcher(
+      const Matcher<const std::string&>& internal_matcher)
+      : internal_matcher_(internal_matcher) {}
+
+  // Matches anything that can convert to std::string.
+  template <typename MatcheeStringType>
+  bool MatchAndExplain(const MatcheeStringType& s,
+                       MatchResultListener* listener) const {
+    const std::string s2(s);  // NOLINT (needed for working with string_view).
+    std::string unescaped;
+    if (!internal::Base64Unescape(s2, &unescaped)) {
+      if (listener != nullptr) {
+        *listener << "is not a valid base64 escaped string";
+      }
+      return false;
+    }
+    return MatchPrintAndExplain(unescaped, internal_matcher_, listener);
+  }
+
+  void DescribeTo(::std::ostream* os) const {
+    *os << "matches after Base64Unescape ";
+    internal_matcher_.DescribeTo(os);
+  }
+
+  void DescribeNegationTo(::std::ostream* os) const {
+    *os << "does not match after Base64Unescape ";
+    internal_matcher_.DescribeTo(os);
+  }
+
+ private:
+  const Matcher<const std::string&> internal_matcher_;
+};
+
 // Implements a matcher that compares the two fields of a 2-tuple
 // using one of the ==, <=, <, etc, operators.  The two fields being
 // compared don't have to have the same type.
@@ -2386,7 +2425,6 @@ class ContainerEqMatcher {
     typedef internal::StlContainerView<
         typename std::remove_const<LhsContainer>::type>
         LhsView;
-    typedef typename LhsView::type LhsStlContainer;
     StlContainerReference lhs_stl_container = LhsView::ConstReference(lhs);
     if (lhs_stl_container == expected_)
       return true;
@@ -2395,8 +2433,7 @@ class ContainerEqMatcher {
     if (os != nullptr) {
       // Something is different. Check for extra values first.
       bool printed_header = false;
-      for (typename LhsStlContainer::const_iterator it =
-               lhs_stl_container.begin();
+      for (auto it = lhs_stl_container.begin();
            it != lhs_stl_container.end(); ++it) {
         if (internal::ArrayAwareFind(expected_.begin(), expected_.end(), *it) ==
             expected_.end()) {
@@ -2412,7 +2449,7 @@ class ContainerEqMatcher {
 
       // Now check for missing values.
       bool printed_header2 = false;
-      for (typename StlContainer::const_iterator it = expected_.begin();
+      for (auto it = expected_.begin();
            it != expected_.end(); ++it) {
         if (internal::ArrayAwareFind(
                 lhs_stl_container.begin(), lhs_stl_container.end(), *it) ==
@@ -2596,8 +2633,8 @@ class PointwiseMatcher {
         return false;
       }
 
-      typename LhsStlContainer::const_iterator left = lhs_stl_container.begin();
-      typename RhsStlContainer::const_iterator right = rhs_.begin();
+      auto left = lhs_stl_container.begin();
+      auto right = rhs_.begin();
       for (size_t i = 0; i != actual_size; ++i, ++left, ++right) {
         if (listener->IsInterested()) {
           StringMatchResultListener inner_listener;
@@ -2660,7 +2697,7 @@ class QuantifierMatcherImpl : public MatcherInterface<Container> {
                            MatchResultListener* listener) const {
     StlContainerReference stl_container = View::ConstReference(container);
     size_t i = 0;
-    for (typename StlContainer::const_iterator it = stl_container.begin();
+    for (auto it = stl_container.begin();
          it != stl_container.end(); ++it, ++i) {
       StringMatchResultListener inner_listener;
       const bool matches = inner_matcher_.MatchAndExplain(*it, &inner_listener);
@@ -3361,7 +3398,7 @@ class ElementsAreMatcherImpl : public MatcherInterface<Container> {
     // explanations[i] is the explanation of the element at index i.
     ::std::vector<std::string> explanations(count());
     StlContainerReference stl_container = View::ConstReference(container);
-    typename StlContainer::const_iterator it = stl_container.begin();
+    auto it = stl_container.begin();
     size_t exam_pos = 0;
     bool mismatch_found = false;  // Have we found a mismatched element yet?
 
@@ -3554,7 +3591,6 @@ class UnorderedElementsAreMatcherImpl
   typedef internal::StlContainerView<RawContainer> View;
   typedef typename View::type StlContainer;
   typedef typename View::const_reference StlContainerReference;
-  typedef typename StlContainer::const_iterator StlContainerConstIterator;
   typedef typename StlContainer::value_type Element;
 
   template <typename InputIter>
@@ -4721,7 +4757,7 @@ UnorderedPointwise(const Tuple2Matcher& tuple2_matcher,
 
   // Create a matcher for each element in rhs_container.
   ::std::vector<internal::BoundSecondMatcher<Tuple2Matcher, Second> > matchers;
-  for (typename RhsStlContainer::const_iterator it = rhs_stl_container.begin();
+  for (auto it = rhs_stl_container.begin();
        it != rhs_stl_container.end(); ++it) {
     matchers.push_back(
         internal::MatcherBindSecond(tuple2_matcher, *it));
@@ -4950,7 +4986,7 @@ Pair(FirstMatcher first_matcher, SecondMatcher second_matcher) {
 namespace no_adl {
 // Conditional() creates a matcher that conditionally uses either the first or
 // second matcher provided. For example, we could create an `equal if, and only
-// if' matcher using the Conditonal wrapper as follows:
+// if' matcher using the Conditional wrapper as follows:
 //
 //   EXPECT_THAT(result, Conditional(condition, Eq(expected), Ne(expected)));
 template <typename MatcherTrue, typename MatcherFalse>
@@ -4985,6 +5021,14 @@ template <typename InnerMatcher>
 inline internal::AddressMatcher<InnerMatcher> Address(
     const InnerMatcher& inner_matcher) {
   return internal::AddressMatcher<InnerMatcher>(inner_matcher);
+}
+
+// Matches a base64 escaped string, when the unescaped string matches the
+// internal matcher.
+template <typename MatcherType>
+internal::WhenBase64UnescapedMatcher WhenBase64Unescaped(
+    const MatcherType& internal_matcher) {
+  return internal::WhenBase64UnescapedMatcher(internal_matcher);
 }
 }  // namespace no_adl
 
@@ -5222,7 +5266,8 @@ class WithWhatMatcherImpl {
 
   template <typename Err>
   bool MatchAndExplain(const Err& err, MatchResultListener* listener) const {
-    *listener << "which contains .what() that ";
+    *listener << "which contains .what() (of value = " << err.what()
+              << ") that ";
     return matcher_.MatchAndExplain(err.what(), listener);
   }
 
@@ -5377,7 +5422,7 @@ PolymorphicMatcher<internal::ExceptionMatcherImpl<Err>> ThrowsMessage(
 #define EXPECT_THAT(value, matcher) EXPECT_PRED_FORMAT1(\
     ::testing::internal::MakePredicateFormatterFromMatcher(matcher), value)
 
-// MATCHER* macroses itself are listed below.
+// MATCHER* macros itself are listed below.
 #define MATCHER(name, description)                                             \
   class name##Matcher                                                          \
       : public ::testing::internal::MatcherBaseImpl<name##Matcher> {           \

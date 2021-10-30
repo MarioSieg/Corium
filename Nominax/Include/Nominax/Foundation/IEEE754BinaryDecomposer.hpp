@@ -205,268 +205,343 @@
 
 #pragma once
 
+#include <bit>
 #include <cmath>
 #include <cstdint>
 #include <limits>
+#include <type_traits>
 
-#include "Platform.hpp"
+#include "GenericBitScalar.hpp"
 
 namespace Nominax::Foundation
 {
 	/// <summary>
-	/// Contains functions and values for manipulating and comparing the IEEE754 Binary64 double precision floating point type.
-	///	Also known as double or f64 in most languages.
+	/// Concept for IEEE 754 numbers such as:
+	///	float (Binary 32)
+	///	double (Binary 64)
 	/// </summary>
-	struct IEEE754Binary64 final
+	template <typename T>
+	concept IEEE754Scalar = requires
 	{
+		requires std::is_same_v<std::decay_t<T>, float> || std::is_same_v<std::decay_t<T>, double>;
+		requires std::numeric_limits<T>::is_iec559;
+	};
+
+	/// <summary>
+	/// Used to decompose a binary IEEE 754 floating point
+	///	number into individual components.
+	///	Also used for epsilon or ULP based comparison.
+	/// </summary>
+	/// <typeparam name="T">Generic floating point type. Either float or double, no long double!</typeparam>
+	///	<typeparam name="CompareULPs">
+	///	If true, correct comparison using an ULP based approach will be used,
+	///	if false, default comparison will be used.</typeparam>
+	///	<typeparam name="MaxULPs">
+	///	The maximal amount of ULPs (units in the last place) used as epsilon for comparison.
+	///	Ignored if CompareULPs is false.</typeparam>
+	template <typename T, const bool CompareULPs = false, const std::uint8_t MaxULPs = 4> requires IEEE754Scalar <T>
+	struct IEEE754BinaryDecomposer final
+	{
+	private:
+		T Value_;
+
+	public:
 		/// <summary>
-		/// Min value.
+		/// Bit pattern representing the floating point value's bits.
 		/// </summary>
-		static constexpr double MIN { std::numeric_limits<double>::min() };
+		using BitPattern = typename GenericBitScalar<sizeof(T)>::Unsigned;
 
 		/// <summary>
-		/// Max value.
+		/// Native machine epsilon.
 		/// </summary>
-		static constexpr double MAX { std::numeric_limits<double>::min() };
+		static constexpr T MACHINE_EPSILON { std::numeric_limits<T>::epsilon() };
 
 		/// <summary>
-		/// Amount of decimal digits.
+		/// Bit count of T.
 		/// </summary>
-		static constexpr std::uint32_t DIGITS { std::numeric_limits<double>::digits10 };
+		static constexpr std::uint8_t BIT_COUNT { sizeof(T) * 8 };
 
 		/// <summary>
-		/// The machine epsilon, that is, the difference between 1.0 and the next value representable by F64.
+		/// Fraction bit count of T.
 		/// </summary>
-		static constexpr double MACHINE_EPSILON { std::numeric_limits<double>::epsilon() };
+		static constexpr std::uint8_t FRACTION_BITS { std::numeric_limits<T>::digits - 1 };
 
 		/// <summary>
-		/// Zero tolerance epsilon.
+		/// Exponent bit count of T.
 		/// </summary>
-		static constexpr auto ZERO_TOLERANCE{ 1e-6 }; // 8 * 1.19209290E-07F
+		static constexpr std::uint8_t EXPONENT_BITS { BIT_COUNT - 1 - FRACTION_BITS };
 
 		/// <summary>
-		/// Returns true if x is zero, else false.
+		/// Sign bit mask of T.
 		/// </summary>
-		/// <param name="x">The number to check for zero.</param>
-		/// <returns>True if x is zero, else false.</returns>
-		NOX_FLATTEN NOX_PURE static inline auto IsZero(const double x) -> bool
-		{
-			return std::abs(x) < ZERO_TOLERANCE;
-		}
+		static constexpr BitPattern SIGN_MASK { static_cast<BitPattern>(1) << (BIT_COUNT - 1) };
 
 		/// <summary>
-		/// Returns true if x is one, else false.
+		/// Fraction bit mask of T.
 		/// </summary>
-		/// <param name="x">The number to check for zero.</param>
-		/// <returns>True if x is zero, else false.</returns>
-		NOX_FLATTEN NOX_PURE static inline auto IsOne(const double x) -> bool
-		{
-			return IsZero(x - 1.0);
-		}
+		static constexpr BitPattern FRACTION_MASK { ~static_cast<BitPattern>(0) >> (EXPONENT_BITS + 1) };
 
 		/// <summary>
-		/// How many ULP's (Units in the Last Place) we want to tolerate when comparing two numbers.
-		/// The large the value, the more error (mismatch) the comparison will allow.
-		/// If the ULP value is zero, the two numbers must be exactly the same.
-		/// See http://randomascii.wordpress.com/2012/02/25/comparing-F32ing-point-numbers-2012-edition/ by Bruce Dawson
+		/// Exponent bit mask of T.
 		/// </summary>
-		static constexpr std::uint32_t MAX_ULPS{ 4 };
+		static constexpr BitPattern EXPONENT_MASK { ~(SIGN_MASK | FRACTION_MASK) };
 
 		/// <summary>
-		/// Bit count inside double.
-		/// </summary>
-		static constexpr auto BIT_COUNT{ 8 * sizeof(double) };
-
-		/// <summary>
-		/// Fraction bit count.
-		/// </summary>
-		static constexpr auto FRACTION_BITS{ std::numeric_limits<double>::digits - 1 };
-
-		/// <summary>
-		/// Exponent bit count.
-		/// </summary>
-		static constexpr auto EXPONENT_BITS{ BIT_COUNT - 1 - FRACTION_BITS };
-
-		/// <summary>
-		/// Mask to extract sign bit.
-		/// </summary>
-		static constexpr auto SIGN_MASK{ UINT64_C(1) << (BIT_COUNT - 1) };
-
-		/// <summary>
-		/// Mask to extract fraction.
-		/// </summary>
-		static constexpr auto FRACTION_MASK{ ~UINT64_C(0) >> (EXPONENT_BITS + 1) };
-
-		/// <summary>
-		/// Mask to extract exponent.
-		/// </summary>
-		static constexpr auto EXPONENT_MASK{ ~(SIGN_MASK | FRACTION_MASK) };
-
-		/// <summary>
-		/// Returns the bit representation of the double.
+		/// Constructor.
 		/// </summary>
 		/// <param name="x"></param>
 		/// <returns></returns>
-		NOX_FLATTEN NOX_PURE static constexpr auto BitsOf(const double x) -> std::uint64_t
-		{
-			static_assert(sizeof(std::uint64_t) == sizeof(double));
-			return std::bit_cast<std::uint64_t>(x);
-		}
+		constexpr explicit IEEE754BinaryDecomposer(T x) noexcept;
 
 		/// <summary>
-		/// Extract exponent bits.
+		/// Copy constructor.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr IEEE754BinaryDecomposer(const IEEE754BinaryDecomposer& other) noexcept = default;
+
+		/// <summary>
+		/// Move constructor.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr IEEE754BinaryDecomposer(IEEE754BinaryDecomposer&& other) noexcept = default;
+
+		/// <summary>
+		/// Copy assignment operator.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator =(const IEEE754BinaryDecomposer& other) noexcept -> IEEE754BinaryDecomposer& = default;
+
+		/// <summary>
+		/// Move assignment operator.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator =(IEEE754BinaryDecomposer&& other) noexcept -> IEEE754BinaryDecomposer& = default;
+
+		/// <summary>
+		/// Destructor.
+		/// </summary>
+		~IEEE754BinaryDecomposer() = default;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>Positive infinity of T.</returns>
+		[[nodiscard]]
+		static constexpr auto PositiveInfinity() noexcept -> T;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The raw bit pattern of the value.</returns>
+		[[nodiscard]]
+		constexpr auto RawBitPattern() const noexcept -> BitPattern;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The exponent bits of the value.</returns>
+		[[nodiscard]]
+		constexpr auto ExponentBits() const noexcept -> BitPattern;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The fraction bits of the value.</returns>
+		[[nodiscard]]
+		constexpr auto FractionBits() const noexcept -> BitPattern;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The sign bit of the value.</returns>
+		[[nodiscard]]
+		constexpr auto SignBit() const noexcept -> BitPattern;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>True if the current value is NaN, else false.</returns>
+		[[nodiscard]]
+		constexpr auto IsNAN() const noexcept -> bool;
+
+		/// <summary>
+		/// Access value.
+		/// </summary>
+		/// <returns>The current value.</returns>
+		[[nodiscard]]
+		constexpr auto operator *() const noexcept -> T;
+
+		/// <summary>
+		/// Compare for equality using ULP or default approach.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator ==(const IEEE754BinaryDecomposer& other) const noexcept -> bool;
+
+		/// <summary>
+		/// Compare for un-equality using ULP or default approach.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator !=(const IEEE754BinaryDecomposer& other) const noexcept -> bool;
+
+		/// <summary>
+		/// Less equals.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator <=(const IEEE754BinaryDecomposer& other) const noexcept -> bool;
+
+		/// <summary>
+		/// Above equals.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator >=(const IEEE754BinaryDecomposer& other) const noexcept -> bool;
+
+		/// <summary>
+		/// Less.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator <(const IEEE754BinaryDecomposer& other) const noexcept -> bool;
+
+		/// <summary>
+		/// Above.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator >(const IEEE754BinaryDecomposer& other) const noexcept -> bool;
+
+	private:
+		/// <summary>
+		/// Convert from sign/magnitude to biased representation.
 		/// </summary>
 		/// <param name="x"></param>
 		/// <returns></returns>
-		NOX_FLATTEN NOX_PURE static constexpr auto ExponentBitsOf(const double x) -> std::uint64_t
-		{
-			return EXPONENT_MASK & BitsOf(x);
-		}
+		[[nodiscard]]
+		static constexpr auto SignAndMagnitudeToBiased(BitPattern x) noexcept -> BitPattern;
 
 		/// <summary>
-		/// Extract fraction bits.
+		/// Compute the distance between the signed and magnitude scalar.
 		/// </summary>
-		/// <param name="x"></param>
+		/// <param name="a"></param>
+		/// <param name="b"></param>
 		/// <returns></returns>
-		NOX_FLATTEN NOX_PURE static constexpr auto FractionBitsOf(const double x) -> std::uint64_t
-		{
-			return FRACTION_MASK & BitsOf(x);
-		}
+		[[nodiscard]]
+		static constexpr auto ComputeSignAndMagnitudeDistance(BitPattern a, BitPattern b) noexcept -> BitPattern;
+	};
 
-		/// <summary>
-		/// Extract sign bit.
-		/// </summary>
-		/// <param name="x"></param>
-		/// <returns></returns>
-		NOX_FLATTEN NOX_PURE static constexpr auto SignBitOf(const double x) -> std::uint64_t
-		{
-			return SIGN_MASK & BitsOf(x);
-		}
+	template <typename T, const bool CompareULPs, const std::uint8_t MaxULPs> requires IEEE754Scalar<T>
+	constexpr IEEE754BinaryDecomposer<T, CompareULPs, MaxULPs>::IEEE754BinaryDecomposer(const T x) noexcept : Value_ { x } { }
 
-		/// <summary>
-		/// Returns true if x is NAN, else false.
-		/// NAN = Not A Number
-		/// </summary>
-		NOX_FLATTEN NOX_PURE static constexpr auto IsNan(const double x) -> bool
-		{
-			return ExponentBitsOf(x) == EXPONENT_MASK && FractionBitsOf(x) != 0;
-		}
+	template <typename T, const bool CompareULPs, const std::uint8_t MaxULPs> requires IEEE754Scalar<T>
+	constexpr auto IEEE754BinaryDecomposer<T, CompareULPs, MaxULPs>::PositiveInfinity() noexcept -> T
+	{
+		return std::bit_cast<T>(EXPONENT_MASK);
+	}
 
-		/// <summary>
-		/// Converts an integer from the "sign and magnitude" to the biased representation.
-		/// See https://en.wikipedia.org/wiki/Signed_number_representations for more info.
-		/// </summary>
-		NOX_FLATTEN NOX_PURE static constexpr auto SignMagnitudeToBiasedRepresentation(const std::uint64_t bits) -> std::uint64_t
-		{
-			if (SIGN_MASK & bits)
-			{
-				return ~bits + 1;
-			}
-			return SIGN_MASK | bits;
-		}
+	template <typename T, const bool CompareULPs, const std::uint8_t MaxULPs> requires IEEE754Scalar<T>
+	constexpr auto IEEE754BinaryDecomposer<T, CompareULPs, MaxULPs>::RawBitPattern() const noexcept -> BitPattern
+	{
+		return std::bit_cast<BitPattern>(this->Value_);
+	}
 
-		/// <summary>
-		/// Returns the unsigned distance between bitsA and bitsB.
-		/// bitsA and bitsB must be converted into the biased representation first!
-		/// </summary>
-		/// <param name="bitsA">The first bits as biased representation.</param>
-		/// <param name="bitsB">The second bits as biased representation.</param>
-		/// <returns>The unsigned distance.</returns>
-		NOX_FLATTEN NOX_PURE static constexpr auto ComputeDistanceBetweenSignAndMagnitude(const std::uint64_t bitsA, const std::uint64_t bitsB) -> std::uint64_t
-		{
-			const std::uint64_t biasedA { SignMagnitudeToBiasedRepresentation(bitsA) };
-			const std::uint64_t biasedB { SignMagnitudeToBiasedRepresentation(bitsB) };
-			return biasedA >= biasedB ? biasedA - biasedB : biasedB - biasedA;
-		}
+	template <typename T, const bool CompareULPs, const std::uint8_t MaxULPs> requires IEEE754Scalar<T>
+	constexpr auto IEEE754BinaryDecomposer<T, CompareULPs, MaxULPs>::ExponentBits() const noexcept -> BitPattern
+	{
+		return this->RawBitPattern() & EXPONENT_MASK;
+	}
 
-		/// <summary>
-		/// Returns true if x and y are near or equal.
-		/// Returns false if either x or y or both are NAN.
-		/// Huge numbers are treated almost as infinity.
-		/// Uses a ULP based approach.
-		/// See https://randomascii.wordpress.com/2012/02/25/comparing-F32ing-point-numbers-2012-edition/
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="y"></param>
-		/// <returns></returns>
-		template <const std::uint32_t U = MAX_ULPS>
-		NOX_FLATTEN NOX_PURE static constexpr auto CompareByUlps(const double x, const double y) -> bool
+	template <typename T, const bool CompareULPs, const std::uint8_t MaxULPs> requires IEEE754Scalar<T>
+	constexpr auto IEEE754BinaryDecomposer<T, CompareULPs, MaxULPs>::FractionBits() const noexcept -> BitPattern
+	{
+		return this->RawBitPattern() & FRACTION_MASK;
+	}
+
+	template <typename T, const bool CompareULPs, const std::uint8_t MaxULPs> requires IEEE754Scalar<T>
+	constexpr auto IEEE754BinaryDecomposer<T, CompareULPs, MaxULPs>::SignBit() const noexcept -> BitPattern
+	{
+		return this->RawBitPattern() & SIGN_MASK;
+	}
+
+	template <typename T, const bool CompareULPs, const std::uint8_t MaxULPs> requires IEEE754Scalar<T>
+	constexpr auto IEEE754BinaryDecomposer<T, CompareULPs, MaxULPs>::IsNAN() const noexcept -> bool
+	{
+		return this->ExponentBits() == EXPONENT_MASK && this->FractionBits();
+	}
+
+	template <typename T, const bool CompareULPs, const std::uint8_t MaxULPs> requires IEEE754Scalar<T>
+	constexpr auto IEEE754BinaryDecomposer<T, CompareULPs, MaxULPs>::operator*() const noexcept -> T
+	{
+		return this->Value_;
+	}
+
+	template <typename T, const bool CompareULPs, const std::uint8_t MaxULPs> requires IEEE754Scalar<T>
+	constexpr auto IEEE754BinaryDecomposer<T, CompareULPs, MaxULPs>::operator ==(const IEEE754BinaryDecomposer& other) const noexcept -> bool
+	{
+		if constexpr (CompareULPs)
 		{
-			static_assert(U > 0);
-			// IEEE 754 required that any NAN comparison should yield false.
-			if (IsNan(x) || IsNan(y))
+			if (this->IsNAN() || other.IsNAN())
 			{
 				return false;
 			}
-
-			return ComputeDistanceBetweenSignAndMagnitude(BitsOf(x), BitsOf(y)) <= U;
+			return ComputeSignAndMagnitudeDistance(this->RawBitPattern(), other.RawBitPattern()) <= MaxULPs;
 		}
-
-		/// <summary>
-		/// Returns true if x and y are near or equal.
-		///	Compares using absolute difference and machine epsilon.
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="y"></param>
-		/// <returns></returns>
-		NOX_FLATTEN NOX_PURE static constexpr auto CompareByMachineEpsilon(const double x, const double y) -> bool
+		else
 		{
-			return std::abs(x - y) < MACHINE_EPSILON;
+			return this->Value_ == other.Value_;
 		}
+	}
 
-		/// <summary>
-		/// Compare by configured floating point mode.
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="y"></param>
-		/// <returns></returns>
-		[[nodiscard]]
-		NOX_FORCE_INLINE NOX_PURE static inline auto AutoCMP_EQ(const double x, const double y) -> bool
-		{
-			if constexpr (NOX_CORRECT_F64_CMP)
-			{
-				return CompareByMachineEpsilon(x, y);
-			}
-			else
-			{
-				return x == y;
-			}
-		}
+	template <typename T, const bool CompareULPs, const std::uint8_t MaxULPs> requires IEEE754Scalar<T>
+	constexpr auto IEEE754BinaryDecomposer<T, CompareULPs, MaxULPs>::operator !=(const IEEE754BinaryDecomposer& other) const noexcept -> bool
+	{
+		return !(*this == other);
+	}
 
-		/// <summary>
-		/// Compare by configured floating point mode.
-		/// </summary>
-		/// <param name="x"></param>
-		/// <returns></returns>
-		[[nodiscard]]
-		NOX_FORCE_INLINE NOX_PURE static inline auto AutoCMP_IsZero(const double x) -> bool
-		{
-			if constexpr (NOX_CORRECT_F64_CMP)
-			{
-				return IsZero(x);
-			}
-			else
-			{
-				return x == 0.0;
-			}
-		}
+	template <typename T, const bool CompareULPs, const std::uint8_t MaxULPs> requires IEEE754Scalar<T>
+	constexpr auto IEEE754BinaryDecomposer<T, CompareULPs, MaxULPs>::operator <=(const IEEE754BinaryDecomposer& other) const noexcept -> bool
+	{
+		return this->Value_ <= other.Value_;
+	}
 
-		/// <summary>
-		/// Compare by configured floating point mode.
-		/// </summary>
-		/// <param name="x"></param>
-		/// <returns></returns>
-		[[nodiscard]]
-		NOX_FORCE_INLINE NOX_PURE static inline auto AutoCMP_IsOne(const double x) -> bool
-		{
-			if constexpr (NOX_CORRECT_F64_CMP)
-			{
-				return IEEE754Binary64::IsOne(x);
-			}
-			else
-			{
-				return x == 1.0;
-			}
-		}
-	};
+	template <typename T, const bool CompareULPs, const std::uint8_t MaxULPs> requires IEEE754Scalar<T>
+	constexpr auto IEEE754BinaryDecomposer<T, CompareULPs, MaxULPs>::operator >=(const IEEE754BinaryDecomposer& other) const noexcept -> bool
+	{
+		return this->Value_ >= other.Value_;
+	}
+
+	template <typename T, const bool CompareULPs, const std::uint8_t MaxULPs> requires IEEE754Scalar<T>
+	constexpr auto IEEE754BinaryDecomposer<T, CompareULPs, MaxULPs>::operator <(const IEEE754BinaryDecomposer& other) const noexcept -> bool
+	{
+		return this->Value_ < other.Value_;
+	}
+
+	template <typename T, const bool CompareULPs, const std::uint8_t MaxULPs> requires IEEE754Scalar<T>
+	constexpr auto IEEE754BinaryDecomposer<T, CompareULPs, MaxULPs>::operator >(const IEEE754BinaryDecomposer& other) const noexcept -> bool
+	{
+		return this->Value_ > other.Value_;
+	}
+
+	template <typename T, const bool CompareULPs, const std::uint8_t MaxULPs> requires IEEE754Scalar<T>
+	constexpr auto IEEE754BinaryDecomposer<T, CompareULPs, MaxULPs>::SignAndMagnitudeToBiased(const BitPattern x) noexcept -> BitPattern
+	{
+		return
+			x & SIGN_MASK
+			? ~x + 1 // positive
+			: x | SIGN_MASK; // negative
+	}
+
+	template <typename T, const bool CompareULPs, const std::uint8_t MaxULPs> requires IEEE754Scalar<T>
+	constexpr auto IEEE754BinaryDecomposer<T, CompareULPs, MaxULPs>::ComputeSignAndMagnitudeDistance(const BitPattern a, const BitPattern b) noexcept -> BitPattern
+	{
+		const BitPattern aBits { SignAndMagnitudeToBiased(a) };
+		const BitPattern bBits { SignAndMagnitudeToBiased(b) };
+		return aBits >= bBits ? aBits - bBits : bBits - aBits;
+	}
 }
