@@ -207,7 +207,9 @@
 
 #include <span>
 
-#include "../Foundation/MappedMemory.hpp"
+#include "../Foundation/Memory/MappedMemory.hpp"
+#include "../Foundation/Allocator/VirtualPageAllocator.hpp"
+#include "../Foundation/Allocator/VirtualPageProtectionFlags.hpp"
 #include "Execution.hpp"
 
 namespace Nominax::JIT
@@ -220,7 +222,7 @@ namespace Nominax::JIT
     /// 2. Copy machine code to self
     /// 3. Protect with Read | Exec, Lock?
     /// </summary>
-    class ExecutableBuffer final : public Foundation::MappedMemory
+    class ExecutableBuffer final : public Foundation::Memory::MappedMemory
     {
         const MachineScalar* const Buffer_;
         const MachineScalar* const BufferEnd_;
@@ -229,12 +231,12 @@ namespace Nominax::JIT
         /// <summary>
         /// Flags used for allocation, before copying the machine code.
         /// </summary>
-        static constexpr auto ALLOCATION_FLAGS { Foundation::MemoryPageProtectionFlags::ReadWriteExecute };
+        static constexpr auto ALLOCATION_FLAGS { Foundation::Allocator::MemoryPageProtectionFlags::ReadWriteExecute };
 
         /// <summary>
         /// Flags used for security protection after copying the machine codes.
         /// </summary>
-        static constexpr auto SECURITY_FLAGS { Foundation::MemoryPageProtectionFlags::ReadExecute };
+        static constexpr auto SECURITY_FLAGS { Foundation::Allocator::MemoryPageProtectionFlags::ReadExecute };
 
         /// <summary>
         /// If true, the protection is locked after copying the machine code.

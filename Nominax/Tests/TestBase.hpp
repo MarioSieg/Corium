@@ -209,9 +209,12 @@
 #include "../Include/Nominax/Nominax.hpp"
 
 using namespace Nominax::Foundation;
+using namespace Memory;
+using namespace Allocator;
+using namespace VectorLib;
+
 using namespace Nominax::Core;
 using namespace Nominax::JIT;
 using namespace Nominax::ByteCode;
 using namespace Nominax::Assembler;
-using namespace Nominax::Foundation::VectorLib;
 

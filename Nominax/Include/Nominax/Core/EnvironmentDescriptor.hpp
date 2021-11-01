@@ -208,7 +208,7 @@
 #include <string_view>
 #include <cstdint>
 
-#include "../Foundation/MemoryUnits.hpp"
+#include "../Foundation/Memory/MemoryUnits.hpp"
 #include "../Foundation/ISerializable.hpp"
 
 #include "ReactorCreationDescriptor.hpp"

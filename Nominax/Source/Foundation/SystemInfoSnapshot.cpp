@@ -243,8 +243,8 @@ namespace Nominax::Foundation
         Print(stream, NOX_FMT("CPU: {}\n"), cpuName);
         Print(stream, NOX_FMT("CPU Hardware threads: {}\n"), threadCount);
         Print(stream, NOX_FMT("CPU Machine class: {}\n"), static_cast<char>(MachineRating(threadCount)));
-        Print(stream, NOX_FMT("System memory: {}MB\n"), Bytes2Megabytes(totalSystemMemory));
-        Print(stream, NOX_FMT("Process memory: {}MB\n"), Bytes2Megabytes(usedSystemMemory));
+        Print(stream, NOX_FMT("System memory: {}MB\n"), Memory::Bytes2Megabytes(totalSystemMemory));
+        Print(stream, NOX_FMT("Process memory: {}MB\n"), Memory::Bytes2Megabytes(usedSystemMemory));
         Print(stream, NOX_FMT("Page size: {}B\n"), pageSize);
     }
 }

@@ -203,50 +203,165 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../Include/Nominax/Foundation/IAllocator.hpp"
-#include "../../Include/Nominax/Foundation/SystemAllocator.hpp"
+#pragma once
 
-namespace Nominax::Foundation
+#include "IAllocator.hpp"
+#include "../IDisplay.hpp"
+
+namespace Nominax::Foundation::Allocator
 {
-	auto IAllocator::Allocate(void*& out, const std::uint64_t size) const -> void
+	/// <summary>
+		/// Allocator for debugging based on the runtime allocator.
+		/// It prints the size and address of each allocation
+		/// and counts the bytes.
+		/// </summary>
+	class DebugAllocator final : public IAllocator, public IDisplay
 	{
-		out = SystemAllocator::AllocateChecked(size);
+		mutable std::uint64_t Allocations_ { 0 };
+		mutable std::uint64_t Reallocations_ { 0 };
+		mutable std::uint64_t Deallocations_ { 0 };
+		mutable std::uint64_t BytesAllocated_ { 0 };
+
+	public:
+		/// <summary>
+		/// Default constructor.
+		/// </summary>
+		/// <returns></returns>
+		constexpr DebugAllocator() = default;
+
+		/// <summary>
+		/// Copy constructor.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr DebugAllocator(const DebugAllocator& other) = default;
+
+		/// <summary>
+		/// Move constructor.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr DebugAllocator(DebugAllocator&& other) = default;
+
+		/// <summary>
+		/// Copy assignment operator.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator =(const DebugAllocator& other) -> DebugAllocator& = default;
+
+		/// <summary>
+		/// Move assignment operator.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator =(DebugAllocator&& other) -> DebugAllocator& = default;
+
+		/// <summary>
+		/// Destructor.
+		/// </summary>
+		virtual ~DebugAllocator() override = default;
+
+		/// <summary>
+		/// CALL the equivalent RuntimeAllocator (superclass) method and print debug info.
+		/// </summary>
+		/// <param name="out"></param>
+		/// <param name="size"></param>
+		/// <returns></returns>
+		virtual auto Allocate(void*& out, std::uint64_t size) const -> void override;
+
+		/// <summary>
+		/// CALL the equivalent RuntimeAllocator (superclass) method and print debug info.
+		/// </summary>
+		/// <param name="out"></param>
+		/// <param name="size"></param>
+		/// <returns></returns>
+		virtual auto Reallocate(void*& out, std::uint64_t size) const -> void override;
+
+		/// <summary>
+		/// CALL the equivalent RuntimeAllocator (superclass) method and print debug info.
+		/// </summary>
+		/// <param name="out"></param>
+		/// <returns></returns>
+		virtual auto Deallocate(void*& out) const -> void override;
+
+		/// <summary>
+		/// CALL the equivalent RuntimeAllocator (superclass) method and print debug info.
+		/// </summary>
+		/// <param name="out"></param>
+		/// <param name="size"></param>
+		/// <param name="alignment"></param>
+		/// <returns></returns>
+		virtual auto AllocateAligned(void*& out, std::uint64_t size, std::uint64_t alignment) const -> void override;
+
+		/// <summary>
+		/// CALL the equivalent RuntimeAllocator (superclass) method and print debug info.
+		/// </summary>
+		/// <param name="out"></param>
+		/// <param name="size"></param>
+		/// <param name="alignment"></param>
+		/// <returns></returns>
+		virtual auto ReallocateAligned(void*& out, std::uint64_t size, std::uint64_t alignment) const -> void override;
+
+		/// <summary>
+		/// CALL the equivalent RuntimeAllocator (superclass) method and print debug info.
+		/// </summary>
+		/// <param name="out"></param>
+		/// <returns></returns>
+		virtual auto DeallocateAligned(void*& out) const -> void override;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The amount of allocations so far.</returns>
+		constexpr auto GetAllocationCount() const -> std::uint64_t;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The amount of reallocations so far.</returns>
+		constexpr auto GetReallocationCount() const -> std::uint64_t;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The amount of deallocations so far.</returns>
+		constexpr auto GetDeallocationCount() const -> std::uint64_t;
+
+		/// <summary>
+		/// The amount of allocated bytes so far.
+		/// </summary>
+		/// <returns></returns>
+		constexpr auto GetTotalBytesAllocated() const -> std::uint64_t;
+
+        /// <summary>
+        /// Prints this object into the file stream.
+        /// </summary>
+        virtual auto Display(DataStream& stream) const -> void override;
+	};
+
+	constexpr auto DebugAllocator::GetAllocationCount() const -> std::uint64_t
+	{
+		return this->Allocations_;
 	}
 
-	auto IAllocator::Reallocate(void*& out, const std::uint64_t size) const -> void
+	constexpr auto DebugAllocator::GetReallocationCount() const -> std::uint64_t
 	{
-		out = SystemAllocator::ReallocateChecked(out, size);
+		return this->Reallocations_;
 	}
 
-	auto IAllocator::Deallocate(void*& out) const -> void
+	constexpr auto DebugAllocator::GetDeallocationCount() const -> std::uint64_t
 	{
-		SystemAllocator::DeallocateChecked(out);
-		out = nullptr;
+		return this->Deallocations_;
 	}
 
-	auto IAllocator::AllocateAligned(void*& out, const std::uint64_t size, const std::uint64_t alignment) const -> void
+	constexpr auto DebugAllocator::GetTotalBytesAllocated() const -> std::uint64_t
 	{
-		out = SystemAllocator::AllocateAlignedChecked(size, alignment);
+		return this->BytesAllocated_;
 	}
 
-	auto IAllocator::ReallocateAligned(void*& out, const std::uint64_t size, const std::uint64_t alignment) const -> void
-	{
-		out = SystemAllocator::ReallocateAlignedChecked(out, size, alignment);
-	}
-
-	auto IAllocator::DeallocateAligned(void*& out) const -> void
-	{
-		SystemAllocator::DeallocateAlignedChecked(out);
-		out = nullptr;
-	}
-
-	auto IAllocator::Valloc(void*& out, const std::uint64_t size) const -> void
-	{
-		this->Allocate(out, size);
-	}
-
-	auto IAllocator::Vdealloc(void*& out) const -> void
-	{
-		this->Deallocate(out);
-	}
+	/// <summary>
+	/// Slow debug allocator.
+	/// </summary>
+	inline constinit DebugAllocator GlobalDebugAllocator { };
 }

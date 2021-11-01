@@ -203,108 +203,29 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../../Nominax/Include/Nominax/Foundation/_Foundation.hpp"
+#pragma once
 
-auto operator new(const std::size_t size) -> void*
-{
-	if constexpr (NOX_DEBUG)
-	{
-		void* mem;
-		Nominax::Foundation::GlobalAllocatorProxy->Allocate(mem, size);
-		return mem;
-	}
-	else
-	{
-		return std::malloc(size);
-	}
-}
+#include "../CompileTimeConfig.hpp"
+#include "IAllocator.hpp"
+#include "DebugAllocator.hpp"
 
-auto operator new[](const std::size_t size) -> void*
+namespace Nominax::Foundation::Allocator
 {
-	if constexpr (NOX_DEBUG)
+	/// <summary>
+	/// Currently used allocator.
+	/// </summary>
+	inline constinit const IAllocator* GlobalAllocatorProxy
 	{
-		void* mem;
-		Nominax::Foundation::GlobalAllocatorProxy->Allocate(mem, size);
-		return mem;
-	}
-	else
-	{
-		return std::malloc(size);
-	}
-}
-
-auto operator new(const std::size_t size, [[maybe_unused]] const std::nothrow_t& tag) noexcept(true) -> void*
-{
-	if constexpr (NOX_DEBUG)
-	{
-		void* mem;
-		Nominax::Foundation::GlobalAllocatorProxy->Allocate(mem, size);
-		return mem;
-	}
-	else
-	{
-		return std::malloc(size);
-	}
-}
-
-auto operator new[](const std::size_t size, [[maybe_unused]] const std::nothrow_t& tag) noexcept(true) -> void*
-{
-	if constexpr (NOX_DEBUG)
-	{
-		void* mem;
-		Nominax::Foundation::GlobalAllocatorProxy->Allocate(mem, size);
-		return mem;
-	}
-	else
-	{
-		return std::malloc(size);
-	}
-}
-
-auto operator delete(void* mem) noexcept(true) -> void
-{
-	if constexpr (NOX_DEBUG)
-	{
-		Nominax::Foundation::GlobalAllocatorProxy->Deallocate(mem);
-	}
-	else
-	{
-		std::free(mem);
-	}
-}
-
-auto operator delete(void* mem, std::size_t) noexcept(true) -> void
-{
-	if constexpr (NOX_DEBUG)
-	{
-		Nominax::Foundation::GlobalAllocatorProxy->Deallocate(mem);
-	}
-	else
-	{
-		std::free(mem);
-	}
-}
-
-auto operator delete[](void* mem) noexcept(true) -> void
-{
-	if constexpr (NOX_DEBUG)
-	{
-		Nominax::Foundation::GlobalAllocatorProxy->Deallocate(mem);
-	}
-	else
-	{
-		std::free(mem);
-	}
-}
-
-auto operator delete[](void* mem, std::size_t) noexcept(true) -> void
-{
-	if constexpr (NOX_DEBUG)
-	{
-		Nominax::Foundation::GlobalAllocatorProxy->Deallocate(mem);
-	}
-	else
-	{
-		std::free(mem);
-	}
+		[]
+		{
+			if constexpr (NOX_DEBUG || CompileTimeConfig::EnableVerboseAllocator)
+			{
+				return static_cast<IAllocator*>(&GlobalDebugAllocator);
+			}
+			else
+			{
+				return static_cast<IAllocator*>(&GlobalRuntimeAllocator);
+			}
+		}()
+	};
 }

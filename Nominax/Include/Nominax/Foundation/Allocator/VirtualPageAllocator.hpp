@@ -203,114 +203,218 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../Include/Nominax/Foundation/VirtualPageAllocator.hpp"
-#include "../../Include/Nominax/Foundation/OSInterface.hpp"
-#include "../../Include/Nominax/Foundation/PanicAssertions.hpp"
+#pragma once
 
-namespace Nominax::Foundation
+#include <bit>
+
+#include "../PanicAssertions.hpp"
+#include "VirtualPageProtectionFlags.hpp"
+
+namespace Nominax::Foundation::Allocator
 {
-	using VAH = VirtualAllocationHeader;
-
-	auto VMM::VirtualAlloc
-    (
-        const std::uint64_t size,
-        const MemoryPageProtectionFlags flags,
-        const bool locked,
-        VAH** const outHeader
-    ) -> void*
+	/// <summary>
+	/// Header for all virtual allocations.
+	/// </summary>
+	struct VirtualAllocationHeader final
 	{
-		if (!size)
+		/// <summary>
+		/// The size of the region in bytes.
+		/// </summary>
+		std::uint64_t Size { };
+
+		/// <summary>
+		/// The alignment of the block. 0 if default system alignment.
+		/// </summary>
+		std::uint64_t Alignment { };
+
+		/// <summary>
+		/// The current protection flags of the region.
+		/// </summary>
+		MemoryPageProtectionFlags ProtectionFlags { };
+
+		/// <summary>
+		/// The current protection lock hash.
+		/// </summary>
+		std::uintptr_t ProtectionLockHash { };
+
+		/// <summary>
+		/// User data.
+		/// </summary>
+		union
 		{
-			[[unlikely]]
-            return nullptr;
-		}
-		void* const block { OSI::MemoryMap(sizeof(VAH) + size, flags) };
-		NOX_DBG_PAS_NOT_NULL(block, "Memory mapping failed!");
-		auto& header { *static_cast<VAH*>(block) };
-		header.Size = size;
-		header.ProtectionFlags = flags;
-		if (locked)
-		{
-			header.SetLock(); // The region is now locked, so no more protection flag changes in the future!
-		}
-		header.UserData.Ptr = nullptr;
-        if (outHeader)
-        {
-            *outHeader = &header;
-        }
-		return static_cast<std::byte*>(block) + sizeof(VAH);
+			void*          Ptr;
+			std::uintptr_t Int;
+		}  UserData { nullptr };
+
+		/// <summary>
+		/// Marks the region as locked.
+		/// </summary>
+		/// <returns></returns>
+		constexpr auto SetLock() -> void;
+
+		/// <summary>
+		/// Checks if the region is locked.
+		/// </summary>
+		/// <returns>true if the region is locked, else false.</returns>
+		[[nodiscard]]
+		constexpr auto IsLocked() const -> bool;
+
+	private:
+		friend struct VMM;
+
+		/// <summary>
+		/// Computes a lock hash for the protection lock.
+		/// </summary>
+		/// <param name="hashPtr"></param>
+		/// <returns></returns>
+		constexpr auto ComputeLockHash(const void* hashPtr) const -> std::uintptr_t;
+
+		/// <summary>
+		/// Computes the region start pointer.
+		/// </summary>
+		/// <param name="usrRegion">Must be a pointer returned by VirtualAlloc.</param>
+		/// <returns></returns>
+		static constexpr auto ComputeRegionStart(void* usrRegion) -> void*;
+
+		/// <summary>
+		/// Maps the allocation header to the beginning of a region.
+		/// </summary>
+		/// <param name="region"></param>
+		/// <returns></returns>
+		static constexpr auto MapHeader(void* region) -> VirtualAllocationHeader&;
+
+		/// <summary>
+		/// Lock hash key.
+		/// </summary>
+		static constexpr std::uintptr_t LOCK_HASH_KEY { 0x0DE11EB268bED472 };
+	};
+
+	static_assert(std::is_standard_layout_v<VirtualAllocationHeader>);
+
+	constexpr auto VirtualAllocationHeader::IsLocked() const -> bool
+	{
+		return this->ProtectionLockHash == this->ComputeLockHash(this);
 	}
 
-	auto VMM::VirtualDealloc(void* const region) -> bool
+	constexpr auto VirtualAllocationHeader::SetLock() -> void
 	{
-		if (!region)
-		{
-			[[unlikely]]
-            return false;
-		}
-		auto* const blockOffset { VAH::ComputeRegionStart(region) };
-		auto& header { VAH::MapHeader(blockOffset) };
-		return OSI::MemoryUnmap(blockOffset, sizeof(VAH) + header.Size);
+		this->ProtectionLockHash = this->ComputeLockHash(this);
 	}
 
-	auto VMM::VirtualProtectPages(void* const region, const MemoryPageProtectionFlags newFlags, const bool locked) -> bool
+	constexpr auto VirtualAllocationHeader::ComputeLockHash(const void* const hashPtr) const -> std::uintptr_t
 	{
-		if (!region)
-		{
-			[[unlikely]]
-			return false;
-		}
-		auto* const blockOffset { VAH::ComputeRegionStart(region) };
-		auto& header { VAH::MapHeader(blockOffset) };
-        if (header.IsLocked()) // Already locked, we can't change any protection flags...
-        {
-            [[unlikely]]
-            return false;
-        }
-        if (header.ProtectionFlags == newFlags && header.IsLocked() == locked)
-        {
-            [[unlikely]]
-            return true;
-        }
-		const bool result { OSI::MemoryProtect(blockOffset, header.Size, newFlags) };
-		if (!result)
-		{
-			[[unlikely]]
-            return false;
-		}
-		header.ProtectionFlags = newFlags;
-		if (locked)
-		{
-			header.SetLock(); // The region is now locked, so no more protection flag changes in the future!
-		}
-		return true;
+		return (std::bit_cast<std::uintptr_t>(hashPtr) << 2) ^ LOCK_HASH_KEY ^ this->Size;
 	}
 
-	auto VMM::VirtualAllocAligned
-	(
-		const std::uint64_t size,
-		const std::uint64_t alignment,
-		const MemoryPageProtectionFlags flags,
-		const bool locked,
-        VAH** const outHeader
-	) -> void*
+	constexpr auto VirtualAllocationHeader::ComputeRegionStart(void* const usrRegion) -> void*
 	{
-		const std::uint64_t offset { alignment - 1 + sizeof(void*) };
-		void* origin { VirtualAlloc(size + offset, flags, locked) };
-        VAH* header;
-        MapHeaderFromRegion(origin, header);
-        header->Alignment = alignment;
-        if (outHeader)
-        {
-            *outHeader = header;
-        }
-		void** const aligned { reinterpret_cast<void**>((std::bit_cast<std::uintptr_t>(origin) + offset) & ~(alignment - 1)) };
-		aligned[-1] = origin;
-		return aligned;
+		return static_cast<std::uint8_t*>(usrRegion) - sizeof(VirtualAllocationHeader);
 	}
 
-	auto VMM::VirtualDeallocAligned(void* const region) -> bool
+	constexpr auto VirtualAllocationHeader::MapHeader(void* const region) -> VirtualAllocationHeader&
 	{
-		return VirtualDealloc(reinterpret_cast<void**>(region)[-1]);
+		return *static_cast<VirtualAllocationHeader*>(region);
+	}
+
+	/// <summary>
+	/// Virtual memory manager.
+	/// </summary>
+	struct VMM final
+	{
+		/// <summary>
+		/// Static class.
+		/// </summary>
+		VMM() = delete;
+
+		/// <summary>
+		/// Static class.
+		/// </summary>
+		VMM(const VMM& other) = delete;
+
+		/// <summary>
+		/// Static class.
+		/// </summary>
+		VMM(VMM&& other) = delete;
+
+		/// <summary>
+		/// Static class.
+		/// </summary>
+		auto operator =(const VMM& other) -> VMM& = delete;
+
+		/// <summary>
+		/// Static class.
+		/// </summary>
+		auto operator =(VMM&& other) -> VMM& = delete;
+
+		/// <summary>
+		/// Static class.
+		/// </summary>
+		~VMM() = delete;
+
+		/// <summary>
+		/// Allocates virtual memory in the process.
+		/// </summary>
+		/// <param name="size">The size in bytes to allocate.</param>
+		/// <param name="flags">The page protection flags.</param>
+		/// <param name="locked">If true enable page protection lock - page protection flags cannot be changed afterwards.</param>
+        /// <param name="outHeader">If not null, the header pointer will be passed.</param>
+		/// <returns>The pointer to the allocated memory on success, nullptr on error!</returns>
+		static auto VirtualAlloc
+        (
+            std::uint64_t size,
+			MemoryPageProtectionFlags flags,
+            bool locked = false,
+            VirtualAllocationHeader** outHeader = nullptr
+        ) -> void*;
+
+		/// <summary>
+		/// Deallocates virtual memory in the process.
+		/// </summary>
+		/// <param name="region">Must be a pointer returned by VirtualAlloc().</param>
+		/// <returns>true on success, else false.</returns>
+		static auto VirtualDealloc(void* region) -> bool;
+
+		// <summary>
+		/// Allocates virtual memory in the process with specific alignment.
+		/// </summary>
+		/// <param name="size">The size in bytes to allocate.</param>
+        /// <param name="size">The alignment in bytes.</param>
+		/// <param name="flags">The page protection flags.</param>
+		/// <param name="locked">If true enable page protection lock - page protection flags cannot be changed afterwards.</param>
+        /// <param name="outHeader">If not null, the header pointer will be passed.</param>
+		/// <returns>The pointer to the allocated memory on success, nullptr on error!</returns>
+		static auto VirtualAllocAligned
+        (
+            std::uint64_t size,
+            std::uint64_t alignment,
+			MemoryPageProtectionFlags flags,
+            bool locked = false,
+            VirtualAllocationHeader** outHeader = nullptr
+        ) -> void*;
+
+		/// <summary>
+		/// Deallocates virtual memory in the process with specific alignment.
+		/// </summary>
+		/// <param name="region">Must be a pointer returned by VirtualAlloc().</param>
+		/// <returns>true on success, else false.</returns>
+		static auto VirtualDeallocAligned(void* region) -> bool;
+
+		/// <summary>
+		/// Updates the page protection flags of the specified region, if possible.
+		/// </summary>
+		/// <param name="region">Must be a pointer returned by VirtualAlloc().</param>
+		/// <param name="newFlags">The new flags to set.</param>
+		/// <param name="locked">If true enable page protection lock - page protection flags cannot be changed afterwards.</param>
+		/// <returns>true on success, else false.</returns>
+		static auto VirtualProtectPages(void* region, MemoryPageProtectionFlags newFlags, bool locked = false) -> bool;
+
+    private:
+		static auto MapHeaderFromRegion(void* region, VirtualAllocationHeader*& out) -> void;
+	};
+
+	inline auto VMM::MapHeaderFromRegion(void* const region, VirtualAllocationHeader*& out) -> void
+	{
+		NOX_DBG_PAS_NOT_NULL(region, "Region for header mapping was null!");
+		out = &VirtualAllocationHeader::MapHeader(VirtualAllocationHeader::ComputeRegionStart(region));
 	}
 }

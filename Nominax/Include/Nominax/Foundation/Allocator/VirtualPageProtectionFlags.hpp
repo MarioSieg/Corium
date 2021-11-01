@@ -203,23 +203,40 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../../Nominax/Include/Nominax/Foundation/MappedMemory.hpp"
-#include "../../../Nominax/Include/Nominax/Foundation/PanicAssertions.hpp"
+#pragma once
 
-namespace Nominax::Foundation
+#include <cstdint>
+
+namespace Nominax::Foundation::Allocator
 {
-	MappedMemory::MappedMemory(const std::uint64_t size, const MemoryPageProtectionFlags flags, const bool lockedProtection)
+	/// <summary>
+	/// Contains all possible values for page protection flags.
+	/// </summary>
+	enum class MemoryPageProtectionFlags : std::uint8_t
 	{
-		NOX_DBG_PAS_NOT_ZERO(size, "Memory mapping with zero size requested!");
-		void* const region { VMM::VirtualAlloc(size, flags, lockedProtection, &this->Header_) };
-		NOX_DBG_PAS_NOT_NULL(region, "Virtual memory allocation failed!");
-		this->Region_ = region;
-	}
+		/// <summary>
+		/// Not allowed to read, write or execute.
+		/// </summary>
+		NoAccess,
 
-	MappedMemory::~MappedMemory()
-	{
-        [[maybe_unused]]
-		const bool result { VMM::VirtualDealloc(this->Region_) };
-		NOX_DBG_PAS(result, "Virtual memory deallocation failed!");
-	}
+		/// <summary>
+		/// R -> Read only.
+		/// </summary>
+		Read,
+
+		/// <summary>
+		/// RW -> Read and write.
+		/// </summary>
+		ReadWrite,
+
+		/// <summary>
+		/// RX -> Read and execute.
+		/// </summary>
+		ReadExecute,
+
+		/// <summary>
+		/// RWX -> Read, write and execute (very unsafe).
+		/// </summary>
+		ReadWriteExecute
+	};
 }

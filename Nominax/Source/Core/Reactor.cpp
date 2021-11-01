@@ -255,7 +255,7 @@ namespace Nominax::Core
 			"Power: {}, "
 			"Pool: {:02}\n",
 			this->Id_,
-            Foundation::Bytes2Megabytes(this->Stack_.Size() * sizeof(Foundation::Record)),
+            Foundation::Memory::Bytes2Megabytes(this->Stack_.Size() * sizeof(Foundation::Record)),
 			this->Stack_.Size() / 1000,
 			std::size(this->IntrinsicTable_),
 			this->InterruptHandler_ == &DEFAULT_INTERRUPT_ROUTINE ? "Default" : "Overridden",

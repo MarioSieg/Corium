@@ -205,147 +205,205 @@
 
 #pragma once
 
-#include <algorithm>
-#include <cstdint>
+#include <type_traits>
+#include <cstring>
 
-namespace Nominax
+#include "../Allocator/VirtualPageAllocator.hpp"
+
+namespace Nominax::Foundation::Memory
 {
-    namespace Foundation
+	/// <summary>
+	/// RAII wrapper around a virtual memory mapping.
+	///	To get more features and a type-safe and alignment aware version,
+	///	use MappedMemoryWrapper<T> in MappedMemoryWrapper.hpp!
+	/// </summary>
+	class MappedMemory
+	{
+    protected:
+		void* Region_ { nullptr };
+		Allocator::VirtualAllocationHeader* Header_ { nullptr };
+
+	public:
+		/// <summary>
+		/// Construct and allocated new memory.
+		/// Panics on fail.
+		/// </summary>
+		/// <param name="size">The size in bytes to allocate.</param>
+		/// <param name="flags">The protection flags to use.</param>
+		/// <param name="lockedProtection">If true the protection flags will be locked.
+		/// See class VMM in VirtualPageAllocator.hpp for more info!</param>
+		explicit MappedMemory
+		(
+			std::uint64_t size,
+			Allocator::MemoryPageProtectionFlags flags = Allocator::MemoryPageProtectionFlags::ReadWrite,
+			bool lockedProtection = false
+		);
+
+		/// <summary>
+		/// No copying.
+		/// </summary>
+		/// <param name="other"></param>
+		MappedMemory(const MappedMemory& other) = delete;
+
+		/// <summary>
+		/// No moving.
+		/// </summary>
+		/// <param name="other"></param>
+		MappedMemory(MappedMemory&& other) = delete;
+
+		/// <summary>
+		/// No copying.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(const MappedMemory& other) -> MappedMemory& = delete;
+
+		/// <summary>
+		/// No moving.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(MappedMemory&& other) -> MappedMemory& = delete;
+
+		/// <summary>
+		/// Destructor.
+		/// Panics on fail.
+		/// </summary>
+		virtual ~MappedMemory();
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The memory region allocated.</returns>
+		[[nodiscard]]
+		auto GetRawRegion() -> void*;
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns>The memory region allocated.</returns>
+        [[nodiscard]]
+        auto GetRawRegion() const -> const void*;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The allocation header for the region..</returns>
+		[[nodiscard]]
+		auto GetHeader() const -> const Allocator::VirtualAllocationHeader&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The size of the region in bytes.</returns>
+		[[nodiscard]]
+		auto GetByteSize() const -> std::uint64_t;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The protection flags of the region.</returns>
+		[[nodiscard]]
+		auto GetProtectionFlags() const -> Allocator::MemoryPageProtectionFlags;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>True if the region is locked, else false.</returns>
+		[[nodiscard]]
+		auto IsLocked() const -> bool;
+
+		/// <summary>
+		/// Set protection lock on the region.
+		/// </summary>
+		/// <returns></returns>
+		auto SetLock() const -> void;
+
+		/// <summary>
+		/// Try to dirty all pages so that physical memory is allocated from the kernel.
+		/// </summary>
+		/// <returns></returns>
+		auto DirtyPages() const -> void;
+
+		/// <summary>
+		/// Shortcut to call std::memset on the region.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <param name="offset"></param>
+		/// <returns></returns>
+		auto MemSet(std::uint8_t value, std::uint64_t offset = 0) const -> void;
+
+        /// <summary>
+        /// Tries to update the protection flags of the region.
+        /// </summary>
+        /// <param name="newFlags">Thew new protection flags to set.</param>
+        /// <returns></returns>
+        [[nodiscard]]
+        auto Protect(Allocator::MemoryPageProtectionFlags newFlags, bool lock) const -> bool;
+
+		/// <summary>
+		/// Queries the region as a specific type.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		template <typename T> requires std::is_trivial_v<T>
+		[[nodiscard]]
+		auto QueryRegion() const -> const T&;
+	};
+
+    inline auto MappedMemory::GetRawRegion() -> void*
     {
-        /// <summary>
-        /// Kilobytes.
-        /// </summary>
-        constexpr std::uint64_t KB { 1000 };
-
-        /// <summary>
-        /// Megabytes.
-        /// </summary>
-        constexpr std::uint64_t MB { KB * KB };
-
-        /// <summary>
-        /// Gigabytes.
-        /// </summary>
-        constexpr std::uint64_t GB { KB * KB * KB };
-
-        /// <summary>
-        /// Terabytes.
-        /// </summary>
-        constexpr std::uint64_t TB { KB * KB * KB * KB };
-
-        /// <summary>
-        /// Petabytes.
-        /// </summary>
-        constexpr std::uint64_t PB { KB * KB * KB * KB * KB };
-
-        /// <summary>
-        /// Convert between memory units.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="bytes"></param>
-        /// <returns></returns>
-        template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
-        [[nodiscard]]
-        constexpr auto Bytes2Gigabytes(T bytes) -> T
-        {
-            bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
-            return bytes / static_cast<T>(KB) / static_cast<T>(KB) / static_cast<T>(KB);
-        }
-
-        /// <summary>
-        /// Convert between memory units.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="bytes"></param>
-        /// <returns></returns>
-        template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
-        [[nodiscard]]
-        constexpr auto Bytes2Megabytes(T bytes) -> T
-        {
-            bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
-            return bytes / static_cast<T>(KB) / static_cast<T>(KB);
-        }
-
-        /// <summary>
-        /// Convert between memory units.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="bytes"></param>
-        /// <returns></returns>
-        template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
-        [[nodiscard]]
-        constexpr auto Bytes2Kilobytes(T bytes) -> T
-        {
-            bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
-            return bytes / static_cast<T>(KB);
-        }
-
-        /// <summary>
-        /// Convert between memory units.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="gigabytes"></param>
-        /// <returns></returns>
-        template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
-        [[nodiscard]]
-        constexpr auto Gigabytes2Bytes(const T gigabytes) -> T
-        {
-            return gigabytes * static_cast<T>(KB) * static_cast<T>(KB) * static_cast<T>(KB);
-        }
-
-        /// <summary>
-        /// Convert between memory units.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="megabytes"></param>
-        /// <returns></returns>
-        template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
-        [[nodiscard]]
-        constexpr auto Megabytes2Bytes(const T megabytes) -> T
-        {
-            return megabytes * static_cast<T>(KB) * static_cast<T>(KB);
-        }
-
-        /// <summary>
-        /// Convert between memory units.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="kilobytes"></param>
-        /// <returns></returns>
-        template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
-        [[nodiscard]]
-        constexpr auto Kilobytes2Bytes(const T kilobytes) -> T
-        {
-            return kilobytes * static_cast<T>(KB);
-        }
+        return this->Region_;
     }
 
-    /// <summary>
-    /// Convert between memory units.
-    /// </summary>
-    /// <param name="value"></param>
-    /// <returns></returns>
-    constexpr auto operator ""_KB(const unsigned long long value) -> std::uint64_t
-    {
-        return Foundation::Kilobytes2Bytes<decltype(value)>(value);
-    }
+	inline auto MappedMemory::GetRawRegion() const -> const void*
+	{
+		return this->Region_;
+	}
 
-    /// <summary>
-    /// Convert between memory units.
-    /// </summary>
-    /// <param name="value"></param>
-    /// <returns></returns>
-    constexpr auto operator ""_MB(const unsigned long long value) -> std::uint64_t
-    {
-        return Foundation::Megabytes2Bytes<decltype(value)>(value);
-    }
+	inline auto MappedMemory::GetHeader() const -> const Allocator::VirtualAllocationHeader&
+	{
+		return *this->Header_;
+	}
 
-    /// <summary>
-    /// Convert between memory units.
-    /// </summary>
-    /// <param name="value"></param>
-    /// <returns></returns>
-    constexpr auto operator ""_GB(const unsigned long long value) -> std::uint64_t
+	inline auto MappedMemory::GetByteSize() const -> std::uint64_t
+	{
+		return this->Header_->Size;
+	}
+
+	inline auto MappedMemory::GetProtectionFlags() const -> Allocator::MemoryPageProtectionFlags
+	{
+		return this->Header_->ProtectionFlags;
+	}
+
+	inline auto MappedMemory::IsLocked() const -> bool
+	{
+		return this->Header_->IsLocked();
+	}
+
+	template <typename T> requires std::is_trivial_v<T>
+	inline auto MappedMemory::QueryRegion() const -> const T&
+	{
+		return *static_cast<const T*>(this->Region_);
+	}
+
+	inline auto MappedMemory::SetLock() const -> void
+	{
+		this->Header_->SetLock();
+	}
+
+	inline auto MappedMemory::DirtyPages() const -> void
+	{
+		std::memset(this->Region_, 0, this->GetByteSize());
+	}
+
+	inline auto MappedMemory::MemSet(const std::uint8_t value, const std::uint64_t offset) const -> void
+	{
+		std::memset(static_cast<std::uint8_t*>(this->Region_) + offset, value, this->GetByteSize());
+	}
+
+    inline auto MappedMemory::Protect(const Allocator::MemoryPageProtectionFlags newFlags, const bool lock) const -> bool
     {
-        return Foundation::Gigabytes2Bytes<decltype(value)>(value);
+        return Allocator::VMM::VirtualProtectPages(this->Region_, newFlags, lock);
     }
 }

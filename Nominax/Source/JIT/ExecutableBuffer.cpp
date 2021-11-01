@@ -217,7 +217,7 @@ namespace Nominax::JIT
             const_cast<MachineScalar*>(this->Buffer_),
             const_cast<MachineScalar*>(this->BufferEnd_)
         };
-        std::copy(std::begin(source), std::end(source), std::begin(region));
+        std::ranges::copy(source, std::begin(region));
         const bool protectionSuccess { this->Protect(SECURITY_FLAGS, LOCK_PROTECTION) };
         NOX_PAS(protectionSuccess, "Protection of execbuf failed!");
     }

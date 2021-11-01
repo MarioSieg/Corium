@@ -214,6 +214,8 @@
 
 namespace Nominax::Foundation
 {
+	using Allocator::MemoryPageProtectionFlags;
+
 	auto OSI::QuerySystemMemoryTotal() -> std::uint64_t
 	{
 		static const std::uint64_t SYS_MEM
@@ -346,7 +348,7 @@ namespace Nominax::Foundation
 	auto OSI::MemoryMap
 	(
 		const std::uint64_t             size,
-		const MemoryPageProtectionFlags protectionFlags
+		const Allocator::MemoryPageProtectionFlags protectionFlags
 	) -> void*
 	{
 		constexpr LPVOID argAddress { nullptr };
@@ -369,7 +371,7 @@ namespace Nominax::Foundation
 		return result;
 	}
 
-	auto OSI::MemoryProtect([[maybe_unused]] void* const region, [[maybe_unused]] const std::uint64_t size, [[maybe_unused]] const MemoryPageProtectionFlags protectionFlags) -> bool
+	auto OSI::MemoryProtect( void* const region, const std::uint64_t size, const Allocator::MemoryPageProtectionFlags protectionFlags) -> bool
 	{
 		const LPVOID argAddress { region };
 		const SIZE_T argSize { size };

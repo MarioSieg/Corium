@@ -205,27 +205,257 @@
 
 #pragma once
 
-#include "CompileTimeConfig.hpp"
-#include "IAllocator.hpp"
-#include "DebugAllocator.hpp"
+#include <cstdint>
 
-namespace Nominax::Foundation
+#include "../Platform.hpp"
+#include "../Memory/MemoryUnits.hpp"
+
+#if NOX_OS_WINDOWS
+#	include <malloc.h>
+#else
+#	include <alloca.h>
+#endif
+
+namespace Nominax::Foundation::Allocator
 {
+	#if NOX_OS_WINDOWS
+		#define NOX_ALLOCA_STUB(size) ::_alloca(size)
+	#else
+		#define NOX_ALLOCA_STUB(size) ::alloca(size)
+	#endif
+
 	/// <summary>
-	/// Currently used allocator.
+	/// Above this size memory will be allocated on the heap
+	/// instead of the stack.
 	/// </summary>
-	inline constinit const IAllocator* GlobalAllocatorProxy
+	constexpr std::uint64_t STACK_ALLOC_HEAP_THRESHOLD { 4_KB };
+
+	/// <summary>
+	/// Restrict fixed stack allocation type.
+	/// </summary>
+	template <typename T, const std::uint64_t C>
+	concept FixedStackAllocatable = requires
 	{
-		[]
-		{
-			if constexpr (NOX_DEBUG || CompileTimeConfig::EnableVerboseAllocator)
-			{
-				return static_cast<IAllocator*>(&GlobalDebugAllocator);
-			}
-			else
-			{
-				return static_cast<IAllocator*>(&GlobalRuntimeAllocator);
-			}
-		}()
+		std::is_trivial_v<T>;                       // trivial types only
+		C != 0;                                     // must at least be one
+		sizeof(T) != 0;                             // must at least be one
+		sizeof(T) * C < STACK_ALLOC_HEAP_THRESHOLD; // no more than 4 kB
 	};
+
+	template <typename T, const std::uint64_t C> requires FixedStackAllocatable<T, C>
+	struct FixedStackAllocationProxy final
+	{
+		static constexpr std::uint64_t BYTE_SIZE { C * sizeof(T) };
+	};
+
+	/// <summary>
+	/// Performs a parameter checked stack allocation with fixed size.
+	/// </summary>
+	/// <param name="type">The generic type to allocation. Must be a POD type.</param>
+	/// <param name="count">The amount of "type" to allocate. Here, the fixed version this is restricted and must be known at compile time..</param>
+	/// <returns>The pointer to the allocated object which stays as long as the function scope exists.</returns>
+	#define FixedStackAllocation(type, count)	\
+			static_cast< type *>(NOX_ALLOCA_STUB(( FixedStackAllocationProxy< type, ( count ) >::BYTE_SIZE )))
+
+	/// <summary>
+	/// Restrict dynamic stack allocation type.
+	/// </summary>
+	template <typename T>
+	concept DynamicStackAllocatable = requires
+	{
+		std::is_trivial_v<T>;
+	};
+
+	/// <summary>
+	/// RAII release guard for objects which were too large for stack allocations,
+	/// so they where allocated on the heap instead.
+	/// </summary>
+	template <typename T> requires DynamicStackAllocatable<T>
+	class HybridStackGuard final
+	{
+		T* const NOX_RESTRICT Blob_;
+		const bool            IsHeap_;
+
+	public:
+		/// <summary>
+		/// Construct with heap flag and memory.
+		/// </summary>
+		/// <returns></returns>
+		explicit constexpr HybridStackGuard(bool isOnHeap, T& memory);
+
+		/// <summary>
+		/// No copying.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		HybridStackGuard(const HybridStackGuard& other) = delete;
+
+		/// <summary>
+		/// No moving.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		HybridStackGuard(HybridStackGuard&& other) = delete;
+
+		/// <summary>
+		/// No copying.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		auto operator =(const HybridStackGuard& other) -> HybridStackGuard& = delete;
+
+		/// <summary>
+		/// No moving.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		auto operator =(HybridStackGuard&& other) -> HybridStackGuard& = delete;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <returns>True if the pointer is heap allocated, else false.</returns>
+		constexpr operator bool() const &;
+
+		/// <summary>
+		/// Direct access.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		constexpr auto operator ->() & -> T*;
+
+		/// <summary>
+		/// Direct access.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		constexpr auto operator ->() const & -> const T*;
+
+		/// <summary>
+		/// Direct access.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		constexpr auto operator *() & -> T&;
+
+		/// <summary>
+		/// Direct access.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		constexpr auto operator *() const & -> const T&;
+
+		/// <summary>
+		/// Unchecked subscript.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// /// <param name="idx"></param>
+		/// /// <returns></returns>
+		constexpr auto operator [](std::uint64_t idx) & -> T&;
+
+		/// <summary>
+		/// Unchecked subscript.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="idx"></param>
+		/// <returns></returns>
+		constexpr auto operator [](std::uint64_t idx) const & -> const T&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <returns>True if the pointer is heap allocated, else false.</returns>
+		[[nodiscard]]
+		constexpr auto IsHeapAllocated() const & -> bool;
+
+		/// <summary>
+		/// Destruct which releases the heap memory,
+		/// if heap allocated.
+		/// </summary>
+		~HybridStackGuard();
+	};
+
+	template <typename T> requires DynamicStackAllocatable<T>
+	constexpr HybridStackGuard<T>::HybridStackGuard(const bool isOnHeap, T& memory) : Blob_ { &memory },
+	                                                                                  IsHeap_ { isOnHeap } { }
+
+	template <typename T> requires DynamicStackAllocatable<T>
+	constexpr HybridStackGuard<T>::operator bool() const &
+	{
+		return this->IsHeap_;
+	}
+
+	template <typename T> requires DynamicStackAllocatable<T>
+	constexpr auto HybridStackGuard<T>::operator->() & -> T*
+	{
+		return this->Blob_;
+	}
+
+	template <typename T> requires DynamicStackAllocatable<T>
+	constexpr auto HybridStackGuard<T>::operator->() const & -> const T*
+	{
+		return this->Blob_;
+	}
+
+	template <typename T> requires DynamicStackAllocatable<T>
+	constexpr auto HybridStackGuard<T>::operator*() & -> T&
+	{
+		return *this->Blob_;
+	}
+
+	template <typename T> requires DynamicStackAllocatable<T>
+	constexpr auto HybridStackGuard<T>::operator*() const & -> const T&
+	{
+		return *this->Blob_;
+	}
+
+	template <typename T> requires DynamicStackAllocatable<T>
+	constexpr auto HybridStackGuard<T>::operator[](const std::uint64_t idx) & -> T&
+	{
+		return *(this->Blob_ + idx);
+	}
+
+	template <typename T> requires DynamicStackAllocatable<T>
+	constexpr auto HybridStackGuard<T>::operator[](const std::uint64_t idx) const & -> const T&
+	{
+		return *(this->Blob_ + idx);
+	}
+
+	template <typename T> requires DynamicStackAllocatable<T>
+	constexpr auto HybridStackGuard<T>::IsHeapAllocated() const & -> bool
+	{
+		return this->IsHeap_;
+	}
+
+	template <typename T> requires DynamicStackAllocatable<T>
+	inline HybridStackGuard<T>::~HybridStackGuard()
+	{
+		if (this->IsHeapAllocated() && this->Blob_)
+		{
+			delete[] this->Blob_;
+		}
+	}
+
+	/// <summary>
+	/// Helper routine to determine if the memory
+	/// for a dynamically stack allocation should be allocated
+	/// on the heap or not.
+	/// </summary>
+	template <typename T>
+	constexpr auto IsHybridHeap(const std::uint64_t count) -> bool
+	{
+		return count * sizeof(T) > STACK_ALLOC_HEAP_THRESHOLD;
+	}
+
+	/// <summary>
+	/// Performs a parameter checked stack allocation with dynamic size.
+	/// </summary>
+	/// <param name="type">The generic type to allocation. Must be a POD type.</param>
+	/// <param name="count">The amount of "type" to allocate. Here, the dynamic version allows dynamic values,
+	/// but if the byte size is above "STACK_ALLOC_HEAP_THRESHOLD", the memory is allocated on the heap instead.</param>
+	/// <returns>The stack guard which released the memory on exit.</returns>
+	#define DynamicStackAllocation(type, count)											\
+		{																				\
+			IsHybridHeap < type >( count ),												\
+			IsHybridHeap < type >( count )												\
+			? *static_cast< type *>(new type [ count ])									\
+			: *static_cast< type *>(NOX_ALLOCA_STUB( ( count ) * sizeof( type ) ))		\
+		}
 }

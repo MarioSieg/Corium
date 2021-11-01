@@ -217,6 +217,8 @@
 
 namespace Nominax::Foundation
 {
+	using Allocator::MemoryPageProtectionFlags;
+
 	auto OSI::QuerySystemMemoryTotal() -> std::uint64_t
 	{
 		static const std::uint64_t SYS_MEM

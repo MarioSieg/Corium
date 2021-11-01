@@ -208,7 +208,7 @@
 #include <string>
 #include <cstdint>
 
-#include "VirtualPageProtectionFlags.hpp"
+#include "Allocator/VirtualPageProtectionFlags.hpp"
 
 namespace Nominax::Foundation
 {
@@ -324,7 +324,7 @@ namespace Nominax::Foundation
 		static auto MemoryMap
 		(
 			std::uint64_t             size,
-			MemoryPageProtectionFlags protectionFlags
+			Allocator::MemoryPageProtectionFlags protectionFlags
 		) -> void*;
 
 		/// <summary>
@@ -344,6 +344,6 @@ namespace Nominax::Foundation
 		/// <param name="size">The size of the region in bytes.</param>
 		/// <param name="protectionFlags">The new protection flags.</param>
 		/// <returns>true on success, else false.</returns>
-		static auto MemoryProtect(void* region, std::uint64_t size, MemoryPageProtectionFlags protectionFlags) -> bool;
+		static auto MemoryProtect(void* region, std::uint64_t size, Allocator::MemoryPageProtectionFlags protectionFlags) -> bool;
 	};
 }

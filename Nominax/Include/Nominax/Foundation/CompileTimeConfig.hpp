@@ -245,6 +245,11 @@ namespace Nominax::Foundation
 		~CompileTimeConfig() = delete;
 
 		/// <summary>
+		/// True if debug mode is enabled.
+		/// </summary>
+		static constexpr bool IsDebug { NOX_DEBUG };
+
+		/// <summary>
 		/// If true,
 		///	runtime floating point comparisons (==, !=) will use a correct ULP based
 		///	comparison algorithm.
@@ -257,5 +262,7 @@ namespace Nominax::Foundation
 		/// If true, a verbose allocator with logging will be used by default.
 		/// </summary>
 		static constexpr bool EnableVerboseAllocator { true };
+
+		static constexpr bool BypassSystemAllocator { IsDebug };
 	};
 }

@@ -285,7 +285,7 @@ namespace Nominax::Core
 	[[nodiscard]]
 	NOX_ALLOC_SIZE(1) static inline auto AllocatePool(const std::uint64_t size, const std::string_view poolId) -> std::uint8_t*
 	{
-		Print(NOX_FMT("Allocating {} pool with size: {} MB\n"), poolId, Bytes2Megabytes(static_cast<double>(size)));
+		Print(NOX_FMT("Allocating {} pool with size: {} MB\n"), poolId, Memory::Bytes2Megabytes(static_cast<double>(size)));
 		auto* NOX_RESTRICT const mem { new(std::nothrow) std::uint8_t[size] };
 		if (!mem) [[unlikely]]
 		{
@@ -295,7 +295,7 @@ namespace Nominax::Core
                 (
                     NOX_FMT("Allocation of monotonic {} pool with size {} MB failed!"),
                     poolId,
-                    Bytes2Megabytes(static_cast<double>(size))
+                    Memory::Bytes2Megabytes(static_cast<double>(size))
                 )
             );
 		}
@@ -468,11 +468,11 @@ namespace Nominax::Core
 		return true;
 	}
 
-	Environment::Environment(const IAllocator* const allocator)
+	Environment::Environment(const Allocator::IAllocator* const allocator)
 	{
 		if (allocator)
 		{
-			GlobalAllocatorProxy = allocator;
+			Allocator::GlobalAllocatorProxy = allocator;
 		}
 	}
 
@@ -502,8 +502,8 @@ namespace Nominax::Core
 		Print
 		(
 			NOX_FMT("Monotonic system pool fixed size: {} MB, Fallback: {} MB\n"),
-			Bytes2Megabytes(descriptor.SystemPoolSize),
-			Bytes2Megabytes(FALLBACK_SYSTEM_POOL_SIZE)
+			Memory::Bytes2Megabytes(descriptor.SystemPoolSize),
+			Memory::Bytes2Megabytes(FALLBACK_SYSTEM_POOL_SIZE)
 		);
 
 		// No, we cannot use std::make_unique because we want it noexcept!
@@ -531,7 +531,7 @@ namespace Nominax::Core
 			)
 		};
 
-		const auto bootTime {std::chrono::duration_cast<std::chrono::milliseconds>(tok - tik) };
+		const auto bootTime { std::chrono::duration_cast<std::chrono::milliseconds>(tok - tik) };
 		this->Context_->BootTime = bootTime;
 
 		Print
@@ -545,11 +545,11 @@ namespace Nominax::Core
 				"\n"
 			),
             memUsagePercent,
-            Bytes2Megabytes(static_cast<float>(memSnapshot)),
-            Bytes2Megabytes(static_cast<float>(this->Context_->SysInfoSnapshot.TotalSystemMemory)),
+            Memory::Bytes2Megabytes(static_cast<float>(memSnapshot)),
+            Memory::Bytes2Megabytes(static_cast<float>(this->Context_->SysInfoSnapshot.TotalSystemMemory)),
             sysPoolPer,
-            Bytes2Megabytes(static_cast<float>(sysPoolSize)),
-            Bytes2Megabytes(static_cast<float>(this->Context_->SystemPoolSize)),
+            Memory::Bytes2Megabytes(static_cast<float>(sysPoolSize)),
+            Memory::Bytes2Megabytes(static_cast<float>(this->Context_->SystemPoolSize)),
             bootTime
 		);
 	}

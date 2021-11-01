@@ -210,10 +210,10 @@
 #include <memory_resource>
 
 #include <cstdint>
-#include "../Foundation/MemoryUnits.hpp"
+#include "../Foundation/Memory/MemoryUnits.hpp"
 #include "../Foundation/CPUFeatureDetector.hpp"
 #include "../Foundation/SystemInfoSnapshot.hpp"
-#include "../Foundation/IAllocator.hpp"
+#include "../Foundation/Allocator/IAllocator.hpp"
 #include "../ByteCode/Stream.hpp"
 #include "../ByteCode/Image.hpp"
 
@@ -310,7 +310,7 @@ namespace Nominax::Core
 		/// <summary>
 		/// Default constructor. Does not initialize the environment.
 		/// </summary>
-		explicit Environment(const Foundation::IAllocator* allocator = nullptr);
+		explicit Environment(const Foundation::Allocator::IAllocator* allocator = nullptr);
 
 		/// <summary>
 		/// No copy.

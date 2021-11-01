@@ -216,7 +216,11 @@ namespace Nominax::Foundation
 	/// </summary>
 	template <const std::uint8_t Size> requires requires
 	{
-		requires Size == 1 || Size == 2 || Size == 4 || Size == 8;
+		requires
+			Size == sizeof(std::uint8_t)
+			|| Size == sizeof(std::uint16_t)
+			|| Size == sizeof(std::uint32_t)
+			|| Size == sizeof(std::uint64_t);
 	}
 	struct GenericBitScalar final
 	{
@@ -228,7 +232,7 @@ namespace Nominax::Foundation
 	/// 8-bit
 	/// </summary>
 	template <>
-	struct GenericBitScalar<1>
+	struct GenericBitScalar<sizeof(std::uint8_t)>
 	{
 		using Signed = std::int8_t;
 		using Unsigned = std::uint8_t;
@@ -238,7 +242,7 @@ namespace Nominax::Foundation
 	/// 16-bit
 	/// </summary>
 	template <>
-	struct GenericBitScalar<2>
+	struct GenericBitScalar<sizeof(std::uint16_t)>
 	{
 		using Signed = std::int16_t;
 		using Unsigned = std::uint16_t;
@@ -248,7 +252,7 @@ namespace Nominax::Foundation
 	/// 32-bit
 	/// </summary>
 	template <>
-	struct GenericBitScalar<4>
+	struct GenericBitScalar<sizeof(std::uint32_t)>
 	{
 		using Signed = std::int32_t;
 		using Unsigned = std::uint32_t;
@@ -258,7 +262,7 @@ namespace Nominax::Foundation
 	/// 64-bit
 	/// </summary>
 	template <>
-	struct GenericBitScalar<8>
+	struct GenericBitScalar<sizeof(std::uint64_t)>
 	{
 		using Signed = std::int64_t;
 		using Unsigned = std::uint64_t;
