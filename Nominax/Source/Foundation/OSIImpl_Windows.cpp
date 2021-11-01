@@ -295,14 +295,14 @@ namespace Nominax::Foundation
 		return PAGE_SIZE;
 	}
 
-	auto OSI::DylibOpen(const std::string_view filePath) -> void*
+	auto OSI::DylibOpen(const char* const filePath) -> void*
 	{
-		return LoadLibraryA(std::data(filePath));
+		return LoadLibraryA(filePath);
 	}
 
-	auto OSI::DylibLookupSymbol(void* const handle, const std::string_view symbolName) -> void*
+	auto OSI::DylibLookupSymbol(void* const handle, const char* const symbolName) -> void*
 	{
-		const FARPROC symbol { GetProcAddress(static_cast<HMODULE>(handle), std::data(symbolName)) };
+		const FARPROC symbol { GetProcAddress(static_cast<HMODULE>(handle), symbolName) };
 		return reinterpret_cast<void*>(reinterpret_cast<std::uintptr_t>(symbol));
 	}
 

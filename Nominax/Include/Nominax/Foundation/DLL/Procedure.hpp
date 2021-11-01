@@ -207,11 +207,16 @@
 
 #include <type_traits>
 
-namespace Nominax::Foundation
+namespace Nominax::Foundation::DLL
 {
 	/// <summary>
-		/// Represents a procedure address inside a dynamic library.
-		/// </summary>
+	/// Extern library procedure.
+	/// </summary>
+	using ExternProc = void;
+
+	/// <summary>
+	/// Represents a procedure address inside a dynamic library.
+	/// </summary>
 	struct DynamicProcedure final
 	{
 		/// <summary>
@@ -219,7 +224,7 @@ namespace Nominax::Foundation
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		constexpr explicit DynamicProcedure(void* value);
+		constexpr explicit DynamicProcedure(ExternProc& value) noexcept;
 
 		/// <summary>
 		/// Null pointers forbidden.
@@ -227,12 +232,10 @@ namespace Nominax::Foundation
 		explicit DynamicProcedure(std::nullptr_t) = delete;
 
 		/// <summary>
-		/// Cast to function reference.
+		/// Query value.
 		/// </summary>
-		/// <typeparam name="F">The function signature to cast to. Must be the same as in the dynamic link library!</typeparam>
-		/// <returns>The function ref.</returns>
-		template <typename F> requires std::is_function_v<F>
-		auto operator*() const -> F&;
+		/// <returns></returns>
+		auto operator *() const noexcept -> ExternProc&;
 
 
 		/// <summary>
@@ -243,9 +246,10 @@ namespace Nominax::Foundation
 		/// <param name="args">The arguments to call the function with.</param>
 		/// <returns>The return value of the called function.</returns>
 		template <typename F, typename... Ts> requires std::is_function_v<F> && std::is_invocable_v<F, Ts...>
-		auto operator()(Ts&&...args) const -> decltype(F(std::forward<Ts...>(args...)));
+		auto operator ()(Ts&&...args) const -> decltype(F(std::forward<Ts...>(args...)));
 
-		void* Ptr;
+	private:
+		ExternProc* Ptr;
 	};
 
 	static_assert(std::is_copy_constructible_v<DynamicProcedure>);
@@ -253,16 +257,15 @@ namespace Nominax::Foundation
 	static_assert(std::is_trivially_copy_assignable_v<DynamicProcedure>);
 	static_assert(std::is_trivially_move_assignable_v<DynamicProcedure>);
 
-	constexpr DynamicProcedure::DynamicProcedure(void* const value) : Ptr { value } { }
+	constexpr DynamicProcedure::DynamicProcedure(ExternProc& value) : Ptr { &value } { }
 
-	template <typename F> requires std::is_function_v<F>
-	inline auto DynamicProcedure::operator*() const -> F&
+	inline auto DynamicProcedure::operator *() const noexcept -> ExternProc&
 	{
-		return *static_cast<F*>(this->Ptr);
+		return *this->Ptr;
 	}
 
 	template <typename F, typename ... Ts> requires std::is_function_v<F> && std::is_invocable_v<F, Ts...>
-	inline auto DynamicProcedure::operator()(Ts&&...args) const -> decltype(F(std::forward<Ts...>(args...)))
+	inline auto DynamicProcedure::operator ()(Ts&&...args) const -> decltype(F(std::forward<Ts...>(args...)))
 	{
 		return (*static_cast<F*>(this->Ptr))(std::forward<Ts...>(args...));
 	}

@@ -218,8 +218,6 @@
 #include "CPUFeatureBits.hpp"
 #include "CPUFeatureDetector.hpp"
 #include "DataStream.hpp"
-#include "DyLib.hpp"
-#include "DyProc.hpp"
 #include "EmbeddedHTML.hpp"
 #include "GenericBitScalar.hpp"
 #include "IOStream.hpp"

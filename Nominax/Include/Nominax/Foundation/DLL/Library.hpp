@@ -203,179 +203,100 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../../Nominax/Include/Nominax/Foundation/_Foundation.hpp"
+#pragma once
 
-#if NOX_OS_LINUX
-
-#include <cstdio>
-#include <fstream>
 #include <string>
+#include <optional>
 
-#include <sys/mman.h>
-#include <dlfcn.h>
-#include <unistd.h>
+#include "DynamicProcedure.hpp"
+#include "../OSInterface.hpp"
 
-namespace Nominax::Foundation
+namespace Nominax::Foundation::DLL
 {
-	using Allocator::MemoryPageProtectionFlags;
-
-	auto OSI::QuerySystemMemoryTotal() -> std::uint64_t
-	{
-		static const std::uint64_t SYS_MEM
-		{
-			[]
-			{
-				const long pages { ::sysconf(_SC_PHYS_PAGES) };
-				const long page_size { ::sysconf(_SC_PAGE_SIZE) };
-				return static_cast<std::uint64_t>(pages * page_size);
-			}()
-		};
-		return SYS_MEM;
-	}
-
-	auto OSI::QueryProcessMemoryUsed() -> std::uint64_t
-	{
-		std::FILE* const file { std::fopen("/proc/self/statm", "r") };
-		if (!file)
-		{
-			[[unlikely]]
-            return 0;
-		}
-		long pages { 0 };
-		const int items { std::fscanf(file, "%*s%ld", &pages) };
-		std::fclose(file);
-		return static_cast<std::uint64_t>(items == 1 ? pages * sysconf(_SC_PAGESIZE) : 0);
-	}
-
-	auto OSI::QueryCpuName() -> const std::string&
-	{
-		static const std::string CPU_NAME
-		{
-			[]() -> std::string
-			{
-				std::ifstream cpuinfo { "/proc/cpuinfo" };
-
-				if (!cpuinfo)
-				{
-					[[unlikely]]
-					return "Unknown";
-				}
-
-				for (std::string line; std::getline(cpuinfo, line);)
-				{
-					if (line.find("model name") == 0)
-					{
-						const auto colonId { line.find_first_of(':') };
-						const auto nonspaceId { line.find_first_not_of(" \t", colonId + 1) };
-						return line.c_str() + nonspaceId;
-					}
-					else if (line.find("Model") == 0)
-					{
-						const auto colonId { line.find_first_of(':') };
-						const auto nonspaceId { line.find_first_not_of(" \t", colonId + 1) };
-						return line.c_str() + nonspaceId;
-					}
-				}
-
-				return "Unknown";
-			}
-			()
-		};
-
-		return CPU_NAME;
-	}
-
-	auto OSI::QueryPageSize() -> std::uint64_t
-	{
-		static const std::uint64_t PAGE_SIZE
-		{
-			[]
-			{
-				return static_cast<std::uint64_t>(::sysconf(_SC_PAGE_SIZE));
-			}()
-		};
-		return PAGE_SIZE;
-	}
-
-	auto OSI::DylibOpen(const char* const filePath) -> void*
-	{
-		return ::dlopen(filePath, RTLD_LOCAL | RTLD_LAZY);
-	}
-
-	auto OSI::DylibLookupSymbol(void* const handle_, const char* const symbolName) -> void*
-	{
-		return ::dlsym(handle_, symbolName);
-	}
-
-	auto OSI::DylibClose(void*& handle_) -> void
-	{
-		::dlclose(handle_);
-		handle_ = nullptr;
-	}
-
 	/// <summary>
-	/// Helper to map the Nominax page protection flags to OS specific ones.
-	/// </summary>
-	/// <param name="protectionFlags">The Nominax protection flags.</param>
-	/// <returns>The OS specific flags.</returns>
-	[[nodiscard]]
-	static constexpr auto MapOsPageProtectionFlags(const MemoryPageProtectionFlags protectionFlags) -> int
+    /// Represents a dynamically linked library. (.dll, .so)
+    /// </summary>
+	struct DynamicLibrary final
 	{
-		switch (protectionFlags)
-		{
-			case MemoryPageProtectionFlags::Read:
-				return PROT_READ;
+		/// <summary>
+		/// Load from file.
+		/// </summary>
+		/// <param name="filePath">The file path to load from.</param>
+		explicit DynamicLibrary(const char* filePath);
 
-			case MemoryPageProtectionFlags::ReadWrite:
-				return PROT_READ | PROT_WRITE;
+		/// <summary>
+		/// Load from file.
+		/// </summary>
+		/// <param name="filePath">The file path to load from.</param>
+		explicit DynamicLibrary(const std::string& filePath);
 
-			case MemoryPageProtectionFlags::ReadExecute:
-				return PROT_READ | PROT_EXEC;
+		/// <summary>
+		/// No moving, copying
+		/// </summary>
+		/// <param name="other"></param>
+		DynamicLibrary(const DynamicLibrary& other) = delete;
 
-			case MemoryPageProtectionFlags::ReadWriteExecute:
-				return PROT_READ | PROT_WRITE | PROT_EXEC;
+		/// <summary>
+		/// No moving, copying
+		/// </summary>
+		/// <param name="other"></param>
+		DynamicLibrary(DynamicLibrary&& other) = delete;
 
-			default:
-			case MemoryPageProtectionFlags::NoAccess:
-				return PROT_NONE;
-		}
+		/// <summary>
+		/// No moving, copying
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(const DynamicLibrary& other) -> DynamicLibrary& = delete;
+
+		/// <summary>
+		/// No moving, copying
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(DynamicLibrary&& other) -> DynamicLibrary& = delete;
+
+		/// <summary>
+		/// Destructor, release library handle.
+		/// </summary>
+		~DynamicLibrary();
+
+		/// <summary>
+		/// Check if pointer handle is valid.
+		/// </summary>
+		/// <returns>True if pointer handle is valid, else false.</returns>
+		[[nodiscard]]
+		operator bool() const noexcept;
+
+		/// <summary>
+		/// Perform a symbol lookup.
+		/// </summary>
+		/// <param name="symbolName">The correct name of the dynamic symbol.</param>
+		/// <returns>The corresponding dynamic procedure on success, else std::nullopt.</returns>
+		[[nodiscard]]
+		auto operator [] (const char* symbolName) const -> std::optional<DynamicProcedure>;
+
+	private:
+		void* Handle_ { nullptr };
+	};
+
+	inline DynamicLibrary::DynamicLibrary(const char* const filePath) : Handle_ { OSI::DylibOpen(filePath) } { }
+
+	inline DynamicLibrary::DynamicLibrary(const std::string& filePath) : Handle_ { OSI::DylibOpen(filePath.c_str()) } { }
+
+	inline DynamicLibrary::~DynamicLibrary()
+	{
+		OSI::DylibClose(this->Handle_);
 	}
 
-	/// <summary>
-	/// Allocation flags for mmap.
-	/// </summary>
-	static constexpr int MEMORY_MAPPING_FLAGS { MAP_PRIVATE | MAP_ANONYMOUS };
-
-	auto OSI::MemoryMap
-	(
-		const std::uint64_t             size,
-		const MemoryPageProtectionFlags protectionFlags
-	) -> void*
+	inline DynamicLibrary::operator bool() const
 	{
-		const int     argPageProtections { MapOsPageProtectionFlags(protectionFlags) };
-		constexpr int argMappingFlags { MEMORY_MAPPING_FLAGS };
-		const int     prevError { errno };
-		void* const   ptr { mmap(nullptr, size, argPageProtections, argMappingFlags, -1, 0) };
-		errno = prevError;
-		return ptr;
+		return this->Handle_ != nullptr;
 	}
 
-	auto OSI::MemoryUnmap(void* const region, const std::uint64_t size) -> bool
+	inline auto DynamicLibrary::operator [](const char* const symbolName) const -> std::optional<DynamicProcedure>
 	{
-		const int  prevError { errno };
-		const bool result { munmap(region, static_cast<std::size_t>(size)) == 0 };
-		errno = prevError;
-		return result;
-	}
-
-	auto OSI::MemoryProtect(void* const region, const std::uint64_t size, const MemoryPageProtectionFlags protectionFlags) -> bool
-	{
-		const int  argPageProtections { MapOsPageProtectionFlags(protectionFlags) };
-		const int  prevError { errno };
-		const bool result { mprotect(region, static_cast<std::size_t>(size), argPageProtections) == 0 };
-		errno = prevError;
-		return result;
+		void* const symbolHandle { OSI::DylibLookupSymbol(this->Handle_, symbolName) };
+		return symbolHandle ? std::optional { DynamicProcedure { symbolHandle } } : std::nullopt;
 	}
 }
-
-#endif

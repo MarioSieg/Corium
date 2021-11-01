@@ -297,14 +297,14 @@ namespace Nominax::Foundation
 		return PAGE_SIZE;
 	}
 
-	auto OSI::DylibOpen(const std::string_view file_) -> void*
+	auto OSI::DylibOpen(const char* const filePath) -> void*
 	{
-		return ::dlopen(std::data(file_), RTLD_LOCAL | RTLD_LAZY);
+		return ::dlopen(filePath, RTLD_LOCAL | RTLD_LAZY);
 	}
 
-	auto OSI::DylibLookupSymbol(void* const handle_, const std::string_view symbol_) -> void*
+	auto OSI::DylibLookupSymbol(void* const handle_, const char* const symbolName) -> void*
 	{
-		return ::dlsym(handle_, std::data(symbol_));
+		return ::dlsym(handle_, symbolName);
 	}
 
 	auto OSI::DylibClose(void*& handle_) -> void

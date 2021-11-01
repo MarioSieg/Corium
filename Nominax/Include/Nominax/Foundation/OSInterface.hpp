@@ -295,7 +295,7 @@ namespace Nominax::Foundation
 		/// <param name="filePath"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		static auto DylibOpen(std::string_view filePath) -> void*;
+		static auto DylibOpen(const char* filePath) -> void*;
 
 		/// <summary>
 		/// Lookup symbol in dynamic library.
@@ -304,7 +304,7 @@ namespace Nominax::Foundation
 		/// <param name="symbolName"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		static auto DylibLookupSymbol(void* handle, std::string_view symbolName) -> void*;
+		static auto DylibLookupSymbol(void* handle, const char* symbolName) -> void*;
 
 		/// <summary>
 		/// Close dynamic library.
