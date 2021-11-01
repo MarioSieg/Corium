@@ -245,7 +245,7 @@ namespace Nominax
         /// <returns></returns>
         template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
         [[nodiscard]]
-        constexpr auto Bytes2Gigabytes(T bytes) -> T
+        constexpr auto Bytes2Gigabytes(T bytes) noexcept -> T
         {
             bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
             return bytes / static_cast<T>(KB) / static_cast<T>(KB) / static_cast<T>(KB);
@@ -259,7 +259,7 @@ namespace Nominax
         /// <returns></returns>
         template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
         [[nodiscard]]
-        constexpr auto Bytes2Megabytes(T bytes) -> T
+        constexpr auto Bytes2Megabytes(T bytes) noexcept -> T
         {
             bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
             return bytes / static_cast<T>(KB) / static_cast<T>(KB);
@@ -273,7 +273,7 @@ namespace Nominax
         /// <returns></returns>
         template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
         [[nodiscard]]
-        constexpr auto Bytes2Kilobytes(T bytes) -> T
+        constexpr auto Bytes2Kilobytes(T bytes) noexcept -> T
         {
             bytes = std::clamp<decltype(bytes)>(bytes, 1, bytes);
             return bytes / static_cast<T>(KB);
@@ -287,7 +287,7 @@ namespace Nominax
         /// <returns></returns>
         template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
         [[nodiscard]]
-        constexpr auto Gigabytes2Bytes(const T gigabytes) -> T
+        constexpr auto Gigabytes2Bytes(const T gigabytes) noexcept -> T
         {
             return gigabytes * static_cast<T>(KB) * static_cast<T>(KB) * static_cast<T>(KB);
         }
@@ -300,7 +300,7 @@ namespace Nominax
         /// <returns></returns>
         template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
         [[nodiscard]]
-        constexpr auto Megabytes2Bytes(const T megabytes) -> T
+        constexpr auto Megabytes2Bytes(const T megabytes) noexcept -> T
         {
             return megabytes * static_cast<T>(KB) * static_cast<T>(KB);
         }
@@ -313,7 +313,7 @@ namespace Nominax
         /// <returns></returns>
         template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
         [[nodiscard]]
-        constexpr auto Kilobytes2Bytes(const T kilobytes) -> T
+        constexpr auto Kilobytes2Bytes(const T kilobytes) noexcept -> T
         {
             return kilobytes * static_cast<T>(KB);
         }
@@ -324,7 +324,7 @@ namespace Nominax
     /// </summary>
     /// <param name="value"></param>
     /// <returns></returns>
-    constexpr auto operator ""_KB(const unsigned long long value) -> std::uint64_t
+    constexpr auto operator ""_KB(const unsigned long long value) noexcept -> std::uint64_t
     {
         return Foundation::Memory::Kilobytes2Bytes<decltype(value)>(value);
     }
@@ -334,7 +334,7 @@ namespace Nominax
     /// </summary>
     /// <param name="value"></param>
     /// <returns></returns>
-    constexpr auto operator ""_MB(const unsigned long long value) -> std::uint64_t
+    constexpr auto operator ""_MB(const unsigned long long value) noexcept -> std::uint64_t
     {
         return Foundation::Memory::Megabytes2Bytes<decltype(value)>(value);
     }
@@ -344,7 +344,7 @@ namespace Nominax
     /// </summary>
     /// <param name="value"></param>
     /// <returns></returns>
-    constexpr auto operator ""_GB(const unsigned long long value) -> std::uint64_t
+    constexpr auto operator ""_GB(const unsigned long long value) noexcept -> std::uint64_t
     {
         return Foundation::Memory::Gigabytes2Bytes<decltype(value)>(value);
     }

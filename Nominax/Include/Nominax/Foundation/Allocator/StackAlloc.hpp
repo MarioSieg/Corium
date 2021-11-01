@@ -274,7 +274,7 @@ namespace Nominax::Foundation::Allocator
 	class HybridStackGuard final
 	{
 		T* const NOX_RESTRICT Blob_;
-		const bool            IsHeap_;
+		const bool IsHeap_;
 
 	public:
 		/// <summary>
@@ -315,31 +315,31 @@ namespace Nominax::Foundation::Allocator
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
 		/// <returns>True if the pointer is heap allocated, else false.</returns>
-		constexpr operator bool() const &;
+		constexpr operator bool() const & noexcept;
 
 		/// <summary>
 		/// Direct access.
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
-		constexpr auto operator ->() & -> T*;
+		constexpr auto operator ->() & noexcept -> T*;
 
 		/// <summary>
 		/// Direct access.
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
-		constexpr auto operator ->() const & -> const T*;
+		constexpr auto operator ->() const & noexcept -> const T*;
 
 		/// <summary>
 		/// Direct access.
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
-		constexpr auto operator *() & -> T&;
+		constexpr auto operator *() & noexcept -> T&;
 
 		/// <summary>
 		/// Direct access.
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
-		constexpr auto operator *() const & -> const T&;
+		constexpr auto operator *() const & noexcept -> const T&;
 
 		/// <summary>
 		/// Unchecked subscript.
@@ -347,7 +347,7 @@ namespace Nominax::Foundation::Allocator
 		/// <typeparam name="T"></typeparam>
 		/// /// <param name="idx"></param>
 		/// /// <returns></returns>
-		constexpr auto operator [](std::uint64_t idx) & -> T&;
+		constexpr auto operator [](std::uint64_t idx) & noexcept -> T&;
 
 		/// <summary>
 		/// Unchecked subscript.
@@ -355,7 +355,7 @@ namespace Nominax::Foundation::Allocator
 		/// <typeparam name="T"></typeparam>
 		/// <param name="idx"></param>
 		/// <returns></returns>
-		constexpr auto operator [](std::uint64_t idx) const & -> const T&;
+		constexpr auto operator [](std::uint64_t idx) const & noexcept -> const T&;
 
 		/// <summary>
 		/// 
@@ -363,7 +363,7 @@ namespace Nominax::Foundation::Allocator
 		/// <typeparam name="T"></typeparam>
 		/// <returns>True if the pointer is heap allocated, else false.</returns>
 		[[nodiscard]]
-		constexpr auto IsHeapAllocated() const & -> bool;
+		constexpr auto IsHeapAllocated() const & noexcept -> bool;
 
 		/// <summary>
 		/// Destruct which releases the heap memory,
@@ -377,49 +377,49 @@ namespace Nominax::Foundation::Allocator
 	                                                                                  IsHeap_ { isOnHeap } { }
 
 	template <typename T> requires DynamicStackAllocatable<T>
-	constexpr HybridStackGuard<T>::operator bool() const &
+	constexpr HybridStackGuard<T>::operator bool() const & noexcept
 	{
 		return this->IsHeap_;
 	}
 
 	template <typename T> requires DynamicStackAllocatable<T>
-	constexpr auto HybridStackGuard<T>::operator->() & -> T*
+	constexpr auto HybridStackGuard<T>::operator ->() & noexcept -> T*
 	{
 		return this->Blob_;
 	}
 
 	template <typename T> requires DynamicStackAllocatable<T>
-	constexpr auto HybridStackGuard<T>::operator->() const & -> const T*
+	constexpr auto HybridStackGuard<T>::operator ->() const & noexcept -> const T*
 	{
 		return this->Blob_;
 	}
 
 	template <typename T> requires DynamicStackAllocatable<T>
-	constexpr auto HybridStackGuard<T>::operator*() & -> T&
+	constexpr auto HybridStackGuard<T>::operator *() & noexcept -> T&
 	{
 		return *this->Blob_;
 	}
 
 	template <typename T> requires DynamicStackAllocatable<T>
-	constexpr auto HybridStackGuard<T>::operator*() const & -> const T&
+	constexpr auto HybridStackGuard<T>::operator *() const & noexcept -> const T&
 	{
 		return *this->Blob_;
 	}
 
 	template <typename T> requires DynamicStackAllocatable<T>
-	constexpr auto HybridStackGuard<T>::operator[](const std::uint64_t idx) & -> T&
+	constexpr auto HybridStackGuard<T>::operator [](const std::uint64_t idx) & noexcept -> T&
 	{
 		return *(this->Blob_ + idx);
 	}
 
 	template <typename T> requires DynamicStackAllocatable<T>
-	constexpr auto HybridStackGuard<T>::operator[](const std::uint64_t idx) const & -> const T&
+	constexpr auto HybridStackGuard<T>::operator [](const std::uint64_t idx) const & noexcept -> const T&
 	{
 		return *(this->Blob_ + idx);
 	}
 
 	template <typename T> requires DynamicStackAllocatable<T>
-	constexpr auto HybridStackGuard<T>::IsHeapAllocated() const & -> bool
+	constexpr auto HybridStackGuard<T>::IsHeapAllocated() const & noexcept -> bool
 	{
 		return this->IsHeap_;
 	}
@@ -439,7 +439,7 @@ namespace Nominax::Foundation::Allocator
 	/// on the heap or not.
 	/// </summary>
 	template <typename T>
-	constexpr auto IsHybridHeap(const std::uint64_t count) -> bool
+	constexpr auto IsHybridHeap(const std::uint64_t count) noexcept -> bool
 	{
 		return count * sizeof(T) > STACK_ALLOC_HEAP_THRESHOLD;
 	}

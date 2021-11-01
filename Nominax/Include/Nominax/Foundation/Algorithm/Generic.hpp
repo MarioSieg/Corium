@@ -235,7 +235,7 @@ namespace Nominax::Foundation::Algorithm
 	/// <param name="args"></param>
 	/// <returns></returns>
 	template <typename Iter, typename Func, typename... Args> requires RandomAccessIterator<Iter>
-	constexpr auto UniformChunkSplit(const std::uint64_t chunkCount, Iter&& begin, Iter&& end, Func&& func, Args&&...args) -> void
+	constexpr auto UniformChunkSplit(const std::uint64_t chunkCount, Iter&& begin, Iter&& end, Func&& func, Args&&...args) noexcept(std::is_nothrow_invocable_v<Func>) -> void
 	{
 		using ValueType = const typename std::iterator_traits<Iter>::value_type;
 		using Span = std::span<ValueType>;
@@ -275,14 +275,14 @@ namespace Nominax::Foundation::Algorithm
 	/// <param name="args"></param>
 	/// <returns></returns>
 	template <typename T, typename Func, typename... Args>
-	constexpr auto UniformChunkSplit(const std::uint64_t chunkCount, const std::span<const T> range, Func&& func, Args&&...args) -> void
+	constexpr auto UniformChunkSplit(const std::uint64_t chunkCount, const std::span<const T> range, Func&& func, Args&&...args) noexcept(std::is_nothrow_invocable_v<Func>) -> void
 	{
 		UniformChunkSplit<decltype(std::begin(range)), Func, Args...>(chunkCount, std::begin(range), std::end(range), std::forward<Func>(func), std::forward(args)...);
 	}
 
 	template <typename Iter, typename Pred> requires RandomAccessIterator<Iter>
 	[[nodiscard]]
-	constexpr auto EnumeratingSearch(Iter&& begin, Iter&& end, Pred&& pred) -> bool
+	constexpr auto EnumeratingSearch(Iter&& begin, Iter&& end, Pred&& pred) noexcept(std::is_nothrow_invocable_v<Pred>) -> bool
 	{
 		bool found { false };
 		for (std::uint64_t i { }; begin < end; std::advance(begin, 1), ++i)

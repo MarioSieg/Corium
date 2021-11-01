@@ -220,7 +220,7 @@ namespace Nominax::Foundation::Algorithm
 	/// <returns>The bit shifted value.</returns>
 	template <typename T> requires std::is_unsigned_v<T>
 	[[nodiscard]]
-	NOX_FORCE_INLINE NOX_PURE constexpr auto RolGeneric(const T value, const std::uint8_t shift) -> T
+	NOX_FORCE_INLINE NOX_PURE constexpr auto RolGeneric(const T value, const std::uint8_t shift) noexcept -> T
 	{
 		return ((value) << (shift)) | ((value) >> (-static_cast<std::int32_t>(shift) & (CHAR_BIT * sizeof(value) - 1)));
 	}
@@ -233,7 +233,7 @@ namespace Nominax::Foundation::Algorithm
 	/// <returns>The bit shifted value.</returns>
 	template <typename T> requires std::is_unsigned_v<T>
 	[[nodiscard]]
-	NOX_FORCE_INLINE NOX_PURE constexpr auto RorGeneric(const T value, const std::uint8_t shift) -> T
+	NOX_FORCE_INLINE NOX_PURE constexpr auto RorGeneric(const T value, const std::uint8_t shift) noexcept -> T
 	{
 		return (((value) << (-static_cast<std::int32_t>(shift) & (CHAR_BIT * sizeof(value) - 1))) | ((value) >> (shift)));
 	}
@@ -246,7 +246,7 @@ namespace Nominax::Foundation::Algorithm
 	(
 		std::uint32_t      value,
 		const std::uint8_t shift
-	) -> std::uint32_t
+	) noexcept -> std::uint32_t
 	{
 		#if NOX_OS_WINDOWS && NOX_USE_ARCH_OPT && NOX_ARCH_X86_64 && !NOX_COM_GCC
 			return _rotl(value, shift);
@@ -271,7 +271,7 @@ namespace Nominax::Foundation::Algorithm
 	(
 		std::uint32_t      value,
 		const std::uint8_t shift
-	) -> std::uint32_t
+	) noexcept -> std::uint32_t
 	{
 		#if NOX_OS_WINDOWS && NOX_USE_ARCH_OPT && NOX_ARCH_X86_64 && !NOX_COM_GCC
 			return _rotr(value, shift);
@@ -296,7 +296,7 @@ namespace Nominax::Foundation::Algorithm
 	(
 		std::uint64_t      value,
 		const std::uint8_t shift
-	) -> std::uint64_t
+	) noexcept -> std::uint64_t
 	{
 		#if NOX_OS_WINDOWS && NOX_USE_ARCH_OPT && NOX_ARCH_X86_64 && !NOX_COM_GCC
 			return _rotl64(value, shift);
@@ -321,7 +321,7 @@ namespace Nominax::Foundation::Algorithm
 	(
 		std::uint64_t      value,
 		const std::uint8_t shift
-	) -> std::uint64_t
+	) noexcept -> std::uint64_t
 	{
 		#if NOX_OS_WINDOWS && NOX_USE_ARCH_OPT && NOX_ARCH_X86_64 && !NOX_COM_GCC
 			return _rotr64(value, shift);

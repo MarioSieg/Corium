@@ -216,7 +216,7 @@ namespace Nominax::Foundation::Allocator
 	/// </summary>
 	inline constinit const IAllocator* GlobalAllocatorProxy
 	{
-		[]
+		[]() noexcept
 		{
 			if constexpr (NOX_DEBUG || CompileTimeConfig::EnableVerboseAllocator)
 			{

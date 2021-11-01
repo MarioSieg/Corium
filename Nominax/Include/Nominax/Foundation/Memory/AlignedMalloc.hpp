@@ -211,6 +211,19 @@
 
 namespace Nominax::Foundation::Memory
 {
-    NOX_MALLOC extern auto AlignedMalloc(std::uint64_t size, std::uint64_t alignment) -> void*;
-    extern auto AlignedFree(void* block) -> void;
+    /// <summary>
+    /// Custom aligned malloc implementation.
+    /// </summary>
+    /// <param name="size"></param>
+    /// <param name="alignment"></param>
+    /// <returns></returns>
+	[[nodiscard]]
+	NOX_MALLOC extern auto AlignedMalloc(std::uint64_t size, std::uint64_t alignment) -> void*;
+
+	/// <summary>
+	/// Custom aligned free implementation.
+	/// </summary>
+	/// <param name="block"></param>
+	/// <returns></returns>
+	extern auto AlignedFree(void* block) -> void;
 }

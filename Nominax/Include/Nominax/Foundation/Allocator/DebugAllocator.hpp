@@ -211,10 +211,10 @@
 namespace Nominax::Foundation::Allocator
 {
 	/// <summary>
-		/// Allocator for debugging based on the runtime allocator.
-		/// It prints the size and address of each allocation
-		/// and counts the bytes.
-		/// </summary>
+	/// Allocator for debugging based on the runtime allocator.
+	/// It prints the size and address of each allocation
+	/// and counts the bytes.
+	/// </summary>
 	class DebugAllocator final : public IAllocator, public IDisplay
 	{
 		mutable std::uint64_t Allocations_ { 0 };
@@ -314,25 +314,25 @@ namespace Nominax::Foundation::Allocator
 		/// 
 		/// </summary>
 		/// <returns>The amount of allocations so far.</returns>
-		constexpr auto GetAllocationCount() const -> std::uint64_t;
+		constexpr auto GetAllocationCount() const noexcept -> std::uint64_t;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The amount of reallocations so far.</returns>
-		constexpr auto GetReallocationCount() const -> std::uint64_t;
+		constexpr auto GetReallocationCount() const noexcept -> std::uint64_t;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The amount of deallocations so far.</returns>
-		constexpr auto GetDeallocationCount() const -> std::uint64_t;
+		constexpr auto GetDeallocationCount() const noexcept -> std::uint64_t;
 
 		/// <summary>
 		/// The amount of allocated bytes so far.
 		/// </summary>
 		/// <returns></returns>
-		constexpr auto GetTotalBytesAllocated() const -> std::uint64_t;
+		constexpr auto GetTotalBytesAllocated() const noexcept -> std::uint64_t;
 
         /// <summary>
         /// Prints this object into the file stream.
@@ -340,28 +340,28 @@ namespace Nominax::Foundation::Allocator
         virtual auto Display(DataStream& stream) const -> void override;
 	};
 
-	constexpr auto DebugAllocator::GetAllocationCount() const -> std::uint64_t
+	constexpr auto DebugAllocator::GetAllocationCount() const noexcept -> std::uint64_t
 	{
 		return this->Allocations_;
 	}
 
-	constexpr auto DebugAllocator::GetReallocationCount() const -> std::uint64_t
+	constexpr auto DebugAllocator::GetReallocationCount() const noexcept -> std::uint64_t
 	{
 		return this->Reallocations_;
 	}
 
-	constexpr auto DebugAllocator::GetDeallocationCount() const -> std::uint64_t
+	constexpr auto DebugAllocator::GetDeallocationCount() const noexcept -> std::uint64_t
 	{
 		return this->Deallocations_;
 	}
 
-	constexpr auto DebugAllocator::GetTotalBytesAllocated() const -> std::uint64_t
+	constexpr auto DebugAllocator::GetTotalBytesAllocated() const noexcept -> std::uint64_t
 	{
 		return this->BytesAllocated_;
 	}
 
 	/// <summary>
-	/// Slow debug allocator.
+	/// Debug allocator for memory tracking.
 	/// </summary>
 	inline constinit DebugAllocator GlobalDebugAllocator { };
 }

@@ -234,7 +234,7 @@ namespace Nominax::Foundation::Algorithm
 	/// <returns></returns>
 	template <typename VariantType, typename T, const std::uint64_t Index = 0>
 	[[nodiscard]]
-	constexpr auto VariantIndexOf() -> std::uint64_t
+	constexpr auto VariantIndexOf() noexcept -> std::uint64_t
 	{
 		if constexpr (Index == std::variant_size_v<VariantType> || std::is_same_v<std::variant_alternative_t<Index, VariantType>, T>)
 		{

@@ -223,7 +223,7 @@ namespace Nominax::Foundation::Algorithm
 	/// <returns></returns>
 	template <typename T> requires std::is_reference_v<T>
 	[[nodiscard]]
-	constexpr auto DistanceRef(T&& iter, const std::remove_reference_t<T>* const begin) -> std::ptrdiff_t
+	constexpr auto DistanceRef(T&& iter, const std::remove_reference_t<T>* const begin) noexcept -> std::ptrdiff_t
 	{
 		return std::addressof(iter) - begin;
 	}
@@ -238,7 +238,7 @@ namespace Nominax::Foundation::Algorithm
 	/// <returns></returns>
 	template <typename T> requires std::is_reference_v<T>
 	[[nodiscard]]
-	constexpr auto AdvanceRef(T&& iter) -> T&&
+	constexpr auto AdvanceRef(T&& iter) noexcept -> T&&
 	{
 		return *(std::addressof(iter) + 1);
 	}

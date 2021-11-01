@@ -357,7 +357,7 @@ namespace Nominax::Foundation::Algorithm
 		{
 			x >>= 8;
 			++bytes;
-		} while (x);
+		} while (x != 0);
 		return static_cast<std::uint8_t>(RoundUpPow2(static_cast<std::uint64_t>(bytes)));
 	}
 }
