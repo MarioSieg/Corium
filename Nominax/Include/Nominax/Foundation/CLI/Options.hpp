@@ -1,20 +1,20 @@
 // Author: Mario Sieg
 // Project: Nominax
-// 
+//
 //                                  Apache License
 //                            Version 2.0, January 2004
 //                         http://www.apache.org/licenses/
-// 
+//
 //    TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
-// 
+//
 //    1. Definitions.
-// 
+//
 //       "License" shall mean the terms and conditions for use, reproduction,
 //       and distribution as defined by Sections 1 through 9 of this document.
-// 
+//
 //       "Licensor" shall mean the copyright owner or entity authorized by
 //       the copyright owner that is granting the License.
-// 
+//
 //       "Legal Entity" shall mean the union of the acting entity and all
 //       other entities that control, are controlled by, or are under common
 //       control with that entity. For the purposes of this definition,
@@ -22,24 +22,24 @@
 //       direction or management of such entity, whether by contract or
 //       otherwise, or (ii) ownership of fifty percent (50%) or more of the
 //       outstanding shares, or (iii) beneficial ownership of such entity.
-// 
+//
 //       "You" (or "Your") shall mean an individual or Legal Entity
 //       exercising permissions granted by this License.
-// 
+//
 //       "Source" form shall mean the preferred form for making modifications,
 //       including but not limited to software source code, documentation
 //       source, and configuration files.
-// 
+//
 //       "Object" form shall mean any form resulting from mechanical
 //       transformation or translation of a Source form, including but
 //       not limited to compiled object code, generated documentation,
 //       and conversions to other media types.
-// 
+//
 //       "Work" shall mean the work of authorship, whether in Source or
 //       Object form, made available under the License, as indicated by a
 //       copyright notice that is included in or attached to the work
 //       (an example is provided in the Appendix below).
-// 
+//
 //       "Derivative Works" shall mean any work, whether in Source or Object
 //       form, that is based on (or derived from) the Work and for which the
 //       editorial revisions, annotations, elaborations, or other modifications
@@ -47,7 +47,7 @@
 //       of this License, Derivative Works shall not include works that remain
 //       separable from, or merely link (or bind by name) to the interfaces of,
 //       the Work and Derivative Works thereof.
-// 
+//
 //       "Contribution" shall mean any work of authorship, including
 //       the original version of the Work and any modifications or additions
 //       to that Work or Derivative Works thereof, that is intentionally
@@ -61,18 +61,18 @@
 //       Licensor for the purpose of discussing and improving the Work, but
 //       excluding communication that is conspicuously marked or otherwise
 //       designated in writing by the copyright owner as "Not a Contribution."
-// 
+//
 //       "Contributor" shall mean Licensor and any individual or Legal Entity
 //       on behalf of whom a Contribution has been received by Licensor and
 //       subsequently incorporated within the Work.
-// 
+//
 //    2. Grant of Copyright License. Subject to the terms and conditions of
 //       this License, each Contributor hereby grants to You a perpetual,
 //       worldwide, non-exclusive, no-charge, royalty-free, irrevocable
 //       copyright license to reproduce, prepare Derivative Works of,
 //       publicly display, publicly perform, sublicense, and distribute the
 //       Work and such Derivative Works in Source or Object form.
-// 
+//
 //    3. Grant of Patent License. Subject to the terms and conditions of
 //       this License, each Contributor hereby grants to You a perpetual,
 //       worldwide, non-exclusive, no-charge, royalty-free, irrevocable
@@ -88,24 +88,24 @@
 //       or contributory patent infringement, then any patent licenses
 //       granted to You under this License for that Work shall terminate
 //       as of the date such litigation is filed.
-// 
+//
 //    4. Redistribution. You may reproduce and distribute copies of the
 //       Work or Derivative Works thereof in any medium, with or without
 //       modifications, and in Source or Object form, provided that You
 //       meet the following conditions:
-// 
+//
 //       (a) You must give any other recipients of the Work or
 //           Derivative Works a copy of this License; and
-// 
+//
 //       (b) You must cause any modified files to carry prominent notices
 //           stating that You changed the files; and
-// 
+//
 //       (c) You must retain, in the Source form of any Derivative Works
 //           that You distribute, all copyright, patent, trademark, and
 //           attribution notices from the Source form of the Work,
 //           excluding those notices that do not pertain to any part of
 //           the Derivative Works; and
-// 
+//
 //       (d) If the Work includes a "NOTICE" text file as part of its
 //           distribution, then any Derivative Works that You distribute must
 //           include a readable copy of the attribution notices contained
@@ -122,14 +122,14 @@
 //           or as an addendum to the NOTICE text from the Work, provided
 //           that such additional attribution notices cannot be construed
 //           as modifying the License.
-// 
+//
 //       You may add Your own copyright statement to Your modifications and
 //       may provide additional or different license terms and conditions
 //       for use, reproduction, or distribution of Your modifications, or
 //       for any such Derivative Works as a whole, provided Your use,
 //       reproduction, and distribution of the Work otherwise complies with
 //       the conditions stated in this License.
-// 
+//
 //    5. Submission of Contributions. Unless You explicitly state otherwise,
 //       any Contribution intentionally submitted for inclusion in the Work
 //       by You to the Licensor shall be under the terms and conditions of
@@ -137,12 +137,12 @@
 //       Notwithstanding the above, nothing herein shall supersede or modify
 //       the terms of any separate license agreement you may have executed
 //       with Licensor regarding such Contributions.
-// 
+//
 //    6. Trademarks. This License does not grant permission to use the trade
 //       names, trademarks, service marks, or product names of the Licensor,
 //       except as required for reasonable and customary use in describing the
 //       origin of the Work and reproducing the content of the NOTICE file.
-// 
+//
 //    7. Disclaimer of Warranty. Unless required by applicable law or
 //       agreed to in writing, Licensor provides the Work (and each
 //       Contributor provides its Contributions) on an "AS IS" BASIS,
@@ -152,7 +152,7 @@
 //       PARTICULAR PURPOSE. You are solely responsible for determining the
 //       appropriateness of using or redistributing the Work and assume any
 //       risks associated with Your exercise of permissions under this License.
-// 
+//
 //    8. Limitation of Liability. In no event and under no legal theory,
 //       whether in tort (including negligence), contract, or otherwise,
 //       unless required by applicable law (such as deliberate and grossly
@@ -164,7 +164,7 @@
 //       work stoppage, computer failure or malfunction, or any and all
 //       other commercial damages or losses), even if such Contributor
 //       has been advised of the possibility of such damages.
-// 
+//
 //    9. Accepting Warranty or Additional Liability. While redistributing
 //       the Work or Derivative Works thereof, You may choose to offer,
 //       and charge a fee for, acceptance of support, warranty, indemnity,
@@ -175,11 +175,11 @@
 //       defend, and hold each Contributor harmless for any liability
 //       incurred by, or claims asserted against, such Contributor by reason
 //       of your accepting any such warranty or additional liability.
-// 
+//
 //    END OF TERMS AND CONDITIONS
-// 
+//
 //    APPENDIX: How to apply the Apache License to your work.
-// 
+//
 //       To apply the Apache License to your work, attach the following
 //       boilerplate notice, with the fields enclosed by brackets "[]"
 //       replaced with your own identifying information. (Don't include
@@ -188,15 +188,15 @@
 //       file or class name and description of purpose be included on the
 //       same "printed page" as the copyright notice for easier
 //       identification within third-party archives.
-// 
+//
 //    Copyright 2021 Mario Sieg "pinsrq" <mt3000@gmx.de>
-// 
+//
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
 //    You may obtain a copy of the License at
-// 
+//
 //        http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 //    Unless required by applicable law or agreed to in writing, software
 //    distributed under the License is distributed on an "AS IS" BASIS,
 //    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -205,132 +205,88 @@
 
 #pragma once
 
-#include <string_view>
-#include <unordered_set>
-#include <vector>
+#include "Parser.hpp"
+#include "../Platform.hpp"
+#include "../IDisplay.hpp"
 
-#include "IDisplay.hpp"
-
-namespace Nominax::Foundation
+namespace Nominax::Foundation::CLI
 {
     /// <summary>
-    /// Command line option.
+    /// Contains all options available on the command line.
     /// </summary>
-    struct CLIOption final
+    struct Options final : IDisplay
     {
         /// <summary>
-        /// Short name. For example: -h.
+        /// Constructor.
         /// </summary>
-        std::string_view Short { };
+        constexpr Options() noexcept = default;
 
         /// <summary>
-        /// Long name. For example: --help.
+        /// Copy constructor.
         /// </summary>
-        std::string_view Long { };
+        /// <param name="other"></param>
+        constexpr Options(const Options& other) noexcept = default;
 
         /// <summary>
-        /// Help message for the user.
+        /// Move constructor.
         /// </summary>
-        std::string_view Description { };
-    };
+        /// <param name="other"></param>
+        constexpr Options(Options&& other) noexcept = default;
 
-	/// <summary>
-	/// Helper to parse command line interface arguments.
-	/// </summary>
-	class CLIParser final : public IDisplay
-	{
-		/// <summary>
-		/// Arguments from environment.
-		/// </summary>
-		std::unordered_set<std::string_view> Args_ { };
+        /// <summary>
+        /// Copy assignment operator.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        constexpr auto operator =(const Options& other) noexcept -> Options& = default;
 
-		/// <summary>
-		/// Registered available options.
-		/// </summary>
-		std::vector<CLIOption> Options_ { };
-
-	public:
-		/// <summary>
-		/// Construct with argc and argv from
-		/// the entry point.
-		/// </summary>
-		/// <param name="argc"></param>
-		/// <param name="argv"></param>
-		/// <returns></returns>
-		CLIParser(int argc, const char* const* argv);
-
-		/// <summary>
-		/// No copy.
-		/// </summary>
-		/// <param name="other"></param>
-		CLIParser(const CLIParser& other) = delete;
-
-		/// <summary>
-		/// Move constructor.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		CLIParser(CLIParser&& other) = default;
-
-		/// <summary>
-		/// No copy.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		auto operator =(const CLIParser& other) -> CLIParser& = delete;
-
-		/// <summary>
-		/// Move assignment operator.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		auto operator =(CLIParser&& other) -> CLIParser& = default;
+        /// <summary>
+        /// Move assignment operator.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        constexpr auto operator =(Options&& other) noexcept -> Options& = default;
 
 		/// <summary>
 		/// Destructor.
 		/// </summary>
-		~CLIParser() override = default;
+        ~Options() override = default;
 
-		/// <summary>
-		/// Returns true if the command line flag is set,
-		/// else false.
-		/// </summary>
-		/// <param name="key"></param>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto HasFlag(const CLIOption& option) const -> bool;
+        /// <summary>
+        /// If true, the code is executed in the sandbox VM,
+        /// without optimizations and JIT.
+        /// Good for untrusted code or debugging.
+        /// </summary>
+        bool ForceSandboxVM { false };
 
-		/// <summary>
-		/// Adds a command line option with description.
-		/// </summary>
-		/// <param name="option">The new option.</param>
-		auto AddOption(const CLIOption& option) -> void;
+        /// <summary>
+        /// If true, the code is executed in the default fallback VM, with JIT but without ISA extensions.
+        /// </summary>
+        bool ForceFallbackVM { false };
+
+        /// <summary>
+        /// If true, the power saving mode is activated and CPU/GPU usage is reduced.
+        /// </summary>
+        bool PowerSafeMode { false };
+
+        /// <summary>
+        /// If true, it will not search for a config file, neither create one.
+        /// </summary>
+        bool NoConfig { false };
+
+        /// <summary>
+        /// Parses the CLI args and processes them.
+        /// </summary>
+        /// <arg name="parser">The parser to use</arg>
+        /// <returns>False if the program should exit
+        /// because for example just the help message was displayed.
+        /// True if we should boot.
+        /// </returns>
+        auto ParseAndProcess(Parser& parser) -> bool;
 
         /// <summary>
         /// Prints this object into the file stream.
         /// </summary>
         virtual auto Display(DataStream& stream) const -> void override;
-
-		/// <summary>
-		/// Returns true if the argument count is less or equal to one,
-		/// because one is the self path, else false.
-		/// </summary>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto IsEmpty() const -> bool;
-
-		/// <summary>
-		/// Returns argument set.
-		/// </summary>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto GetArgs() const -> const std::unordered_set<std::string_view>&;
-
-		/// <summary>
-		/// Returns all added options.
-		/// </summary>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto GetOptions() const -> const std::vector<CLIOption>&;
-	};
+    };
 }

@@ -203,57 +203,154 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../../Nominax/Include/Nominax/Foundation/_Foundation.hpp"
-#include "../../Include/Nominax/Foundation/CLIParser.hpp"
+#pragma once
 
-namespace Nominax::Foundation
+#include <string_view>
+#include <unordered_set>
+#include <vector>
+
+#include "../IDisplay.hpp"
+
+namespace Nominax::Foundation::CLI
 {
-	CLIParser::CLIParser(const int argc, const char* const* const argv)
-	{
-        if (argc > 1)
-        {
-            Args_.reserve(argc);
-            Args_.insert(argv, argc + argv);
-        }
-	}
+    /// <summary>
+    /// Command line option.
+    /// </summary>
+    struct Option final
+    {
+        /// <summary>
+        /// Short name. For example: -h.
+        /// </summary>
+        std::string_view Short { };
 
-	auto CLIParser::AddOption(const CLIOption& option) -> void
+        /// <summary>
+        /// Long name. For example: --help.
+        /// </summary>
+        std::string_view Long { };
+
+        /// <summary>
+        /// Help message for the user.
+        /// </summary>
+        std::string_view Description { };
+    };
+
+	/// <summary>
+	/// Helper to parse command line interface arguments.
+	/// </summary>
+	class Parser final : public IDisplay
+	{
+		/// <summary>
+		/// Arguments from environment.
+		/// </summary>
+		std::unordered_set<std::string_view> Args_ { };
+
+		/// <summary>
+		/// Registered available options.
+		/// </summary>
+		std::vector<Option> Options_ { };
+
+	public:
+		/// <summary>
+		/// Construct with argc and argv from
+		/// the entry point.
+		/// </summary>
+		/// <param name="argc"></param>
+		/// <param name="argv"></param>
+		/// <returns></returns>
+		Parser(int argc, const char* const* argv);
+
+		/// <summary>
+		/// No copy.
+		/// </summary>
+		/// <param name="other"></param>
+		Parser(const Parser& other) = delete;
+
+		/// <summary>
+		/// Move constructor.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		Parser(Parser&& other) noexcept = default;
+
+		/// <summary>
+		/// No copy.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(const Parser& other) -> Parser& = delete;
+
+		/// <summary>
+		/// Move assignment operator.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(Parser&& other) noexcept -> Parser& = default;
+
+		/// <summary>
+		/// Destructor.
+		/// </summary>
+		~Parser() override = default;
+
+		/// <summary>
+		/// Returns true if the command line flag is set,
+		/// else false.
+		/// </summary>
+		/// <param name="key"></param>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto HasFlag(const Option& option) const noexcept -> bool;
+
+		/// <summary>
+		/// Adds a command line option with description.
+		/// </summary>
+		/// <param name="option">The new option.</param>
+		auto AddOption(const Option& option) -> void;
+
+        /// <summary>
+        /// Prints this object into the file stream.
+        /// </summary>
+        virtual auto Display(DataStream& stream) const -> void override;
+
+		/// <summary>
+		/// Returns true if the argument count is less or equal to one,
+		/// because one is the self path, else false.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto IsEmpty() const noexcept -> bool;
+
+		/// <summary>
+		/// Returns argument set.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto GetArgs() const noexcept -> const std::unordered_set<std::string_view>&;
+
+		/// <summary>
+		/// Returns all added options.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto GetOptions() const noexcept -> const std::vector<Option>&;
+	};
+
+	inline auto Parser::AddOption(const Option& option) -> void
 	{
 		Options_.emplace_back(option);
 	}
 
-	auto CLIParser::IsEmpty() const -> bool
+	inline auto Parser::IsEmpty() const noexcept -> bool
 	{
 		return std::size(this->Args_) <= 1;
 	}
 
-	auto CLIParser::GetArgs() const -> const std::unordered_set<std::string_view>&
+	inline auto Parser::GetArgs() const noexcept -> const std::unordered_set<std::string_view>&
 	{
 		return this->Args_;
 	}
 
-	auto CLIParser::GetOptions() const -> const std::vector<CLIOption>&
+	inline auto Parser::GetOptions() const noexcept -> const std::vector<Option>&
 	{
 		return this->Options_;
 	}
-
-	auto CLIParser::HasFlag(const CLIOption& option) const -> bool
-	{
-		const auto found
-        {
-            [this](const std::string_view target) -> bool
-            {
-                return std::ranges::find(this->Args_, target) != std::end(this->Args_);
-            }
-        };
-        return found(option.Short) || found(option.Long);
-	}
-
-    auto CLIParser::Display(DataStream& stream) const -> void
-    {
-        for (const auto& option : this->Options_)
-        {
-            Print(stream, NOX_FMT("{0: <3} | {1: <12} | {2: <20}\n"), option.Short, option.Long, option.Description);
-        }
-    }
 }

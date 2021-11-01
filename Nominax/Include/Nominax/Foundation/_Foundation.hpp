@@ -207,11 +207,10 @@
 
 #include "Algorithm/_Algorithm.hpp"
 #include "Allocator/_Allocator.hpp"
+#include "CLI/_CLI.hpp"
 #include "Memory/_Memory.hpp"
 
 #include "AtomicState.hpp"
-#include "CLIOptions.hpp"
-#include "CLIParser.hpp"
 #include "CompileTimeConfig.hpp"
 #include "IEEE754Binaries.hpp"
 #include "IEEE754BinaryDecomposer.hpp"

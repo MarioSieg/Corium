@@ -203,53 +203,79 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "Include/Nominax/Nominax.hpp"
+#include "../../../Include/Nominax/Foundation/CLI/Options.hpp"
+#include "../../../Include/Nominax/Foundation/Version.hpp"
+#include "../../../Include/Nominax/Foundation/Print.hpp"
+#include "../../../Include/Nominax/ByteCode/InstructionMetaDataRegistry.hpp"
 
-using namespace Nominax::Prelude;
-
-const std::string CONFIG_FILE { "Nominax.ini" };
-
-auto main(const int argc, const char* const* const argv) -> int
+namespace Nominax::Foundation::CLI
 {
-    CLI::Parser parser { argc, argv };
-    CLI::Options options { };
-    const bool shouldBoot { options.ParseAndProcess(parser) };
-    if (!shouldBoot)
+    auto Options::ParseAndProcess(Parser& parser) -> bool
     {
-        [[unlikely]]
-        return 0;
-    }
-
-    auto bytecodeFile { std::begin(parser.GetArgs()) };
-    std::advance(bytecodeFile, 1);
-    const std::string path { *bytecodeFile };
-    if (!std::filesystem::exists(path)) [[unlikely]]
-    {
-        PanicF({}, "Bytecode file does not exist: `{}`", path);
-    }
-
-    Print(NOX_FMT("Compiling byte code: `{}`"), path);
-    Stream byteCode { };
-    byteCode.Prologue();
-    Compiler::Compile(path, byteCode);
-    byteCode.Epilogue();
-    byteCode.DisplayToConsole();
-
-    Core::EnvironmentDescriptor environmentDescriptor { };
-
-    if (!options.NoConfig)
-    {
-        if (!environmentDescriptor.DeserializeFromDisk(CONFIG_FILE))
+        const auto createAndCheckFlag
         {
-            [[maybe_unused]]
-            const auto _ { environmentDescriptor.SerializeToDisk(CONFIG_FILE) };
+             [&parser](const std::string_view $short, const std::string_view $long, const std::string_view description) -> bool
+             {
+                 const Option option
+                 {
+                    .Short = $short,
+                    .Long = $long,
+                    .Description = description
+                 };
+                 parser.AddOption(option);
+                 return parser.HasFlag(option);
+             }
+        };
+
+        // terminating info flags:
+
+        const bool help { createAndCheckFlag("-h", "--help", "Display this help message listing all options.") };
+        const bool version { createAndCheckFlag("-v", "--version", "Display the version of the runtime system plus addition information.") };
+        const bool dumpISA { createAndCheckFlag("-i", "--isa", "Display the bytecode instruction set architecture.") };
+
+        const bool sandbox { createAndCheckFlag("-s", "--sandbox", "Force sandbox VM execution.") };
+        const bool fallback { createAndCheckFlag("-f", "--fallback", "Force fallback VM execution.") };
+        const bool powersafe { createAndCheckFlag("-ps", "--powersafe", "Enable powersafe mode for less CPU usage.") };
+        const bool noconfig { createAndCheckFlag("-nc", "--noconfig", "Disable the creation of a config file.") };
+        const bool nolog { createAndCheckFlag("-nl", "--nolog", "Disable protocol logging of the runtime system.") };
+
+        // check if no arguments where submitted (1 arg is always .exe dir)
+        if (std::size(parser.GetArgs()) <= 1 || help) [[unlikely]]
+        {
+            Print(NOX_FMT("Usage: Nominax <BytecodeFile> <Options ...>\n"));
+            parser.DisplayToConsole();
+            return false;
         }
+        else if (version) [[unlikely]]
+        {
+            [[unlikely]]
+            SYSTEM_VERSION.DisplayToConsole();
+            return false;
+        }
+        else if (dumpISA) [[unlikely]]
+        {
+            [[unlikely]]
+            ByteCode::InstructionMetaDataRegistry::PrintInstructionSetTable(ProtocolController::GetProtocolStream());
+            return false;
+        }
+
+        ProtocolController::IsProtocolEnabled = !nolog;
+
+        this->ForceSandboxVM = sandbox;
+        this->ForceFallbackVM = fallback;
+        this->PowerSafeMode = powersafe;
+        this->NoConfig = noconfig;
+
+        return true;
     }
 
-	Core::Environment environment { };
-	environment.Boot(environmentDescriptor);
-    const auto _ { environment.Execute(std::move(byteCode)) };
-	environment.Shutdown();
+    auto Options::Display(DataStream& stream) const -> void
+    {
+        using Foundation::Print;
 
-	return 0;
+        Print(stream, NOX_FMT("Force sandbox VM: {}\n"), this->ForceSandboxVM);
+        Print(stream, NOX_FMT("Force fallback VM: {}\n"), this->ForceFallbackVM);
+        Print(stream, NOX_FMT("Power safe mode: {}\n"), this->PowerSafeMode);
+        Print(stream, NOX_FMT("Config disabled: {}\n"), this->NoConfig);
+    }
 }
