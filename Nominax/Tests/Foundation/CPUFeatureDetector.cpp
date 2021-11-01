@@ -1,5 +1,8 @@
 #include "../TestBase.hpp"
 
+using CPU::ISAExtensionDetector;
+using CPU::ISAExtensionBit;
+
 TEST(CPUFeaturDetector, Construct)
 {
     const auto executor
@@ -7,7 +10,7 @@ TEST(CPUFeaturDetector, Construct)
         []
         {
             [[maybe_unused]]
-            const CPUFeatureDetector detector { };
+            const ISAExtensionDetector detector { };
         }
     };
     ASSERT_NO_FATAL_FAILURE(executor());
@@ -17,8 +20,8 @@ TEST(CPUFeaturDetector, Construct)
 
 TEST(CPUFeaturDetector, SSE)
 {
-    const CPUFeatureDetector detector { };
-    ASSERT_TRUE(detector[CPUFeature::SSE]);
+    const ISAExtensionDetector detector { };
+    ASSERT_TRUE(detector[ISAExtensionBit::SSE]);
 }
 
 #endif
@@ -27,8 +30,8 @@ TEST(CPUFeaturDetector, SSE)
 
 TEST(CPUFeaturDetector, SSE2)
 {
-    const CPUFeatureDetector detector { };
-    ASSERT_TRUE(detector[CPUFeature::SSE2]);
+    const ISAExtensionDetector detector { };
+    ASSERT_TRUE(detector[ISAExtensionBit::SSE2]);
 }
 
 #endif
@@ -37,8 +40,8 @@ TEST(CPUFeaturDetector, SSE2)
 
 TEST(CPUFeaturDetector, SSE3)
 {
-    const CPUFeatureDetector detector { };
-    ASSERT_TRUE(detector[CPUFeature::SSE3]);
+    const ISAExtensionDetector detector { };
+    ASSERT_TRUE(detector[ISAExtensionBit::SSE3]);
 }
 
 #endif
@@ -47,8 +50,8 @@ TEST(CPUFeaturDetector, SSE3)
 
 TEST(CPUFeaturDetector, SSSE3)
 {
-    const CPUFeatureDetector detector { };
-    ASSERT_TRUE(detector[CPUFeature::SSSE3]);
+    const ISAExtensionDetector detector { };
+    ASSERT_TRUE(detector[ISAExtensionBit::SSSE3]);
 }
 
 #endif
@@ -57,8 +60,8 @@ TEST(CPUFeaturDetector, SSSE3)
 
 TEST(CPUFeaturDetector, SSE4_1)
 {
-    const CPUFeatureDetector detector { };
-    ASSERT_TRUE(detector[CPUFeature::SSE4_1]);
+    const ISAExtensionDetector detector { };
+    ASSERT_TRUE(detector[ISAExtensionBit::SSE4_1]);
 }
 
 #endif
@@ -67,8 +70,8 @@ TEST(CPUFeaturDetector, SSE4_1)
 
 TEST(CPUFeaturDetector, SSE4_2)
 {
-    const CPUFeatureDetector detector { };
-    ASSERT_TRUE(detector[CPUFeature::SSE4_2]);
+    const ISAExtensionDetector detector { };
+    ASSERT_TRUE(detector[ISAExtensionBit::SSE4_2]);
 }
 
 #endif
@@ -77,8 +80,8 @@ TEST(CPUFeaturDetector, SSE4_2)
 
 TEST(CPUFeaturDetector, FMA)
 {
-    const CPUFeatureDetector detector { };
-    ASSERT_TRUE(detector[CPUFeature::FMA3]);
+    const ISAExtensionDetector detector { };
+    ASSERT_TRUE(detector[ISAExtensionBit::FMA3]);
 }
 
 #endif
@@ -87,8 +90,8 @@ TEST(CPUFeaturDetector, FMA)
 
 TEST(CPUFeaturDetector, AVX)
 {
-    const CPUFeatureDetector detector { };
-    ASSERT_TRUE(detector[CPUFeature::AVX]);
+    const ISAExtensionDetector detector { };
+    ASSERT_TRUE(detector[ISAExtensionBit::AVX]);
 }
 
 #endif
@@ -97,8 +100,8 @@ TEST(CPUFeaturDetector, AVX)
 
 TEST(CPUFeaturDetector, AVX2)
 {
-    const CPUFeatureDetector detector { };
-    ASSERT_TRUE(detector[CPUFeature::AVX2]);
+    const ISAExtensionDetector detector { };
+    ASSERT_TRUE(detector[ISAExtensionBit::AVX2]);
 }
 
 #endif
@@ -107,8 +110,8 @@ TEST(CPUFeaturDetector, AVX2)
 
 TEST(CPUFeaturDetector, AVX512F)
 {
-    const CPUFeatureDetector detector { };
-    ASSERT_TRUE(detector[CPUFeature::AVX512F]);
+    const ISAExtensionDetector detector { };
+    ASSERT_TRUE(detector[ISAExtensionBit::AVX512F]);
 }
 
 #endif

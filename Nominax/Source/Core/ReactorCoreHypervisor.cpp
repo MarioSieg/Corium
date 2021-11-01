@@ -215,7 +215,7 @@ namespace Nominax::Core
 	auto SingletonExecutionProxy
 	(
 		const VerboseReactorDescriptor& input,
-        const Foundation::CPUFeatureDetector& target,
+        const Foundation::CPU::ISAExtensionDetector& target,
         JumpTable* const outJumpTable
 	) ->  ReactorState
 	{
@@ -238,18 +238,18 @@ namespace Nominax::Core
 		#endif
 	};
 
-	auto HyperVisor::SmartSelectReactor([[maybe_unused]] const Foundation::CPUFeatureDetector& cpuFeatureDetector) -> ReactorCoreSpecialization
+	auto HyperVisor::SmartSelectReactor([[maybe_unused]] const Foundation::CPU::ISAExtensionDetector& cpuFeatureDetector) -> ReactorCoreSpecialization
 	{
 		#if NOX_ARCH_X86_64
 
 			// if we have AVX 512, use AVX 512:
-			if (cpuFeatureDetector[Foundation::CPUFeature::AVX512F])
+			if (cpuFeatureDetector[Foundation::CPU::ISAExtensionBit::AVX512F])
 			{
 				return ReactorCoreSpecialization::X86_64_AVX512F;
 			}
 
 			// if we have AVX, use AVX:
-			if (cpuFeatureDetector[Foundation::CPUFeature::AVX])
+			if (cpuFeatureDetector[Foundation::CPU::ISAExtensionBit::AVX])
 			{
 				return ReactorCoreSpecialization::X86_64_AVX;
 			}
@@ -308,7 +308,7 @@ namespace Nominax::Core
 		return routine;
 	}
 
-	auto HyperVisor::GetOptimalReactorRoutine(const Foundation::CPUFeatureDetector& features) -> ReactorRoutineLink
+	auto HyperVisor::GetOptimalReactorRoutine(const Foundation::CPU::ISAExtensionDetector& features) -> ReactorRoutineLink
 	{
 		static thread_local constinit std::uint16_t QueryCounter;
 		ReactorCoreSpecialization specialization { SmartSelectReactor(features) };
@@ -343,7 +343,7 @@ namespace Nominax::Core
 	(
 		const VerboseReactorDescriptor& input,
 		ReactorState& output,
-		const Foundation::CPUFeatureDetector& target,
+		const Foundation::CPU::ISAExtensionDetector& target,
 		JumpTable* outJumpTable
 	) -> const ReactorState&
 	{

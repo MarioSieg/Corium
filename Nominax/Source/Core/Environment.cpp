@@ -341,7 +341,7 @@ namespace Nominax::Core
 	/// <param name="fallback"></param>
 	/// <param name="cpu"></param>
 	/// <returns></returns>
-	static inline auto QueryExecRoutine(const bool fallback, const CPUFeatureDetector& cpu)
+	static inline auto QueryExecRoutine(const bool fallback, const CPU::ISAExtensionDetector& cpu)
 	{
 		return fallback ? HyperVisor::GetFallbackRoutineLink() : HyperVisor::GetOptimalReactorRoutine(cpu);
 	}
@@ -361,9 +361,9 @@ namespace Nominax::Core
     /// Fetch and print cpu features.
     /// </summary>
     /// <returns></returns>Common::
-    static auto InitCpuFeatures() -> CPUFeatureDetector
+    static auto InitCpuFeatures() -> CPU::ISAExtensionDetector
     {
-        CPUFeatureDetector cpuFeatureDetector { };
+		CPU::ISAExtensionDetector cpuFeatureDetector { };
         cpuFeatureDetector.DisplayToConsole();
         return cpuFeatureDetector;
     }
@@ -383,7 +383,7 @@ namespace Nominax::Core
 		const std::chrono::high_resolution_clock::time_point        BootStamp;
 		std::chrono::milliseconds                                   BootTime;
 		const SystemInfoSnapshot                                    SysInfoSnapshot;
-		const CPUFeatureDetector                                    CPUFeatures;
+		const CPU::ISAExtensionDetector								CPUFeatures;
 		const ReactorRoutineLink                                    OptimalReactorRoutine;
 		ReactorPool                                                 CorePool;
         std::uint64_t                                               ExecutionCount;
@@ -667,7 +667,7 @@ namespace Nominax::Core
 		return this->Context_->SysInfoSnapshot;
 	}
 
-	auto Environment::GetCpuFeatureSnapshot() const -> const CPUFeatureDetector&
+	auto Environment::GetCpuFeatureSnapshot() const -> const CPU::ISAExtensionDetector&
 	{
 		VALIDATE_ONLINE_BOOT_STATE();
 		return this->Context_->CPUFeatures;

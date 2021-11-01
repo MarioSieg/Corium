@@ -205,7 +205,7 @@
 
 #pragma once
 
-#include "../Foundation/CPUFeatureDetector.hpp"
+#include "../Foundation/CPU/ISAExtensionDetector.hpp"
 
 #include "ReactorRoutineLink.hpp"
 
@@ -276,7 +276,7 @@ namespace Nominax::Core
 		/// <param name="cpuFeatureDetector"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		static auto SmartSelectReactor(const Foundation::CPUFeatureDetector& cpuFeatureDetector) -> ReactorCoreSpecialization;
+		static auto SmartSelectReactor(const Foundation::CPU::ISAExtensionDetector& cpuFeatureDetector) -> ReactorCoreSpecialization;
 
 		/// <summary>
 		/// 
@@ -299,7 +299,7 @@ namespace Nominax::Core
 		/// <param name="features"></param>
 		/// <returns></returns>
 		[[nodiscard]]
-		static auto GetOptimalReactorRoutine(const Foundation::CPUFeatureDetector& features) -> ReactorRoutineLink;
+		static auto GetOptimalReactorRoutine(const Foundation::CPU::ISAExtensionDetector& features) -> ReactorRoutineLink;
 	};
 
 	/// <summary>
@@ -323,7 +323,7 @@ namespace Nominax::Core
     (
         const VerboseReactorDescriptor& input,
         ReactorState& output,
-        const Foundation::CPUFeatureDetector& target,
+        const Foundation::CPU::ISAExtensionDetector& target,
         JumpTable* outJumpTable = nullptr
     ) -> const ReactorState&;
 
@@ -337,7 +337,7 @@ namespace Nominax::Core
 	extern auto SingletonExecutionProxy
 	(
 		const VerboseReactorDescriptor& input,
-		const Foundation::CPUFeatureDetector& target = { },
+		const Foundation::CPU::ISAExtensionDetector& target = { },
         JumpTable* outJumpTable = nullptr
 	) -> ReactorState;
 }

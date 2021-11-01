@@ -264,5 +264,7 @@ namespace Nominax::Foundation
 		static constexpr bool EnableVerboseAllocator { true };
 
 		static constexpr bool BypassSystemAllocator { IsDebug };
+
+		static constexpr bool EnablePrefetch { !IsDebug };
 	};
 }

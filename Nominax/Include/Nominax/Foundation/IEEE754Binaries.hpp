@@ -217,7 +217,7 @@ namespace Nominax::Foundation::CMP
 	/// <param name="y"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	NOX_FORCE_INLINE NOX_PURE constexpr auto Equals(const float x, const float y) -> bool
+	NOX_REACTOR_ROUTINE NOX_PURE constexpr auto Equals(const float x, const float y) -> bool
 	{
 		if constexpr (CompileTimeConfig::UseULPFloatingPointComparison)
 		{
@@ -236,7 +236,7 @@ namespace Nominax::Foundation::CMP
 	/// <param name="y"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	NOX_FORCE_INLINE NOX_PURE constexpr auto Equals(const double x, const double y) -> bool
+	NOX_REACTOR_ROUTINE NOX_PURE constexpr auto Equals(const double x, const double y) -> bool
 	{
 		if constexpr (CompileTimeConfig::UseULPFloatingPointComparison)
 		{
@@ -254,7 +254,7 @@ namespace Nominax::Foundation::CMP
 	/// <param name="x"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	NOX_FORCE_INLINE NOX_PURE constexpr auto IsZero(const float x) -> bool
+	NOX_REACTOR_ROUTINE NOX_PURE constexpr auto IsZero(const float x) -> bool
 	{
 		if constexpr (CompileTimeConfig::UseULPFloatingPointComparison)
 		{
@@ -272,7 +272,7 @@ namespace Nominax::Foundation::CMP
 	/// <param name="x"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	NOX_FORCE_INLINE NOX_PURE constexpr auto IsZero(const double x) -> bool
+	NOX_REACTOR_ROUTINE NOX_PURE constexpr auto IsZero(const double x) -> bool
 	{
 		if constexpr (CompileTimeConfig::UseULPFloatingPointComparison)
 		{
@@ -290,7 +290,7 @@ namespace Nominax::Foundation::CMP
 	/// <param name="x"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	NOX_FORCE_INLINE NOX_PURE constexpr auto IsOne(const float x) -> bool
+	NOX_REACTOR_ROUTINE NOX_PURE constexpr auto IsOne(const float x) -> bool
 	{
 		if constexpr (CompileTimeConfig::UseULPFloatingPointComparison)
 		{
@@ -308,7 +308,7 @@ namespace Nominax::Foundation::CMP
 	/// <param name="x"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	NOX_FORCE_INLINE NOX_PURE constexpr auto IsOne(const double x) -> bool
+	NOX_REACTOR_ROUTINE NOX_PURE constexpr auto IsOne(const double x) -> bool
 	{
 		if constexpr (CompileTimeConfig::UseULPFloatingPointComparison)
 		{

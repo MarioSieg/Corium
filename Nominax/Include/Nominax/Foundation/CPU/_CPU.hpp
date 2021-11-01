@@ -205,33 +205,8 @@
 
 #pragma once
 
-#include <array>
-#include <bitset>
-#include <string_view>
-
-#include "../Assembler/_Assembler.hpp"
-#include "Algorithm/Enum.hpp"
-#include "Platform.hpp"
-
-namespace Nominax::Foundation
-{
-    /// <summary>
-    /// Feature feature bits.
-    /// </summary>
-    using CPUFeature = NOX_ARCH_PROXY::CPUFeatureBits;
-
-	/// <summary>
-	/// Feature mask.
-	/// </summary>
-	using CPUFeatureMask = std::array<bool, Algorithm::ToUnderlying(CPUFeature::Count_)>;
-
-	/// <summary>
-	/// Bitmask storage type.
-	/// </summary>
-	using CPUFeatureMaskBitStorage = std::bitset<Algorithm::ToUnderlying(CPUFeature::Count_)>;
-
-	/// <summary>
-	/// Feature mask.
-	/// </summary>
-	using CPUFeatureMaskBuffer = std::array<std::uint8_t, Algorithm::ToUnderlying(CPUFeature::Count_) / CHAR_BIT>;
-}
+#include "CacheControl.hpp"
+#include "ISAExtension.hpp"
+#include "ISAExtensionDetector.hpp"
+#include "Trap.hpp"
+#include "VolatileVar.hpp"

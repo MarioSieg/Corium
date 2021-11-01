@@ -203,92 +203,59 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../../Nominax/Include/Nominax/Foundation/_Foundation.hpp"
-#include "../../../Nominax/Include/Nominax/Assembler/_Assembler.hpp"
+#pragma once
 
-namespace Nominax::Foundation
+#include "../CompileTimeConfig.hpp"
+
+namespace Nominax::Foundation::CPU
 {
-	CPUFeatureDetector::CPUFeatureDetector() : FeatureBits_ { }
+	/// <summary>
+	///  This function is used to flush the processor's instruction cache for the region of memory
+	///  between begin inclusive and end exclusive.
+	///  Some targets require that the instruction cache be flushed,
+	///  after modifying memory containing code,
+	///  in order to obtain deterministic behavior.
+	///  If the target does not require instruction cache flushes,
+	///  FlushInstructionCache has no effect.
+	///  Otherwise either instructions are emitted in - line
+	///  to clear the instruction cache or a call to the __clear_cache function in
+	///  libgcc is made.
+	///	 Intrinsic docs from: https://gcc.gnu.org/onlinedocs/gcc-4.7.2/gcc/Other-Builtins.html
+	/// </summary>
+	/// <param name="begin"></param>
+	/// <param name="end"></param>
+	/// <returns></returns>
+	NOX_INTRINSIC_PROXY inline auto FlushInstructionCache
+	(
+		void* const begin,
+		void* const end
+	) noexcept -> void
 	{
-		#if NOX_ARCH_X86_64
-        
-            using namespace Assembler::X86_64::Routines;
-            using CFB = CPUFeature;
-
-            // check if cpuid is supported on system
-            NOX_PAS(IsCPUIDSupported(), "CPUID instruction is not supported on system!");
-
-            // extract gathered CPU feature bits:
-            CPUFeatureMaskBuffer buffer { };
-            std::array<std::uint64_t, 3> merged { };
-            const std::uint32_t result { CPUID(&merged[0], &merged[1], &merged[2]) };
-            std::uint8_t* const needle { std::data(buffer) };
-            std::memcpy(needle, std::data(merged), sizeof merged);
-            std::memcpy(needle + sizeof merged, &result, sizeof result);
-
-            // convert bit to byte vector:
-            for (std::uint64_t i { 0 }; i < sizeof buffer; ++i)
-            {
-                for (std::uint64_t j { 0 }; j < CHAR_BIT; ++j)
-                {
-                    this->FeatureBits_[i * CHAR_BIT + j] = buffer[i] & true << j;
-                }
-            }
-
-            // Check if CPU and OS supports XSave
-            const bool xSaveSupport {(*this)[CFB::XSave] && (*this)[CFB::OSXSave] };
-            if (!xSaveSupport)
-            {
-                // XSave is required for AVX and AVX 512
-                [[unlikely]]
-                return;
-            }
-
-            // Validate OS support and update flags for AVX:
-            const bool avxOsSupport {IsAVXSupportedByOS() };
-            (*this)[CFB::AVX]   &= avxOsSupport;
-            (*this)[CFB::AVX2]  &= avxOsSupport;
-            (*this)[CFB::F16C]  &= avxOsSupport;
-
-            // Validate OS support and update flags for AVX-512 F:
-            const bool avx512OsSupport {avxOsSupport && IsAVX512SupportedByOS() };
-            (*this)[CFB::AVX512F]               &= avx512OsSupport;
-            (*this)[CFB::AVX512DQ]              &= avx512OsSupport;
-            (*this)[CFB::AVX512IFMA]            &= avx512OsSupport;
-            (*this)[CFB::AVX512PF]              &= avx512OsSupport;
-            (*this)[CFB::AVX512ER]              &= avx512OsSupport;
-            (*this)[CFB::AVX512CD]              &= avx512OsSupport;
-            (*this)[CFB::AVX512BW]              &= avx512OsSupport;
-            (*this)[CFB::AVX512VL]              &= avx512OsSupport;
-            (*this)[CFB::AVX512VBMI]            &= avx512OsSupport;
-            (*this)[CFB::AVX512VBMI2]           &= avx512OsSupport;
-            (*this)[CFB::AVX512GFNI]            &= avx512OsSupport;
-            (*this)[CFB::AVX512VNNI]            &= avx512OsSupport;
-            (*this)[CFB::AVX512Bitalg]          &= avx512OsSupport;
-            (*this)[CFB::AVX512PopCNTDQ]        &= avx512OsSupport;
-            (*this)[CFB::AVX512VNNIW4]          &= avx512OsSupport;
-            (*this)[CFB::AVX512FMAPS4]          &= avx512OsSupport;
-            (*this)[CFB::AVX512VP2Intersect]    &= avx512OsSupport;
-
-		#endif
+		__builtin___clear_cache(static_cast<char*>(begin), static_cast<char*>(end));
 	}
 
-    auto CPUFeatureDetector::Display(DataStream& stream) const -> void
-    {
-        Print(stream, NOX_FMT("CPU Features:"));
-        #if NOX_ARCH_X86_64
-            for (std::uint64_t i { 0 }, j { 0 }; i < std::size(this->FeatureBits_); ++i)
-            {
-                if (!std::empty(Assembler::X86_64::CPU_FEATURE_BIT_NAMES[i]) && this->FeatureBits_[i])
-                {
-                    if (j++ % 8 == 0)
-                    {
-                        Print(stream, '\n');
-                    }
-                    Print(stream, NOX_FMT("{} "), Assembler::X86_64::CPU_FEATURE_BIT_NAMES[i]);
-                }
-            }
-        #endif
-        Print(stream, '\n');
-    }
+	/// <summary>
+	///  The __builtin_prefetch() function prefetches memory from addr.  The
+	/// rationale is to minimize cache - miss latency by trying to move data into a
+	///	cache before accessing the data.Possible use cases include frequently
+	///	called sections of code in which it is known that the data in a given
+	///	address is likely to be accessed soon.
+	///	 The __builtin_prefetch() function translates into prefetch instructions
+	///only if the architecture has support for these.If there is no support,
+	///	addr is evaluated only if it includes side effects, although no warnings
+	///	are issued by gcc(1).
+	///	Intrinsic docs from: https://www.daemon-systems.org/man/__builtin_prefetch.3.html
+	/// </summary>
+	/// <param name="address"></param>
+	/// <returns></returns>
+	NOX_INTRINSIC_PROXY inline auto Prefetch
+	(
+		void* const address
+	) noexcept -> void
+	{
+		if constexpr (CompileTimeConfig::EnablePrefetch)
+		{
+			__builtin_prefetch(address);
+		}
+	}
 }

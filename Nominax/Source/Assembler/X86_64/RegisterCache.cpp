@@ -215,23 +215,23 @@ namespace Nominax::Assembler::X86_64
 
     auto RegisterCache::Fetch() -> void
     {
-        using Foundation::CPUFeature;
+        using Foundation::CPU::ISAExtensionBit;
 
         Routines::QueryRegSet_GPR(std::data(this->GPRSet));
         Routines::QueryRegSet_SSE(std::data(this->SSESet));
-        const Foundation::CPUFeatureDetector features { };
-        if (features[CPUFeature::AVX])
+        const Foundation::CPU::ISAExtensionDetector features { };
+        if (features[ISAExtensionBit::AVX])
         {
             AVXRegisterSet out { };
             Routines::QueryRegSet_AVX(std::data(out));
             this->AVXSet = { out };
         }
-        if (features[CPUFeature::AVX512F])
+        if (features[ISAExtensionBit::AVX512F])
         {
             AVX512RegisterSet out { };
             Routines::QueryRegSet_AVX512(std::data(out));
             this->AVX512Set = { out };
-            if (features[CPUFeature::AVX512BW])
+            if (features[ISAExtensionBit::AVX512BW])
             {
                 // BW -> 64 bit %k masks
                 AVX512BWMaskRegisterSet kout { };

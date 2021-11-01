@@ -216,13 +216,13 @@
 #include "../../Include/Nominax/Foundation/VectorLib.hpp"
 #include "../../Include/Nominax/Foundation/IEEE754Binaries.hpp"
 #include "../../Include/Nominax/Foundation/Algorithm/BitRotation.hpp"
-#include "../../Include/Nominax/Foundation/CPU.hpp"
+#include "../../Include/Nominax/Foundation/CPU/Trap.hpp"
 
 namespace Nominax::Core
 {
 	using Foundation::Record;
-	using Foundation::BreakpointInterrupt;
-	using Foundation::NoOperation;
+	using Foundation::CPU::BreakpointInterrupt;
+	using Foundation::CPU::NoOperation;
 	using Foundation::Algorithm::Rol64;
 	using Foundation::Algorithm::Ror64;
 

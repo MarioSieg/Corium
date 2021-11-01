@@ -211,7 +211,7 @@
 
 #include <cstdint>
 #include "../Foundation/Memory/MemoryUnits.hpp"
-#include "../Foundation/CPUFeatureDetector.hpp"
+#include "../Foundation/CPU/ISAExtensionDetector.hpp"
 #include "../Foundation/SystemInfoSnapshot.hpp"
 #include "../Foundation/Allocator/IAllocator.hpp"
 #include "../ByteCode/Stream.hpp"
@@ -447,7 +447,7 @@ namespace Nominax::Core
 		/// </summary>
 		/// <returns>The cpu feature detector.</returns>
 		[[nodiscard]]
-		auto GetCpuFeatureSnapshot() const -> const Foundation::CPUFeatureDetector&;
+		auto GetCpuFeatureSnapshot() const -> const Foundation::CPU::ISAExtensionDetector&;
 
 		/// <summary>
 		/// 

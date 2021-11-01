@@ -205,103 +205,23 @@
 
 #pragma once
 
-#include "CPUFeatureBits.hpp"
-#include "IDisplay.hpp"
+#include "../Platform.hpp"
 
-namespace Nominax::Foundation
+namespace Nominax::Foundation::CPU
 {
 	/// <summary>
-    /// Detects architecture dependent cpu features.
-    /// </summary>
-	class CPUFeatureDetector final : public IDisplay
+	/// Prevents the compiler from optimizing away the value.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="x"></param>
+	/// <returns></returns>
+	template <typename T>
+	NOX_INTRINSIC_PROXY inline auto DisOpt(const T& x) noexcept -> void
 	{
-		/// <summary>
-		/// Architecture dependent bits.
-		/// </summary>
-		CPUFeatureMask FeatureBits_;
-
-		/// <summary>
-		/// Get or set support for special feature.
-		/// </summary>
-		/// <param name="bit"></param>
-		/// <returns></returns>
-		auto operator [](CPUFeature bit) -> bool&;
-
-	public:
-		/// <summary>
-		/// Construct new instance and query cpu feature
-		/// using architecture dependent routines.
-		/// </summary>
-		CPUFeatureDetector();
-
-		/// <summary>
-		/// No copy.
-		/// </summary>
-		CPUFeatureDetector(const CPUFeatureDetector&) = default;
-
-		/// <summary>
-		/// No move.
-		/// </summary>
-		CPUFeatureDetector(CPUFeatureDetector&&) = default;
-
-		/// <summary>
-		/// No copy.
-		/// </summary>
-		auto operator =(const CPUFeatureDetector&) -> CPUFeatureDetector& = default;
-
-		/// <summary>
-		/// No move.
-		/// </summary>
-		auto operator =(CPUFeatureDetector&&) -> CPUFeatureDetector& = default;
-
-		/// <summary>
-		/// Destructor.
-		/// </summary>
-		~CPUFeatureDetector() override = default;
-
-		/// <summary>
-		/// Access the architecture dependent feature bits directly.
-		/// </summary>
-		[[nodiscard]]
-		auto operator ->() const -> const CPUFeatureMask*;
-
-		/// <summary>
-		/// Access the architecture dependent feature bits directly.
-		/// </summary>
-		[[nodiscard]]
-		auto operator *() const -> const CPUFeatureMask&;
-
-		/// <summary>
-		/// Check support for special feature.
-		/// </summary>
-		/// <param name="bit"></param>
-		/// <returns></returns>
-        [[nodiscard]]
-        auto operator [](CPUFeature bit) const -> bool;
-
-        /// <summary>
-        /// Prints this object into the file stream.
-        /// </summary>
-        virtual auto Display(DataStream& stream) const -> void override;
-	};
-
-	inline auto CPUFeatureDetector::operator[](const CPUFeature bit) -> bool&
-	{
-		return this->FeatureBits_[Algorithm::ToUnderlying(bit)];
-	}
-
-	inline auto CPUFeatureDetector::operator[](const CPUFeature bit) const -> bool
-	{
-		return this->FeatureBits_[Algorithm::ToUnderlying(bit)];
-	}
-
-	inline auto CPUFeatureDetector::operator*() const -> const CPUFeatureMask&
-	{
-		return this->FeatureBits_;
-	}
-
-	inline auto CPUFeatureDetector::operator->() const -> const CPUFeatureMask*
-	{
-		return &this->FeatureBits_;
+		#if NOX_COM_CLANG
+			asm volatile("" : "+r,m"(x) : : "memory");
+		#else
+			asm volatile("" : "+m,r"(x) :: "memory");
+		#endif
 	}
 }

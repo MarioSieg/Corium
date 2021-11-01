@@ -491,7 +491,10 @@
 /// </summary>
 #define NOX_ASM_ROUTINE
 
+#define NOX_INTRINSIC_PROXY NOX_FORCE_INLINE
+
 /// <summary>
 /// Marks a reactor routine.
 /// </summary>
 #define NOX_REACTOR_ROUTINE                 NOX_FORCE_INLINE NOX_HOT
+

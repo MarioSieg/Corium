@@ -246,13 +246,13 @@ TEST(AssemblyCalls, CpuId)
 	{
 		[&]
 		{
-			const CPUFeatureDetector features { };
-			ASSERT_TRUE(features[CPUFeature::FPU]);
-			ASSERT_TRUE(features[CPUFeature::MMX]);
-			ASSERT_TRUE(features[CPUFeature::SSE]);
-			ASSERT_TRUE(features[CPUFeature::SSE2]);
-			ASSERT_TRUE(features[CPUFeature::SSE3]);
-			ASSERT_TRUE(features[CPUFeature::SSSE3]);
+			const CPU::ISAExtensionDetector features { };
+			ASSERT_TRUE(features[CPU::ISAExtensionBit::FPU]);
+			ASSERT_TRUE(features[CPU::ISAExtensionBit::MMX]);
+			ASSERT_TRUE(features[CPU::ISAExtensionBit::SSE]);
+			ASSERT_TRUE(features[CPU::ISAExtensionBit::SSE2]);
+			ASSERT_TRUE(features[CPU::ISAExtensionBit::SSE3]);
+			ASSERT_TRUE(features[CPU::ISAExtensionBit::SSSE3]);
 		}
 	};
 	ASSERT_NO_FATAL_FAILURE(exec());
@@ -272,8 +272,8 @@ TEST(AssemblyCalls, CpudIdSupport)
 
 TEST(AssemblyCalls, AvxOsSupport)
 {
-	const CPUFeatureDetector cfd { };
-	if (cfd[CPUFeature::XSave] && cfd[CPUFeature::OSXSave])
+	const CPU::ISAExtensionDetector cfd { };
+	if (cfd[CPU::ISAExtensionBit::XSave] && cfd[CPU::ISAExtensionBit::OSXSave])
 	{
 		const auto exec
 		{
@@ -288,8 +288,8 @@ TEST(AssemblyCalls, AvxOsSupport)
 
 TEST(AssemblyCalls, Avx512OsSupport)
 {
-	const CPUFeatureDetector cfd { };
-	if (cfd[CPUFeature::XSave] && cfd[CPUFeature::OSXSave])
+	const CPU::ISAExtensionDetector cfd { };
+	if (cfd[CPU::ISAExtensionBit::XSave] && cfd[CPU::ISAExtensionBit::OSXSave])
 	{
 		const auto exec
 		{
@@ -311,9 +311,9 @@ TEST(AssemblyCalls, CpuIdInvocation)
 			[&]
 			{
 				[[maybe_unused]]
-					std::uint64_t a, b, c;
+				std::uint64_t a, b, c;
 				[[maybe_unused]]
-					const std::uint32_t d {CPUID(&a, &b, &c)};
+				const std::uint32_t d {CPUID(&a, &b, &c)};
 			}
 		};
 		ASSERT_NO_FATAL_FAILURE(exec());

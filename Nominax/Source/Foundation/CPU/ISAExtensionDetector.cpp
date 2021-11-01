@@ -203,83 +203,102 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "../../../../Nominax/Include/Nominax/Foundation/CPU/ISAExtensionDetector.hpp"
+#include "../../../../Nominax/Include/Nominax/Assembler/_Assembler.hpp"
 
-#include "Platform.hpp"
-
-
-namespace Nominax::Foundation
+namespace Nominax::Foundation::CPU
 {
-	/// <summary>
-	/// Trigger a breakpoint, works in release mode too.
-	/// Good for debugging release code or looking at assembler.
-	/// </summary>
-	NOX_FORCE_INLINE NOX_COLD inline auto BreakpointInterrupt() -> void
+	ISAExtensionDetector::ISAExtensionDetector() : FeatureBits_ { }
 	{
-		#if NOX_ARCH_X86_64
-			asm("int3");
-		#elif NOX_ARCH_AARCH64
-			asm("brk 0");
-		#else
-			*reinterpret_cast<volatile std::int32_t*>(3) = 3;
-		#endif
+        this->DetectExtensions();
 	}
 
-	/// <summary>
-	/// Prevents the compiler from optimizing away the value.
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="x"></param>
-	/// <returns></returns>
-	template <typename T>
-	inline auto DisOpt(T& x) -> void
-	{
-		#if NOX_COM_CLANG
-			asm volatile("" : "+r,m"(x) : : "memory");
-		#else
-			asm volatile("" : "+m,r"(x) :: "memory");
-		#endif
-	}
+    auto ISAExtensionDetector::Display(DataStream& stream) const -> void
+    {
+        Print(stream, NOX_FMT("CPU Features:"));
+        #if NOX_ARCH_X86_64
+            for (std::uint64_t i { 0 }, j { 0 }; i < std::size(this->FeatureBits_); ++i)
+            {
+                if (!std::empty(Assembler::X86_64::CPU_FEATURE_BIT_NAMES[i]) && this->FeatureBits_[i])
+                {
+                    if (j++ % 8 == 0)
+                    {
+                        Print(stream, '\n');
+                    }
+                    Print(stream, NOX_FMT("{} "), Assembler::X86_64::CPU_FEATURE_BIT_NAMES[i]);
+                }
+            }
+        #endif
+        Print(stream, '\n');
+    }
 
-	// @formatter:off
+    auto ISAExtensionDetector::DetectExtensions() -> void
+    {
+#if NOX_ARCH_X86_64
 
-	/// <summary>
-	/// Insert memory read fence barrier.
-	/// Force the compiler to flush queued writes to global memory.
-	/// </summary>
-	[[maybe_unused]]
-	NOX_FORCE_INLINE inline auto ReadFence()  -> void
-	{
-		asm volatile("" : : : "memory");
-	}
+        using namespace Assembler::X86_64::Routines;
+        using CFB = ISAExtensionBit;
 
-	/// <summary>
-	/// Insert memory write fence barrier.
-	/// Force the compiler to flush queued writes to global memory.
-	/// </summary>
-	[[maybe_unused]]
-	NOX_FORCE_INLINE inline auto WriteFence()  -> void
-	{
-		asm volatile("" : : : "memory");
-	}
+        // check if CPUID is supported on system
+        NOX_PAS(IsCPUIDSupported(), "CPUID instruction is not supported on system!");
 
-	/// <summary>
-	/// Insert memory read-write fence barrier.
-	/// Force the compiler to flush queued writes to global memory.
-	/// </summary>
-	[[maybe_unused]]
-	NOX_FORCE_INLINE inline auto ReadWriteFence()  -> void
-	{
-		asm volatile("" : : : "memory");
-	}
+        // extract gathered CPU feature bits:
+        ISAExtensionMaskBuffer buffer{ };
+        std::array<std::uint64_t, 3> merged{ };
+        const std::uint32_t result { CPUID(&merged[0], &merged[1], &merged[2]) };
+        std::uint8_t* const needle { std::data(buffer) };
+        std::memcpy(needle, std::data(merged), sizeof merged);
+        std::memcpy(needle + sizeof merged, &result, sizeof result);
 
-	// @formatter:on
+        // convert bit to byte vector:
+        for (std::uint64_t i { 0 }; i < sizeof buffer; ++i)
+        {
+            for (std::uint64_t j { 0 }; j < CHAR_BIT; ++j)
+            {
+                this->FeatureBits_[i * CHAR_BIT + j] = buffer[i] & true << j;
+            }
+        }
 
-	/// <summary>
-	/// No operation LOL
-	/// </summary>
-	NOX_FORCE_INLINE inline auto NoOperation() -> void
-	{
-		asm volatile("nop");
-	}
+        // Check if CPU and OS supports XSave
+        const bool xSaveSupport { (*this)[CFB::XSave] && (*this)[CFB::OSXSave] };
+        if (!xSaveSupport)
+        {
+            // XSave is required for AVX and AVX 512
+            [[unlikely]]
+            return;
+        }
+
+        // Validate OS support and update flags for AVX:
+        const bool avxOsSupport { IsAVXSupportedByOS() };
+        (*this)[CFB::AVX] &= avxOsSupport;
+        (*this)[CFB::AVX2] &= avxOsSupport;
+        (*this)[CFB::F16C] &= avxOsSupport;
+
+        // Validate OS support and update flags for AVX-512 F:
+        const bool avx512OsSupport { avxOsSupport && IsAVX512SupportedByOS() };
+        (*this)[CFB::AVX512F] &= avx512OsSupport;
+        (*this)[CFB::AVX512DQ] &= avx512OsSupport;
+        (*this)[CFB::AVX512IFMA] &= avx512OsSupport;
+        (*this)[CFB::AVX512PF] &= avx512OsSupport;
+        (*this)[CFB::AVX512ER] &= avx512OsSupport;
+        (*this)[CFB::AVX512CD] &= avx512OsSupport;
+        (*this)[CFB::AVX512BW] &= avx512OsSupport;
+        (*this)[CFB::AVX512VL] &= avx512OsSupport;
+        (*this)[CFB::AVX512VBMI] &= avx512OsSupport;
+        (*this)[CFB::AVX512VBMI2] &= avx512OsSupport;
+        (*this)[CFB::AVX512GFNI] &= avx512OsSupport;
+        (*this)[CFB::AVX512VNNI] &= avx512OsSupport;
+        (*this)[CFB::AVX512Bitalg] &= avx512OsSupport;
+        (*this)[CFB::AVX512PopCNTDQ] &= avx512OsSupport;
+        (*this)[CFB::AVX512VNNIW4] &= avx512OsSupport;
+        (*this)[CFB::AVX512FMAPS4] &= avx512OsSupport;
+        (*this)[CFB::AVX512VP2Intersect] &= avx512OsSupport;
+
+#endif
+    }
+
+    auto ISAExtensionDetector::ClearAllExtensionFlags() noexcept -> void
+    {
+        std::ranges::fill(this->FeatureBits_, false);
+    }
 }
