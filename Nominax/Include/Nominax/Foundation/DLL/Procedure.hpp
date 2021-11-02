@@ -246,7 +246,7 @@ namespace Nominax::Foundation::DLL
 		/// <param name="args">The arguments to call the function with.</param>
 		/// <returns>The return value of the called function.</returns>
 		template <typename F, typename... Ts> requires std::is_function_v<F> && std::is_invocable_v<F, Ts...>
-		auto operator ()(Ts&&...args) const -> decltype(F(std::forward<Ts...>(args...)));
+		auto operator ()(Ts&&...args) const noexcept(std::is_nothrow_invocable_v<F, Ts...>) -> decltype(F(std::forward<Ts...>(args...)));
 
 	private:
 		ExternProc* Ptr;
@@ -265,7 +265,7 @@ namespace Nominax::Foundation::DLL
 	}
 
 	template <typename F, typename ... Ts> requires std::is_function_v<F> && std::is_invocable_v<F, Ts...>
-	inline auto DynamicProcedure::operator ()(Ts&&...args) const -> decltype(F(std::forward<Ts...>(args...)))
+	inline auto DynamicProcedure::operator ()(Ts&&...args) const noexcept(std::is_nothrow_invocable_v<F, Ts...>) -> decltype(F(std::forward<Ts...>(args...)))
 	{
 		return (*static_cast<F*>(this->Ptr))(std::forward<Ts...>(args...));
 	}
