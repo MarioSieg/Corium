@@ -223,8 +223,8 @@ namespace Nominax::Core
 	consteval auto ValidateJumpTable
 	(
 		const void* NOX_RESTRICT const* NOX_RESTRICT const jumpTable,
-		const std::uint64_t                                jumpTableSize
-	) -> bool
+		const std::uint64_t jumpTableSize
+	) noexcept -> bool
 	{
 		if (!jumpTable || !jumpTableSize)
 		{
