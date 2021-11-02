@@ -56,9 +56,24 @@ Parameter = {
 }
 
 Expression = {
-    Literal |
-    Operator ~ Whitespace ~ Expression |
-    Identifier |
+    RootExpression
+}
+
+RootExpression = {
+    LiteralExpression |
+    IdentifierExpression |
+    ParenthesisExpression
+}
+
+LiteralExpression = {
+    Literal
+}
+
+IdentifierExpression = {
+    Identifier
+}
+
+ParenthesisExpression = {
     "(" ~ Expression ~ ")"
 }
 
@@ -128,11 +143,15 @@ Char = @{
     | "\\" ~ ("u" ~ ASCII_HEX_DIGIT{8})
 }
 
-Whitespace = _ {
-    WHITE_SPACE*
-}
-
 StatementSeparator = _{
     NEWLINE |
     SEPARATOR
+}
+
+Whitespace = _{
+   " " | "\t"
+}
+
+COMMENT = _{
+    "#" ~ (!"\n" ~ ANY)*
 }

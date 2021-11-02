@@ -454,29 +454,22 @@ impl<'ast> NestedAstPopulator<'ast> for Parameter<'ast> {
 
 impl<'ast> NestedAstPopulator<'ast> for Expression<'ast> {
     fn populate(mut rule: RulePairs<'ast>) -> Self {
-        let inner = rule.next().unwrap();
+        let inner = rule.next().unwrap().into_inner().next().unwrap();
         match inner.as_rule() {
-            Rule::Literal => {
+            Rule::LiteralExpression => {
+                let inner = inner.into_inner().next().unwrap();
                 debug_assert_eq!(inner.as_rule(), Rule::Literal);
                 Self::Literal(Literal::populate(inner.into_inner()))
             }
-            Rule::Identifier => {
+            Rule::IdentifierExpression => {
+                let inner = inner.into_inner().next().unwrap();
                 debug_assert_eq!(inner.as_rule(), Rule::Identifier);
                 Self::Identifier(Identifier::merge(inner.as_str()))
             }
-            Rule::Expression => {
+            Rule::ParenthesisExpression => {
+                let inner = inner.into_inner().next().unwrap();
                 debug_assert_eq!(inner.as_rule(), Rule::Expression);
                 Self::Sub(Box::new(Self::populate(inner.into_inner())))
-            }
-            Rule::Operator => {
-                debug_assert_eq!(inner.as_rule(), Rule::Operator);
-                let op = Operator::merge(inner.as_str());
-                let sub = {
-                    let inner = rule.next().unwrap();
-                    debug_assert_eq!(inner.as_rule(), Rule::Expression);
-                    Box::new(Expression::populate(inner.into_inner()))
-                };
-                Self::UnaryOperation { op, sub }
             }
             _ => unreachable!(),
         }

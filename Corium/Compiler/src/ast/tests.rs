@@ -431,62 +431,6 @@ mod populators {
         }
 
         #[test]
-        fn unary_minus_int_literal() {
-            let mut result = CoriumParser::parse(Rule::Expression, "-10").unwrap();
-            let ast = Expression::populate(result.next().unwrap().into_inner());
-            let _sub = Box::new(Expression::Literal(Literal::Int(10)));
-            assert!(matches!(
-                ast,
-                Expression::UnaryOperation {
-                    op: Operator::Subtraction,
-                    sub: _sub
-                }
-            ));
-        }
-
-        #[test]
-        fn unary_plus_float_literal() {
-            let mut result = CoriumParser::parse(Rule::Expression, "+0.3").unwrap();
-            let ast = Expression::populate(result.next().unwrap().into_inner());
-            let _sub = Box::new(Expression::Literal(Literal::Float(0.3)));
-            assert!(matches!(
-                ast,
-                Expression::UnaryOperation {
-                    op: Operator::Addition,
-                    sub: _sub
-                }
-            ));
-        }
-
-        #[test]
-        fn unary_not_bool_literal() {
-            let mut result = CoriumParser::parse(Rule::Expression, "not false").unwrap();
-            let ast = Expression::populate(result.next().unwrap().into_inner());
-            let _sub = Box::new(Expression::Literal(Literal::Bool(false)));
-            assert!(matches!(
-                ast,
-                Expression::UnaryOperation {
-                    op: Operator::LogicalNot,
-                    sub: _sub
-                }
-            ));
-        }
-
-        #[test]
-        fn unary_complement_int_literal() {
-            let mut result = CoriumParser::parse(Rule::Expression, "~10").unwrap();
-            let ast = Expression::populate(result.next().unwrap().into_inner());
-            let _sub = Box::new(Expression::Literal(Literal::Int(10)));
-            assert!(matches!(
-                ast,
-                Expression::UnaryOperation {
-                    op: Operator::BitwiseComplement,
-                    sub: _sub
-                }
-            ));
-        }
-
-        #[test]
         fn nested1() {
             let mut result = CoriumParser::parse(Rule::Expression, "(10)").unwrap();
             let ast = Expression::populate(result.next().unwrap().into_inner());

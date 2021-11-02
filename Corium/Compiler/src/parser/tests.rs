@@ -860,6 +860,10 @@ mod rules {
             fn float() {
                 let mut result = CoriumParser::parse(Rule::Expression, "2.5").unwrap();
                 let result = result.next().unwrap().into_inner().next().unwrap();
+                assert_eq!(result.as_rule(), Rule::RootExpression);
+                let result = result.into_inner().next().unwrap();
+                assert_eq!(result.as_rule(), Rule::LiteralExpression);
+                let result = result.into_inner().next().unwrap();
                 assert_eq!(result.as_rule(), Rule::Literal);
             }
 
@@ -867,6 +871,10 @@ mod rules {
             fn int() {
                 let mut result = CoriumParser::parse(Rule::Expression, "10").unwrap();
                 let result = result.next().unwrap().into_inner().next().unwrap();
+                assert_eq!(result.as_rule(), Rule::RootExpression);
+                let result = result.into_inner().next().unwrap();
+                assert_eq!(result.as_rule(), Rule::LiteralExpression);
+                let result = result.into_inner().next().unwrap();
                 assert_eq!(result.as_rule(), Rule::Literal);
             }
 
@@ -874,6 +882,10 @@ mod rules {
             fn boolean() {
                 let mut result = CoriumParser::parse(Rule::Expression, "true").unwrap();
                 let result = result.next().unwrap().into_inner().next().unwrap();
+                assert_eq!(result.as_rule(), Rule::RootExpression);
+                let result = result.into_inner().next().unwrap();
+                assert_eq!(result.as_rule(), Rule::LiteralExpression);
+                let result = result.into_inner().next().unwrap();
                 assert_eq!(result.as_rule(), Rule::Literal);
             }
 
@@ -881,6 +893,10 @@ mod rules {
             fn character() {
                 let mut result = CoriumParser::parse(Rule::Expression, "'X'").unwrap();
                 let result = result.next().unwrap().into_inner().next().unwrap();
+                assert_eq!(result.as_rule(), Rule::RootExpression);
+                let result = result.into_inner().next().unwrap();
+                assert_eq!(result.as_rule(), Rule::LiteralExpression);
+                let result = result.into_inner().next().unwrap();
                 assert_eq!(result.as_rule(), Rule::Literal);
             }
 
@@ -889,6 +905,10 @@ mod rules {
                 let mut result =
                     CoriumParser::parse(Rule::Expression, "\"Hallo zusammen ;)\"").unwrap();
                 let result = result.next().unwrap().into_inner().next().unwrap();
+                assert_eq!(result.as_rule(), Rule::RootExpression);
+                let result = result.into_inner().next().unwrap();
+                assert_eq!(result.as_rule(), Rule::LiteralExpression);
+                let result = result.into_inner().next().unwrap();
                 assert_eq!(result.as_rule(), Rule::Literal);
             }
 
@@ -896,6 +916,10 @@ mod rules {
             fn float_literal() {
                 let mut result = CoriumParser::parse(Rule::Expression, "2.5").unwrap();
                 let result = result.next().unwrap().into_inner().next().unwrap();
+                assert_eq!(result.as_rule(), Rule::RootExpression);
+                let result = result.into_inner().next().unwrap();
+                assert_eq!(result.as_rule(), Rule::LiteralExpression);
+                let result = result.into_inner().next().unwrap();
                 let result = result.into_inner().next().unwrap();
                 assert_eq!(result.as_rule(), Rule::FloatLiteral);
             }
@@ -904,6 +928,10 @@ mod rules {
             fn int_literal() {
                 let mut result = CoriumParser::parse(Rule::Expression, "10").unwrap();
                 let result = result.next().unwrap().into_inner().next().unwrap();
+                assert_eq!(result.as_rule(), Rule::RootExpression);
+                let result = result.into_inner().next().unwrap();
+                assert_eq!(result.as_rule(), Rule::LiteralExpression);
+                let result = result.into_inner().next().unwrap();
                 let result = result.into_inner().next().unwrap();
                 assert_eq!(result.as_rule(), Rule::IntLiteral);
             }
@@ -912,6 +940,10 @@ mod rules {
             fn boolean_literal() {
                 let mut result = CoriumParser::parse(Rule::Expression, "true").unwrap();
                 let result = result.next().unwrap().into_inner().next().unwrap();
+                assert_eq!(result.as_rule(), Rule::RootExpression);
+                let result = result.into_inner().next().unwrap();
+                assert_eq!(result.as_rule(), Rule::LiteralExpression);
+                let result = result.into_inner().next().unwrap();
                 let result = result.into_inner().next().unwrap();
                 assert_eq!(result.as_rule(), Rule::BoolLiteral);
             }
@@ -920,6 +952,10 @@ mod rules {
             fn character_literal() {
                 let mut result = CoriumParser::parse(Rule::Expression, "'X'").unwrap();
                 let result = result.next().unwrap().into_inner().next().unwrap();
+                assert_eq!(result.as_rule(), Rule::RootExpression);
+                let result = result.into_inner().next().unwrap();
+                assert_eq!(result.as_rule(), Rule::LiteralExpression);
+                let result = result.into_inner().next().unwrap();
                 let result = result.into_inner().next().unwrap();
                 assert_eq!(result.as_rule(), Rule::CharLiteral);
             }
@@ -929,6 +965,10 @@ mod rules {
                 let mut result =
                     CoriumParser::parse(Rule::Expression, "\"Hallo zusammen ;)\"").unwrap();
                 let result = result.next().unwrap().into_inner().next().unwrap();
+                assert_eq!(result.as_rule(), Rule::RootExpression);
+                let result = result.into_inner().next().unwrap();
+                assert_eq!(result.as_rule(), Rule::LiteralExpression);
+                let result = result.into_inner().next().unwrap();
                 let result = result.into_inner().next().unwrap();
                 assert_eq!(result.as_rule(), Rule::StringLiteral);
             }
@@ -937,6 +977,10 @@ mod rules {
             fn identifier() {
                 let mut result = CoriumParser::parse(Rule::Expression, "variable").unwrap();
                 let result = result.next().unwrap().into_inner().next().unwrap();
+                assert_eq!(result.as_rule(), Rule::RootExpression);
+                let result = result.into_inner().next().unwrap();
+                assert_eq!(result.as_rule(), Rule::IdentifierExpression);
+                let result = result.into_inner().next().unwrap();
                 assert_eq!(result.as_rule(), Rule::Identifier);
             }
 
@@ -944,111 +988,18 @@ mod rules {
             fn parentheses() {
                 let mut result = CoriumParser::parse(Rule::Expression, "(10)").unwrap();
                 let result = result.next().unwrap().into_inner().next().unwrap();
+                assert_eq!(result.as_rule(), Rule::RootExpression);
+                let result = result.into_inner().next().unwrap();
+                assert_eq!(result.as_rule(), Rule::ParenthesisExpression);
+                let result = result.into_inner().next().unwrap();
                 assert_eq!(result.as_rule(), Rule::Expression);
+
+                let result = result.into_inner().next().unwrap();
+                assert_eq!(result.as_rule(), Rule::RootExpression);
+                let result = result.into_inner().next().unwrap();
+                assert_eq!(result.as_rule(), Rule::LiteralExpression);
                 let result = result.into_inner().next().unwrap();
                 assert_eq!(result.as_rule(), Rule::Literal);
-            }
-
-            #[test]
-            fn nested_parentheses() {
-                let mut result = CoriumParser::parse(Rule::Expression, "(((10)))").unwrap();
-                let result = result.next().unwrap().into_inner().next().unwrap();
-                assert_eq!(result.as_rule(), Rule::Expression);
-                let result = result.into_inner().next().unwrap();
-                assert_eq!(result.as_rule(), Rule::Expression);
-                let result = result.into_inner().next().unwrap();
-                assert_eq!(result.as_rule(), Rule::Expression);
-                let result = result.into_inner().next().unwrap();
-                assert_eq!(result.as_rule(), Rule::Literal);
-                assert_eq!(result.as_str(), "10");
-            }
-
-            #[test]
-            fn unary_plus_literal() {
-                let mut result = CoriumParser::parse(Rule::Expression, "+2.5").unwrap();
-                let mut result = result.next().unwrap().into_inner();
-
-                let operator = result.next().unwrap();
-                assert_eq!(operator.as_rule(), Rule::Operator);
-                assert_eq!(operator.as_str(), "+");
-
-                let inner = result.next().unwrap();
-                assert_eq!(inner.as_rule(), Rule::Expression);
-                assert_eq!(inner.as_str(), "2.5");
-
-                let literal = inner.into_inner().next().unwrap();
-                assert_eq!(literal.as_rule(), Rule::Literal);
-                assert_eq!(literal.as_str(), "2.5");
-
-                let float = literal.into_inner().next().unwrap();
-                assert_eq!(float.as_rule(), Rule::FloatLiteral);
-                assert_eq!(float.as_str(), "2.5");
-            }
-
-            #[test]
-            fn unary_minus_literal() {
-                let mut result = CoriumParser::parse(Rule::Expression, "-30").unwrap();
-                let mut result = result.next().unwrap().into_inner();
-
-                let operator = result.next().unwrap();
-                assert_eq!(operator.as_rule(), Rule::Operator);
-                assert_eq!(operator.as_str(), "-");
-
-                let inner = result.next().unwrap();
-                assert_eq!(inner.as_rule(), Rule::Expression);
-                assert_eq!(inner.as_str(), "30");
-
-                let literal = inner.into_inner().next().unwrap();
-                assert_eq!(literal.as_rule(), Rule::Literal);
-                assert_eq!(literal.as_str(), "30");
-
-                let float = literal.into_inner().next().unwrap();
-                assert_eq!(float.as_rule(), Rule::IntLiteral);
-                assert_eq!(float.as_str(), "30");
-            }
-
-            #[test]
-            fn unary_not_literal() {
-                let mut result = CoriumParser::parse(Rule::Expression, "not true").unwrap();
-                let mut result = result.next().unwrap().into_inner();
-
-                let operator = result.next().unwrap();
-                assert_eq!(operator.as_rule(), Rule::Operator);
-                assert_eq!(operator.as_str(), "not");
-
-                let inner = result.next().unwrap();
-                assert_eq!(inner.as_rule(), Rule::Expression);
-                assert_eq!(inner.as_str(), "true");
-
-                let literal = inner.into_inner().next().unwrap();
-                assert_eq!(literal.as_rule(), Rule::Literal);
-                assert_eq!(literal.as_str(), "true");
-
-                let float = literal.into_inner().next().unwrap();
-                assert_eq!(float.as_rule(), Rule::BoolLiteral);
-                assert_eq!(float.as_str(), "true");
-            }
-
-            #[test]
-            fn unary_complement_literal() {
-                let mut result = CoriumParser::parse(Rule::Expression, "~7").unwrap();
-                let mut result = result.next().unwrap().into_inner();
-
-                let operator = result.next().unwrap();
-                assert_eq!(operator.as_rule(), Rule::Operator);
-                assert_eq!(operator.as_str(), "~");
-
-                let inner = result.next().unwrap();
-                assert_eq!(inner.as_rule(), Rule::Expression);
-                assert_eq!(inner.as_str(), "7");
-
-                let literal = inner.into_inner().next().unwrap();
-                assert_eq!(literal.as_rule(), Rule::Literal);
-                assert_eq!(literal.as_str(), "7");
-
-                let float = literal.into_inner().next().unwrap();
-                assert_eq!(float.as_rule(), Rule::IntLiteral);
-                assert_eq!(float.as_str(), "7");
             }
         }
 
@@ -1194,6 +1145,10 @@ mod rules {
                 assert_eq!(expr.as_rule(), Rule::Expression);
                 assert_eq!(expr.as_str(), "10");
                 let expr = expr.into_inner().next().unwrap();
+                assert_eq!(expr.as_rule(), Rule::RootExpression);
+                let expr = expr.into_inner().next().unwrap();
+                assert_eq!(expr.as_rule(), Rule::LiteralExpression);
+                let expr = expr.into_inner().next().unwrap();
                 assert_eq!(expr.as_rule(), Rule::Literal);
                 assert_eq!(expr.as_str(), "10");
                 let expr = expr.into_inner().next().unwrap();
@@ -1215,6 +1170,10 @@ mod rules {
                 let expr = result.next().unwrap();
                 assert_eq!(expr.as_rule(), Rule::Expression);
                 assert_eq!(expr.as_str(), "0.999");
+                let expr = expr.into_inner().next().unwrap();
+                assert_eq!(expr.as_rule(), Rule::RootExpression);
+                let expr = expr.into_inner().next().unwrap();
+                assert_eq!(expr.as_rule(), Rule::LiteralExpression);
                 let expr = expr.into_inner().next().unwrap();
                 assert_eq!(expr.as_rule(), Rule::Literal);
                 assert_eq!(expr.as_str(), "0.999");
@@ -1238,6 +1197,10 @@ mod rules {
                 assert_eq!(expr.as_rule(), Rule::Expression);
                 assert_eq!(expr.as_str(), "true");
                 let expr = expr.into_inner().next().unwrap();
+                assert_eq!(expr.as_rule(), Rule::RootExpression);
+                let expr = expr.into_inner().next().unwrap();
+                assert_eq!(expr.as_rule(), Rule::LiteralExpression);
+                let expr = expr.into_inner().next().unwrap();
                 assert_eq!(expr.as_rule(), Rule::Literal);
                 assert_eq!(expr.as_str(), "true");
                 let expr = expr.into_inner().next().unwrap();
@@ -1259,6 +1222,10 @@ mod rules {
                 let expr = result.next().unwrap();
                 assert_eq!(expr.as_rule(), Rule::Expression);
                 assert_eq!(expr.as_str(), "'x'");
+                let expr = expr.into_inner().next().unwrap();
+                assert_eq!(expr.as_rule(), Rule::RootExpression);
+                let expr = expr.into_inner().next().unwrap();
+                assert_eq!(expr.as_rule(), Rule::LiteralExpression);
                 let expr = expr.into_inner().next().unwrap();
                 assert_eq!(expr.as_rule(), Rule::Literal);
                 assert_eq!(expr.as_str(), "'x'");
@@ -1282,6 +1249,10 @@ mod rules {
                 let expr = result.next().unwrap();
                 assert_eq!(expr.as_rule(), Rule::Expression);
                 assert_eq!(expr.as_str(), "\"I luv u :3\"");
+                let expr = expr.into_inner().next().unwrap();
+                assert_eq!(expr.as_rule(), Rule::RootExpression);
+                let expr = expr.into_inner().next().unwrap();
+                assert_eq!(expr.as_rule(), Rule::LiteralExpression);
                 let expr = expr.into_inner().next().unwrap();
                 assert_eq!(expr.as_rule(), Rule::Literal);
                 assert_eq!(expr.as_str(), "\"I luv u :3\"");
