@@ -205,8 +205,6 @@
 
 #include "../TestBase.hpp"
 
-using namespace Nominax::Foundation::CMP;
-
 TEST(Common, IEEE754Binary64Equals)
 {
 	ASSERT_TRUE(Equals(1.0, 1.0));

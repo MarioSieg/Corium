@@ -208,7 +208,7 @@
 #include <string>
 #include <optional>
 
-#include "DynamicProcedure.hpp"
+#include "Procedure.hpp"
 #include "../OSInterface.hpp"
 
 namespace Nominax::Foundation::DLL
@@ -289,7 +289,7 @@ namespace Nominax::Foundation::DLL
 		OSI::DylibClose(this->Handle_);
 	}
 
-	inline DynamicLibrary::operator bool() const
+	inline DynamicLibrary::operator bool() const noexcept
 	{
 		return this->Handle_ != nullptr;
 	}

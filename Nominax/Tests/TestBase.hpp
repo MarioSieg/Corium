@@ -212,6 +212,7 @@ using namespace Nominax::Foundation;
 using namespace Memory;
 using namespace Allocator;
 using namespace VectorLib;
+using namespace IEEE754;
 
 using namespace Nominax::Core;
 using namespace Nominax::JIT;

@@ -213,7 +213,7 @@ namespace Nominax::Foundation::CPU
 	/// <summary>
     /// Detects architecture dependent cpu features.
     /// </summary>
-	struct ISAExtensionDetector final : public IDisplay
+	struct ISAExtensionDetector final : IDisplay
 	{
 	private:
 		/// <summary>

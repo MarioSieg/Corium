@@ -205,6 +205,6 @@
 
 #pragma once
 
-#include "Libary.hpp"
+#include "Library.hpp"
 #include "LinkCache.hpp"
 #include "Procedure.hpp"

@@ -56,7 +56,7 @@ Parameter = {
 }
 
 Expression = {
-    RootExpression
+    RootExpression ~ (Operator ~ RootExpression)*
 }
 
 RootExpression = {

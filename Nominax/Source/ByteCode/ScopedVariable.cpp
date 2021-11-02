@@ -220,14 +220,14 @@ namespace Nominax::ByteCode
 		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
 			// If zero, optimize with special push zero instruction.
-			if (Foundation::CMP::IsZero(value))
+			if (Foundation::IEEE754::IsZero(value))
 			{
 				this->Attached_.Do<Instruction::PUSHZ>();
 				return *this;
 			}
 
 			// If one, optimize with special push F32 one instruction.
-			if (Foundation::CMP::IsOne(value))
+			if (Foundation::IEEE754::IsOne(value))
 			{
 				this->Attached_.Do<Instruction::FPUSHO>();
 				return *this;
@@ -318,13 +318,13 @@ namespace Nominax::ByteCode
 		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
 			// With 0 it's a no-op
-			if (Foundation::CMP::IsZero(value))
+			if (Foundation::IEEE754::IsZero(value))
 			{
 				return this->DoNothing();
 			}
 
 			// Optimize to increment:
-			if (Foundation::CMP::IsOne(value))
+			if (Foundation::IEEE754::IsOne(value))
 			{
 				this->Attached_.Do<Instruction::FINC>();
 				return *this;
@@ -388,13 +388,13 @@ namespace Nominax::ByteCode
 		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
 			// With 0 it's a no-op
-			if (Foundation::CMP::IsZero(value))
+			if (Foundation::IEEE754::IsZero(value))
 			{
 				return this->DoNothing();
 			}
 
 			// Optimize to decrement:
-			if (Foundation::CMP::IsOne(value))
+			if (Foundation::IEEE754::IsOne(value))
 			{
 				this->Attached_.Do<Instruction::FDEC>();
 				return *this;
@@ -457,7 +457,7 @@ namespace Nominax::ByteCode
 		if (this->Attached_.GetOptimizationLevel() >= OptimizationLevel::O1)
 		{
 			// By 0 or 1 is a no-op:
-			if (Foundation::CMP::IsZero(value) || Foundation::CMP::IsOne(value))
+			if (Foundation::IEEE754::IsZero(value) || Foundation::IEEE754::IsOne(value))
 			{
 				return this->DoNothing();
 			}
@@ -531,7 +531,7 @@ namespace Nominax::ByteCode
 			}
 
 			// By 1 it's just the same value.
-			if (Foundation::CMP::IsOne(value))
+			if (Foundation::IEEE754::IsOne(value))
 			{
 				return this->DoNothing();
 			}

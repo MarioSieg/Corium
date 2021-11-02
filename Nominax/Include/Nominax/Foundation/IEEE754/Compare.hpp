@@ -205,68 +205,118 @@
 
 #pragma once
 
-#include <type_traits>
+#include "Decomposer.hpp"
+#include "../CompileTimeConfig.hpp"
 
-namespace Nominax::Foundation::DLL
+namespace Nominax::Foundation::IEEE754
 {
 	/// <summary>
-	/// Extern library procedure.
+	/// Compare by configured floating point mode.
 	/// </summary>
-	using ExternProc = void;
-
-	/// <summary>
-	/// Represents a procedure address inside a dynamic library.
-	/// </summary>
-	struct DynamicProcedure final
+	/// <param name="x"></param>
+	/// <param name="y"></param>
+	/// <returns></returns>
+	[[nodiscard]]
+	NOX_REACTOR_ROUTINE NOX_PURE constexpr auto Equals(const float x, const float y) noexcept -> bool
 	{
-		/// <summary>
-		/// Construct from pointer.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		constexpr explicit DynamicProcedure(ExternProc* value) noexcept;
-
-		/// <summary>
-		/// Null pointers forbidden.
-		/// </summary>
-		explicit DynamicProcedure(std::nullptr_t) = delete;
-
-		/// <summary>
-		/// Query value.
-		/// </summary>
-		/// <returns></returns>
-		auto operator *() const noexcept -> ExternProc*;
-
-
-		/// <summary>
-		/// Cast to function reference and call function.
-		/// </summary>
-		/// <typeparam name="F">The function signature to cast to. Must be the same as in the dynamic link library!</typeparam>
-		/// <typeparam name="...Ts">The arguments to call the function with.</typeparam>
-		/// <param name="args">The arguments to call the function with.</param>
-		/// <returns>The return value of the called function.</returns>
-		template <typename F, typename... Ts> requires std::is_function_v<F> && std::is_invocable_v<F, Ts...>
-		auto operator ()(Ts&&...args) const -> decltype(F(std::forward<Ts...>(args...)));
-
-	private:
-		ExternProc* Ptr;
-	};
-
-	static_assert(std::is_copy_constructible_v<DynamicProcedure>);
-	static_assert(std::is_move_assignable_v<DynamicProcedure>);
-	static_assert(std::is_trivially_copy_assignable_v<DynamicProcedure>);
-	static_assert(std::is_trivially_move_assignable_v<DynamicProcedure>);
-
-	constexpr DynamicProcedure::DynamicProcedure(ExternProc* const value) noexcept : Ptr { value } { }
-
-	inline auto DynamicProcedure::operator *() const noexcept -> ExternProc*
-	{
-		return this->Ptr;
+		if constexpr (CompileTimeConfig::UseULPFloatingPointComparison)
+		{
+			return IEEE754BinaryDecomposer<std::decay_t<decltype(x)>> { x } == IEEE754BinaryDecomposer<std::decay_t<decltype(y)>> { y };
+		}
+		else
+		{
+			return x == y;
+		}
 	}
 
-	template <typename F, typename ... Ts> requires std::is_function_v<F> && std::is_invocable_v<F, Ts...>
-	inline auto DynamicProcedure::operator ()(Ts&&...args) const -> decltype(F(std::forward<Ts...>(args...)))
+	/// <summary>
+	/// Compare by configured floating point mode.
+	/// </summary>
+	/// <param name="x"></param>
+	/// <param name="y"></param>
+	/// <returns></returns>
+	[[nodiscard]]
+	NOX_REACTOR_ROUTINE NOX_PURE constexpr auto Equals(const double x, const double y) noexcept -> bool
 	{
-		return (*static_cast<F*>(this->Ptr))(std::forward<Ts...>(args...));
+		if constexpr (CompileTimeConfig::UseULPFloatingPointComparison)
+		{
+			return IEEE754BinaryDecomposer<std::decay_t<decltype(x)>> { x } == IEEE754BinaryDecomposer<std::decay_t<decltype(y)>> { y };
+		}
+		else
+		{
+			return x == y;
+		}
+	}
+
+	/// <summary>
+	/// Compare by configured floating point mode.
+	/// </summary>
+	/// <param name="x"></param>
+	/// <returns></returns>
+	[[nodiscard]]
+	NOX_REACTOR_ROUTINE NOX_PURE constexpr auto IsZero(const float x) noexcept -> bool
+	{
+		if constexpr (CompileTimeConfig::UseULPFloatingPointComparison)
+		{
+			return IEEE754BinaryDecomposer<std::decay_t<decltype(x)>> { x } == IEEE754BinaryDecomposer<std::decay_t<decltype(x)>> { 0.0F };
+		}
+		else
+		{
+			return x == 0.0F;
+		}
+	}
+
+	/// <summary>
+	/// Compare by configured floating point mode.
+	/// </summary>
+	/// <param name="x"></param>
+	/// <returns></returns>
+	[[nodiscard]]
+	NOX_REACTOR_ROUTINE NOX_PURE constexpr auto IsZero(const double x) noexcept -> bool
+	{
+		if constexpr (CompileTimeConfig::UseULPFloatingPointComparison)
+		{
+			return IEEE754BinaryDecomposer<std::decay_t<decltype(x)>> { x } == IEEE754BinaryDecomposer<std::decay_t<decltype(x)>>{ 0.0 };
+		}
+		else
+		{
+			return x == 0.0;
+		}
+	}
+
+	/// <summary>
+	/// Compare by configured floating point mode.
+	/// </summary>
+	/// <param name="x"></param>
+	/// <returns></returns>
+	[[nodiscard]]
+	NOX_REACTOR_ROUTINE NOX_PURE constexpr auto IsOne(const float x) noexcept -> bool
+	{
+		if constexpr (CompileTimeConfig::UseULPFloatingPointComparison)
+		{
+			return IEEE754BinaryDecomposer<std::decay_t<decltype(x)>> { x } == IEEE754BinaryDecomposer<std::decay_t<decltype(x)>>{ 1.0F };
+		}
+		else
+		{
+			return x == 1.0F;
+		}
+	}
+
+	/// <summary>
+	/// Compare by configured floating point mode.
+	/// </summary>
+	/// <param name="x"></param>
+	/// <returns></returns>
+	[[nodiscard]]
+	NOX_REACTOR_ROUTINE NOX_PURE constexpr auto IsOne(const double x) noexcept -> bool
+	{
+		if constexpr (CompileTimeConfig::UseULPFloatingPointComparison)
+		{
+			return IEEE754BinaryDecomposer<std::decay_t<decltype(x)>> { x } == IEEE754BinaryDecomposer<std::decay_t<decltype(x)>> { 1.0 };
+		}
+		else
+		{
+			return x == 1.0;
+		}
 	}
 }

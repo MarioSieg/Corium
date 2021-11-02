@@ -214,7 +214,7 @@
 #include "../../Include/Nominax/ByteCode/Signal.hpp"
 #include "../../Include/Nominax/ByteCode/Instruction.hpp"
 #include "../../Include/Nominax/Foundation/VectorLib.hpp"
-#include "../../Include/Nominax/Foundation/IEEE754Binaries.hpp"
+#include "../../Include/Nominax/Foundation/IEEE754/Compare.hpp"
 #include "../../Include/Nominax/Foundation/Algorithm/BitRotation.hpp"
 #include "../../Include/Nominax/Foundation/CPU/Trap.hpp"
 
@@ -647,7 +647,7 @@ namespace Nominax::Core
 			ASM_MARKER("jo_cmpf");
 
 			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
-			if (Foundation::CMP::IsOne((*sp--).AsF64))
+			if (Foundation::IEEE754::IsOne((*sp--).AsF64))
 			{
 				// pop()
 				SET_JUMP_TARGET(); // ip = begin + offset - 1 (inc stride)
@@ -679,7 +679,7 @@ namespace Nominax::Core
 			ASM_MARKER("jno_cmpf");
 
 			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
-			if (!Foundation::CMP::IsOne((*sp--).AsF64))
+			if (!Foundation::IEEE754::IsOne((*sp--).AsF64))
 			{
 				// pop()
 				SET_JUMP_TARGET(); // ip = begin + offset - 1 (inc stride)
@@ -713,7 +713,7 @@ namespace Nominax::Core
 
 			--sp;                                          // pop()
 			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
-			if (Foundation::CMP::Equals((*sp).AsF64, (*(sp + 1)).AsF64))
+			if (Foundation::IEEE754::Equals((*sp).AsF64, (*(sp + 1)).AsF64))
 			{
 				SET_JUMP_TARGET(); // ip = begin + offset - 1 (inc stride)
 			}
@@ -747,7 +747,7 @@ namespace Nominax::Core
 
 			--sp;                                          // pop()
 			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
-			if (!Foundation::CMP::Equals((*sp).AsF64, (*(sp + 1)).AsF64))
+			if (!Foundation::IEEE754::Equals((*sp).AsF64, (*(sp + 1)).AsF64))
 			{
 				SET_JUMP_TARGET(); // ip = begin + offset - 1 (inc stride)
 			}
