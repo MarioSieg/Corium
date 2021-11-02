@@ -216,11 +216,7 @@ namespace Nominax::Foundation
 	/// </summary>
 	template <const std::uint8_t Size> requires requires
 	{
-		requires
-			Size == sizeof(std::uint8_t)
-			|| Size == sizeof(std::uint16_t)
-			|| Size == sizeof(std::uint32_t)
-			|| Size == sizeof(std::uint64_t);
+		requires Size >= sizeof(std::uint8_t) && Size <= sizeof(std::uint64_t);
 	}
 	struct GenericBitScalar final
 	{
