@@ -205,13 +205,11 @@
 
 #pragma once
 
-#include <cstring>
-#include <memory>
-
 #include <cstdint>
+#include <cstring>
 
 #include "../Platform.hpp"
-#include "../PanicAssertions.hpp"
+#include "../Panic/Assertions.hpp"
 
 namespace Nominax::Foundation::Allocator
 {

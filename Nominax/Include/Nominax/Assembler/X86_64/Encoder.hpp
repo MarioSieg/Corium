@@ -208,7 +208,7 @@
 #include "Register.hpp"
 #include "Emitter.hpp"
 
-#include "../../Foundation/PanicAssertions.hpp"
+#include "../../Foundation/Panic/Assertions.hpp"
 #include "../../Foundation/Algorithm/Enum.hpp"
 
 namespace Nominax::Assembler::X86_64

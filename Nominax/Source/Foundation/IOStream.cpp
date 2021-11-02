@@ -206,7 +206,7 @@
 #include <array>
 
 #include "../../Include/Nominax/Foundation/IOStream.hpp"
-#include "../../Include/Nominax/Foundation/PanicAssertions.hpp"
+#include "../../Include/Nominax/Foundation/Panic/Assertions.hpp"
 #include "../../Include/Nominax/Foundation/Algorithm/Enum.hpp"
 
 #define NOX_VALIDATE_HANDLE()                                                           \

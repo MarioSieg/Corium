@@ -211,7 +211,7 @@
 #include <variant>
 
 #include "ISerializable.hpp"
-#include "PanicAssertions.hpp"
+#include "Panic/Assertions.hpp"
 
 namespace Nominax::Foundation
 {

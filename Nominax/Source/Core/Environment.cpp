@@ -289,7 +289,7 @@ namespace Nominax::Core
 		auto* NOX_RESTRICT const mem { new(std::nothrow) std::uint8_t[size] };
 		if (!mem) [[unlikely]]
 		{
-            Panic
+            Panic::Panic
             (
                 Format
                 (

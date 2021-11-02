@@ -9,8 +9,8 @@
 namespace Nominax::ByteCode
 {
     using Foundation::Algorithm::EnumeratingSearch;
-    using Foundation::Panic;
-    using Foundation::PanicF;
+    using Foundation::Panic::Panic;
+    using Foundation::Panic::PanicF;
     using Foundation::Format;
 	using Foundation::IOStream;
 

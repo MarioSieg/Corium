@@ -207,7 +207,7 @@
 
 #include <bit>
 
-#include "../PanicAssertions.hpp"
+#include "../Panic/Assertions.hpp"
 #include "VirtualPageProtectionFlags.hpp"
 
 namespace Nominax::Foundation::Allocator

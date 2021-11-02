@@ -203,8 +203,8 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../../Nominax/Include/Nominax/Foundation/_Foundation.hpp"
-#include "../../Include/Nominax/Foundation/Allocator/DebugAllocator.hpp"
+#include "../../../../Nominax/Include/Nominax/Foundation/_Foundation.hpp"
+#include "../../../Include/Nominax/Foundation/Allocator/DebugAllocator.hpp"
 
 namespace Nominax::Foundation::Allocator
 {
@@ -213,7 +213,7 @@ namespace Nominax::Foundation::Allocator
 	using Memory::GB;
 	using Memory::TB;
 
-	static constexpr auto GetMemoryUnitInfo(const std::uint64_t bytes) -> std::pair<std::uint64_t, std::string_view>
+	static constexpr auto GetMemoryUnitInfo(const std::uint64_t bytes) noexcept -> std::pair<std::uint64_t, std::string_view>
 	{
 		if (bytes < KB)
 		{

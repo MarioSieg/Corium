@@ -205,304 +205,111 @@
 
 #pragma once
 
-#include "Panic.hpp"
-#include "Platform.hpp"
+#include <cstdint>
+#include <string_view>
 
-namespace Nominax::Foundation
+namespace Nominax::Foundation::Panic
 {
 	/// <summary>
-	/// Checks the condition and panics with the specified message,
-	/// if the condition is not true.
+	/// Custom implementation of std::source_location.
+	///	Because std::source_location is not yet implemented in all compilers.
+	/// But this implementation does not contain column because it's not implemented in GCC yet and not really needed.
 	/// </summary>
-	#define NOX_PAS(x, msg)							                            \
-	do														                    \
-	{														                    \
-		if (!( x ))                 						                    \
-		{													                    \
-		      [[unlikely]]									                    \
-              ::Nominax::Foundation::Panic(msg);	                            \
-		}													                    \
-	}														                    \
-	while(false)
+	struct SourceLocation final
+	{
 
-	/// <summary>
-	/// Checks the condition and panics with the specified message,
-	/// if the condition is not true.
-	/// </summary>
-	#define NOX_PAS_NULL(x, msg) NOX_PAS_FALSE(x, msg)
+		/// <summary>
+		/// Construct and set data.
+		/// </summary>
+		constexpr SourceLocation
+		(
+			std::uint_least32_t line = __builtin_LINE(),
+			std::string_view fileName = __builtin_FILE(),
+			std::string_view functionName = __builtin_FUNCTION()
+		);
 
-	/// <summary>
-	/// Checks the condition and panics with the specified message,
-	/// if the condition is not true.
-	/// </summary>
-	#define NOX_PAS_NOT_NULL(x, msg) NOX_PAS(x, msg)
+		/// <summary>
+		/// Copy constructor.
+		/// </summary>
+		/// <param name="other"></param>
+		constexpr SourceLocation(const SourceLocation& other) = default;
 
-	/// <summary>
-	/// Checks the condition and panics with the specified message,
-	/// if the condition is not true.
-	/// </summary>
-	#define NOX_PAS_ZERO(x, msg) NOX_PAS_FALSE(x, msg)
+		/// <summary>
+		/// Move constructor.
+		/// </summary>
+		/// <param name="other"></param>
+		constexpr SourceLocation(SourceLocation&& other) = default;
 
-	/// <summary>
-	/// Checks the condition and panics with the specified message,
-	/// if the condition is not true.
-	/// </summary>
-	#define NOX_PAS_NOT_ZERO(x, msg) NOX_PAS(x, msg)
+		/// <summary>
+		/// Copy assignment operator.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator =(const SourceLocation& other) -> SourceLocation& = default;
 
-	/// <summary>
-	/// Checks the condition and panics with the specified message,
-	/// if the condition is not true.
-	/// </summary>
-	#define NOX_PAS_EQ(x, y, msg)							                    \
-	do														                    \
-	{														                    \
-		if (( x ) != ( y ))									                    \
-		{													                    \
-            [[unlikely]]									                    \
-            ::Nominax::Foundation::Panic(msg);	                                \
-		}													                    \
-	}														                    \
-	while(false)
+		/// <summary>
+		/// Move assignment operator.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator =(SourceLocation&& other) -> SourceLocation& = default;
 
-	/// <summary>
-	/// Checks the condition and panics with the specified message,
-	/// if the condition is not true.
-	/// </summary>
-	#define NOX_PAS_NE(x, y, msg)							                    \
-	do														                    \
-	{														                    \
-		if (( x ) == ( y ))									                    \
-		{													                    \
-            [[unlikely]]									                    \
-            ::Nominax::Foundation::Panic(msg);	                                \
-		}													                    \
-	}														                    \
-	while(false)
+		/// <summary>
+		/// Destructor.
+		/// </summary>
+		~SourceLocation() = default;
 
-	/// <summary>
-	/// Checks the condition and panics with the specified message,
-	/// if the condition is not true.
-	/// </summary>
-	#define NOX_PAS_L(x, y, msg)							                    \
-	do														                    \
-	{														                    \
-		if (!(( x ) < ( y )))								                    \
-		{													                    \
-            [[unlikely]]									                    \
-            ::Nominax::Foundation::Panic(msg);	                                \
-		}													                    \
-	}														                    \
-	while(false)
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>Current line number.</returns>
+		[[nodiscard]]
+		constexpr auto GetLine() const -> std::uint_least32_t;
 
-	/// <summary>
-	/// Checks the condition and panics with the specified message,
-	/// if the condition is not true.
-	/// </summary>
-	#define NOX_PAS_LE(x, y, msg)							                    \
-	do														                    \
-	{														                    \
-		if (!(( x ) <= ( y )))								                    \
-		{													                    \
-            [[unlikely]]									                    \
-            ::Nominax::Foundation::Panic(msg);	                                \
-		}													                    \
-	}														                    \
-	while(false)
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>Current file name.</returns>
+		[[nodiscard]]
+		constexpr auto GetFileName() const -> std::string_view;
 
-	/// <summary>
-	/// Checks the condition and panics with the specified message,
-	/// if the condition is not true.
-	/// </summary>
-	#define NOX_PAS_G(x, y, msg)							                    \
-	do														                    \
-	{														                    \
-		if (!(( x ) > ( y )))								                    \
-		{													                    \
-            [[unlikely]]									                    \
-            ::Nominax::Foundation::Panic(msg);	                                \
-		}													                    \
-	}														                    \
-	while(false)
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>Current function name.</returns>
+		[[nodiscard]]
+		constexpr auto GetFunctionName() const -> std::string_view;
 
-	/// <summary>
-	/// Checks the condition and panics with the specified message,
-	/// if the condition is not true.
-	/// </summary>
-	#define NOX_PAS_GE(x, y, msg)							                    \
-	do														                    \
-	{														                    \
-		if (!(( x ) >= ( y )))								                    \
-		{													                    \
-            [[unlikely]]									                    \
-            ::Nominax::Foundation::Panic(msg);	                                \
-		}													                    \
-	}														                    \
-	while(false)
+	private:
+		std::uint_least32_t Line_;
+		std::string_view FileName_;
+		std::string_view FunctionName_;
+	};
 
-	#if NOX_DEBUG
-      
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS(x, msg)		NOX_PAS(x, msg)
+	constexpr SourceLocation::SourceLocation
+	(
+		const std::uint_least32_t line,
+		const std::string_view fileName,
+		const std::string_view functionName
+	)
+	{
+		this->Line_ = line;
+		this->FileName_ = fileName;
+		this->FunctionName_ = functionName;
+	}
 
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_NULL(x, msg)		NOX_PAS_NULL(x, msg)
+	constexpr auto SourceLocation::GetLine() const -> std::uint_least32_t
+	{
+		return this->Line_;
+	}
 
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_NOT_NULL(x, msg)	NOX_PAS_NOT_NULL(x, msg)
+	constexpr auto SourceLocation::GetFileName() const -> std::string_view
+	{
+		return this->FileName_;
+	}
 
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_ZERO(x, msg)		NOX_PAS_ZERO(x, msg)
-
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_NOT_ZERO(x, msg)	NOX_PAS_NOT_ZERO(x, msg)
-
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_EQ(x, y, msg)		NOX_PAS_EQ(x, y, msg)
-
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_NE(x, y, msg)		NOX_PAS_NE(x, y, msg)
-
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_L(x, y, msg)		NOX_PAS_L(x, y, msg)
-
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_LE(x, y, msg)		NOX_PAS_LE(x, y, msg)
-
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_G(x, y, msg)		NOX_PAS_G(x, y, msg)
-
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_GE(x, y, msg)		NOX_PAS_GE(x, y, msg)
-
-    #else
-
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS(x, msg)
-
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_FALSE(x, msg)
-
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_NULL(x, msg)
-
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_NOT_NULL(x, msg)
-
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_ZERO(x, msg)
-
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_NOT_ZERO(x, msg)
-
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_EQ(x, y, msg)
-
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_NE(x, y, msg)
-
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_L(x, y, msg)
-
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_LE(x, y, msg)
-
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_G(x, y, msg)
-
-        /// <summary>
-        /// Only active when building for DEBUG.
-        /// Checks the condition and panics with the specified message,
-        /// if the condition is not true.
-        /// </summary>
-        #define NOX_DBG_PAS_GE(x, y, msg)
-
-	#endif
+	constexpr auto SourceLocation::GetFunctionName() const -> std::string_view
+	{
+		return this->FunctionName_;
+	}
 }

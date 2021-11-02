@@ -225,7 +225,7 @@ auto main(const int argc, const char* const* const argv) -> int
     const std::string path { *bytecodeFile };
     if (!std::filesystem::exists(path)) [[unlikely]]
     {
-        PanicF({}, "Bytecode file does not exist: `{}`", path);
+        Panic::PanicF({}, "Bytecode file does not exist: `{}`", path);
     }
 
     Print(NOX_FMT("Compiling byte code: `{}`"), path);

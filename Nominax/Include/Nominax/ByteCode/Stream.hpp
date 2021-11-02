@@ -212,7 +212,7 @@
 #include "ValidationResult.hpp"
 
 #include "../Foundation/ISerializable.hpp"
-#include "../Foundation/PanicAssertions.hpp"
+#include "../Foundation/Panic/Assertions.hpp"
 #include "../Foundation/IDisplay.hpp"
 
 namespace Nominax::ByteCode

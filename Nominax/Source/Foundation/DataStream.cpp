@@ -1,5 +1,5 @@
 #include "../../Include/Nominax/Foundation/DataStream.hpp"
-#include "../../Include/Nominax/Foundation/PanicAssertions.hpp"
+#include "../../Include/Nominax/Foundation/Panic/Assertions.hpp"
 
 #define NOX_VALIDATE_HANDLE()                                                               \
 	do                                                                                      \

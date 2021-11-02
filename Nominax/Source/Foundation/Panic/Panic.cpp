@@ -203,23 +203,51 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../../../Nominax/Include/Nominax/Foundation/Memory/MappedMemory.hpp"
-#include "../../../../Nominax/Include/Nominax/Foundation/Panic/Assertions.hpp"
+#include <iostream>
 
-namespace Nominax::Foundation::Memory
+#include "../../../../Nominax/Include/Nominax/Foundation/_Foundation.hpp"
+#include "../../../../Nominax/Include/Nominax/Assembler/_Assembler.hpp"
+
+namespace Nominax::Foundation::Panic
 {
-	MappedMemory::MappedMemory(const std::uint64_t size, const Allocator::MemoryPageProtectionFlags flags, const bool lockedProtection)
+    using NOX_ARCH_PROXY::RegisterCache;
+
+    static auto PrintPanicMessage(std::string_view message, const SourceLocation& srcLoc) -> void;
+
+    NOX_COLD auto Panic(const std::string_view message, const SourceLocation& srcLoc) -> void
 	{
-		NOX_DBG_PAS_NOT_ZERO(size, "Memory mapping with zero size requested!");
-		void* const region { Allocator::VMM::VirtualAlloc(size, flags, lockedProtection, &this->Header_) };
-		NOX_DBG_PAS_NOT_NULL(region, "Virtual memory allocation failed!");
-		this->Region_ = region;
+        const RegisterCache regCache { };
+        PrintPanicMessage(message, srcLoc);
+        regCache.DisplayToConsole();
+        CreatePanicDump(message, srcLoc, &regCache);
+        std::fflush(stdout);
+        std::fflush(stderr);
+		std::flush(std::cout);
+        std::flush(std::cerr);
+		std::abort();
 	}
 
-	MappedMemory::~MappedMemory()
+    using Foundation::Print;
+
+	constexpr std::string_view PANIC_MESSAGE
 	{
-        [[maybe_unused]]
-		const bool result { Allocator::VMM::VirtualDealloc(this->Region_) };
-		NOX_DBG_PAS(result, "Virtual memory deallocation failed!");
-	}
+		"The Nominax runtime system encountered an internal error!\n"
+		"Please submit this report and help to fix the problem!\n"
+		"Send the index.html and the style.css files to: mt3000@gmx.de\n"
+		"Thank you for your support and sorry for the inconvenience :(\n"
+	};
+
+    NOX_COLD static auto PrintPanicMessage(const std::string_view message, const SourceLocation& srcLoc) -> void
+    {
+        Print(NOX_FMT("\n! NOMINAX RUNTIME Panic !\n"));
+		Print(PANIC_MESSAGE);
+        Print
+        (
+            NOX_FMT("File: {}\nLine: {}\nRoutine: {}\n"),
+            srcLoc.GetFileName(),
+            srcLoc.GetLine(),
+            srcLoc.GetFunctionName()
+        );
+        Print(NOX_FMT("Message: {}\n"), message);
+    }
 }

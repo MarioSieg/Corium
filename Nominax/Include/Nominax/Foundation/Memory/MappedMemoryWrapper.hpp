@@ -204,8 +204,7 @@
 //    limitations under the License.
 
 #include "../Algorithm/Math.hpp"
-#include "MappedMemory.hpp"
-#include "../PanicAssertions.hpp"
+#include "../Panic/Assertions.hpp"
 
 #pragma once
 

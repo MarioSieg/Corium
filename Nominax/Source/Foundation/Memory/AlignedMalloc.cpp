@@ -208,7 +208,7 @@
 
 #include "../../../Include/Nominax/Foundation/Memory/AlignedMalloc.hpp"
 #include "../../../Include/Nominax/Foundation/Algorithm/Math.hpp"
-#include "../../../Include/Nominax/Foundation/PanicAssertions.hpp"
+#include "../../../Include/Nominax/Foundation/Panic/Assertions.hpp"
 
 namespace Nominax::Foundation::Memory
 {

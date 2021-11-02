@@ -2,29 +2,27 @@
 #include <fstream>
 #include <filesystem>
 
-#include "../../Include/Nominax/Assembler/_Assembler.hpp"
-#include "../../Include/Nominax/Foundation/PanicDump.hpp"
-#include "../../Include/Nominax/Foundation/PanicAssertions.hpp"
-#include "../../Include/Nominax/Foundation/Stopwatch.hpp"
-#include "../../Include/Nominax/Foundation/EmbeddedHTML.hpp"
-#include "../../Include/Nominax/Foundation/IOStream.hpp"
+#include "../../../Include/Nominax/Assembler/_Assembler.hpp"
+#include "../../../Include/Nominax/Foundation/Panic/Dump.hpp"
+#include "../../../Include/Nominax/Foundation/Stopwatch.hpp"
+#include "../../../Include/Nominax/Foundation/EmbeddedHTML.hpp"
+#include "../../../Include/Nominax/Foundation/IOStream.hpp"
 
-namespace Nominax::Foundation
+namespace Nominax::Foundation::Panic
 {
 	using NOX_ARCH_PROXY::RegisterCache;
 
 	auto GetPanicDumpDirName() -> std::string
 	{
 		std::string time { Format(NOX_FMT("{}/NominaxPanic {:%A %c}/"), PANIC_OUTPUT_DIR, SafeLocalTime(std::time(nullptr))) };
-		std::replace(std::begin(time), std::end(time), ':', ' ');
+		std::ranges::replace(time, ':', ' ');
 		return time;
 	}
 
-	// <div class="registers">%rax = 10</div>
 	auto CreatePanicDump
 	(
 		const std::string_view message,
-		const Foundation::SourceLocation& srcLoc,
+		const SourceLocation& srcLoc,
 		const void* const regCache,
 		const std::string& directory
 	) -> void

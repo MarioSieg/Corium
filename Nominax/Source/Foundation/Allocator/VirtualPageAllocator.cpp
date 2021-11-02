@@ -207,7 +207,7 @@
 
 #include "../../../Include/Nominax/Foundation/Allocator/VirtualPageAllocator.hpp"
 #include "../../../Include/Nominax/Foundation/OSInterface.hpp"
-#include "../../../Include/Nominax/Foundation/PanicAssertions.hpp"
+#include "../../../Include/Nominax/Foundation/Panic/Assertions.hpp"
 
 namespace Nominax::Foundation::Allocator
 {
