@@ -210,26 +210,26 @@
 
 namespace Nominax::ByteCode
 {
-	auto ContainsPrologue(const Stream& input) -> bool
+	auto ContainsPrologue(const Stream& input) noexcept -> bool
 	{
 		constexpr const auto& code { Stream::PrologueCode() };
 		if (input.Size() < std::size(code))
 		{
 			[[unlikely]]
-				return false;
+			return false;
 		}
 		for (std::uint64_t i { 0 }; i < std::size(code); ++i)
 		{
 			if (code[i] != input[i])
 			{
 				[[unlikely]]
-					return false;
+				return false;
 			}
 		}
 		return true;
 	}
 
-	auto ContainsEpilogue(const Stream& input) -> bool
+	auto ContainsEpilogue(const Stream& input) noexcept -> bool
 	{
 		constexpr const auto& code { Stream::EpilogueCode() };
 		if (input.Size() < std::size(code))
@@ -242,7 +242,7 @@ namespace Nominax::ByteCode
 			if (code[i] != input[j + i])
 			{
 				[[unlikely]]
-					return false;
+				return false;
 			}
 		}
 		return true;
@@ -252,7 +252,7 @@ namespace Nominax::ByteCode
 	(
 		const Stream& input,
         UserIntrinsicRoutineRegistry intrinsicRegistry,
-		std::uint32_t* const outIndex
+		std::ptrdiff_t* const outIndex
 	) -> ValidationResultCode
 	{
 		// Check if empty:
@@ -295,8 +295,8 @@ namespace Nominax::ByteCode
         }
 
 		// Error state:
-		Foundation::AtomicState<ValidationResultCode> error { };
-		std::atomic<std::uint32_t> errorIndex { 0 };
+		Foundation::Concurrency::AtomicState<ValidationResultCode> error { };
+		std::atomic_ptrdiff_t errorIndex { 0 };
 
 		const Stream::CodeStorageType& codeBuf { input.GetCodeBuffer() };
 		const Stream::DiscriminatorStorageType& discBuf { input.GetDiscriminatorBuffer() };
@@ -323,15 +323,19 @@ namespace Nominax::ByteCode
 					break;
 
 					case Signal::Discriminator::JumpAddress:
+					{
 						result = ValidateJumpAddress(input, signal.JmpAddress)
-                                ? ValidationResultCode::Ok
-                                : ValidationResultCode::InvalidJumpAddress;
+							? ValidationResultCode::Ok
+							: ValidationResultCode::InvalidJumpAddress;
+					}
 					break;
 
 					case Signal::Discriminator::Intrinsic:
+					{
 						result = ValidateUserIntrinsicCall(intrinsicRegistry, signal.UserIntrinID)
-                                ? ValidationResultCode::Ok
-                                : ValidationResultCode::InvalidUserIntrinsicCall;
+							? ValidationResultCode::Ok
+							: ValidationResultCode::InvalidUserIntrinsicCall;
+					}
 					break;
 
 					default: ;
@@ -367,7 +371,7 @@ namespace Nominax::ByteCode
 		return ValidationResultCode::Ok;
 	}
 
-	auto ValidateJumpAddress(const Stream& bucket, const JumpAddress address) -> bool
+	auto ValidateJumpAddress(const Stream& bucket, const JumpAddress address) noexcept -> bool
 	{
 		const auto idx { static_cast<std::uint64_t>(address) };
 
@@ -381,7 +385,7 @@ namespace Nominax::ByteCode
 		return NOX_EXPECT_VALUE(bucket[idx].Contains<Instruction>(), true);
 	}
 
-	auto ValidateSystemIntrinsicCall(const SysCall id) -> bool
+	auto ValidateSystemIntrinsicCall(const SysCall id) noexcept -> bool
 	{
 		constexpr auto max { Foundation::Algorithm::ToUnderlying(SysCall::Count_) - 1 };
 		const auto value { Foundation::Algorithm::ToUnderlying(id) };
@@ -389,7 +393,7 @@ namespace Nominax::ByteCode
 		return NOX_EXPECT_VALUE(value <= max, true);
 	}
 
-	auto ValidateUserIntrinsicCall(const UserIntrinsicRoutineRegistry& routines, const UserIntrinsicInvocationID id) -> bool
+	auto ValidateUserIntrinsicCall(const UserIntrinsicRoutineRegistry& routines, const UserIntrinsicInvocationID id) noexcept -> bool
 	{
 		static_assert(std::is_unsigned_v<std::underlying_type_t<decltype(id)>>);
 		return NOX_EXPECT_VALUE(Foundation::Algorithm::ToUnderlying(id) < std::size(routines), true);
@@ -399,7 +403,7 @@ namespace Nominax::ByteCode
 	(
 		const Instruction                             instruction,
 		const std::span<const Signal::Discriminator>& args
-	) -> ValidationResultCode
+	) noexcept -> ValidationResultCode
 	{
         const std::uint64_t requiredArgSize {InstructionMetaDataRegistry::LookupInstructArgumentCount(instruction) };
         const std::uint64_t givenArgSize { std::size(args) };

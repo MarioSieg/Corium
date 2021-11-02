@@ -485,7 +485,7 @@ TEST(ValidatorAlgorithms, ValidateValid)
 	code.Emit(Instruction::INT);
 	code.Emit(static_cast<std::int64_t>(0));
 	code.Epilogue();
-	std::uint32_t error;
+	std::ptrdiff_t error;
 	ASSERT_EQ(ValidateFullPass(code, {}, &error), ValidationResultCode::Ok);
 	ASSERT_EQ(error, 0);
 }
@@ -508,7 +508,7 @@ TEST(ValidatorAlgorithms, ValidateInvalidTooManyArgs)
 	code.Emit(Instruction::INT);
 	code.Emit(static_cast<std::int64_t>(0));
 	code.Epilogue();
-	std::uint32_t error;
+	std::ptrdiff_t error;
 	ASSERT_EQ(ValidateFullPass(code, {}, &error), ValidationResultCode::TooManyArgumentsForInstruction);
 	ASSERT_EQ(error, Stream::PrologueCode().size() + 2);
 }
@@ -543,7 +543,7 @@ TEST(ValidatorAlgorithms, ValidateInvalidTypeMismatch)
 	code.Emit(Instruction::INT);
 	code.Emit(static_cast<std::int64_t>(0));
 	code.Epilogue();
-	std::uint32_t error;
+	std::ptrdiff_t error;
 	ASSERT_EQ(ValidateFullPass(code, {}, &error), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(error, Stream::PrologueCode().size() + 2);
 }
@@ -567,7 +567,7 @@ TEST(ValidatorAlgorithms, ValidateLastInvalidMissingArgs)
 	code.Emit(Instruction::NOP);
 	code.Emit(Instruction::INT);
 	code.Epilogue();
-	std::uint32_t error;
+	std::ptrdiff_t error;
 	ASSERT_EQ(ValidateFullPass(code, {}, &error), ValidationResultCode::NotEnoughArgumentsForInstruction);
 	ASSERT_EQ(error, Stream::PrologueCode().size() + 1);
 }

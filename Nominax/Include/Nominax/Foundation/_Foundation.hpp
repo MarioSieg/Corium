@@ -208,12 +208,12 @@
 #include "Algorithm/_Algorithm.hpp"
 #include "Allocator/_Allocator.hpp"
 #include "CLI/_CLI.hpp"
+#include "Concurrency/_Concurrency.hpp"
 #include "CPU/_CPU.hpp"
 #include "DLL/_DLL.hpp"
 #include "IEEE754/_IEEE754.hpp"
 #include "Memory/_Memory.hpp"
 
-#include "AtomicState.hpp"
 #include "CompileTimeConfig.hpp"
 #include "DataStream.hpp"
 #include "EmbeddedHTML.hpp"
