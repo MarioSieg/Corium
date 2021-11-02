@@ -203,87 +203,27 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../../Nominax/Include/Nominax/Core/_Core.hpp"
-#include "../../../Nominax/Include/Nominax/Foundation/_Foundation.hpp"
+#pragma once
 
-namespace Nominax::Core
+#include <cstdint>
+
+namespace Nominax::Foundation::Random
 {
-	[[maybe_unused]]
-	static auto CreateDescriptor
-	(
-		FixedStack&                             stack,
-		const ByteCode::Image&                  image,
-		ByteCode::UserIntrinsicRoutineRegistry& intrinsicTable,
-		InterruptRoutineProxy&                  interruptHandler
-	) -> VerboseReactorDescriptor
-	{
-		const BasicReactorDescriptor simpleDescriptor
-		{
-			.CodeChunk = image.GetReactorView(),
-			.IntrinsicTable = intrinsicTable,
-			.Stack = stack,
-			.InterruptHandler = interruptHandler
-		};
-		return simpleDescriptor.BuildDetailed();
-	}
+	/// <summary>
+	/// Generate 32-bit xorshift atomically.
+	/// </summary>
+	/// <returns>A random generated number.</returns>
+	extern auto Xorshift32Atomic() noexcept -> std::uint32_t;
 
-	Reactor::Reactor
-	(
-		std::pmr::memory_resource&    allocator,
-		const ReactorSpawnDescriptor& descriptor,
-		const ReactorRoutineLink&     routineLink,
-		const std::uint64_t           poolIdx
-	) :
-		Id_ { Foundation::Random::Xorshift128ThreadLocal() },
-		PoolIndex_ { poolIdx },
-		SpawnStamp_ { std::chrono::high_resolution_clock::now() },
-		PowerPreference_ { descriptor.PowerPref },
-		Input_ { },
-		Output_ { .Input = &Input_ },
-		Stack_ { allocator, descriptor.StackSize },
-		IntrinsicTable_ { descriptor.SharedIntrinsicTable },
-		InterruptHandler_ { descriptor.InterruptHandler ? descriptor.InterruptHandler : &DEFAULT_INTERRUPT_ROUTINE },
-		RoutineLink_ { routineLink }
-	{
-		Foundation::Print
-		(
-			"Reactor {:08X}: "
-			"Stack: {} MB, "
-			"{} KRec, "
-			"SYSCALL: {}, "
-			"InterruptStatus: {}, "
-			"Power: {}, "
-			"Pool: {:02}\n",
-			this->Id_,
-            Foundation::Memory::Bytes2Megabytes(this->Stack_.Size() * sizeof(Foundation::Record)),
-			this->Stack_.Size() / 1000,
-			std::size(this->IntrinsicTable_),
-			this->InterruptHandler_ == &DEFAULT_INTERRUPT_ROUTINE ? "Default" : "Overridden",
-			this->PowerPreference_ == PowerPreference::HighPerformance ? "Performance" : "PowerSafe",
-			this->PoolIndex_
-		);
-	}
+	/// <summary>
+	/// Generate 64-bit xorshift atomically.
+	/// </summary>
+	/// <returns>A random generated number.</returns>
+	extern auto Xorshift64Atomic() noexcept -> std::uint64_t;
 
-	auto Reactor::Execute(const ByteCode::Image& image) -> const ReactorState&
-	{
-		this->Input_ = CreateDescriptor
-		(
-            this->Stack_,
-            image,
-            this->IntrinsicTable_,
-            *this->InterruptHandler_
-		);
-		const ReactorValidationResult validationResult { this->Input_.Validate() };
-		if (validationResult != ReactorValidationResult::Ok) [[unlikely]]
-		{
-			const std::string_view message { REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[Foundation::Algorithm::ToUnderlying(validationResult)] };
-			Foundation::PanicF({}, NOX_FMT("Reactor {:#X} validation failed with the following reason: {}"), this->Id_, message);
-		}
-		ReactorCoreExecutionRoutine* const routine { this->RoutineLink_.ExecutionRoutine };
-		NOX_PAS_NOT_NULL(routine, "Reactor execution routine is null!");
-		this->Output_.Input = &this->Input_;
-		const bool result { (*routine)(&this->Input_, &this->Output_, nullptr) };
-		NOX_PAS(result, "Reactor routine execution return false!");
-        return this->Output_;
-	}
+	/// <summary>
+	/// Generate 128-bit xorshift atomically.
+	/// </summary>
+	/// <returns>A random generated number.</returns>
+	extern auto Xorshift128Atomic() noexcept -> std::uint32_t;
 }

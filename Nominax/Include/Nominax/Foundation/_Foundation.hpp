@@ -213,6 +213,7 @@
 #include "DLL/_DLL.hpp"
 #include "IEEE754/_IEEE754.hpp"
 #include "Memory/_Memory.hpp"
+#include "Random/_Random.hpp"
 
 #include "CompileTimeConfig.hpp"
 #include "DataStream.hpp"
@@ -240,4 +241,3 @@
 #include "TextFile.hpp"
 #include "VariadicMacroHelper.hpp"
 #include "VectorLib.hpp"
-#include "Xorshift.hpp"

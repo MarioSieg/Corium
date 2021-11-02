@@ -203,87 +203,41 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../../Nominax/Include/Nominax/Core/_Core.hpp"
-#include "../../../Nominax/Include/Nominax/Foundation/_Foundation.hpp"
+#include <atomic>
 
-namespace Nominax::Core
+#include "../../../../Nominax/Include/Nominax/Foundation/Random/XorshiftAtomic.hpp"
+
+namespace Nominax::Foundation::Random
 {
-	[[maybe_unused]]
-	static auto CreateDescriptor
-	(
-		FixedStack&                             stack,
-		const ByteCode::Image&                  image,
-		ByteCode::UserIntrinsicRoutineRegistry& intrinsicTable,
-		InterruptRoutineProxy&                  interruptHandler
-	) -> VerboseReactorDescriptor
+	auto Xorshift32Atomic() noexcept -> std::uint32_t
 	{
-		const BasicReactorDescriptor simpleDescriptor
-		{
-			.CodeChunk = image.GetReactorView(),
-			.IntrinsicTable = intrinsicTable,
-			.Stack = stack,
-			.InterruptHandler = interruptHandler
-		};
-		return simpleDescriptor.BuildDetailed();
+		static constinit std::atomic_uint32_t seed32 { 0x12B9B0A1 };
+		seed32 ^= seed32 << 0xD;
+		seed32 ^= seed32 >> 0x11;
+		seed32 ^= seed32 << 0x5;
+		return seed32;
 	}
 
-	Reactor::Reactor
-	(
-		std::pmr::memory_resource&    allocator,
-		const ReactorSpawnDescriptor& descriptor,
-		const ReactorRoutineLink&     routineLink,
-		const std::uint64_t           poolIdx
-	) :
-		Id_ { Foundation::Random::Xorshift128ThreadLocal() },
-		PoolIndex_ { poolIdx },
-		SpawnStamp_ { std::chrono::high_resolution_clock::now() },
-		PowerPreference_ { descriptor.PowerPref },
-		Input_ { },
-		Output_ { .Input = &Input_ },
-		Stack_ { allocator, descriptor.StackSize },
-		IntrinsicTable_ { descriptor.SharedIntrinsicTable },
-		InterruptHandler_ { descriptor.InterruptHandler ? descriptor.InterruptHandler : &DEFAULT_INTERRUPT_ROUTINE },
-		RoutineLink_ { routineLink }
+	auto Xorshift64Atomic() noexcept -> std::uint64_t
 	{
-		Foundation::Print
-		(
-			"Reactor {:08X}: "
-			"Stack: {} MB, "
-			"{} KRec, "
-			"SYSCALL: {}, "
-			"InterruptStatus: {}, "
-			"Power: {}, "
-			"Pool: {:02}\n",
-			this->Id_,
-            Foundation::Memory::Bytes2Megabytes(this->Stack_.Size() * sizeof(Foundation::Record)),
-			this->Stack_.Size() / 1000,
-			std::size(this->IntrinsicTable_),
-			this->InterruptHandler_ == &DEFAULT_INTERRUPT_ROUTINE ? "Default" : "Overridden",
-			this->PowerPreference_ == PowerPreference::HighPerformance ? "Performance" : "PowerSafe",
-			this->PoolIndex_
-		);
+		static constinit std::atomic_uint64_t seed64 { 0x139408DCBBF7A44 };
+		seed64 ^= seed64 << 0xD;
+		seed64 ^= seed64 >> 0x7;
+		seed64 ^= seed64 << 0x11;
+		return seed64;
 	}
 
-	auto Reactor::Execute(const ByteCode::Image& image) -> const ReactorState&
+	auto Xorshift128Atomic() noexcept -> std::uint32_t
 	{
-		this->Input_ = CreateDescriptor
-		(
-            this->Stack_,
-            image,
-            this->IntrinsicTable_,
-            *this->InterruptHandler_
-		);
-		const ReactorValidationResult validationResult { this->Input_.Validate() };
-		if (validationResult != ReactorValidationResult::Ok) [[unlikely]]
-		{
-			const std::string_view message { REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[Foundation::Algorithm::ToUnderlying(validationResult)] };
-			Foundation::PanicF({}, NOX_FMT("Reactor {:#X} validation failed with the following reason: {}"), this->Id_, message);
-		}
-		ReactorCoreExecutionRoutine* const routine { this->RoutineLink_.ExecutionRoutine };
-		NOX_PAS_NOT_NULL(routine, "Reactor execution routine is null!");
-		this->Output_.Input = &this->Input_;
-		const bool result { (*routine)(&this->Input_, &this->Output_, nullptr) };
-		NOX_PAS(result, "Reactor routine execution return false!");
-        return this->Output_;
+		static constinit std::atomic_uint32_t x { 0x75BCD15 };
+		static constinit std::atomic_uint32_t y { 0x159A55E5 };
+		static constinit std::atomic_uint32_t z { 0x1F123BB5 };
+		static constinit std::atomic_uint32_t w { 0x5491333 };
+		const uint32_t t { x ^ x << 0xB };
+		x.exchange(y);
+		y.exchange(z);
+		z.exchange(w);
+		w ^= w >> 0xD ^ t ^ t >> 0x8;
+		return w;
 	}
 }

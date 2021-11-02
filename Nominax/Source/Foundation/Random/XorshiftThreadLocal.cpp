@@ -203,45 +203,39 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "../../../../Nominax/Include/Nominax/Foundation/Random/XorshiftThreadLocal.hpp"
 
-#include <cstdint>
-
-namespace Nominax::Foundation
+namespace Nominax::Foundation::Random
 {
-	/// <summary>
-		/// Generate 32-bit xorshift atomically.
-		/// </summary>
-		/// <returns>A random generated number.</returns>
-	extern auto Xorshift32Atomic() -> std::uint32_t;
+	auto Xorshift32ThreadLocal() noexcept -> std::uint32_t
+	{
+		static constinit thread_local std::uint32_t seed32 { 0x12B9B0A1 };
+		seed32 ^= seed32 << 0xD;
+		seed32 ^= seed32 >> 0x11;
+		seed32 ^= seed32 << 0x5;
+		return seed32;
+	}
 
-	/// <summary>
-	/// Generate 64-bit xorshift atomically.
-	/// </summary>
-	/// <returns>A random generated number.</returns>
-	extern auto Xorshift64Atomic() -> std::uint64_t;
+	auto Xorshift64ThreadLocal() noexcept -> std::uint64_t
+	{
+		static constinit thread_local std::uint64_t seed64 { 0x139408DCBBF7A44 };
+		seed64 ^= seed64 << 0xD;
+		seed64 ^= seed64 >> 0x7;
+		seed64 ^= seed64 << 0x11;
+		return seed64;
+	}
 
-	/// <summary>
-	/// Generate 128-bit xorshift atomically.
-	/// </summary>
-	/// <returns>A random generated number.</returns>
-	extern auto Xorshift128Atomic() -> std::uint32_t;
-
-	/// <summary>
-	/// Generate 32-bit xorshift atomically.
-	/// </summary>
-	/// <returns>A random generated number.</returns>
-	extern auto Xorshift32ThreadLocal() -> std::uint32_t;
-
-	/// <summary>
-	/// Generate 64-bit xorshift atomically.
-	/// </summary>
-	/// <returns>A random generated number.</returns>
-	extern auto Xorshift64ThreadLocal() -> std::uint64_t;
-
-	/// <summary>
-	/// Generate 128-bit xorshift atomically.
-	/// </summary>
-	/// <returns>A random generated number.</returns>
-	extern auto Xorshift128ThreadLocal() -> std::uint32_t;
+	auto Xorshift128ThreadLocal() noexcept -> std::uint32_t
+	{
+		static constinit thread_local std::uint32_t x { 0x75BCD15 };
+		static constinit thread_local std::uint32_t y { 0x159A55E5 };
+		static constinit thread_local std::uint32_t z { 0x1F123BB5 };
+		static constinit thread_local std::uint32_t w { 0x5491333 };
+		const uint32_t t { x ^ x << 0xB };
+		x = y;
+		y = z;
+		z = w;
+		w ^= w >> 0xD ^ t ^ t >> 0x8;
+		return w;
+	}
 }
