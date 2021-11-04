@@ -203,4 +203,24 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-pub mod symtable;
+use crate::ast::*;
+use crate::error::list::ErrorList;
+
+pub mod analyzers;
+pub mod context;
+pub mod global_state;
+pub mod local_state;
+pub mod record;
+pub mod table;
+
+use context::Context;
+
+pub fn analyze(root: &CompilationUnit, file: &str) -> Result<(), ErrorList> {
+    let mut context = Context::new(file);
+
+    for global in &root.statements {
+        context.analyze_global(global);
+    }
+
+    context.errors.into()
+}

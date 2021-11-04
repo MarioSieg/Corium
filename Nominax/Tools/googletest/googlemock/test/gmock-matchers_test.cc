@@ -1866,6 +1866,33 @@ TEST(EndsWithTest, CanDescribeSelf) {
   EXPECT_EQ("ends with \"Hi\"", Describe(m));
 }
 
+// Tests WhenBase64Unescaped.
+
+TEST(WhenBase64UnescapedTest, MatchesUnescapedBase64Strings) {
+  const Matcher<const char*> m1 = WhenBase64Unescaped(EndsWith("!"));
+  EXPECT_FALSE(m1.Matches("invalid base64"));
+  EXPECT_FALSE(m1.Matches("aGVsbG8gd29ybGQ="));  // hello world
+  EXPECT_TRUE(m1.Matches("aGVsbG8gd29ybGQh"));   // hello world!
+
+  const Matcher<const std::string&> m2 = WhenBase64Unescaped(EndsWith("!"));
+  EXPECT_FALSE(m2.Matches("invalid base64"));
+  EXPECT_FALSE(m2.Matches("aGVsbG8gd29ybGQ="));  // hello world
+  EXPECT_TRUE(m2.Matches("aGVsbG8gd29ybGQh"));   // hello world!
+
+#if GTEST_INTERNAL_HAS_STRING_VIEW
+  const Matcher<const internal::StringView&> m3 =
+      WhenBase64Unescaped(EndsWith("!"));
+  EXPECT_FALSE(m3.Matches("invalid base64"));
+  EXPECT_FALSE(m3.Matches("aGVsbG8gd29ybGQ="));  // hello world
+  EXPECT_TRUE(m3.Matches("aGVsbG8gd29ybGQh"));   // hello world!
+#endif  // GTEST_INTERNAL_HAS_STRING_VIEW
+}
+
+TEST(WhenBase64UnescapedTest, CanDescribeSelf) {
+  const Matcher<const char*> m = WhenBase64Unescaped(EndsWith("!"));
+  EXPECT_EQ("matches after Base64Unescape ends with \"!\"", Describe(m));
+}
+
 // Tests MatchesRegex().
 
 TEST(MatchesRegexTest, MatchesStringMatchingGivenRegex) {
@@ -8378,7 +8405,7 @@ TEST(AnyOfArrayTest, ExplainsMatchResultCorrectly) {
   // Explain with matchers
   const Matcher<int> g1 = AnyOfArray({GreaterThan(1)});
   const Matcher<int> g2 = AnyOfArray({GreaterThan(1), GreaterThan(2)});
-  // Explains the first positiv match and all prior negative matches...
+  // Explains the first positive match and all prior negative matches...
   EXPECT_EQ("which is 1 less than 1", Explain(g1, 0));
   EXPECT_EQ("which is the same as 1", Explain(g1, 1));
   EXPECT_EQ("which is 1 more than 1", Explain(g1, 2));
@@ -8486,6 +8513,12 @@ TEST(ThrowsTest, Examples) {
   EXPECT_THAT(
       std::function<void()>([]() { throw std::runtime_error("message"); }),
       ThrowsMessage<std::runtime_error>(HasSubstr("message")));
+}
+
+TEST(ThrowsTest, PrintsExceptionWhat) {
+  EXPECT_THAT(
+      std::function<void()>([]() { throw std::runtime_error("ABC123XYZ"); }),
+      ThrowsMessage<std::runtime_error>(HasSubstr("ABC123XYZ")));
 }
 
 TEST(ThrowsTest, DoesNotGenerateDuplicateCatchClauseWarning) {
@@ -8601,15 +8634,6 @@ TEST_P(ThrowsPredicateTest, FailWrongTypeNonStd) {
   EXPECT_FALSE(matcher.MatchAndExplain([]() { throw 10; }, &listener));
   EXPECT_THAT(listener.str(),
               HasSubstr("throws an exception of an unknown type"));
-}
-
-TEST_P(ThrowsPredicateTest, FailWrongMessage) {
-  Matcher<std::function<void()>> matcher = GetParam();
-  StringMatchResultListener listener;
-  EXPECT_FALSE(matcher.MatchAndExplain(
-      []() { throw std::runtime_error("wrong message"); }, &listener));
-  EXPECT_THAT(listener.str(), HasSubstr("std::runtime_error"));
-  EXPECT_THAT(listener.str(), Not(HasSubstr("wrong message")));
 }
 
 TEST_P(ThrowsPredicateTest, FailNoThrow) {

@@ -206,4 +206,4 @@
 use crate::ast::*;
 use std::collections::HashMap;
 
-pub type FunctionTable<'t> = HashMap<Identifier<'t>, Function<'t>>;
+pub type FunctionTable<'ast> = HashMap<Identifier<'ast>, Function<'ast>>;

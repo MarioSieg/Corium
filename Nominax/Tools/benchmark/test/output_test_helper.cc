@@ -41,14 +41,17 @@ SubMap& GetSubstitutions() {
   // clang-format off
   static std::string safe_dec_re = "[0-9]*[.]?[0-9]+([eE][-+][0-9]+)?";
   static std::string time_re = "([0-9]+[.])?[0-9]+";
+  static std::string percentage_re = "[0-9]+[.][0-9]{2}";
   static SubMap map = {
       {"%float", "[0-9]*[.]?[0-9]+([eE][-+][0-9]+)?"},
       // human-readable float
       {"%hrfloat", "[0-9]*[.]?[0-9]+([eE][-+][0-9]+)?[kMGTPEZYmunpfazy]?"},
+      {"%percentage", percentage_re},
       {"%int", "[ ]*[0-9]+"},
       {" %s ", "[ ]+"},
       {"%time", "[ ]*" + time_re + "[ ]+ns"},
       {"%console_report", "[ ]*" + time_re + "[ ]+ns [ ]*" + time_re + "[ ]+ns [ ]*[0-9]+"},
+      {"%console_percentage_report", "[ ]*" + percentage_re + "[ ]+% [ ]*" + percentage_re + "[ ]+% [ ]*[0-9]+"},
       {"%console_us_report", "[ ]*" + time_re + "[ ]+us [ ]*" + time_re + "[ ]+us [ ]*[0-9]+"},
       {"%console_ms_report", "[ ]*" + time_re + "[ ]+ms [ ]*" + time_re + "[ ]+ms [ ]*[0-9]+"},
       {"%console_s_report", "[ ]*" + time_re + "[ ]+s [ ]*" + time_re + "[ ]+s [ ]*[0-9]+"},
@@ -381,10 +384,8 @@ int SetSubstitutions(
 
 // Disable deprecated warnings temporarily because we need to reference
 // CSVReporter but don't want to trigger -Werror=-Wdeprecated-declarations
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
+BENCHMARK_DISABLE_DEPRECATED_WARNING
+
 void RunOutputTests(int argc, char* argv[]) {
   using internal::GetTestCaseList;
   benchmark::Initialize(&argc, argv);
@@ -443,9 +444,7 @@ void RunOutputTests(int argc, char* argv[]) {
   internal::GetResultsChecker().CheckResults(csv.out_stream);
 }
 
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
+BENCHMARK_RESTORE_DEPRECATED_WARNING
 
 int SubstrCnt(const std::string& haystack, const std::string& pat) {
   if (pat.length() == 0) return 0;

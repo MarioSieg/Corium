@@ -20,11 +20,11 @@ namespace Nominax::Foundation
         }
     };
 
-    auto NativeTypeRegistry::Display(std::FILE& stream) const -> void
+    auto NativeTypeRegistry::Display(DataStream& stream) const -> void
     {
         for (const NativeTypeInfo& info : this->Data)
         {
-            Print(stream, "{0: <32} | {1: <3} | {2: <3}\n", info.Name, info.Size, info.Alignment);
+            Print(stream, NOX_FMT("{0: <32} | {1: <3} | {2: <3}\n"), info.Name, info.Size, info.Alignment);
         }
     }
 }

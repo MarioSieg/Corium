@@ -1,0 +1,79 @@
+R"(
+<!DOCTYPE html>
+<html lang="en">
+<style>
+    * {
+        font-family: sans-serif;
+        text-align: center;
+        font-size: 36px;
+    }
+
+    button {
+        border: none;
+        border-radius: 10px;
+        color: black;
+        background-color: #80C436;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 22px;
+        margin: 4px 2px;
+        cursor: pointer;
+    }
+
+    th, td {
+        border: 1px solid black;
+        border-radius: 10px;
+        text-align: center;
+    }
+
+    .error {
+        color: #ba3939;
+        background: #ffe0e0;
+        border: 1px solid #a33a3a;
+        border-radius: 10px;
+    }
+
+    .divider {
+        margin-top: 20px;
+        border-top: 3px solid #bbb;
+    }
+
+    .bold {
+        font-weight: bold;
+    }
+</style>
+<body>
+
+    <h2>Nominax Runtime Panic</h2>
+    The Nominax runtime system encountered an internal error and paniced!<br>
+    Please send this report and help to fix the problem!<br>
+    <button onclick="window.open('mailto:nominax@gmx.net?subject=NominaxRuntimePanic&body=File: $FILE%0D%0ALine: $LINE%0D%0ARoutine: $ROUTINE%0D%0AMessage: $MESSAGE')">Send Report</button>
+    <br>
+    Thank you for your support and sorry for the inconvenience :(<br>
+
+    <div class="divider" />
+
+    <h2>Diagnostics</h2>
+    <div class="error bold">
+        <p>File: $FILE</p>
+        <p>Line: $LINE</p>
+        <p>Routine: $ROUTINE</p>
+        <p> Message: $MESSAGE</p>
+    </div>
+
+    <div class="divider" />
+
+    <h2>Register Dump</h2>
+
+    <table style="width:100%">
+        <tr>
+            <th>Register</th>
+            <th>Value</th>
+        </tr>
+        $REGISTERS
+    </table>
+</body>
+</html>
+)"

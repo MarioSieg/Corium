@@ -205,6 +205,8 @@
 
 #pragma once
 
+#include "Subsystem/_Subsystem.hpp"
+
 #include "BasicReactorDescriptor.hpp"
 #include "Environment.hpp"
 #include "EnvironmentDescriptor.hpp"

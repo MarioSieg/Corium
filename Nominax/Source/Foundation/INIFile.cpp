@@ -204,7 +204,8 @@
 //    limitations under the License.
 
 #include "../../Include/Nominax/Foundation/INIFile.hpp"
-#include "../../Include/Nominax/Foundation/Algorithm.hpp"
+#include "../../Include/Nominax/Foundation/Algorithm/Variant.hpp"
+#include "../../Include/Nominax/Foundation/Print.hpp"
 
 namespace Nominax::Foundation
 {
@@ -213,7 +214,7 @@ namespace Nominax::Foundation
         this->PushSection(Key { DEFAULT_SECTION_NAME });
     }
 
-	INIFile::INIFile(SectionMap&& map) : Sections_ {std::move(map) }
+	INIFile::INIFile(SectionMap&& map) : Sections_ { std::move(map) }
     {
         if (std::empty(this->Sections_))
         {
@@ -232,7 +233,7 @@ namespace Nominax::Foundation
 		this->Sections_[this->CurrentSection].insert_or_assign(std::move(key), std::move(value));
 	}
 
-	auto INIFile::Serialize([[maybe_unused]] std::ofstream& out) const -> bool
+	auto INIFile::Serialize(DataStream& out) const -> bool
 	{
 		for (const auto& [section, entries] : this->Sections_)
 		{
@@ -240,41 +241,40 @@ namespace Nominax::Foundation
 			{
 				continue;
 			}
-			out << SECTION_BEGIN << section << SECTION_END << '\n';
+            Print(out, NOX_FMT("{}{}{}\n"), SECTION_BEGIN, section.c_str(), SECTION_END);
 			for (const auto& [key, value] : entries)
 			{
-				out << key << ' ' << EQU << ' ';
-
+                Print(out, NOX_FMT("{} {} "), key.c_str(), EQU);
                 std::visit
                 (
-                    Overload
+                    Algorithm::Overload
                     {
                         [&out](const std::string& val)
                         {
-                            out << "\"" << val << "\"";
+                            Print(out, NOX_FMT("\"{}\""), val.c_str());
                         },
                         [&out](const std::int64_t val)
                         {
-                            out << val;
+                            Print(out, NOX_FMT("{}"), val);
                         },
                         [&out](const double val)
                         {
-                            out << val;
+                            Print(out, NOX_FMT("{}"), val);
                         },
                         [&out](const bool val)
                         {
-                            out << (val ? "Yes" : "No");
+                            Print(out, NOX_FMT("{}"), val ? "true" : "false");
                         }
                     }, value
                 );
-				out << '\n';
+                out.NewLine();
 			}
-			out << '\n';
+            out.NewLine();
 		}
 		return true;
 	}
 
-	auto INIFile::Deserialize([[maybe_unused]] std::ifstream& in) -> bool
+	auto INIFile::Deserialize([[maybe_unused]] DataStream& in) -> bool
 	{
 		return false;
 	}

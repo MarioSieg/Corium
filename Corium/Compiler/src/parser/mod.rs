@@ -209,8 +209,8 @@ use pest_derive::*;
 #[cfg(test)]
 mod tests;
 
-use crate::ast::populator::NestedAstPopulator;
-use crate::ast::CompilationUnit;
+use crate::error::list::ErrorList;
+use crate::error::Error;
 use pest::iterators::Pairs;
 
 pub type RulePairs<'a> = Pairs<'a, Rule>;
@@ -220,14 +220,9 @@ pub type RulePairs<'a> = Pairs<'a, Rule>;
 #[grammar = "parser/corium.pest"]
 pub struct CoriumParser;
 
-pub fn parse_and_map(src: &str) -> Option<CompilationUnit> {
+pub fn parse_source<'a>(src: &'a str, file: &str) -> Result<RulePairs<'a>, ErrorList> {
     match CoriumParser::parse(Rule::CompilationUnit, src) {
-        Ok(mut com_unit) => Some(CompilationUnit::populate(
-            com_unit.next().unwrap().into_inner(),
-        )),
-        Err(err) => {
-            eprintln!("{}", err);
-            None
-        }
+        Ok(mut unit) => Ok(unit.next().unwrap().into_inner()),
+        Err(err) => Err(Error::Syntax(format!("{}", err), file.to_string()).into()),
     }
 }

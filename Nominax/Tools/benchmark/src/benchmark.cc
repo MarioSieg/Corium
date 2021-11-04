@@ -63,7 +63,7 @@ BM_DEFINE_bool(benchmark_list_tests, false);
 // A regular expression that specifies the set of benchmarks to execute.  If
 // this flag is empty, or if this flag is the string \"all\", all benchmarks
 // linked into the binary are run.
-BM_DEFINE_string(benchmark_filter, ".");
+BM_DEFINE_string(benchmark_filter, "");
 
 // Minimum number of seconds we should run benchmark before results are
 // considered significant.  For cpu-time based tests, this is the lower bound
@@ -146,13 +146,13 @@ State::State(IterationCount max_iters, const std::vector<int64_t>& ranges,
       range_(ranges),
       complexity_n_(0),
       counters(),
-      thread_index(thread_i),
-      threads(n_threads),
+      thread_index_(thread_i),
+      threads_(n_threads),
       timer_(timer),
       manager_(manager),
       perf_counters_measurement_(perf_counters_measurement) {
   BM_CHECK(max_iterations != 0) << "At least one iteration must be run";
-  BM_CHECK_LT(thread_index, threads)
+  BM_CHECK_LT(thread_index_, threads_)
       << "thread_index must be less than threads";
 
   // Note: The use of offsetof below is technically undefined until C++17
@@ -378,10 +378,7 @@ void RunBenchmarks(const std::vector<BenchmarkInstance>& benchmarks,
 
 // Disable deprecated warnings temporarily because we need to reference
 // CSVReporter but don't want to trigger -Werror=-Wdeprecated-declarations
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
+BENCHMARK_DISABLE_DEPRECATED_WARNING
 
 std::unique_ptr<BenchmarkReporter> CreateReporter(
     std::string const& name, ConsoleReporter::OutputOptions output_opts) {
@@ -398,9 +395,7 @@ std::unique_ptr<BenchmarkReporter> CreateReporter(
   }
 }
 
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
+BENCHMARK_RESTORE_DEPRECATED_WARNING
 
 }  // end namespace
 
@@ -435,16 +430,32 @@ ConsoleReporter::OutputOptions GetOutputOptions(bool force_no_color) {
 }  // end namespace internal
 
 size_t RunSpecifiedBenchmarks() {
-  return RunSpecifiedBenchmarks(nullptr, nullptr);
+  return RunSpecifiedBenchmarks(nullptr, nullptr, FLAGS_benchmark_filter);
+}
+
+size_t RunSpecifiedBenchmarks(std::string spec) {
+  return RunSpecifiedBenchmarks(nullptr, nullptr, spec);
 }
 
 size_t RunSpecifiedBenchmarks(BenchmarkReporter* display_reporter) {
-  return RunSpecifiedBenchmarks(display_reporter, nullptr);
+  return RunSpecifiedBenchmarks(display_reporter, nullptr,
+                                FLAGS_benchmark_filter);
+}
+
+size_t RunSpecifiedBenchmarks(BenchmarkReporter* display_reporter,
+                              std::string spec) {
+  return RunSpecifiedBenchmarks(display_reporter, nullptr, spec);
 }
 
 size_t RunSpecifiedBenchmarks(BenchmarkReporter* display_reporter,
                               BenchmarkReporter* file_reporter) {
-  std::string spec = FLAGS_benchmark_filter;
+  return RunSpecifiedBenchmarks(display_reporter, file_reporter,
+                                FLAGS_benchmark_filter);
+}
+
+size_t RunSpecifiedBenchmarks(BenchmarkReporter* display_reporter,
+                              BenchmarkReporter* file_reporter,
+                              std::string spec) {
   if (spec.empty() || spec == "all")
     spec = ".";  // Regexp that matches all benchmarks
 
@@ -499,6 +510,8 @@ size_t RunSpecifiedBenchmarks(BenchmarkReporter* display_reporter,
 
   return benchmarks.size();
 }
+
+std::string GetBenchmarkFilter() { return FLAGS_benchmark_filter; }
 
 void RegisterMemoryManager(MemoryManager* manager) {
   internal::memory_manager = manager;

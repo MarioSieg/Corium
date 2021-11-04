@@ -211,7 +211,7 @@
 #include <variant>
 
 #include "ISerializable.hpp"
-#include "PanicAssertions.hpp"
+#include "Panic/Assertions.hpp"
 
 namespace Nominax::Foundation
 {
@@ -325,14 +325,14 @@ namespace Nominax::Foundation
 		/// </summary>
 		/// <returns>True on success, else false.</returns>
 		[[nodiscard]]
-		virtual auto Serialize(std::ofstream& out) const -> bool override;
+		virtual auto Serialize(DataStream& out) const -> bool override;
 
 		/// <summary>
 		/// Deserialize from file stream.
 		/// </summary>
 		/// <returns>True on success, else false.</returns>
 		[[nodiscard]]
-		virtual auto Deserialize(std::ifstream& in) -> bool override;
+		virtual auto Deserialize(DataStream& in) -> bool override;
 
 		/// <summary>
 		/// Begins a new section in the file and appends to it.

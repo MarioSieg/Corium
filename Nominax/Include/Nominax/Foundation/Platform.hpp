@@ -351,6 +351,19 @@
 #	define NOX_COM_NAME "MinGW"
 #endif
 
+#if NOX_COM_CLANG
+#	define NOX_NO_UNIQUE_ADDRESS
+#else
+#	define NOX_NO_UNIQUE_ADDRESS [[no_unique_address]]
+#endif
+
+#if NOX_ARCH_X86_64
+#   define NOX_ARCH_PROXY ::Nominax::Assembler::X86_64
+#elif NOX_ARCH_AARCH64
+#   define NOX_ARCH_PROXY ::Nominax::Assembler::AArch64
+#endif
+
+
 /// <summary>
 /// Use architecture specific optimizations such as assembly or intrinsics?
 /// </summary>
@@ -361,16 +374,6 @@
 /// Should be disabled when building for release.
 /// </summary>
 #define NOX_REACTOR_ASM_MARKERS NOX_DEBUG
-
-/// <summary>
-/// Dump allocations.
-/// </summary>
-#define NOX_VERBOSE_ALLOCATOR false
-
-/// <summary>
-/// Use a slower but more correct floating point comparison algorithm.
-/// </summary>
-#define NOX_OPT_USE_ZERO_EPSILON NOX_DEBUG
 
 /// <summary>
 /// Insert instruction markers into the VM reactor assembly code.
@@ -488,7 +491,10 @@
 /// </summary>
 #define NOX_ASM_ROUTINE
 
+#define NOX_INTRINSIC_PROXY NOX_FORCE_INLINE
+
 /// <summary>
 /// Marks a reactor routine.
 /// </summary>
 #define NOX_REACTOR_ROUTINE                 NOX_FORCE_INLINE NOX_HOT
+

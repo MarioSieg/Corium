@@ -209,13 +209,12 @@
 #include "ByteCode/_ByteCode.hpp"
 #include "Core/_Core.hpp"
 #include "Foundation/_Foundation.hpp"
+#include "JIT/_JIT.hpp"
 
+// Re-exports the most used modules.
 namespace Nominax::Prelude
 {
 	using namespace Nominax;
-	using namespace Assembler;
 	using namespace ByteCode;
-	using namespace Core;
 	using namespace Foundation;
-	using namespace VectorLib;
 }

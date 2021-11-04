@@ -206,6 +206,7 @@
 #pragma once
 
 #include "CodeGenerator.hpp"
+#include "Compiler.hpp"
 #include "DiscriminatedSignal.hpp"
 #include "Generics.hpp"
 #include "Image.hpp"
@@ -217,5 +218,6 @@
 #include "Stream.hpp"
 #include "Linker.hpp"
 #include "InstructionMetaDataRegistry.hpp"
+#include "SysCallMetaDataRegistry.hpp"
 #include "Validator.hpp"
 #include "ValidationResult.hpp"

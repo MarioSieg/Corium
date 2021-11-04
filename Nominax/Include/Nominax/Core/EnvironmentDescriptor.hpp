@@ -208,7 +208,7 @@
 #include <string_view>
 #include <cstdint>
 
-#include "../Foundation/MemoryUnits.hpp"
+#include "../Foundation/Memory/MemoryUnits.hpp"
 #include "../Foundation/ISerializable.hpp"
 
 #include "ReactorCreationDescriptor.hpp"
@@ -280,13 +280,13 @@ namespace Nominax::Core
         /// </summary>
         /// <returns>True on success, else false.</returns>
         [[nodiscard]]
-        virtual auto Serialize(std::ofstream& out) const -> bool override;
+        virtual auto Serialize(Foundation::DataStream& out) const -> bool override;
 
         /// <summary>
         /// Deserialize from file stream.
         /// </summary>
         /// <returns>True on success, else false.</returns>
         [[nodiscard]]
-        virtual auto Deserialize(std::ifstream& in) -> bool override;
+        virtual auto Deserialize(Foundation::DataStream& in) -> bool override;
 	};
 }

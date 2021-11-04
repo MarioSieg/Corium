@@ -227,8 +227,8 @@ namespace Nominax::Core
 	{
         NOX_PAS_NOT_ZERO(reactorCount, "Reactor pool with zero reactors is not allowed!");
 
-		Print("Initializing reactor pool with {} reactors...\n", reactorCount);
-        Print("Pool boot mode: {}\n", bootMode == ReactorPoolBootMode::Cached ? "Cached" : "Deferred");
+		Print(NOX_FMT("Initializing reactor pool with {} reactors...\n"), reactorCount);
+        Print(NOX_FMT("Pool boot mode: {}\n"), bootMode == ReactorPoolBootMode::Cached ? "Cached" : "Deferred");
 
 		this->Pool_.reserve(reactorCount);
 		for (std::uint64_t poolIdx { 0 }; poolIdx < (bootMode == ReactorPoolBootMode::Deferred ? 1 : reactorCount); ++poolIdx)
@@ -243,7 +243,7 @@ namespace Nominax::Core
 	{
 		const auto size { std::size(this->Pool_) };
 		this->Pool_.clear();
-		Print("Reactor pool destroyed! -> {} reactors offline\n", size);
+		Print(NOX_FMT("Reactor pool destroyed! -> {} reactors offline\n"), size);
 	}
 
     auto ReactorPool::QueryReactorFromCache(const uint64_t poolIndex) -> Reactor*

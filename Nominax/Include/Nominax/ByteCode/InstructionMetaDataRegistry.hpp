@@ -205,9 +205,12 @@
 
 #pragma once
 
-#include <iterator>
-#include <vector>
+#include <array>
+#include <cstdint>
+#include <string_view>
+#include <initializer_list>
 
+#include "../Foundation/DataStream.hpp"
 #include "Signal.hpp"
 
 namespace Nominax::ByteCode
@@ -225,11 +228,12 @@ namespace Nominax::ByteCode
     [[nodiscard]]
     constexpr auto ComputeDiscBit(const Signal::Discriminator discriminator) -> TypeIndexBitFlagVector
     {
-        return 1 << static_cast<TypeIndexBitFlagVector>(Foundation::ToUnderlying(discriminator));
+        static_assert(sizeof(discriminator) < sizeof(TypeIndexBitFlagVector));
+        return 1 << static_cast<TypeIndexBitFlagVector>(discriminator);
     }
 
     /// <summary>
-    /// Contains operand type information for all instructions.
+    /// Contains meta data for all instructions.
     /// </summary>
 	struct InstructionMetaDataRegistry final
     {
@@ -268,24 +272,24 @@ namespace Nominax::ByteCode
         /// </summary>
         static constexpr TypeIndexBitFlagVector ANY_SCALAR_VALUE_TYPE
         {
-            ComputeDiscBit(Signal::Discriminator::UOffset) |
-            ComputeDiscBit(Signal::Discriminator::Int) |
+                ComputeDiscBit(Signal::Discriminator::MemoryOffset) |
+                ComputeDiscBit(Signal::Discriminator::Int) |
             ComputeDiscBit(Signal::Discriminator::Float)
         };
 
         /// <summary>
         /// Contains all immediate argument types for each instruction.
         /// </summary>
-        static constexpr std::array<const InstructionOperandTable, Foundation::ToUnderlying(Instruction::Count_)> OPERAND_TYPE_TABLE
+        static constexpr std::array<const InstructionOperandTable, Foundation::Algorithm::ToUnderlying(Instruction::Count_)> OPERAND_TYPE_TABLE
         {
             /* int      */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::Int) },
-            /* syscall  */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::SysCallID) },
-            /* intrin   */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::UserIntrinsicInvocationID) },
-            /* call     */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::UOffset) },
+            /* syscall  */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::SysCall) },
+            /* intrin   */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::Intrinsic) },
+            /* call     */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::MemoryOffset) },
             /* ret      */  InstructionOperandTable { },
-            /* mov      */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::UOffset),
-                                                      ComputeDiscBit(Signal::Discriminator::UOffset) },
-            /* sto      */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::UOffset), ANY_SCALAR_VALUE_TYPE },
+            /* mov      */  InstructionOperandTable { ComputeDiscBit(Signal::Discriminator::MemoryOffset),
+                                                      ComputeDiscBit(Signal::Discriminator::MemoryOffset) },
+            /* sto      */  InstructionOperandTable {ComputeDiscBit(Signal::Discriminator::MemoryOffset), ANY_SCALAR_VALUE_TYPE },
             /* push     */  InstructionOperandTable { ANY_SCALAR_VALUE_TYPE },
             /* pop      */  InstructionOperandTable { },
             /* pop2     */  InstructionOperandTable { },
@@ -391,7 +395,7 @@ namespace Nominax::ByteCode
         /// Contains all instruction mnemonics.
         /// </summary>
         [[maybe_unused]]
-        static constexpr std::array<const std::string_view, Foundation::ToUnderlying(Instruction::Count_)> MNEMONIC_TABLE
+        static constexpr std::array<const std::string_view, Foundation::Algorithm::ToUnderlying(Instruction::Count_)> MNEMONIC_TABLE
         {
             #include "ExportInstructionMnemonicTable.hpp"
         };
@@ -400,7 +404,7 @@ namespace Nominax::ByteCode
         /// Contains the categories of all instructions.
         /// </summary>
         [[maybe_unused]]
-        static constexpr std::array<const InstructionCategory, Foundation::ToUnderlying(Instruction::Count_)> CATEGORY_TABLE
+        static constexpr std::array<const InstructionCategory, Foundation::Algorithm::ToUnderlying(Instruction::Count_)> CATEGORY_TABLE
         {
             #include "ExportInstructionCategoryTable.hpp"
         };
@@ -409,7 +413,7 @@ namespace Nominax::ByteCode
         /// Contains the amount of stack pushes each instruction will perform.
         /// </summary>
         [[maybe_unused]]
-        static constexpr std::array<const std::uint8_t, Foundation::ToUnderlying(Instruction::Count_)> PUSH_RECORD_TABLE
+        static constexpr std::array<const std::uint8_t, Foundation::Algorithm::ToUnderlying(Instruction::Count_)> PUSH_RECORD_TABLE
         {
             #include "ExportInstructionPushRecordTable.hpp"
         };
@@ -418,7 +422,7 @@ namespace Nominax::ByteCode
         /// Contains the amount of stack pops each instruction will perform.
         /// </summary>
         [[maybe_unused]]
-        static constexpr std::array<const std::uint8_t, Foundation::ToUnderlying(Instruction::Count_)> POP_RECORD_TABLE
+        static constexpr std::array<const std::uint8_t, Foundation::Algorithm::ToUnderlying(Instruction::Count_)> POP_RECORD_TABLE
         {
             #include "ExportInstructionPopRecordTable.hpp"
         };
@@ -428,12 +432,12 @@ namespace Nominax::ByteCode
         /// Automatically computed from the push and pop table.
         /// </summary>
         [[maybe_unused]]
-        static constexpr std::array<std::int8_t, Foundation::ToUnderlying(Instruction::Count_)> STACK_DIFF_TABLE
+        static constexpr std::array<std::int8_t, Foundation::Algorithm::ToUnderlying(Instruction::Count_)> STACK_DIFF_TABLE
         {
             []
             {
-                std::array<std::int8_t, Foundation::ToUnderlying(Instruction::Count_)> result { };
-                for (std::uint64_t i { 0 }; i < Foundation::ToUnderlying(Instruction::Count_); ++i)
+                std::array<std::int8_t, Foundation::Algorithm::ToUnderlying(Instruction::Count_)> result { };
+                for (std::uint64_t i { 0 }; i < Foundation::Algorithm::ToUnderlying(Instruction::Count_); ++i)
                 {
                     result[i] = static_cast<std::int8_t>(PUSH_RECORD_TABLE[i] - POP_RECORD_TABLE[i]);
                 }
@@ -445,14 +449,14 @@ namespace Nominax::ByteCode
         /// Contains a short descriptions for all instructions.
         /// </summary>
         [[maybe_unused]]
-        static constexpr std::array<const std::string_view, Foundation::ToUnderlying(Instruction::Count_)> DESCRIPTOR_TABLE
+        static constexpr std::array<const std::string_view, Foundation::Algorithm::ToUnderlying(Instruction::Count_)> DESCRIPTOR_TABLE
         {
             #include "ExportInstructionDescriptorTable.hpp"
         };
 
         static constexpr auto LookupInstructArgumentType(const Instruction instruction, const std::uint64_t typeIndex) -> TypeIndexBitFlagVector
         {
-            return *(std::begin(OPERAND_TYPE_TABLE[Foundation::ToUnderlying(instruction)]) + typeIndex);
+            return *(std::begin(OPERAND_TYPE_TABLE[Foundation::Algorithm::ToUnderlying(instruction)]) + typeIndex);
         }
 
         static constexpr auto IsValidArgumentType(const Instruction instruction, const std::uint64_t typeIndex, const Signal::Discriminator discriminator) -> bool
@@ -462,7 +466,7 @@ namespace Nominax::ByteCode
 
         static constexpr auto LookupInstructArgumentCount(const Instruction instruction) -> std::uint16_t
         {
-            return std::size(OPERAND_TYPE_TABLE[Foundation::ToUnderlying(instruction)]);
+            return std::size(OPERAND_TYPE_TABLE[Foundation::Algorithm::ToUnderlying(instruction)]);
         }
 
         /// <summary>
@@ -473,7 +477,7 @@ namespace Nominax::ByteCode
         [[nodiscard]]
         static constexpr auto LookupInstructionArgumentTypes(const Instruction instruction) -> const InstructionOperandTable&
         {
-            return OPERAND_TYPE_TABLE[Foundation::ToUnderlying(instruction)];
+            return OPERAND_TYPE_TABLE[Foundation::Algorithm::ToUnderlying(instruction)];
         }
 
         /// <summary>
@@ -482,24 +486,24 @@ namespace Nominax::ByteCode
         [[nodiscard]]
         static constexpr auto LookupInstructionArgumentCount(const Instruction instruction) -> std::uint64_t
         {
-            return std::size(OPERAND_TYPE_TABLE[Foundation::ToUnderlying(instruction)]);
+            return std::size(OPERAND_TYPE_TABLE[Foundation::Algorithm::ToUnderlying(instruction)]);
         }
 
         /// <summary>
         /// Contains the amount of stack pops each instruction will perform.
         /// </summary>
         [[maybe_unused]]
-        static constexpr std::array<const std::uint8_t, Foundation::ToUnderlying(Instruction::Count_)> IMMEDIATE_ARGUMENT_COUNT_TABLE
+        static constexpr std::array<const std::uint8_t, Foundation::Algorithm::ToUnderlying(Instruction::Count_)> IMMEDIATE_ARGUMENT_COUNT_TABLE
         {
             #include "ExportInstructiontImmediateTable.hpp"
         };
 
-        NOX_COLD static auto PrintInstructionSetTable(std::FILE& stream) -> void;
+        NOX_COLD static auto PrintInstructionSetTable(Foundation::DataStream& stream) -> void;
     };
 
     consteval auto ValidateImmediateArgumentCounts() -> bool
     {
-        for (std::uint64_t i { 0 }; i < Foundation::ToUnderlying(Instruction::Count_); ++i)
+        for (std::uint64_t i { 0 }; i < Foundation::Algorithm::ToUnderlying(Instruction::Count_); ++i)
         {
             if (InstructionMetaDataRegistry::IMMEDIATE_ARGUMENT_COUNT_TABLE[i] != std::size(InstructionMetaDataRegistry::OPERAND_TYPE_TABLE[i]))
             {

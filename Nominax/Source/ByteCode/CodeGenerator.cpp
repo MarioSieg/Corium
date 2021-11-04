@@ -211,15 +211,16 @@ namespace Nominax::ByteCode
 	{
 		if (this->EnablePeepholeOptimizations && value == 0)
 		{
-			this->Emitter << Instruction::PUSHZ;
+			this->Emitter.Emit(Instruction::PUSHZ);
 		}
 		else if (this->EnablePeepholeOptimizations && value == 1)
 		{
-			this->Emitter << Instruction::IPUSHO;
+            this->Emitter.Emit(Instruction::IPUSHO);
 		}
 		else
 		{
-			this->Emitter << Instruction::PUSH << value;
+            this->Emitter.Emit(Instruction::PUSH);
+            this->Emitter.Emit(value);
 		}
 		return *this;
 	}
@@ -228,15 +229,16 @@ namespace Nominax::ByteCode
 	{
 		if (this->EnablePeepholeOptimizations && value == 0.0)
 		{
-			this->Emitter << Instruction::PUSHZ;
+            this->Emitter.Emit(Instruction::PUSHZ);
 		}
 		else if (this->EnablePeepholeOptimizations && value == 1.0)
 		{
-			this->Emitter << Instruction::FPUSHO;
+            this->Emitter.Emit(Instruction::FPUSHO);
 		}
 		else
 		{
-			this->Emitter << Instruction::PUSH << value;
+            this->Emitter.Emit(Instruction::PUSH);
+            this->Emitter.Emit(value);
 		}
 		return *this;
 	}
@@ -251,19 +253,19 @@ namespace Nominax::ByteCode
 					return *this;
 
 				case 1:
-					this->Emitter << Instruction::POP;
+                    this->Emitter.Emit(Instruction::POP);
 					return *this;
 
 				case 2:
-					this->Emitter << Instruction::POP2;
+                    this->Emitter.Emit(Instruction::POP2);
 					return *this;
 
 				case 4:
-					this->Emitter << Instruction::VPOP;
+                    this->Emitter.Emit(Instruction::VPOP);
 					return *this;
 
 				case 16:
-					this->Emitter << Instruction::MPOP;
+                    this->Emitter.Emit(Instruction::MPOP);
 					return *this;
 
 				default:
@@ -271,28 +273,28 @@ namespace Nominax::ByteCode
 					{
 						for (std::uint8_t i { 0 }; i < popCount / 2; ++i)
 						{
-							this->Emitter << Instruction::POP2;
+                            this->Emitter.Emit(Instruction::POP2);
 						}
 					}
 					else if (popCount % 4 == 0)
 					{
 						for (std::uint8_t i { 0 }; i < popCount / 4; ++i)
 						{
-							this->Emitter << Instruction::VPOP;
+                            this->Emitter.Emit(Instruction::VPOP);
 						}
 					}
 					else if (popCount % 16 == 0)
 					{
 						for (std::uint8_t i { 0 }; i < popCount / 16; ++i)
 						{
-							this->Emitter << Instruction::MPOP;
+                            this->Emitter.Emit(Instruction::MPOP);
 						}
 					}
 					else
 					{
 						for (std::uint8_t i { 0 }; i < popCount; ++i)
 						{
-							this->Emitter << Instruction::POP;
+                            this->Emitter.Emit(Instruction::POP);
 						}
 					}
 					return *this;
@@ -300,7 +302,7 @@ namespace Nominax::ByteCode
 		}
 		for (std::uint8_t i { 0 }; i < popCount; ++i)
 		{
-			this->Emitter << Instruction::POP;
+            this->Emitter.Emit(Instruction::POP);
 		}
 		return *this;
 	}

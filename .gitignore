@@ -4,6 +4,7 @@ out/
 Build/
 dist/
 gen/
+_Bin_/
 CMakeSettings.json
 CMakeLists.txt.user
 reactor.asm
@@ -16,3 +17,5 @@ Corium/Compiler/Cargo.lock
 _Build_/
 Nominax/Nominax.ini
 Nominax.ini
+Examples/.idea/
+Release/

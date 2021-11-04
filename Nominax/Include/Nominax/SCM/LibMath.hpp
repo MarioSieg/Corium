@@ -934,7 +934,7 @@ namespace Nominax::SCM
     /// <returns>None.</returns>
     NOX_SYSCALL_PROXY(IABS)
     {
-        ARG2.AsF64 = std::fdim(NOX_REVERSE(2, ARG1.AsF64, ARG2.AsF64));
+        ARG2.AsI64 = std::abs(ARG1.AsI64);
     }
 
     /// <summary>
@@ -956,6 +956,6 @@ namespace Nominax::SCM
     /// <returns>None.</returns>
     NOX_SYSCALL_PROXY(FABS)
     {
-        ARG2.AsF64 = std::fdim(NOX_REVERSE(2, ARG1.AsF64, ARG2.AsF64));
+        ARG2.AsF64 = std::abs(ARG1.AsF64);
     }
 }

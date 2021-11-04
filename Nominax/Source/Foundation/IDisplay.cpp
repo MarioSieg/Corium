@@ -210,10 +210,12 @@ namespace Nominax::Foundation
 {
     auto IDisplay::DisplayToConsole() const -> void
     {
-        if (ProtocolController::IsProtocolEnabled) [[unlikely]]
+        if constexpr (!NOX_TEST)
         {
-            std::FILE& console { ProtocolController::GetProtocolStream() };
-            this->Display(console);
+            if (ProtocolController::IsProtocolEnabled) [[unlikely]]
+            {
+                this->Display(ProtocolController::GetProtocolStream());
+            }
         }
     }
 }

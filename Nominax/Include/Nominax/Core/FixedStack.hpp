@@ -205,11 +205,11 @@
 
 #pragma once
 
+#include <cstdint>
 #include <memory_resource>
 
-#include <cstdint>
 #include "../Foundation/Record.hpp"
-#include "../Foundation/MemoryUnits.hpp"
+#include "../Foundation/Memory/MemoryUnits.hpp"
 
 namespace Nominax::Core
 {

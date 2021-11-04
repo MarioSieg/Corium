@@ -1,6 +1,0 @@
-module sys.os
-
-native fun name() string
-native fun type() int
-native fun currentDir() string
-native fun currentDir(string path)

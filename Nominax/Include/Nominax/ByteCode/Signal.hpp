@@ -206,6 +206,7 @@
 #pragma once
 
 #include <cstdint>
+#include <string_view>
 
 #include "Instruction.hpp"
 
@@ -224,7 +225,7 @@ namespace Nominax::ByteCode
 			/// <summary>
 			/// Unsigned 64-bit offset.
 			/// </summary>
-			UOffset,
+			MemoryOffset,
 
 			/// <summary>
 			/// std::int64_t in record.
@@ -244,12 +245,12 @@ namespace Nominax::ByteCode
 			/// <summary>
 			/// System call id.
 			/// </summary>
-			SysCallID,
+			SysCall,
 
 			/// <summary>
 			/// User call id.
 			/// </summary>
-			UserIntrinsicInvocationID,
+			Intrinsic,
 
 			/// <summary>
 			/// Jump address.
@@ -275,9 +276,9 @@ namespace Nominax::ByteCode
         /// <summary>
         /// Contains the name of all discriminators.
         /// </summary>
-        static constexpr std::array<const std::string_view, Foundation::ToUnderlying(Discriminator::Count_)> DISCRIMINATOR_NAMES
+        static constexpr std::array<const std::string_view, Foundation::Algorithm::ToUnderlying(Discriminator::Count_)> DISCRIMINATOR_NAMES
         {
-            "UOffset",
+            "MemoryOffset",
             "Int",
             "Float",
             "Instruction",
@@ -291,17 +292,17 @@ namespace Nominax::ByteCode
         /// <summary>
         /// Contains the name of all discriminators.
         /// </summary>
-        static constexpr std::array<const std::string_view, Foundation::ToUnderlying(Discriminator::Count_)> DISCRIMINATOR_MNEMONICS
+        static constexpr std::array<const std::string_view, Foundation::Algorithm::ToUnderlying(Discriminator::Count_)> DISCRIMINATOR_MNEMONICS
         {
-            "u64",
-            "i64",
-            "f64",
+            "mof",
+            "imm",
+            "fmm",
             "ins",
             "sys",
             "int",
             "jmp",
             "tyd",
-            "mof"
+            "fof"
         };
 
 		/// <summary>
@@ -338,6 +339,11 @@ namespace Nominax::ByteCode
         /// Reinterpret as field offset.
         /// </summary>
         FieldOffset FOffset;
+
+        /// <summary>
+        /// Unsigned memory offset.
+        /// </summary>
+        MemOffset UOffset;
 
         /// <summary>
 		/// Reinterpret as void pointer.
@@ -419,20 +425,44 @@ namespace Nominax::ByteCode
 		/// <param name="value"></param>
 		/// <returns></returns>
 		explicit constexpr Signal(JumpAddress value);
+
+        /// <summary>
+        /// Construct from 64 bit type id.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        explicit constexpr Signal(TypeID value);
+
+        /// <summary>
+        /// Construct from 64 bit field offset.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        explicit constexpr Signal(FieldOffset value);
+
+        /// <summary>
+        /// Construct from 64 bit unsigned offset.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        explicit constexpr Signal(MemOffset value);
 	};
 
-	constexpr Signal::Signal(const Foundation::Record value) : R64 { value } {}
-	constexpr Signal::Signal(const Instruction value) : Instr { value } {}
-	constexpr Signal::Signal(const SysCall value) : SysCallID {value } {}
-	constexpr Signal::Signal(const UserIntrinsicInvocationID value) : UserIntrinID { value } {}
-	constexpr Signal::Signal(void* const value) : Ptr { value } {}
-	constexpr Signal::Signal(const std::int64_t value) : R64 { value } {}
-	constexpr Signal::Signal(const std::uint64_t value) : R64 { value } {}
-	constexpr Signal::Signal(const double value) : R64 { value } {}
-	constexpr Signal::Signal(const char32_t value) : R64 { value } {}
+	constexpr Signal::Signal(const Foundation::Record value) : R64 { value } { }
+	constexpr Signal::Signal(const Instruction value) : Instr { value } { }
+	constexpr Signal::Signal(const SysCall value) : SysCallID {value } { }
+	constexpr Signal::Signal(const UserIntrinsicInvocationID value) : UserIntrinID { value } { }
+	constexpr Signal::Signal(void* const value) : Ptr { value } { }
+	constexpr Signal::Signal(const std::int64_t value) : R64 { value } { }
+	constexpr Signal::Signal(const std::uint64_t value) : R64 { value } { }
+	constexpr Signal::Signal(const double value) : R64 { value } { }
+	constexpr Signal::Signal(const char32_t value) : R64 { value } { }
 	constexpr Signal::Signal(const JumpAddress value) : JmpAddress { value } {}
+    constexpr Signal::Signal(const TypeID value) : Type { value } { }
+    constexpr Signal::Signal(const FieldOffset value) : FOffset { value } { }
+    constexpr Signal::Signal(const MemOffset value) : UOffset {value } { }
 
-	/// <summary>
+    /// <summary>
 	/// Raw representation of a signal as bytes.
 	/// </summary>
 	using SignalByteBuffer = std::array<std::uint8_t, sizeof(Signal)>;

@@ -1,0 +1,5 @@
+push %(imm)#10
+push %(imm)#5
+iadd
+syscall %(sys)#print_int
+pop

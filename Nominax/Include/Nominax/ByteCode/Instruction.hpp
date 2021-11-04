@@ -205,9 +205,11 @@
 
 #pragma once
 
+#include <span>
+
 #include "SysCall.hpp"
 
-#include "../Foundation/Algorithm.hpp"
+#include "../Foundation/Algorithm/_Algorithm.hpp"
 #include "../Foundation/Record.hpp"
 
 namespace Nominax::ByteCode
@@ -231,7 +233,7 @@ namespace Nominax::ByteCode
     /// <summary>
     /// Instruction category sigils.
     /// </summary>
-    constexpr std::array<const char, Foundation::ToUnderlying(InstructionCategory::Count_)> INSTRUCTION_CATEGORY_SIGILS
+    constexpr std::array<const char, Foundation::Algorithm::ToUnderlying(InstructionCategory::Count_)> INSTRUCTION_CATEGORY_SIGILS
     {
         'C',
         'M',
@@ -240,6 +242,11 @@ namespace Nominax::ByteCode
         'I',
         'V'
     };
+
+    /// <summary>
+    /// Represents an unsigned stack offset.
+    /// </summary>
+    enum class alignas(alignof(std::uint64_t)) MemOffset : std::uint64_t;
 
 	/// <summary>
 	/// Represents a jump address which
@@ -270,11 +277,10 @@ namespace Nominax::ByteCode
     /// <summary>
     /// Index of a type descriptor.
     /// </summary>
-    using TypeID = std::uint64_t;
+    enum class alignas(alignof(std::uint64_t)) TypeID : std::uint64_t;
 
     /// <summary>
     /// Index to a structure field.
     /// </summary>
-    using FieldOffset = std::uint64_t;
-
+    enum class alignas(alignof(std::uint64_t)) FieldOffset : std::uint64_t;
 }

@@ -205,14 +205,20 @@
 
 #pragma once
 
-// Will be replaced by std::format soon
+#define FMT_ENFORCE_COMPILE_STRING true
+
 #include <fmt/format.h>
 #include <fmt/chrono.h>
 #include <fmt/color.h>
 
-#include "ProtocolController.h"
+#define FMT_CONSTEVAL constexpr
+#define NOX_FMT(x) FMT_STRING(x)
+
+#include <type_traits>
+
+#include "DataStream.hpp"
+#include "ProtocolController.hpp"
 #include "Platform.hpp"
-#include "Algorithm.hpp"
 
 namespace Nominax::Foundation
 {
@@ -229,15 +235,14 @@ namespace Nominax::Foundation
 	/// <param name="formatString">The format string.</param>
 	/// <param name="args">The arguments to format.</param>
 	template <typename... Args>
-	NOX_COLD
-    inline auto Print([[maybe_unused]] const std::string_view formatString, [[maybe_unused]] Args&&...args) -> void
+	NOX_COLD inline auto Print([[maybe_unused]] const fmt::string_view formatString, [[maybe_unused]] Args&&...args) -> void
 	{
 		if constexpr (!NOX_TEST)
         {
             if (ProtocolController::IsProtocolEnabled)
             {
                 [[unlikely]]
-                fmt::print(&ProtocolController::GetProtocolStream(), formatString, std::forward<Args>(args)...);
+                fmt::print(*ProtocolController::GetProtocolStream(), formatString, std::forward<Args>(args)...);
             }
         }
 	}
@@ -255,10 +260,9 @@ namespace Nominax::Foundation
     /// <param name="formatString">The format string.</param>
     /// <param name="args">The arguments to format.</param>
     template <typename... Args>
-    NOX_COLD
-    inline auto Print([[maybe_unused]] std::FILE& stream, [[maybe_unused]] const std::string_view formatString, [[maybe_unused]] Args&&...args) -> void
+    NOX_COLD inline auto Print(DataStream& stream, const fmt::string_view formatString, Args&&...args) -> void
     {
-        fmt::print(&stream, formatString, std::forward<Args>(args)...);
+        fmt::print(*stream, formatString, std::forward<Args>(args)...);
     }
 
 	/// <summary>
@@ -266,15 +270,14 @@ namespace Nominax::Foundation
 	/// </summary>
 	/// <param name="x"></param>
 	/// <returns></returns>
-    NOX_COLD
-    inline auto Print(const char x) -> void
+    NOX_COLD inline auto Print(const char x) -> void
 	{
         if constexpr (!NOX_TEST)
         {
             if (ProtocolController::IsProtocolEnabled)
             {
                 [[unlikely]]
-                std::fputc(x, &ProtocolController::GetProtocolStream());
+                ProtocolController::GetProtocolStream().PutChar(x);
             }
         }
 	}
@@ -285,9 +288,9 @@ namespace Nominax::Foundation
     /// <param name="x"></param>
     /// <returns></returns>
     NOX_COLD
-    inline auto Print([[maybe_unused]] std::FILE& stream, const char x) -> void
+    inline auto Print([[maybe_unused]] DataStream& stream, const char x) -> void
     {
-        std::fputc(x, &stream);
+        stream.PutChar(x);
     }
 
 	/// <summary>
@@ -302,7 +305,7 @@ namespace Nominax::Foundation
 	/// <param name="formatString">The format string.</param>
 	/// <param name="args">The arguments to format.</param>
 	template <typename... Args>
-	inline auto Format([[maybe_unused]] const std::string_view formatString, [[maybe_unused]] Args&&...args) -> std::string
+	inline auto Format([[maybe_unused]] const fmt::string_view formatString, [[maybe_unused]] Args&&...args) -> std::string
 	{
 		return fmt::format(formatString, std::forward<Args>(args)...);
 	}

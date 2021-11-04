@@ -213,7 +213,7 @@
 
 namespace Nominax::Core
 {
-    #define NOX_SYSCALL_GATE_ID(name) __##name##__
+	#define NOX_SYSCALL_GATE_ID(name) $##name##$
     #define NOX_SYSCALL_GATE(name, hot, impl)   \
         NOX_SYSCALL_GATE_ID(name):              \
         hot;                                    \

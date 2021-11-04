@@ -205,7 +205,7 @@
 
 #pragma once
 
-#include <cstdio>
+#include "DataStream.hpp"
 
 namespace Nominax::Foundation
 {
@@ -222,27 +222,27 @@ namespace Nominax::Foundation
         /// Copy constructor.
         /// </summary>
         /// <param name="other"></param>
-        constexpr IDisplay(const IDisplay& other) = default;
+        constexpr IDisplay(const IDisplay& other) noexcept = default;
 
         /// <summary>
         /// Move constructor.
         /// </summary>
         /// <param name="other"></param>
-        constexpr IDisplay(IDisplay&& other) = default;
+        constexpr IDisplay(IDisplay&& other) noexcept = default;
 
         /// <summary>
         /// Copy assignment operator.
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
-        constexpr auto operator =(const IDisplay& other) -> IDisplay& = default;
+        constexpr auto operator =(const IDisplay& other) noexcept -> IDisplay& = default;
 
         /// <summary>
         /// Move assignment operator.
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
-        constexpr auto operator =(IDisplay&& other) -> IDisplay& = default;
+        constexpr auto operator =(IDisplay&& other) noexcept -> IDisplay& = default;
 
         /// <summary>
         /// Destructor.
@@ -252,11 +252,11 @@ namespace Nominax::Foundation
         /// <summary>
         /// Prints this object into the file stream.
         /// </summary>
-        virtual auto Display(std::FILE& stream) const -> void = 0;
+        NOX_COLD virtual auto Display(DataStream& stream) const -> void = 0;
 
         /// <summary>
         /// Prints this object into the console.
         /// </summary>
-        virtual auto DisplayToConsole() const -> void;
+        NOX_COLD virtual auto DisplayToConsole() const -> void;
     };
 }

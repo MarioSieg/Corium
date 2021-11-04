@@ -283,7 +283,7 @@ function(py_test name)
     if ("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" VERSION_GREATER 3.1)
       if (CMAKE_CONFIGURATION_TYPES)
         # Multi-configuration build generators as for Visual Studio save
-        # output in a subdirectory of CMAKE_CURRENT_BINARY_DIR (UseSandboxVM,
+        # output in a subdirectory of CMAKE_CURRENT_BINARY_DIR (Debug,
         # Release etc.), so we have to provide it here.
         add_test(NAME ${name}
           COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test/${name}.py

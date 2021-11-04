@@ -220,7 +220,7 @@ namespace Nominax::ByteCode
 	/// <param name="address"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	extern auto ValidateJumpAddress(const Stream& bucket, JumpAddress address) -> bool;
+	extern auto ValidateJumpAddress(const Stream& bucket, JumpAddress address) noexcept -> bool;
 
 	/// <summary>
 	/// Validates a system intrinsic call id. To be valid the call id must be:
@@ -229,7 +229,7 @@ namespace Nominax::ByteCode
 	/// <param name="id"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	extern auto ValidateSystemIntrinsicCall(SysCall id) -> bool;
+	extern auto ValidateSystemIntrinsicCall(SysCall id) noexcept -> bool;
 
 	/// <summary>
 	/// Validates a user intrinsic call id. To be valid the call id must be:
@@ -240,7 +240,7 @@ namespace Nominax::ByteCode
 	/// <param name="id"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	extern auto ValidateUserIntrinsicCall(const UserIntrinsicRoutineRegistry& routines, UserIntrinsicInvocationID id) -> bool;
+	extern auto ValidateUserIntrinsicCall(const UserIntrinsicRoutineRegistry& routines, UserIntrinsicInvocationID id) noexcept -> bool;
 
 	/// <summary>
 	/// 
@@ -249,7 +249,7 @@ namespace Nominax::ByteCode
 	/// <param name="args"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	extern auto ValidateInstructionArguments(Instruction instruction, const std::span<const Signal::Discriminator>& args) -> ValidationResultCode;
+	extern auto ValidateInstructionArguments(Instruction instruction, const std::span<const Signal::Discriminator>& args) noexcept -> ValidationResultCode;
 
 	/// <summary>
 	/// 
@@ -258,7 +258,7 @@ namespace Nominax::ByteCode
 	/// <param name="args"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	inline auto ValidateInstructionArguments(const Instruction instruction, std::vector<Signal::Discriminator>&& args) -> ValidationResultCode
+	inline auto ValidateInstructionArguments(const Instruction instruction, std::vector<Signal::Discriminator>&& args) noexcept -> ValidationResultCode
 	{
 		return ValidateInstructionArguments(instruction, args);
 	}
@@ -270,7 +270,7 @@ namespace Nominax::ByteCode
 	/// <typeparam name="Iterator"></typeparam>
 	/// <param name="input"></param>
 	/// <returns></returns>
-	extern auto ContainsPrologue(const Stream& input) -> bool;
+	extern auto ContainsPrologue(const Stream& input) noexcept -> bool;
 
 	/// <summary>
 	/// Returns true if the iterator range end with
@@ -279,7 +279,7 @@ namespace Nominax::ByteCode
 	/// <typeparam name="Iterator"></typeparam>
 	/// <param name="input"></param>
 	/// <returns></returns>
-	extern auto ContainsEpilogue(const Stream& input) -> bool;
+	extern auto ContainsEpilogue(const Stream& input) noexcept -> bool;
 
 	/// <summary>
 	/// Compute offset of the instruction argument.
@@ -288,7 +288,7 @@ namespace Nominax::ByteCode
 	/// <param name="next"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	constexpr auto ComputeInstructionArgumentOffset(const Signal::Discriminator* NOX_RESTRICT const where, const Signal::Discriminator* NOX_RESTRICT const next) -> std::ptrdiff_t
+	constexpr auto ComputeInstructionArgumentOffset(const Signal::Discriminator* NOX_RESTRICT const where, const Signal::Discriminator* NOX_RESTRICT const next) noexcept -> std::ptrdiff_t
 	{
 		return next - where - 1;
 	}
@@ -300,7 +300,7 @@ namespace Nominax::ByteCode
 	/// <param name="end"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	constexpr auto SearchForNextInstruction(const Signal::Discriminator* NOX_RESTRICT current, const Signal::Discriminator* NOX_RESTRICT const end) -> const Signal::Discriminator*
+	constexpr auto SearchForNextInstruction(const Signal::Discriminator* NOX_RESTRICT current, const Signal::Discriminator* NOX_RESTRICT const end) noexcept -> const Signal::Discriminator*
 	{
 		do
 		{
@@ -319,10 +319,9 @@ namespace Nominax::ByteCode
 	/// <param name="offset"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	constexpr auto ExtractInstructionArguments(const Signal::Discriminator* where, const std::uint64_t offset) -> std::span<const Signal::Discriminator>
+	constexpr auto ExtractInstructionArguments(const Signal::Discriminator* const where, const std::uint64_t offset) noexcept -> std::span<const Signal::Discriminator>
 	{
-        ++where;
-		return { where, where + offset };
+		return { where + 1, where + 1 + offset };
 	}
 
 	/// <summary>
@@ -333,5 +332,5 @@ namespace Nominax::ByteCode
 	/// <param name="outIndex"></param>
 	/// <returns>Returns the validation result.</returns>
 	[[nodiscard]]
-	extern auto ValidateFullPass(const Stream& input, UserIntrinsicRoutineRegistry intrinsicRegistry = { }, std::uint32_t* outIndex = nullptr) -> ValidationResultCode;
+	extern auto ValidateFullPass(const Stream& input, UserIntrinsicRoutineRegistry intrinsicRegistry = { }, std::ptrdiff_t* outIndex = nullptr) -> ValidationResultCode;
 }

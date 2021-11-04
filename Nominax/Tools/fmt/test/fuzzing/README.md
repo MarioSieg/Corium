@@ -16,7 +16,7 @@ cmake --build .
 ```
 should work to build the fuzzers for all platforms which clang supports.
 
-Call a fuzzer with for instance
+Execute a fuzzer with for instance
 ```sh
 cd build
 export UBSAN_OPTIONS=halt_on_error=1

@@ -206,25 +206,18 @@
 #![allow(dead_code)]
 
 mod ast;
-mod cli;
-mod context;
+mod codegen;
+mod core;
 mod error;
-mod literal;
+mod misc;
+mod nominax;
 mod parser;
 mod semantic;
-mod unit;
+
+use misc::cli::Options;
+use structopt::StructOpt;
 
 fn main() {
-    let options = cli::Options::parse_and_validate();
-
-    let mut context = context::CompilerContext::new();
-
-    for file in options.input_files {
-        let com_unit = context.enqueue_file(file);
-        com_unit.dump_ast = options.dump_ast;
-        com_unit.dump_asm = options.dump_asm;
-        com_unit.opt_level = options.opt_level;
-    }
-
-    context.compile();
+    let options = Options::from_args();
+    options.process();
 }

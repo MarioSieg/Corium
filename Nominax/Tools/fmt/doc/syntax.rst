@@ -112,18 +112,18 @@ meaning in this case.
 The *sign* option is only valid for number types, and can be one of the
 following:
 
-+---------+----------------------------------------------------------+
-| Option  | Meaning                                                  |
-+=========+==========================================================+
-| ``'+'`` | indicates that a sign should be used for both            |
-|         | positive as well as negative numbers.                    |
-+---------+----------------------------------------------------------+
-| ``'-'`` | indicates that a sign should be used only for negative   |
-|         | numbers (this is the default behavior).                  |
-+---------+----------------------------------------------------------+
-| space   | indicates that a leading space should be used on         |
-|         | positive numbers, and a minus sign on negative numbers.  |
-+---------+----------------------------------------------------------+
++---------+------------------------------------------------------------+
+| Option  | Meaning                                                    |
++=========+============================================================+
+| ``'+'`` | indicates that a sign should be used for both              |
+|         | nonnegative as well as negative numbers.                   |
++---------+------------------------------------------------------------+
+| ``'-'`` | indicates that a sign should be used only for negative     |
+|         | numbers (this is the default behavior).                    |
++---------+------------------------------------------------------------+
+| space   | indicates that a leading space should be used on           |
+|         | nonnegative numbers, and a minus sign on negative numbers. |
++---------+------------------------------------------------------------+
 
 The ``'#'`` option causes the "alternate form" to be used for the
 conversion.  The alternate form is defined differently for different
@@ -203,6 +203,8 @@ The available integer presentation types are:
 |         | ``'#'`` option with this type adds the prefix ``"0B"``   |
 |         | to the output value.                                     |
 +---------+----------------------------------------------------------+
+| ``'c'`` | Character format. Outputs the number as a character.     |
++---------+----------------------------------------------------------+
 | ``'d'`` | Decimal integer. Outputs the number in base 10.          |
 +---------+----------------------------------------------------------+
 | ``'o'`` | Octal format. Outputs the number in base 8.              |
@@ -260,10 +262,8 @@ The available presentation types for floating-point values are:
 |         | ``'E'`` if the number gets too large. The                |
 |         | representations of infinity and NaN are uppercased, too. |
 +---------+----------------------------------------------------------+
-| none    | Similar to ``'g'``, except that fixed-point notation,    |
-|         | when used, has at least one digit past the decimal       |
-|         | point. The default precision is as high as needed to     |
-|         | represent the particular value.                          |
+| none    | Similar to ``'g'``, except that the default precision is |
+|         | as high as needed to represent the particular value.     |
 +---------+----------------------------------------------------------+
 
 .. ifconfig:: False
@@ -449,7 +449,7 @@ Using type-specific formatting::
 
 Using the comma as a thousands separator::
 
-   #include <fmt/locale.h>
+   #include <fmt/format.h>
 
    auto s = fmt::format(std::locale("en_US.UTF-8"), "{:L}", 1234567890);
    // s == "1,234,567,890"

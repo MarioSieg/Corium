@@ -29,7 +29,7 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
 include(${GOOGLETEST_PREFIX}/googletest-paths.cmake)
 
-# TODO(dominic): See #1202. Remove if https://github.com/google/googletest/pull/3492 lands upstream.
+# googletest doesn't seem to want to stay build warning clean so let's not hurt ourselves.
 add_compile_options(-w)
 
 # Add googletest directly to our build. This defines

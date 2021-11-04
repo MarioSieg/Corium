@@ -203,43 +203,12 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <cstdint>
+#pragma once
 
-#include "../Foundation/Platform.hpp"
+#include "Machine.hpp"
 
 namespace Nominax::JIT
 {
-#if NOX_ARCH_X86_64
-    /// <summary>
-    /// Machine code scalar.
-    /// </summary>
-    using MachCode = std::uint8_t;
-#else
-    /// <summary>
-    /// Machine code scalar.
-    /// </summary>
-    using MachCode = std::uint32_t;
-#endif
-
-    /// <summary>
-    /// Machine code scalar encoding a breakpoint or trap instruction.
-    /// Used to fill the JIT execbuf and to pad aligned subroutines.
-    /// </summary>
-    constexpr MachCode TRAP
-    {
-        []
-        {
-            if constexpr (NOX_ARCH_X86_64)
-            {
-                return 0xCC; // int3 -> breakpoint
-            }
-            else
-            {
-                return 0xFF'FF'FF'FF;
-            }
-        }()
-    };
-
     /// <summary>
     /// Invokes the machine code using a call instruction.
     /// The machine code MUST contains an exit (return) stub!
@@ -248,9 +217,9 @@ namespace Nominax::JIT
     /// <param name="needle"></param>
     /// <param name="end"></param>
     /// <returns></returns>
-    inline auto Invoke(const MachCode* const needle,  const MachCode* const end)
+    inline auto Invoke(MachineScalar* const needle, MachineScalar* const end)
     {
-        __builtin___clear_cache(reinterpret_cast<char*>(const_cast<MachCode*>(needle)), reinterpret_cast<char*>(const_cast<MachCode*>(end)));
-        reinterpret_cast<auto(*)()->void>(const_cast<MachCode*>(needle))();
+        __builtin___clear_cache(reinterpret_cast<char*>(needle), reinterpret_cast<char*>(end));
+        reinterpret_cast<auto(*)()->void>(needle)();
     }
 }

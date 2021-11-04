@@ -203,6 +203,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+#include <fstream>
 #include <execution>
 
 #include "../../../Nominax/Include/Nominax/Foundation/_Foundation.hpp"
@@ -243,7 +244,7 @@ namespace Nominax::Foundation
 		if (!stream)
 		{
 			[[likely]]
-				return false;
+            return false;
 		}
 		stream << this->Content_;
 		return true;
@@ -256,7 +257,7 @@ namespace Nominax::Foundation
 		if (!stream)
 		{
 			[[unlikely]]
-				return false;
+            return false;
 		}
 		this->ReadFromStream(stream);
 		return true;
@@ -275,7 +276,7 @@ namespace Nominax::Foundation
 		if (!this->ReadFromFile(std::move(path)))
 		{
 			[[unlikely]]
-            Panic(Format("Failed to read text file from path: {}", path.string()));
+			Panic::PanicF({}, NOX_FMT("Failed to read text file from path: {}"), path.string());
 		}
 	}
 

@@ -242,11 +242,11 @@ namespace Nominax::ByteCode
 		}
 		else if constexpr (std::is_same_v<SysCall, T>)
 		{
-			return { Signal::Discriminator::SysCallID };
+			return { Signal::Discriminator::SysCall };
 		}
 		else if constexpr (std::is_same_v<UserIntrinsicInvocationID, T>)
 		{
-			return { Signal::Discriminator::UserIntrinsicInvocationID };
+			return { Signal::Discriminator::Intrinsic };
 		}
 		else if constexpr (std::is_same_v<JumpAddress, T>)
 		{
@@ -254,7 +254,7 @@ namespace Nominax::ByteCode
 		}
 		else if constexpr (std::is_same_v<std::uint64_t, T>)
 		{
-			return { Signal::Discriminator::UOffset };
+			return { Signal::Discriminator::MemoryOffset };
 		}
 		else if constexpr (std::is_same_v<std::int64_t, T>)
 		{

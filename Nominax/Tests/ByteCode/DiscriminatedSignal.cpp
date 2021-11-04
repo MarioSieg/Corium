@@ -208,10 +208,10 @@
 TEST(DiscriminatedSignal, MapStreamType)
 {
 	ASSERT_EQ(MapStreamType<Instruction>().value(), Signal::Discriminator::Instruction);
-	ASSERT_EQ(MapStreamType<SysCall>().value(), Signal::Discriminator::SysCallID);
-	ASSERT_EQ(MapStreamType<UserIntrinsicInvocationID>().value(), Signal::Discriminator::UserIntrinsicInvocationID);
+	ASSERT_EQ(MapStreamType<SysCall>().value(), Signal::Discriminator::SysCall);
+	ASSERT_EQ(MapStreamType<UserIntrinsicInvocationID>().value(), Signal::Discriminator::Intrinsic);
 	ASSERT_EQ(MapStreamType<JumpAddress>().value(), Signal::Discriminator::JumpAddress);
-	ASSERT_EQ(MapStreamType<std::uint64_t>().value(), Signal::Discriminator::UOffset);
+	ASSERT_EQ(MapStreamType<std::uint64_t>().value(), Signal::Discriminator::MemoryOffset);
 	ASSERT_EQ(MapStreamType<std::int64_t>().value(), Signal::Discriminator::Int);
 	ASSERT_EQ(MapStreamType<double>().value(), Signal::Discriminator::Float);
 	ASSERT_FALSE(MapStreamType<short>().has_value());

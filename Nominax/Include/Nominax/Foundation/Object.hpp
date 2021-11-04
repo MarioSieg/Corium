@@ -209,7 +209,7 @@
 #include <vector>
 
 #include "ObjectHeader.hpp"
-#include "PanicAssertions.hpp"
+#include "Panic/Assertions.hpp"
 
 namespace Nominax::Foundation
 {

@@ -229,6 +229,7 @@ TEST(ReactorExecution, Instruction_Int)
 
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -255,6 +256,7 @@ TEST(ReactorExecution, Instruction_Mov)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -279,6 +281,7 @@ TEST(ReactorExecution, Instruction_Sto)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -301,6 +304,7 @@ TEST(ReactorExecution, Instruction_Push)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -325,6 +329,7 @@ TEST(ReactorExecution, Instruction_Pop)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	auto output { SingletonExecutionProxy(input) };
@@ -355,6 +360,7 @@ TEST(ReactorExecution, Instruction_Pop2)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -380,6 +386,7 @@ TEST(ReactorExecution, Instruction_Dupl)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -405,6 +412,7 @@ TEST(ReactorExecution, Instruction_Swap)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -430,6 +438,7 @@ TEST(ReactorExecution, Instruction_Dupl2)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -459,6 +468,7 @@ TEST(ReactorExecution, Instruction_IInc)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -485,6 +495,7 @@ TEST(ReactorExecution, Instruction_IDec)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 	const ReactorState output { SingletonExecutionProxy(input) };
 	ASSERT_EQ(output.Input->Stack[0], Record::Padding());
@@ -506,6 +517,7 @@ TEST(ReactorExecution, Instruction_PushZ)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -528,6 +540,7 @@ TEST(ReactorExecution, Instruction_IPushO)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -552,6 +565,7 @@ TEST(ReactorExecution, Instruction_IAdd)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -576,6 +590,7 @@ TEST(ReactorExecution, Instruction_ISub)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -600,6 +615,7 @@ TEST(ReactorExecution, Instruction_IMul)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -624,6 +640,7 @@ TEST(ReactorExecution, Instruction_IDiv)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -648,6 +665,7 @@ TEST(ReactorExecution, Instruction_IMod)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -672,6 +690,7 @@ TEST(ReactorExecution, Instruction_IAnd)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -696,6 +715,7 @@ TEST(ReactorExecution, Instruction_IOr)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -720,6 +740,7 @@ TEST(ReactorExecution, Instruction_IXor)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -742,6 +763,7 @@ TEST(ReactorExecution, Instruction_ICom)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -765,6 +787,7 @@ TEST(ReactorExecution, Instruction_ISal)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -789,6 +812,7 @@ TEST(ReactorExecution, Instruction_ISar)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -813,6 +837,7 @@ TEST(ReactorExecution, Instruction_IRol)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -836,6 +861,7 @@ TEST(ReactorExecution, Instruction_IRor)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -858,6 +884,7 @@ TEST(ReactorExecution, Instruction_INeg)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -881,6 +908,7 @@ TEST(ReactorExecution, Instruction_FAdd)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -905,6 +933,7 @@ TEST(ReactorExecution, Instruction_FMod)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -929,6 +958,7 @@ TEST(ReactorExecution, Instruction_FSub)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -953,6 +983,7 @@ TEST(ReactorExecution, Instruction_FMul)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -977,6 +1008,7 @@ TEST(ReactorExecution, Instruction_FDiv)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -999,6 +1031,7 @@ TEST(ReactorExecution, Instruction_FNeg)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -1024,6 +1057,7 @@ TEST(ReactorExecution, Instruction_FInc)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -1050,6 +1084,7 @@ TEST(ReactorExecution, Instruction_FDec)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -1072,6 +1107,7 @@ TEST(ReactorExecution, Instruction_FPushO)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -1097,6 +1133,7 @@ TEST(ReactorExecution, Instruction_Call)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -1125,6 +1162,7 @@ TEST(ReactorExecution, Instruction_Ret)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -1152,6 +1190,7 @@ TEST(ReactorExecution, Instruction_Jmp)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -1177,6 +1216,7 @@ TEST(ReactorExecution, Instruction_JmpRel)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -1204,6 +1244,7 @@ TEST(ReactorExecution, Instruction_JZ)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -1232,6 +1273,7 @@ TEST(ReactorExecution, Instruction_JnZ)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -1260,6 +1302,7 @@ TEST(ReactorExecution, Instruction_JoCmpI)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -1288,6 +1331,7 @@ TEST(ReactorExecution, Instruction_JnoCmpI)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -1316,6 +1360,7 @@ TEST(ReactorExecution, Instruction_JoCmpF)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -1344,6 +1389,7 @@ TEST(ReactorExecution, Instruction_JnoCmpF)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -1377,6 +1423,7 @@ TEST(ReactorExecution, Instruction_JeCmpI)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -1411,6 +1458,7 @@ TEST(ReactorExecution, Instruction_JeCmpF)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -1446,6 +1494,7 @@ TEST(ReactorExecution, Instruction_JneCmpI)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -1481,6 +1530,7 @@ TEST(ReactorExecution, Instruction_JneCmpF)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -1516,6 +1566,7 @@ TEST(ReactorExecution, Instruction_JaCmpI)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -1551,6 +1602,7 @@ TEST(ReactorExecution, Instruction_JaCmpF)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -1586,6 +1638,7 @@ TEST(ReactorExecution, Instruction_JlCmpI)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -1621,6 +1674,7 @@ TEST(ReactorExecution, Instruction_JlCmpF)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -1662,6 +1716,7 @@ TEST(ReactorExecution, Instruction_JaeCmpI)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -1703,6 +1758,7 @@ TEST(ReactorExecution, Instruction_JaeCmpF)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -1744,6 +1800,7 @@ TEST(ReactorExecution, Instruction_JleCmpI)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -1785,6 +1842,7 @@ TEST(ReactorExecution, Instruction_JleCmpF)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -1812,6 +1870,7 @@ TEST(ReactorExecution, Instruction_VecPush)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -1842,6 +1901,7 @@ TEST(ReactorExecution, Instruction_VecPop)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -1878,6 +1938,7 @@ TEST(ReactorExecution, Instruction_VecAdd)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -1914,6 +1975,7 @@ TEST(ReactorExecution, Instruction_VecSub)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -1950,6 +2012,7 @@ TEST(ReactorExecution, Instruction_VecMul)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -1986,6 +2049,7 @@ TEST(ReactorExecution, Instruction_VecDiv)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -2027,6 +2091,7 @@ TEST(ReactorExecution, Instruction_MatPush)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -2080,6 +2145,7 @@ TEST(ReactorExecution, Instruction_MatPop)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -2151,6 +2217,7 @@ TEST(ReactorExecution, Instruction_MatAdd)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -2222,6 +2289,7 @@ TEST(ReactorExecution, Instruction_MatSub)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -2293,6 +2361,7 @@ TEST(ReactorExecution, Instruction_MatMul)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -2364,6 +2433,7 @@ TEST(ReactorExecution, Instruction_MatDiv)
 	VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
 	input.CodeChunk     = std::data(code);
 	input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
 	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
 	const ReactorState output { SingletonExecutionProxy(input) };
@@ -2402,6 +2472,7 @@ TEST(ReactorExecution, Instruction_CVTI2F)
     VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
     input.CodeChunk     = std::data(code);
     input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
     ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
     const ReactorState output { SingletonExecutionProxy(input) };
@@ -2423,6 +2494,7 @@ TEST(ReactorExecution, Instruction_CVTF2I)
     VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
     input.CodeChunk     = std::data(code);
     input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
     ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
     const ReactorState output { SingletonExecutionProxy(input) };
@@ -2444,6 +2516,7 @@ TEST(ReactorExecution, Instruction_CVTI2C)
     VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
     input.CodeChunk     = std::data(code);
     input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
     ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
     const ReactorState output { SingletonExecutionProxy(input) };
@@ -2472,6 +2545,7 @@ TEST(ReactorExecution, Instruction_CVTI2B)
     VerboseReactorDescriptor input { MOCK_REACTOR_INPUT };
     input.CodeChunk     = std::data(code);
     input.CodeChunkSize = std::size(code);
+    MockStack[0] = Record::Padding();
     ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
 
     const ReactorState output { SingletonExecutionProxy(input) };

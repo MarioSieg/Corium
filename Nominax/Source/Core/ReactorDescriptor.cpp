@@ -255,16 +255,16 @@ namespace Nominax::Core
 		if (this->IntrinsicTable) [[likely]]
 		{
 			// validate intrinsic routines:
-			auto* const*       begin { this->IntrinsicTable };
-			auto* const* const end { this->IntrinsicTable + this->IntrinsicTableSize };
-			while (begin < end)
-			{
-				if (!*begin++)
-				{
-					[[unlikely]]
+			ByteCode::IntrinsicRoutine* const* i {this->IntrinsicTable };
+            ByteCode::IntrinsicRoutine* const* const end { this->IntrinsicTable + this->IntrinsicTableSize };
+            for (; i < end; ++i)
+            {
+                if (!i || !*i)
+                {
+                    [[unlikely]]
                     return ReactorValidationResult::NullIntrinsicRoutine;
-				}
-			}
+                }
+            }
 		}
 
 		return ReactorValidationResult::Ok;

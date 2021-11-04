@@ -285,17 +285,17 @@ namespace Nominax::Core
 	[[nodiscard]]
 	NOX_ALLOC_SIZE(1) static inline auto AllocatePool(const std::uint64_t size, const std::string_view poolId) -> std::uint8_t*
 	{
-		Print("Allocating {} pool with size: {} MB\n", poolId, Bytes2Megabytes(static_cast<double>(size)));
+		Print(NOX_FMT("Allocating {} pool with size: {} MB\n"), poolId, Memory::Bytes2Megabytes(static_cast<double>(size)));
 		auto* NOX_RESTRICT const mem { new(std::nothrow) std::uint8_t[size] };
 		if (!mem) [[unlikely]]
 		{
-            Panic
+            Panic::Panic
             (
                 Format
                 (
-                    "Allocation of monotonic {} pool with size {} MB failed!",
+                    NOX_FMT("Allocation of monotonic {} pool with size {} MB failed!"),
                     poolId,
-                    Bytes2Megabytes(static_cast<double>(size))
+                    Memory::Bytes2Megabytes(static_cast<double>(size))
                 )
             );
 		}
@@ -341,7 +341,7 @@ namespace Nominax::Core
 	/// <param name="fallback"></param>
 	/// <param name="cpu"></param>
 	/// <returns></returns>
-	static inline auto QueryExecRoutine(const bool fallback, const CPUFeatureDetector& cpu)
+	static inline auto QueryExecRoutine(const bool fallback, const CPU::ISAExtensionDetector& cpu)
 	{
 		return fallback ? HyperVisor::GetFallbackRoutineLink() : HyperVisor::GetOptimalReactorRoutine(cpu);
 	}
@@ -361,9 +361,9 @@ namespace Nominax::Core
     /// Fetch and print cpu features.
     /// </summary>
     /// <returns></returns>Common::
-    static auto InitCpuFeatures() -> CPUFeatureDetector
+    static auto InitCpuFeatures() -> CPU::ISAExtensionDetector
     {
-        CPUFeatureDetector cpuFeatureDetector { };
+		CPU::ISAExtensionDetector cpuFeatureDetector { };
         cpuFeatureDetector.DisplayToConsole();
         return cpuFeatureDetector;
     }
@@ -383,7 +383,7 @@ namespace Nominax::Core
 		const std::chrono::high_resolution_clock::time_point        BootStamp;
 		std::chrono::milliseconds                                   BootTime;
 		const SystemInfoSnapshot                                    SysInfoSnapshot;
-		const CPUFeatureDetector                                    CPUFeatures;
+		const CPU::ISAExtensionDetector								CPUFeatures;
 		const ReactorRoutineLink                                    OptimalReactorRoutine;
 		ReactorPool                                                 CorePool;
         std::uint64_t                                               ExecutionCount;
@@ -468,11 +468,11 @@ namespace Nominax::Core
 		return true;
 	}
 
-	Environment::Environment(const IAllocator* const allocator)
+	Environment::Environment(const Allocator::IAllocator* const allocator)
 	{
 		if (allocator)
 		{
-			GlobalAllocatorProxy = allocator;
+			Allocator::GlobalAllocatorProxy = allocator;
 		}
 	}
 
@@ -493,7 +493,7 @@ namespace Nominax::Core
 		std::ios_base::sync_with_stdio(false);
 		SYSTEM_VERSION.DisplayToConsole();
         NATIVE_TYPE_REGISTRY.DisplayToConsole();
-		Print("\nBooting runtime environment...\nApp: \"{}\"\n", descriptor.AppName);
+		Print(NOX_FMT("\nBooting runtime environment...\nApp: \"{}\"\n"), descriptor.AppName);
 		const auto tik { std::chrono::high_resolution_clock::now() };
 
 		// Invoke hook:
@@ -501,9 +501,9 @@ namespace Nominax::Core
 
 		Print
 		(
-			"Monotonic system pool fixed size: {} MB, Fallback: {} MB\n",
-			Bytes2Megabytes(descriptor.SystemPoolSize),
-			Bytes2Megabytes(FALLBACK_SYSTEM_POOL_SIZE)
+			NOX_FMT("Monotonic system pool fixed size: {} MB, Fallback: {} MB\n"),
+			Memory::Bytes2Megabytes(descriptor.SystemPoolSize),
+			Memory::Bytes2Megabytes(FALLBACK_SYSTEM_POOL_SIZE)
 		);
 
 		// No, we cannot use std::make_unique because we want it noexcept!
@@ -531,22 +531,25 @@ namespace Nominax::Core
 			)
 		};
 
-		const auto bootTime {std::chrono::duration_cast<std::chrono::milliseconds>(tok - tik) };
+		const auto bootTime { std::chrono::duration_cast<std::chrono::milliseconds>(tok - tik) };
 		this->Context_->BootTime = bootTime;
 
 		Print
 		(
-            "Runtime environment online!\n"
-			"Process memory snapshot: {:.1f} % [{:.1f} MB / {:.1f} MB]\n"
-			"Monotonic system pool snapshot: {:.1f} % [{:.1f} MB / {:.1f} MB]\n"
-			"Boot time: {}\n"
-			"\n",
+           	NOX_FMT
+			(
+				"Runtime environment online!\n"
+				"Process memory snapshot: {:.1f} % [{:.1f} MB / {:.1f} MB]\n"
+				"Monotonic system pool snapshot: {:.1f} % [{:.1f} MB / {:.1f} MB]\n"
+				"Boot time: {}\n"
+				"\n"
+			),
             memUsagePercent,
-            Bytes2Megabytes(static_cast<float>(memSnapshot)),
-            Bytes2Megabytes(static_cast<float>(this->Context_->SysInfoSnapshot.TotalSystemMemory)),
+            Memory::Bytes2Megabytes(static_cast<float>(memSnapshot)),
+            Memory::Bytes2Megabytes(static_cast<float>(this->Context_->SysInfoSnapshot.TotalSystemMemory)),
             sysPoolPer,
-            Bytes2Megabytes(static_cast<float>(sysPoolSize)),
-            Bytes2Megabytes(static_cast<float>(this->Context_->SystemPoolSize)),
+            Memory::Bytes2Megabytes(static_cast<float>(sysPoolSize)),
+            Memory::Bytes2Megabytes(static_cast<float>(this->Context_->SystemPoolSize)),
             bootTime
 		);
 	}
@@ -563,7 +566,7 @@ namespace Nominax::Core
         DISPATCH_HOOK(OnPreExecutionHook, image);
 
         // Info
-        Print("Executing...\n");
+        Print(NOX_FMT("Executing...\n"));
         std::FILE* const outStream  { stdout };
         std::fflush(outStream);
 
@@ -576,7 +579,7 @@ namespace Nominax::Core
 
         // Print exec info:
         const auto time { duration_cast<duration<double, std::ratio<1>>>(micros) };
-        Print("Execution #{} done! Runtime {:.4}\n", this->Context_->ExecutionCount, time);
+        Print(NOX_FMT("Execution #{} done! Runtime {:.4}\n"), this->Context_->ExecutionCount, time);
         std::fflush(outStream);
 
         // Invoke hook:
@@ -588,7 +591,16 @@ namespace Nominax::Core
 	{
 		ByteCode::Image codeImage { };
 		const ByteCode::ValidationResultCode buildResult { ByteCode::Stream::Build(std::move(stream), this->GetOptimizationHints(), codeImage) };
-		NOX_PAS_EQ(buildResult, ByteCode::ValidationResultCode::Ok, Format("Byte code validation failed for stream! {}", REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[ToUnderlying(buildResult)]));
+		NOX_PAS_EQ
+		(
+			buildResult,
+			ByteCode::ValidationResultCode::Ok,
+			Format
+			(
+				"Byte code validation failed for stream! {}",
+				ByteCode::BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES[Algorithm::ToUnderlying(buildResult)]
+			)
+		);
 		return (*this)(codeImage);
 	}
 
@@ -596,7 +608,16 @@ namespace Nominax::Core
 	{
 		ByteCode::Image codeImage { };
 		const ByteCode::ValidationResultCode buildResult { ByteCode::Stream::Build(stream, this->GetOptimizationHints(), codeImage) };
-        NOX_PAS_EQ(buildResult, ByteCode::ValidationResultCode::Ok, Format("Byte code validation failed for stream! {}", REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[ToUnderlying(buildResult)]));
+        NOX_PAS_EQ
+		(
+			buildResult,
+			ByteCode::ValidationResultCode::Ok,
+			Format
+			(
+				"Byte code validation failed for stream! {}",
+				ByteCode::BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES[Algorithm::ToUnderlying(buildResult)]
+			)
+		);
 		return (*this)(codeImage);
 	}
 
@@ -646,7 +667,7 @@ namespace Nominax::Core
 		return this->Context_->SysInfoSnapshot;
 	}
 
-	auto Environment::GetCpuFeatureSnapshot() const -> const CPUFeatureDetector&
+	auto Environment::GetCpuFeatureSnapshot() const -> const CPU::ISAExtensionDetector&
 	{
 		VALIDATE_ONLINE_BOOT_STATE();
 		return this->Context_->CPUFeatures;

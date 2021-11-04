@@ -9,17 +9,19 @@ lto = "fat"
 codegen-units = 1
 panic = "abort"
 
-[build-dependencies]
-
 [dependencies]
+nominax_bytecode_interface = { path = "../../Nominax/ByteCodeInterface/Rust/NominaxByteCodeInterface" }
 
 # Will be replaced by custom modified parser implementation
 pest = "2.1.3"
 pest_derive = "2.1.0"
 
-uuid = { version = "0.8.2", features = ["v4"] }     # UUIDs
-smallvec = "1.6.1"                                  # stack allocated vector
-colored = "2.0.0"                                   # terminal color printing
-humantime = "2.1.0"                                 # time formatting
-structopt = "0.3.23"                                # command line parsing
-num_cpus = "1.13.0"                                 # query amount of logical or physical cpus
+uuid = { version = "0.8.2", features = ["v4"] }
+colored = "2.0.0"
+humantime = "2.1.0"
+structopt = "0.3.23"
+toml = "0.5.8"
+serde = { version = "1.0.130", features = ["derive"] }
+walkdir = "2.3.2"
+num-traits = "0.2.14"
+num-derive = "0.3.3"

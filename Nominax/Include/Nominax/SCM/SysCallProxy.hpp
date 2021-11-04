@@ -209,19 +209,22 @@
 #include "../Foundation/Record.hpp"
 #include "../Foundation/VariadicMacroHelper.hpp"
 
-#define NOX_SYSCALL_ATTRIBS NOX_HOT NOX_FORCE_INLINE static inline
-#define NOX_SYSCALL_PROXY(name) NOX_SYSCALL_ATTRIBS auto name (Foundation::Record* NOX_RESTRICT sp) noexcept -> void
+#define NOX_SYSCALL_SPT [[maybe_unused]] Foundation::Record
+#define NOX_SYSCALL_SPT_ATTRIBS const NOX_RESTRICT
+#define NOX_SYSCALL_LIB_ATTRIBS NOX_FLATTEN inline
+#define NOX_SYSCALL_ATTRIBS NOX_HOT NOX_SYSCALL_LIB_ATTRIBS
+#define NOX_SYSCALL_PROXY(name) NOX_SYSCALL_ATTRIBS auto name (NOX_SYSCALL_SPT* NOX_SYSCALL_SPT_ATTRIBS sp) noexcept -> void
 
-#define NOX_SYSCALL_ARG1()  (*sp)
-#define NOX_SYSCALL_ARG2()  (*(sp-1))
-#define NOX_SYSCALL_ARG3()  (*(sp-2))
-#define NOX_SYSCALL_ARG4()  (*(sp-3))
-#define NOX_SYSCALL_ARG5()  (*(sp-4))
-#define NOX_SYSCALL_ARG6()  (*(sp-5))
-#define NOX_SYSCALL_ARG7()  (*(sp-6))
-#define NOX_SYSCALL_ARG8()  (*(sp-7))
-#define NOX_SYSCALL_ARG9()  (*(sp-8))
-#define NOX_SYSCALL_ARG10() (*(sp-9)
+#define NOX_SYSCALL_ARG1()   (*sp)
+#define NOX_SYSCALL_ARG2()   (*(sp-1))
+#define NOX_SYSCALL_ARG3()   (*(sp-2))
+#define NOX_SYSCALL_ARG4()   (*(sp-3))
+#define NOX_SYSCALL_ARG5()   (*(sp-4))
+#define NOX_SYSCALL_ARG6()   (*(sp-5))
+#define NOX_SYSCALL_ARG7()   (*(sp-6))
+#define NOX_SYSCALL_ARG8()   (*(sp-7))
+#define NOX_SYSCALL_ARG9()   (*(sp-8))
+#define NOX_SYSCALL_ARG10()  (*(sp-9)
 
 // Should only be included from implementation for implementation:
 #define ARG1    NOX_SYSCALL_ARG1()

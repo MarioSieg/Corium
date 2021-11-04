@@ -204,23 +204,34 @@
 //    limitations under the License.
 
 use crate::parser::Rule;
+use num_derive::FromPrimitive;
 use std::convert;
 use std::default;
 use std::fmt;
 
+pub mod builtin_types;
 pub mod populator;
 pub mod table;
 
 #[cfg(test)]
 mod tests;
 
+use builtin_types::*;
+
+const PARAM_MANGLE_SEPARATOR: char = '_';
+
 pub trait AstComponent: Clone + fmt::Display + fmt::Debug {
     const CORRESPONDING_RULE: Rule;
 }
 
+pub trait Statement: AstComponent {
+    fn descriptive_name(&self) -> &'static str;
+    fn code_identifier(&self) -> Identifier;
+}
+
 #[derive(Clone, Debug)]
 pub struct CompilationUnit<'ast> {
-    pub module: Module<'ast>,
+    pub module: Option<Module<'ast>>,
     pub statements: Vec<GlobalStatement<'ast>>,
 }
 
@@ -230,7 +241,9 @@ impl<'ast> AstComponent for CompilationUnit<'ast> {
 
 impl<'ast> fmt::Display for CompilationUnit<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.module)?;
+        if let Some(module) = &self.module {
+            write!(f, "{}", module)?;
+        }
         for smt in &self.statements {
             write!(f, "{}", smt)?;
         }
@@ -241,6 +254,8 @@ impl<'ast> fmt::Display for CompilationUnit<'ast> {
 /// Represents a file scope statement.
 #[derive(Clone, Debug)]
 pub enum GlobalStatement<'ast> {
+    MutableVariable(MutableVariable<'ast>),
+    ImmutableVariable(ImmutableVariable<'ast>),
     Function(Function<'ast>),
     NativeFunction(NativeFunction<'ast>),
 }
@@ -252,8 +267,30 @@ impl<'ast> AstComponent for GlobalStatement<'ast> {
 impl<'ast> fmt::Display for GlobalStatement<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
+            Self::MutableVariable(x) => write!(f, "{}", x),
+            Self::ImmutableVariable(x) => write!(f, "{}", x),
             Self::Function(x) => write!(f, "{}", x),
             Self::NativeFunction(x) => write!(f, "{}", x),
+        }
+    }
+}
+
+impl<'ast> Statement for GlobalStatement<'ast> {
+    fn descriptive_name(&self) -> &'static str {
+        match self {
+            Self::MutableVariable(_) => "mutable variable",
+            Self::ImmutableVariable(_) => "immutable variable",
+            Self::Function(_) => "function",
+            Self::NativeFunction(_) => "native function",
+        }
+    }
+
+    fn code_identifier(&self) -> Identifier {
+        match self {
+            Self::MutableVariable(x) => x.name,
+            Self::ImmutableVariable(x) => x.name,
+            Self::Function(x) => x.signature.name,
+            Self::NativeFunction(x) => x.signature.name,
         }
     }
 }
@@ -313,11 +350,12 @@ impl<'ast> AstComponent for FunctionSignature<'ast> {
 
 impl<'ast> fmt::Display for FunctionSignature<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}(", self.name)?;
-        for param in &self.parameters {
-            write!(f, "{}", param)?;
+        write!(f, "{}", self.name)?;
+        if let Some(params) = &self.parameters {
+            write!(f, "{}", params)?;
+        } else {
+            write!(f, "()")?;
         }
-        write!(f, ")")?;
         if let Some(ret) = &self.return_type {
             write!(f, " {}", ret)?;
         }
@@ -325,8 +363,21 @@ impl<'ast> fmt::Display for FunctionSignature<'ast> {
     }
 }
 
+impl<'ast> FunctionSignature<'ast> {
+    pub fn overloaded_mangled_name(&self) -> String {
+        let mut result = self.name.0.to_string();
+        if let Some(params) = &self.parameters {
+            for param in &params.0 {
+                result.push(PARAM_MANGLE_SEPARATOR);
+                result.push_str(param.type_hint.full);
+            }
+        }
+        result
+    }
+}
+
 #[derive(Clone, Debug)]
-pub struct Block<'ast>(pub Vec<FunctionStatement<'ast>>);
+pub struct Block<'ast>(pub Vec<LocalStatement<'ast>>);
 
 impl<'ast> AstComponent for Block<'ast> {
     const CORRESPONDING_RULE: Rule = Rule::Block;
@@ -341,21 +392,47 @@ impl<'ast> fmt::Display for Block<'ast> {
     }
 }
 
+impl<'ast> Block<'ast> {
+    pub fn empty() -> Self {
+        Self(Vec::new())
+    }
+}
+
 #[derive(Clone, Debug)]
-pub enum FunctionStatement<'ast> {
-    LocalVariable(LocalVariable<'ast>),
+pub enum LocalStatement<'ast> {
+    MutableVariable(MutableVariable<'ast>),
+    ImmutableVariable(ImmutableVariable<'ast>),
     ReturnStatement(ReturnStatement<'ast>),
 }
 
-impl<'ast> AstComponent for FunctionStatement<'ast> {
-    const CORRESPONDING_RULE: Rule = Rule::FunctionStatement;
+impl<'ast> AstComponent for LocalStatement<'ast> {
+    const CORRESPONDING_RULE: Rule = Rule::LocalStatement;
 }
 
-impl<'ast> fmt::Display for FunctionStatement<'ast> {
+impl<'ast> fmt::Display for LocalStatement<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::LocalVariable(x) => write!(f, "{}", x),
+            Self::MutableVariable(x) => write!(f, "{}", x),
+            Self::ImmutableVariable(x) => write!(f, "{}", x),
             Self::ReturnStatement(x) => write!(f, "{}", x),
+        }
+    }
+}
+
+impl<'ast> Statement for LocalStatement<'ast> {
+    fn descriptive_name(&self) -> &'static str {
+        match self {
+            Self::MutableVariable(_) => "mutable variable",
+            Self::ImmutableVariable(_) => "immutable variable",
+            Self::ReturnStatement(_) => "return",
+        }
+    }
+
+    fn code_identifier(&self) -> Identifier {
+        match self {
+            Self::MutableVariable(x) => x.name,
+            Self::ImmutableVariable(x) => x.name,
+            Self::ReturnStatement(_) => Identifier("return"),
         }
     }
 }
@@ -386,10 +463,15 @@ impl<'ast> AstComponent for ParameterList<'ast> {
 
 impl<'ast> fmt::Display for ParameterList<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        for param in &self.0 {
-            write!(f, "{}", param)?;
+        write!(f, "(")?;
+        if !self.0.is_empty() {
+            let last = self.0.len() - 1;
+            for (i, param) in self.0.iter().enumerate() {
+                let spacing = if i != last { ", " } else { "" };
+                write!(f, "{}{}", param, spacing)?;
+            }
         }
-        Ok(())
+        write!(f, ")")
     }
 }
 
@@ -417,19 +499,41 @@ impl<'ast> fmt::Display for Parameter<'ast> {
 
 /// Represents a local variable
 #[derive(Clone, Debug)]
-pub struct LocalVariable<'ast> {
+pub struct MutableVariable<'ast> {
     pub name: Identifier<'ast>,
     pub type_hint: Option<QualifiedName<'ast>>,
     pub value: Expression<'ast>,
 }
 
-impl<'ast> AstComponent for LocalVariable<'ast> {
-    const CORRESPONDING_RULE: Rule = Rule::LocalVariable;
+impl<'ast> AstComponent for MutableVariable<'ast> {
+    const CORRESPONDING_RULE: Rule = Rule::MutableVariable;
 }
 
-impl<'ast> fmt::Display for LocalVariable<'ast> {
+impl<'ast> fmt::Display for MutableVariable<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "let {}", self.name)?;
+        if let Some(typename) = &self.type_hint {
+            write!(f, " {}", typename)?;
+        }
+        write!(f, " = {}", self.value)?;
+        Ok(())
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct ImmutableVariable<'ast> {
+    pub name: Identifier<'ast>,
+    pub type_hint: Option<QualifiedName<'ast>>,
+    pub value: Expression<'ast>,
+}
+
+impl<'ast> AstComponent for ImmutableVariable<'ast> {
+    const CORRESPONDING_RULE: Rule = Rule::ImmutableVariable;
+}
+
+impl<'ast> fmt::Display for ImmutableVariable<'ast> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "const {}", self.name)?;
         if let Some(typename) = &self.type_hint {
             write!(f, " {}", typename)?;
         }
@@ -452,7 +556,7 @@ pub enum Expression<'ast> {
 
     /// Unary operation (operation with one operand).
     UnaryOperation {
-        op: UnaryOperator,
+        op: Operator,
         sub: Box<Expression<'ast>>,
     },
 }
@@ -476,33 +580,73 @@ impl<'ast> fmt::Display for Expression<'ast> {
 
 /// Represents an unary operator having one operand. E.g. +10 or -0.5 or !x
 #[repr(u8)]
-#[derive(Clone, Eq, PartialEq, Debug)]
-pub enum UnaryOperator {
+#[derive(Copy, Clone, Eq, PartialEq, Debug, FromPrimitive)]
+pub enum Operator {
+    // Arithmetic
     /// +
-    Plus,
+    Addition,
 
     /// -
-    Minus,
+    Subtraction,
 
-    /// ! -> logical not
-    Not,
+    /// *
+    Multiplication,
 
-    /// ~ -> bitwise not
-    Complement,
+    /// /
+    Division,
+
+    /// %
+    Modulo,
+
+    // Bitwise
+    /// &
+    BitwiseAnd,
+
+    /// |
+    BitwiseOr,
+
+    /// ^
+    BitwiseXor,
+
+    /// ~
+    BitwiseComplement,
+
+    /// <<
+    BitwiseShiftLeft,
+
+    /// >>
+    BitwiseShiftRight,
+
+    /// <<<
+    BitwiseRotateLeft,
+
+    /// >>>
+    BitwiseRotateRight,
+
+    // Logical
+    /// not
+    LogicalNot,
+
+    /// and
+    LogicalAnd,
+
+    /// or
+    LogicalOr,
 }
 
-impl AstComponent for UnaryOperator {
-    const CORRESPONDING_RULE: Rule = Rule::UnaryOperator;
+impl Operator {
+    pub const TOKENS: [&'static str; Self::LogicalOr as usize + 1] = [
+        "+", "-", "*", "/", "%", "&", "|", "^", "~", "<<", ">>", "<<<", ">>>", "not", "and", "or",
+    ];
 }
 
-impl fmt::Display for UnaryOperator {
+impl AstComponent for Operator {
+    const CORRESPONDING_RULE: Rule = Rule::Operator;
+}
+
+impl fmt::Display for Operator {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Self::Plus => write!(f, "+"),
-            Self::Minus => write!(f, "-"),
-            Self::Not => write!(f, "!"),
-            Self::Complement => write!(f, "~"),
-        }
+        write!(f, "{}", Self::TOKENS[*self as usize])
     }
 }
 
@@ -534,7 +678,12 @@ impl<'ast> fmt::Display for Literal<'ast> {
         match self {
             Self::Float(x) => write!(f, "{}", x),
             Self::Int(x) => write!(f, "{}", x),
-            Self::Char(x) => write!(f, "'{}'", x),
+            Self::Char(x) => match x {
+                '\n' => write!(f, "'\\n'"),
+                '\r' => write!(f, "'\\r'"),
+                '\t' => write!(f, "'\\t'"),
+                _ => write!(f, "'{}'", x),
+            },
             Self::Bool(x) => write!(f, "{}", x),
             Self::String(x) => write!(f, "\"{}\"", x),
         }
@@ -605,15 +754,3 @@ impl<'ast> fmt::Display for Identifier<'ast> {
         write!(f, "{}", self.0)
     }
 }
-
-/// Represents a Corium "int".
-pub type Int = i64;
-
-/// Represents a Corium "float".
-pub type Float = f64;
-
-/// Represents a Corium "bool".
-pub type Bool = bool;
-
-/// Represents a Corium "char".
-pub type Char = char;

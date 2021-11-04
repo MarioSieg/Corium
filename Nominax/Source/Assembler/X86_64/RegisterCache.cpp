@@ -215,23 +215,23 @@ namespace Nominax::Assembler::X86_64
 
     auto RegisterCache::Fetch() -> void
     {
-        using Foundation::CPUFeatureBits;
+        using Foundation::CPU::ISAExtensionBit;
 
         Routines::QueryRegSet_GPR(std::data(this->GPRSet));
         Routines::QueryRegSet_SSE(std::data(this->SSESet));
-        const Foundation::CPUFeatureDetector features { };
-        if (features[CPUFeatureBits::AVX])
+        const Foundation::CPU::ISAExtensionDetector features { };
+        if (features[ISAExtensionBit::AVX])
         {
             AVXRegisterSet out { };
             Routines::QueryRegSet_AVX(std::data(out));
             this->AVXSet = { out };
         }
-        if (features[CPUFeatureBits::AVX512F])
+        if (features[ISAExtensionBit::AVX512F])
         {
             AVX512RegisterSet out { };
             Routines::QueryRegSet_AVX512(std::data(out));
             this->AVX512Set = { out };
-            if (features[CPUFeatureBits::AVX512BW])
+            if (features[ISAExtensionBit::AVX512BW])
             {
                 // BW -> 64 bit %k masks
                 AVX512BWMaskRegisterSet kout { };
@@ -250,11 +250,11 @@ namespace Nominax::Assembler::X86_64
         this->RIP = std::bit_cast<GPRRegister64Layout>(Routines::QueryRIP());
     }
 
-    auto RegisterCache::Display(std::FILE& stream) const -> void
+    auto RegisterCache::Display(Foundation::DataStream& stream) const -> void
     {
         using Foundation::Print;
 
-        Print(stream, "%rip = {:016X}", this->RIP.AsU64);
+        Print(stream, NOX_FMT("%rip = {:016X}"), this->RIP.AsU64);
         DumpRegisterSet(stream, this->GPRSet);
         if (this->AVXSet)
         {

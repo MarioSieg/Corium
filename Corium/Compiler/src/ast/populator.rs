@@ -205,6 +205,7 @@
 
 use crate::ast::*;
 use crate::parser::*;
+use num_traits::FromPrimitive;
 use std::str::FromStr;
 
 pub trait NestedAstPopulator<'ast>: AstComponent {
@@ -218,22 +219,19 @@ pub trait AtomicAstPopulator<'ast>: AstComponent {
 pub trait AstPopulator<'ast>: NestedAstPopulator<'ast> + AtomicAstPopulator<'ast> {}
 
 impl<'ast> NestedAstPopulator<'ast> for CompilationUnit<'ast> {
-    fn populate(mut rule: RulePairs<'ast>) -> Self {
-        let module = {
-            let inner = rule.next().unwrap();
-            debug_assert_eq!(inner.as_rule(), Rule::Module);
-            Module::populate(inner.into_inner())
-        };
+    fn populate(rule: RulePairs<'ast>) -> Self {
+        let mut statements = Vec::new();
+        let mut module = None;
 
-        let statements = rule
-            .filter_map(|inner| {
-                if inner.as_rule() == Rule::GlobalStatement {
-                    Some(GlobalStatement::populate(inner.into_inner()))
-                } else {
-                    None
+        for inner in rule {
+            match inner.as_rule() {
+                Rule::GlobalStatement => {
+                    statements.push(GlobalStatement::populate(inner.into_inner()))
                 }
-            })
-            .collect();
+                Rule::Module => module = Some(Module::populate(inner.into_inner())),
+                _ => (),
+            }
+        }
 
         Self { module, statements }
     }
@@ -243,6 +241,12 @@ impl<'ast> NestedAstPopulator<'ast> for GlobalStatement<'ast> {
     fn populate(mut rule: RulePairs<'ast>) -> Self {
         let nested = rule.next().unwrap();
         match nested.as_rule() {
+            Rule::MutableVariable => {
+                Self::MutableVariable(MutableVariable::populate(nested.into_inner()))
+            }
+            Rule::ImmutableVariable => {
+                Self::ImmutableVariable(ImmutableVariable::populate(nested.into_inner()))
+            }
             Rule::Function => Self::Function(Function::populate(nested.into_inner())),
             Rule::NativeFunction => {
                 Self::NativeFunction(NativeFunction::populate(nested.into_inner()))
@@ -323,18 +327,21 @@ impl<'ast> NestedAstPopulator<'ast> for FunctionSignature<'ast> {
 impl<'ast> NestedAstPopulator<'ast> for Block<'ast> {
     fn populate(rule: RulePairs<'ast>) -> Self {
         Self(
-            rule.map(|smt| FunctionStatement::populate(smt.into_inner()))
+            rule.map(|smt| LocalStatement::populate(smt.into_inner()))
                 .collect(),
         )
     }
 }
 
-impl<'ast> NestedAstPopulator<'ast> for FunctionStatement<'ast> {
+impl<'ast> NestedAstPopulator<'ast> for LocalStatement<'ast> {
     fn populate(mut rule: RulePairs<'ast>) -> Self {
         let nested = rule.next().unwrap();
         match nested.as_rule() {
-            Rule::LocalVariable => {
-                Self::LocalVariable(LocalVariable::populate(nested.into_inner()))
+            Rule::MutableVariable => {
+                Self::MutableVariable(MutableVariable::populate(nested.into_inner()))
+            }
+            Rule::ImmutableVariable => {
+                Self::ImmutableVariable(ImmutableVariable::populate(nested.into_inner()))
             }
             Rule::ReturnStatement => {
                 Self::ReturnStatement(ReturnStatement::populate(nested.into_inner()))
@@ -350,7 +357,7 @@ impl<'ast> NestedAstPopulator<'ast> for Module<'ast> {
     }
 }
 
-impl<'ast> NestedAstPopulator<'ast> for LocalVariable<'ast> {
+impl<'ast> NestedAstPopulator<'ast> for MutableVariable<'ast> {
     fn populate(mut rule: RulePairs<'ast>) -> Self {
         let name = {
             let inner = rule.next().unwrap();
@@ -381,6 +388,17 @@ impl<'ast> NestedAstPopulator<'ast> for LocalVariable<'ast> {
             name,
             type_hint,
             value,
+        }
+    }
+}
+
+impl<'ast> NestedAstPopulator<'ast> for ImmutableVariable<'ast> {
+    fn populate(rule: RulePairs<'ast>) -> Self {
+        let var = MutableVariable::populate(rule);
+        Self {
+            name: var.name,
+            type_hint: var.type_hint,
+            value: var.value,
         }
     }
 }
@@ -436,44 +454,36 @@ impl<'ast> NestedAstPopulator<'ast> for Parameter<'ast> {
 
 impl<'ast> NestedAstPopulator<'ast> for Expression<'ast> {
     fn populate(mut rule: RulePairs<'ast>) -> Self {
-        let inner = rule.next().unwrap();
+        let inner = rule.next().unwrap().into_inner().next().unwrap();
         match inner.as_rule() {
-            Rule::Literal => {
+            Rule::LiteralExpression => {
+                let inner = inner.into_inner().next().unwrap();
                 debug_assert_eq!(inner.as_rule(), Rule::Literal);
                 Self::Literal(Literal::populate(inner.into_inner()))
             }
-            Rule::Identifier => {
+            Rule::IdentifierExpression => {
+                let inner = inner.into_inner().next().unwrap();
                 debug_assert_eq!(inner.as_rule(), Rule::Identifier);
                 Self::Identifier(Identifier::merge(inner.as_str()))
             }
-            Rule::Expression => {
+            Rule::ParenthesisExpression => {
+                let inner = inner.into_inner().next().unwrap();
                 debug_assert_eq!(inner.as_rule(), Rule::Expression);
                 Self::Sub(Box::new(Self::populate(inner.into_inner())))
-            }
-            Rule::UnaryOperator => {
-                debug_assert_eq!(inner.as_rule(), Rule::UnaryOperator);
-                let op = UnaryOperator::merge(inner.as_str());
-                let sub = {
-                    let inner = rule.next().unwrap();
-                    debug_assert_eq!(inner.as_rule(), Rule::Expression);
-                    Box::new(Expression::populate(inner.into_inner()))
-                };
-                Self::UnaryOperation { op, sub }
             }
             _ => unreachable!(),
         }
     }
 }
 
-impl<'ast> AtomicAstPopulator<'ast> for UnaryOperator {
+impl<'ast> AtomicAstPopulator<'ast> for Operator {
     fn merge(span: &'ast str) -> Self {
-        match span {
-            "+" => UnaryOperator::Plus,
-            "-" => UnaryOperator::Minus,
-            "!" => UnaryOperator::Not,
-            "~" => UnaryOperator::Complement,
-            _ => unreachable!(),
+        for (i, tok) in Self::TOKENS.iter().enumerate() {
+            if *tok == span {
+                return Self::from_u8(i as u8).unwrap();
+            }
         }
+        unreachable!()
     }
 }
 

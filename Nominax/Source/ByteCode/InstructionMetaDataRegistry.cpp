@@ -208,11 +208,11 @@
 
 namespace Nominax::ByteCode
 {
-    auto InstructionMetaDataRegistry::PrintInstructionSetTable(std::FILE& stream) -> void
+    auto InstructionMetaDataRegistry::PrintInstructionSetTable(Foundation::DataStream& stream) -> void
     {
         using Foundation::Print;
 
-        Print(stream, "OP | {0: <8} | {1: <2} | S+ | S- | S+- | C | {2: <4} | {3: <4}\n", "Mnemonic", "IA", "OP1", "OP2");
+        Print(stream, NOX_FMT("OP | {0: <8} | {1: <2} | S+ | S- | S+- | C | {2: <4} | {3: <4}\n"), "Mnemonic", "IA", "OP1", "OP2");
 
         const auto getOperandName
         {
@@ -229,9 +229,9 @@ namespace Nominax::ByteCode
                 }
                 std::string result {  };
                 result.reserve(32);
-                for (std::underlying_type_t<Signal::Discriminator> j { }; j < Foundation::ToUnderlying(Signal::Discriminator::Count_); ++j)
+                for (std::underlying_type_t<Signal::Discriminator> j { }; j < Foundation::Algorithm::ToUnderlying(Signal::Discriminator::Count_); ++j)
                 {
-                    if (flags & ComputeDiscBit(static_cast<Signal::Discriminator>(j + 1)))
+                    if (flags & ComputeDiscBit(static_cast<Signal::Discriminator>(j)))
                     {
                         result.append(Signal::DISCRIMINATOR_MNEMONICS[j]);
                         result.push_back(' ');
@@ -241,19 +241,19 @@ namespace Nominax::ByteCode
             }
         };
 
-        for (std::underlying_type_t<Instruction> i { }; i < Foundation::ToUnderlying(Instruction::Count_); ++i)
+        for (std::underlying_type_t<Instruction> i { }; i < Foundation::Algorithm::ToUnderlying(Instruction::Count_); ++i)
         {
             Print
             (
                 stream,
-                "{0:02X} | {1: <8} | {2:2} | {3:2} | {4:2} | {5:3} | {6: <1} | {7: <4} | {7: <4}\n",
+                NOX_FMT("{0:02X} | {1: <8} | {2:2} | {3:2} | {4:2} | {5:3} | {6: <1} | {7: <4} | {7: <4}\n"),
                 i,
                 MNEMONIC_TABLE[i],
                 std::size(OPERAND_TYPE_TABLE[i]),
                 PUSH_RECORD_TABLE[i],
                 POP_RECORD_TABLE[i],
                 STACK_DIFF_TABLE[i],
-                INSTRUCTION_CATEGORY_SIGILS[Foundation::ToUnderlying(CATEGORY_TABLE[i])],
+                INSTRUCTION_CATEGORY_SIGILS[Foundation::Algorithm::ToUnderlying(CATEGORY_TABLE[i])],
                 getOperandName(i, 0),
                 getOperandName(i, 1)
             );

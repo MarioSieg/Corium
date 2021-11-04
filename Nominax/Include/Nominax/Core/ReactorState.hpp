@@ -273,7 +273,7 @@ namespace Nominax::Core
 
 	constexpr auto ReactorState::GetReturnCode() const -> std::int32_t
 	{
-		return this->Status == InterruptStatus::InterruptStatus_OK ? 0 : -static_cast<std::int32_t>(Foundation::ToUnderlying(this->Status));
+		return this->Status == InterruptStatus::InterruptStatus_OK ? 0 : -static_cast<std::int32_t>(Foundation::Algorithm::ToUnderlying(this->Status));
 	}
 
 	constexpr auto ReactorState::GetEvaluationResult() const -> Foundation::Record

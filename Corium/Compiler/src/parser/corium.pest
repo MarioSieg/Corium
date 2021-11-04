@@ -1,10 +1,12 @@
 CompilationUnit = {
-    SOI ~ Module ~ (GlobalStatement | StatementSeparator)* ~ EOI
+    SOI ~ Module? ~ (GlobalStatement | StatementSeparator)* ~ EOI
 }
 
 GlobalStatement = {
     Function |
-    NativeFunction
+    NativeFunction |
+    MutableVariable |
+    ImmutableVariable
 }
 
 Function = {
@@ -16,15 +18,16 @@ NativeFunction = {
 }
 
 FunctionSignature = {
-    "fun " ~ Identifier ~ "(" ~ ParameterList? ~ ")" ~ (" " ~ QualifiedName)?
+    "function " ~ Identifier ~ " (" ~ ParameterList? ~ ")" ~ (" " ~ QualifiedName)?
 }
 
 Block = {
-     (FunctionStatement | StatementSeparator)*
+     (LocalStatement | StatementSeparator)*
 }
 
-FunctionStatement = {
-    LocalVariable |
+LocalStatement = {
+    MutableVariable |
+    ImmutableVariable |
     ReturnStatement
 }
 
@@ -32,8 +35,12 @@ Module = {
     "module " ~ QualifiedName ~ NEWLINE
 }
 
-LocalVariable = {
+MutableVariable = {
     "let " ~ Identifier ~ (" " ~ QualifiedName)? ~ " = " ~ Expression ~ NEWLINE
+}
+
+ImmutableVariable = {
+    "const " ~ Identifier ~ (" " ~ QualifiedName)? ~ " = " ~ Expression ~ NEWLINE
 }
 
 ReturnStatement = {
@@ -49,17 +56,49 @@ Parameter = {
 }
 
 Expression = {
-    Literal |
-    Identifier |
-    "(" ~ Expression ~ ")" |
-    UnaryOperator ~ Expression
+    RootExpression ~ (Operator ~ RootExpression)*
 }
 
-UnaryOperator = {
-    "+" |
-    "-" |
-    "!" |
-    "~"
+RootExpression = {
+    LiteralExpression |
+    IdentifierExpression |
+    ParenthesisExpression
+}
+
+LiteralExpression = {
+    Literal
+}
+
+IdentifierExpression = {
+    Identifier
+}
+
+ParenthesisExpression = {
+    "(" ~ Expression ~ ")"
+}
+
+Operator = {
+   // Arithmetic
+   "+" |   // addition
+   "-" |   // subtraction
+   "*" |   // multiplication
+   "/" |   // division
+   "%" |   // modulo
+
+   // Bitwise
+   "&" |   // and
+   "|" |   // or
+   "^" |   // xor
+   "~" |   // complement
+   "<<" |  // shift left
+   ">>" |  // shift right
+   "<<<" | // rotate left
+   ">>>" | // rotate right
+
+   // Logical
+   "not" | // not
+   "and" | // and
+   "or"    // or
 }
 
 Literal = {
@@ -107,4 +146,12 @@ Char = @{
 StatementSeparator = _{
     NEWLINE |
     SEPARATOR
+}
+
+Whitespace = _{
+   " " | "\t"
+}
+
+COMMENT = _{
+    "#" ~ (!"\n" ~ ANY)*
 }
