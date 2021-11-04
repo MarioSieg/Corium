@@ -203,24 +203,21 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "../../../Include/Nominax/Core/Subsystem/ISubsystem.hpp"
 
-#include "Subsystem/_Subsystem.hpp"
-
-#include "BasicReactorDescriptor.hpp"
-#include "Environment.hpp"
-#include "EnvironmentDescriptor.hpp"
-#include "FixedStack.hpp"
-#include "InterruptStatus.hpp"
-#include "Reactor.hpp"
-#include "ReactorCoreHypervisor.hpp"
-#include "ReactorCoreSpecialization.hpp"
-#include "ReactorCreationDescriptor.hpp"
-#include "ReactorDescriptor.hpp"
-#include "ReactorPool.hpp"
-#include "ReactorRoutineLink.hpp"
-#include "ReactorState.hpp"
-#include "ReactorValidator.hpp"
-#include "TaskQueueThread.hpp"
-#include "TaskQueueSchedulerPool.hpp"
-#include "../Foundation/Version.hpp"
+namespace Nominax::Core::Subsystem
+{
+	ISubsystem::ISubsystem
+	(
+		HypervisorHost& host,
+		const std::string_view name,
+		const std::string_view description,
+		const bool isEnabled
+	) noexcept :
+		Host_ { host },
+		Name_ { name },
+		Description_ { description },
+		ID_ { IDAccumulator_++ },
+		IsEnabled_ { isEnabled },
+		Mutex { std::make_unique<std::mutex>() } { }
+}

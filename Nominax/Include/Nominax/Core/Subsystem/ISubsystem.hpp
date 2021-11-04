@@ -205,22 +205,148 @@
 
 #pragma once
 
-#include "Subsystem/_Subsystem.hpp"
+#include <atomic>
+#include <memory>
+#include <mutex>
+#include <string_view>
+#include <thread>
+#include <type_traits>
 
-#include "BasicReactorDescriptor.hpp"
-#include "Environment.hpp"
-#include "EnvironmentDescriptor.hpp"
-#include "FixedStack.hpp"
-#include "InterruptStatus.hpp"
-#include "Reactor.hpp"
-#include "ReactorCoreHypervisor.hpp"
-#include "ReactorCoreSpecialization.hpp"
-#include "ReactorCreationDescriptor.hpp"
-#include "ReactorDescriptor.hpp"
-#include "ReactorPool.hpp"
-#include "ReactorRoutineLink.hpp"
-#include "ReactorState.hpp"
-#include "ReactorValidator.hpp"
-#include "TaskQueueThread.hpp"
-#include "TaskQueueSchedulerPool.hpp"
-#include "../Foundation/Version.hpp"
+#include "Config.hpp"
+#include "ThreadIDHash.hpp"
+
+namespace Nominax::Core::Subsystem
+{
+	/// <summary>
+	/// Base class for all subsystems.
+	///	Designed for one subsystem per thread.
+	///	Contains the dispatch worker thread and a sync mutex.
+	/// </summary>
+	/// <typeparam name="SysConfig"></typeparam>
+	struct ISubsystem
+	{
+		friend class HypervisorHost;
+
+		ISubsystem(const ISubsystem& other) noexcept = delete;
+		ISubsystem(ISubsystem&& other) noexcept = default;
+		auto operator =(const ISubsystem& other) -> ISubsystem & = delete;
+		auto operator =(ISubsystem&& other) -> ISubsystem & = delete;
+		virtual ~ISubsystem() = default;
+
+		auto Host() const & noexcept -> const HypervisorHost&;
+		auto Config() const & noexcept -> const SubsystemConfig&;
+		auto UserData() const & noexcept -> const void*;
+		auto IsEnabled() const & noexcept -> bool;
+		auto Name() const & noexcept -> std::string_view;
+		auto Description() const & noexcept -> std::string_view;
+		auto ID() const & noexcept -> std::uint16_t;
+		auto ThreadIDHash() const & noexcept -> DispatchThreadID;
+
+		auto SetEnabled(bool enabled) const noexcept -> void;
+
+		static auto IDAccumulator() noexcept -> std::uint16_t;
+		static auto ThreadID() noexcept -> DispatchThreadID;
+
+	protected:
+		explicit ISubsystem
+		(
+			HypervisorHost& host,
+			std::string_view name = "Unknown",
+			std::string_view description = { },
+			bool isEnabled = true
+		) noexcept;
+
+		virtual auto OnPreBoot(std::unique_ptr<SubsystemConfig>&& config, void* userData) & -> bool = 0;
+		virtual auto OnPostBoot() & -> bool = 0;
+
+		virtual auto OnPreShutdown() & -> bool = 0;
+		virtual auto OnPostShutdown() & -> bool = 0;
+
+		auto SetBootConfig(std::unique_ptr<SubsystemConfig>&& config) & noexcept -> void;
+		auto GetBootConfig() const && noexcept -> const std::unique_ptr<SubsystemConfig>&&;
+
+	private:
+		inline static constinit std::atomic_uint16_t IDAccumulator_ { };
+		inline static thread_local volatile DispatchThreadID LocalDispatchThreadID_ { };
+		HypervisorHost& Host_;
+		const std::string_view Name_;
+		const std::string_view Description_;
+		const DispatchThreadID ID_;
+		mutable bool IsEnabled_;
+
+	protected:
+		mutable std::unique_ptr<std::mutex> Mutex;
+		std::unique_ptr<SubsystemConfig> BootConfig { nullptr };
+		void* StoredUserData { nullptr };
+	};
+
+	/* SYNCED */
+
+	inline auto ISubsystem::SetEnabled(const bool enabled) const noexcept -> void
+	{
+		std::lock_guard<std::mutex> lock { *this->Mutex };
+		this->IsEnabled_ = enabled;
+	}
+
+	/* NON-SYNCED */
+
+	inline auto ISubsystem::Host() const & noexcept -> const HypervisorHost&
+	{
+		return this->Host_;
+	}
+
+	inline auto ISubsystem::Config() const & noexcept -> const SubsystemConfig&
+	{
+		return *this->BootConfig;
+	}
+
+	inline auto ISubsystem::UserData() const & noexcept -> const void*
+	{
+		return this->StoredUserData;
+	}
+
+	inline auto ISubsystem::IsEnabled() const & noexcept -> bool
+	{
+		return this->IsEnabled_;
+	}
+
+	inline auto ISubsystem::Name() const & noexcept -> std::string_view
+	{
+		return this->Name_;
+	}
+
+	inline auto ISubsystem::Description() const & noexcept -> std::string_view
+	{
+		return this->Description_;
+	}
+
+	inline auto ISubsystem::ID() const & noexcept -> std::uint16_t
+	{
+		return this->ID_;
+	}
+
+	inline auto ISubsystem::ThreadIDHash() const & noexcept -> DispatchThreadID
+	{
+		return this->LocalDispatchThreadID_;
+	}
+
+	inline auto ISubsystem::IDAccumulator() noexcept -> std::uint16_t
+	{
+		return IDAccumulator_;
+	}
+
+	inline auto ISubsystem::ThreadID() noexcept -> DispatchThreadID
+	{
+		return LocalDispatchThreadID_;
+	}
+
+	inline auto ISubsystem::SetBootConfig(std::unique_ptr<SubsystemConfig>&& config) & noexcept -> void
+	{
+		this->BootConfig = std::move(config);
+	}
+
+	inline auto ISubsystem::GetBootConfig() const && noexcept -> const std::unique_ptr<SubsystemConfig>&&
+	{
+		return std::move(this->BootConfig);
+	}
+}

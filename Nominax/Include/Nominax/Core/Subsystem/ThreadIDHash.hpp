@@ -205,22 +205,19 @@
 
 #pragma once
 
-#include "Subsystem/_Subsystem.hpp"
+#include <functional>
+#include <thread>
 
-#include "BasicReactorDescriptor.hpp"
-#include "Environment.hpp"
-#include "EnvironmentDescriptor.hpp"
-#include "FixedStack.hpp"
-#include "InterruptStatus.hpp"
-#include "Reactor.hpp"
-#include "ReactorCoreHypervisor.hpp"
-#include "ReactorCoreSpecialization.hpp"
-#include "ReactorCreationDescriptor.hpp"
-#include "ReactorDescriptor.hpp"
-#include "ReactorPool.hpp"
-#include "ReactorRoutineLink.hpp"
-#include "ReactorState.hpp"
-#include "ReactorValidator.hpp"
-#include "TaskQueueThread.hpp"
-#include "TaskQueueSchedulerPool.hpp"
-#include "../Foundation/Version.hpp"
+namespace Nominax::Core::Subsystem
+{
+	/// <summary>
+	/// Subsystem thread ID based on thread ID hash.
+	/// </summary>
+	using DispatchThreadID = std::uint64_t;
+
+	inline auto ComputeDispatchThreadIDHash(const std::thread::id id = std::this_thread::get_id()) noexcept -> DispatchThreadID
+	{
+		constexpr std::hash<std::thread::id> hasher { };
+		return hasher(id);
+	}
+}
