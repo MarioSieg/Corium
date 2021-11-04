@@ -317,7 +317,7 @@ namespace Nominax::Foundation::Concurrency
 	/// <param name="x"></param>
 	/// <returns></returns>
 	template <typename T, const T SuccessState, const bool SingletonLock> requires std::is_enum_v<T>
-	constexpr auto AtomicState<T, SuccessState, SingletonLock>::operator()(const T x) noexcept -> void
+	constexpr auto AtomicState<T, SuccessState, SingletonLock>::operator ()(const T x) noexcept -> void
 	{
 		if constexpr (SingletonLock)
 		{

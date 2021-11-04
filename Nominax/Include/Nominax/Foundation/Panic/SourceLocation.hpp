@@ -226,33 +226,33 @@ namespace Nominax::Foundation::Panic
 			std::uint_least32_t line = __builtin_LINE(),
 			std::string_view fileName = __builtin_FILE(),
 			std::string_view functionName = __builtin_FUNCTION()
-		);
+		) noexcept;
 
 		/// <summary>
 		/// Copy constructor.
 		/// </summary>
 		/// <param name="other"></param>
-		constexpr SourceLocation(const SourceLocation& other) = default;
+		constexpr SourceLocation(const SourceLocation& other) noexcept = default;
 
 		/// <summary>
 		/// Move constructor.
 		/// </summary>
 		/// <param name="other"></param>
-		constexpr SourceLocation(SourceLocation&& other) = default;
+		constexpr SourceLocation(SourceLocation&& other) noexcept = default;
 
 		/// <summary>
 		/// Copy assignment operator.
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		constexpr auto operator =(const SourceLocation& other) -> SourceLocation& = default;
+		constexpr auto operator =(const SourceLocation& other) noexcept -> SourceLocation& = default;
 
 		/// <summary>
 		/// Move assignment operator.
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		constexpr auto operator =(SourceLocation&& other) -> SourceLocation& = default;
+		constexpr auto operator =(SourceLocation&& other) noexcept -> SourceLocation& = default;
 
 		/// <summary>
 		/// Destructor.
@@ -264,21 +264,21 @@ namespace Nominax::Foundation::Panic
 		/// </summary>
 		/// <returns>Current line number.</returns>
 		[[nodiscard]]
-		constexpr auto GetLine() const -> std::uint_least32_t;
+		constexpr auto GetLine() const noexcept -> std::uint_least32_t;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>Current file name.</returns>
 		[[nodiscard]]
-		constexpr auto GetFileName() const -> std::string_view;
+		constexpr auto GetFileName() const noexcept -> std::string_view;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>Current function name.</returns>
 		[[nodiscard]]
-		constexpr auto GetFunctionName() const -> std::string_view;
+		constexpr auto GetFunctionName() const noexcept -> std::string_view;
 
 	private:
 		std::uint_least32_t Line_;
@@ -291,24 +291,24 @@ namespace Nominax::Foundation::Panic
 		const std::uint_least32_t line,
 		const std::string_view fileName,
 		const std::string_view functionName
-	)
+	) noexcept
 	{
 		this->Line_ = line;
 		this->FileName_ = fileName;
 		this->FunctionName_ = functionName;
 	}
 
-	constexpr auto SourceLocation::GetLine() const -> std::uint_least32_t
+	constexpr auto SourceLocation::GetLine() const noexcept -> std::uint_least32_t
 	{
 		return this->Line_;
 	}
 
-	constexpr auto SourceLocation::GetFileName() const -> std::string_view
+	constexpr auto SourceLocation::GetFileName() const noexcept -> std::string_view
 	{
 		return this->FileName_;
 	}
 
-	constexpr auto SourceLocation::GetFunctionName() const -> std::string_view
+	constexpr auto SourceLocation::GetFunctionName() const noexcept -> std::string_view
 	{
 		return this->FunctionName_;
 	}
