@@ -226,7 +226,7 @@ namespace Nominax::Core
 		/// <summary>
 		/// Unique reactor id.
 		/// </summary>
-		std::uint32_t Id_;
+		std::uint32_t ID_;
 
 		/// <summary>
 		/// The reactor pool index of this reactor.
@@ -394,7 +394,7 @@ namespace Nominax::Core
 
 	inline auto Reactor::GetID() const -> std::uint32_t
 	{
-		return this->Id_;
+		return this->ID_;
 	}
 
 	inline auto Reactor::GetPoolIndex() const -> std::uint64_t

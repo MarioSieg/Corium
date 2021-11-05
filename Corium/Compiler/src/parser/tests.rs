@@ -1001,6 +1001,21 @@ mod rules {
                 let result = result.into_inner().next().unwrap();
                 assert_eq!(result.as_rule(), Rule::Literal);
             }
+
+            #[test]
+            fn addition() {
+                let _result = CoriumParser::parse(Rule::Expression, "1 + 1").unwrap();
+            }
+
+            #[test]
+            fn calculation() {
+                let _result = CoriumParser::parse(Rule::Expression, "1 + 1 * 2").unwrap();
+            }
+
+            #[test]
+            fn calculation_nested() {
+                let _result = CoriumParser::parse(Rule::Expression, "1 + (1 * (2 & 0xFF))").unwrap();
+            }
         }
 
         mod invalid {

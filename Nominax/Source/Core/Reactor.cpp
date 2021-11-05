@@ -234,7 +234,7 @@ namespace Nominax::Core
 		const ReactorRoutineLink&     routineLink,
 		const std::uint64_t           poolIdx
 	) :
-		Id_ { Foundation::Random::Xorshift128ThreadLocal() },
+		ID_ { Foundation::Random::Xorshift128ThreadLocal() },
 		PoolIndex_ { poolIdx },
 		SpawnStamp_ { std::chrono::high_resolution_clock::now() },
 		PowerPreference_ { descriptor.PowerPref },
@@ -254,7 +254,7 @@ namespace Nominax::Core
 			"InterruptStatus: {}, "
 			"Power: {}, "
 			"Pool: {:02}\n",
-			this->Id_,
+			this->ID_,
             Foundation::Memory::Bytes2Megabytes(this->Stack_.Size() * sizeof(Foundation::Record)),
 			this->Stack_.Size() / 1000,
 			std::size(this->IntrinsicTable_),
@@ -277,7 +277,7 @@ namespace Nominax::Core
 		if (validationResult != ReactorValidationResult::Ok) [[unlikely]]
 		{
 			const std::string_view message { REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[Foundation::Algorithm::ToUnderlying(validationResult)] };
-			Foundation::Panic::PanicF({}, NOX_FMT("Reactor {:#X} validation failed with the following reason: {}"), this->Id_, message);
+			Foundation::Panic::PanicF({}, NOX_FMT("Reactor {:#X} validation failed with the following reason: {}"), this->ID_, message);
 		}
 		ReactorCoreExecutionRoutine* const routine { this->RoutineLink_.ExecutionRoutine };
 		NOX_PAS_NOT_NULL(routine, "Reactor execution routine is null!");
