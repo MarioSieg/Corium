@@ -546,18 +546,19 @@ impl<'ast> fmt::Display for ImmutableVariable<'ast> {
 #[derive(Clone, Debug)]
 pub enum Expression<'ast> {
     /// Constant literal.
-    LiteralExpression(Literal<'ast>),
+    Literal(Literal<'ast>),
 
     /// Some identifier.
-    IdentifierExpression(Identifier<'ast>),
+    Identifier(Identifier<'ast>),
 
     /// Sub expression.
-    ParenthesisExpression(Box<Expression<'ast>>),
+    Parenthesis(Box<Expression<'ast>>),
 
     /// Operation chain such as: 3 + 2 & x
-    ChainedExpression {
-        root: Box<Expression<'ast>>,
-        chain: Vec<ExpressionOperation<'ast>>,
+    Binary {
+        lhs: Box<Expression<'ast>>,
+        op: Operator,
+        rhs: Box<Expression<'ast>>,
     },
 }
 
@@ -568,30 +569,13 @@ impl<'ast> AstComponent for Expression<'ast> {
 impl<'ast> fmt::Display for Expression<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Self::LiteralExpression(x) => write!(f, "{}", x),
-            Self::IdentifierExpression(x) => write!(f, "{}", x),
-            Self::ParenthesisExpression(x) => write!(f, "{}", x),
-            Self::ChainedExpression { root, chain } => {
-                write!(f, "({}", root)?;
-                for op in chain {
-                    write!(f, " {}", op)?;
-                }
-                write!(f, ")")
+            Self::Literal(x) => write!(f, "{}", x),
+            Self::Identifier(x) => write!(f, "{}", x),
+            Self::Parenthesis(x) => write!(f, "{}", x),
+            Self::Binary { lhs, op, rhs } => {
+                write!(f, "({} {} {})", lhs, op, rhs)
             }
         }
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct ExpressionOperation<'ast> {
-    pub op: Operator,
-    pub expr: Expression<'ast>,
-}
-
-impl<'ast> fmt::Display for ExpressionOperation<'ast> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.op)?;
-        write!(f, " {}", self.expr)
     }
 }
 
@@ -652,7 +636,9 @@ pub enum Operator {
 }
 
 impl Operator {
-    pub const TOKENS: [&'static str; Self::LogicalOr as usize + 1] = [
+    pub const COUNT: usize = Self::LogicalOr as usize + 1;
+
+    pub const TOKENS: [&'static str; Self::COUNT] = [
         "+", "-", "*", "/", "%", "&", "|", "^", "~", "<<", ">>", "<<<", ">>>", "not", "and", "or",
     ];
 }

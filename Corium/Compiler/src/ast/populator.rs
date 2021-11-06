@@ -454,7 +454,7 @@ impl<'ast> NestedAstPopulator<'ast> for Parameter<'ast> {
 
 impl<'ast> NestedAstPopulator<'ast> for Expression<'ast> {
     fn populate(mut rule: RulePairs<'ast>) -> Self {
-        let root = {
+        let mut root = {
             let base = rule.next().unwrap();
             let inner = if base.as_rule() == Rule::RootExpression {
                 base.into_inner().next().unwrap()
@@ -465,36 +465,52 @@ impl<'ast> NestedAstPopulator<'ast> for Expression<'ast> {
                 Rule::LiteralExpression => {
                     let inner = inner.into_inner().next().unwrap();
                     debug_assert_eq!(inner.as_rule(), Rule::Literal);
-                    Self::LiteralExpression(Literal::populate(inner.into_inner()))
+                    Self::Literal(Literal::populate(inner.into_inner()))
                 }
                 Rule::IdentifierExpression => {
                     let inner = inner.into_inner().next().unwrap();
                     debug_assert_eq!(inner.as_rule(), Rule::Identifier);
-                    Self::IdentifierExpression(Identifier::merge(inner.as_str()))
+                    Self::Identifier(Identifier::merge(inner.as_str()))
                 }
                 Rule::ParenthesisExpression => {
                     let inner = inner.into_inner().next().unwrap();
                     debug_assert_eq!(inner.as_rule(), Rule::Expression);
-                    Self::ParenthesisExpression(Box::new(Self::populate(inner.into_inner())))
+                    Self::Parenthesis(Box::new(Self::populate(inner.into_inner())))
                 }
                 _ => panic!("Invalid expression type"),
             }
         };
 
-        if rule.peek().is_some() {
-            let mut chain = Vec::new();
-            while let (Some(op), Some(expr)) = (rule.next(), rule.next()) {
-                debug_assert_eq!(op.as_rule(), Rule::Operator);
-                let op = Operator::merge(op.as_str());
-                debug_assert_eq!(expr.as_rule(), Rule::RootExpression);
-                let expr = Self::populate(expr.into_inner());
-                chain.push(ExpressionOperation { op, expr });
-            }
-            let root = Box::new(root);
-            Self::ChainedExpression { root, chain }
-        } else {
-            root
+        // if the expression is over, return the root expression
+        if rule.peek().is_none() {
+            return root;
         }
+
+        // if there are expressions left, read them into an expression tree
+        let chain = Self::create_chain(rule);
+        for (op, expr) in chain {
+            root = Self::Binary {
+                lhs: Box::new(root),
+                op,
+                rhs: Box::new(expr),
+            }
+        }
+
+        root
+    }
+}
+
+impl<'ast> Expression<'ast> {
+    fn create_chain(mut rule: RulePairs<'ast>) -> Vec<(Operator, Expression)> {
+        let mut chain = Vec::new();
+        while let (Some(op), Some(expr)) = (rule.next(), rule.next()) {
+            debug_assert_eq!(op.as_rule(), Rule::Operator);
+            let op = Operator::merge(op.as_str());
+            debug_assert_eq!(expr.as_rule(), Rule::RootExpression);
+            let expr = Self::populate(expr.into_inner());
+            chain.push((op, expr));
+        }
+        chain
     }
 }
 

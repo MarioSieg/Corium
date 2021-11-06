@@ -388,37 +388,28 @@ mod populators {
             let mut result = CoriumParser::parse(Rule::Expression, "2.5").unwrap();
             let ast = Expression::populate(result.next().unwrap().into_inner());
             let _f = Literal::Float(2.5);
-            assert!(matches!(ast, Expression::LiteralExpression(_f)));
+            assert!(matches!(ast, Expression::Literal(_f)));
         }
 
         #[test]
         fn int_literal() {
             let mut result = CoriumParser::parse(Rule::Expression, "10").unwrap();
             let ast = Expression::populate(result.next().unwrap().into_inner());
-            assert!(matches!(
-                ast,
-                Expression::LiteralExpression(Literal::Int(10))
-            ));
+            assert!(matches!(ast, Expression::Literal(Literal::Int(10))));
         }
 
         #[test]
         fn boolean_literal() {
             let mut result = CoriumParser::parse(Rule::Expression, "true").unwrap();
             let ast = Expression::populate(result.next().unwrap().into_inner());
-            assert!(matches!(
-                ast,
-                Expression::LiteralExpression(Literal::Bool(true))
-            ));
+            assert!(matches!(ast, Expression::Literal(Literal::Bool(true))));
         }
 
         #[test]
         fn character_literal() {
             let mut result = CoriumParser::parse(Rule::Expression, "'X'").unwrap();
             let ast = Expression::populate(result.next().unwrap().into_inner());
-            assert!(matches!(
-                ast,
-                Expression::LiteralExpression(Literal::Char('X'))
-            ));
+            assert!(matches!(ast, Expression::Literal(Literal::Char('X'))));
         }
 
         #[test]
@@ -428,7 +419,7 @@ mod populators {
             let ast = Expression::populate(result.next().unwrap().into_inner());
             assert!(matches!(
                 ast,
-                Expression::LiteralExpression(Literal::String("Hallo zusammen ;)"))
+                Expression::Literal(Literal::String("Hallo zusammen ;)"))
             ));
         }
 
@@ -436,45 +427,78 @@ mod populators {
         fn ident() {
             let mut result = CoriumParser::parse(Rule::Expression, "lololo").unwrap();
             let ast = Expression::populate(result.next().unwrap().into_inner());
-            assert!(matches!(
-                ast,
-                Expression::IdentifierExpression(Identifier("lololo"))
-            ));
+            assert!(matches!(ast, Expression::Identifier(Identifier("lololo"))));
         }
 
         #[test]
         fn nested1() {
             let mut result = CoriumParser::parse(Rule::Expression, "(10)").unwrap();
             let ast = Expression::populate(result.next().unwrap().into_inner());
-            let _n1 = Box::new(Expression::LiteralExpression(Literal::Int(10)));
-            assert!(matches!(ast, Expression::ParenthesisExpression(_n1)));
+            let _n1 = Box::new(Expression::Literal(Literal::Int(10)));
+            assert!(matches!(ast, Expression::Parenthesis(_n1)));
         }
 
         #[test]
         fn nested2() {
             let mut result = CoriumParser::parse(Rule::Expression, "((10))").unwrap();
             let ast = Expression::populate(result.next().unwrap().into_inner());
-            let _n1 = Box::new(Expression::LiteralExpression(Literal::Int(10)));
-            let _n2 = Box::new(Expression::ParenthesisExpression(_n1));
-            assert!(matches!(ast, Expression::ParenthesisExpression(_n2)));
+            let _n1 = Box::new(Expression::Literal(Literal::Int(10)));
+            let _n2 = Box::new(Expression::Parenthesis(_n1));
+            assert!(matches!(ast, Expression::Parenthesis(_n2)));
         }
 
         #[test]
         fn nested3() {
             let mut result = CoriumParser::parse(Rule::Expression, "(((10)))").unwrap();
             let ast = Expression::populate(result.next().unwrap().into_inner());
-            let _n1 = Box::new(Expression::LiteralExpression(Literal::Int(10)));
-            let _n2 = Box::new(Expression::ParenthesisExpression(_n1));
-            let _n3 = Box::new(Expression::ParenthesisExpression(_n2));
-            assert!(matches!(ast, Expression::ParenthesisExpression(_n3)));
+            let _n1 = Box::new(Expression::Literal(Literal::Int(10)));
+            let _n2 = Box::new(Expression::Parenthesis(_n1));
+            let _n3 = Box::new(Expression::Parenthesis(_n2));
+            assert!(matches!(ast, Expression::Parenthesis(_n3)));
         }
 
-        #[test]
-        fn addition() {
-            let mut result = CoriumParser::parse(Rule::Expression, "66 + 1 * x & 3").unwrap();
-            let ast = Expression::populate(result.next().unwrap().into_inner());
-            println!("{}", ast);
-            dbg!(ast);
+        mod chain_2_tree {
+            use super::*;
+
+            #[test]
+            fn literal_addition() {
+                let mut result = CoriumParser::parse(Rule::Expression, "66 + 1").unwrap();
+                let ast = Expression::populate(result.next().unwrap().into_inner());
+                let _expr = Expression::Binary {
+                    lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                    op: Operator::Addition,
+                    rhs: Box::new(Expression::Literal(Literal::Int(1))),
+                };
+                assert!(matches!(ast, _expr));
+            }
+
+            #[test]
+            fn identifier_addition() {
+                let mut result = CoriumParser::parse(Rule::Expression, "66 + x").unwrap();
+                let ast = Expression::populate(result.next().unwrap().into_inner());
+                let _expr = Expression::Binary {
+                    lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                    op: Operator::Addition,
+                    rhs: Box::new(Expression::Identifier(Identifier("x"))),
+                };
+                assert!(matches!(ast, _expr));
+            }
+
+            #[test]
+            fn literal_calculation() {
+                let mut result = CoriumParser::parse(Rule::Expression, "66 + 1 * 5").unwrap();
+                let ast = Expression::populate(result.next().unwrap().into_inner());
+                let _expr = Expression::Binary {
+                    lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                    op: Operator::Addition,
+                    rhs: Box::new(Expression::Binary {
+                        lhs: Box::new(Expression::Literal(Literal::Int(1))),
+                        op: Operator::Multiplication,
+                        rhs: Box::new(Expression::Literal(Literal::Int(5))),
+                    }),
+                };
+                assert!(matches!(ast, _expr));
+            }
         }
     }
 
@@ -559,7 +583,7 @@ mod populators {
             assert!(ast.value.is_some());
             assert!(matches!(
                 ast.value.unwrap(),
-                Expression::LiteralExpression(Literal::Int(10))
+                Expression::Literal(Literal::Int(10))
             ));
         }
 
@@ -571,10 +595,7 @@ mod populators {
             assert_eq!(ast.type_hint.full, "float");
             assert!(ast.value.is_some());
             let _f = Literal::Float(0.999);
-            assert!(matches!(
-                ast.value.unwrap(),
-                Expression::LiteralExpression(_f)
-            ));
+            assert!(matches!(ast.value.unwrap(), Expression::Literal(_f)));
         }
 
         #[test]
@@ -586,7 +607,7 @@ mod populators {
             assert!(ast.value.is_some());
             assert!(matches!(
                 ast.value.unwrap(),
-                Expression::LiteralExpression(Literal::Bool(true))
+                Expression::Literal(Literal::Bool(true))
             ));
         }
 
@@ -599,7 +620,7 @@ mod populators {
             assert!(ast.value.is_some());
             assert!(matches!(
                 ast.value.unwrap(),
-                Expression::LiteralExpression(Literal::Char('x'))
+                Expression::Literal(Literal::Char('x'))
             ));
         }
 
@@ -613,7 +634,7 @@ mod populators {
             assert!(ast.value.is_some());
             assert!(matches!(
                 ast.value.unwrap(),
-                Expression::LiteralExpression(Literal::String("I luv u :3"))
+                Expression::Literal(Literal::String("I luv u :3"))
             ));
         }
     }
@@ -678,7 +699,7 @@ mod populators {
             assert!(ast.0[0].value.is_some());
             assert!(matches!(
                 ast.0[0].value.as_ref().unwrap(),
-                Expression::LiteralExpression(Literal::Int(10))
+                Expression::Literal(Literal::Int(10))
             ));
         }
 
@@ -694,7 +715,7 @@ mod populators {
             assert!(ast.0[0].value.is_some());
             assert!(matches!(
                 ast.0[0].value.as_ref().unwrap(),
-                Expression::LiteralExpression(Literal::Int(10))
+                Expression::Literal(Literal::Int(10))
             ));
 
             assert_eq!(ast.0[1].name.0, "y");
@@ -703,7 +724,7 @@ mod populators {
             let _f = Literal::Float(2.4);
             assert!(matches!(
                 ast.0[1].value.as_ref().unwrap(),
-                Expression::LiteralExpression(_f)
+                Expression::Literal(_f)
             ));
         }
 
@@ -723,7 +744,7 @@ mod populators {
             assert!(ast.0[1].value.is_some());
             assert!(matches!(
                 ast.0[1].value.as_ref().unwrap(),
-                Expression::LiteralExpression(Literal::Int(10))
+                Expression::Literal(Literal::Int(10))
             ));
         }
     }
@@ -745,7 +766,7 @@ mod populators {
             assert!(ast.0.is_some());
             assert!(matches!(
                 ast.0.unwrap(),
-                Expression::LiteralExpression(Literal::Int(10))
+                Expression::Literal(Literal::Int(10))
             ));
         }
 
@@ -756,7 +777,7 @@ mod populators {
             assert!(ast.0.is_some());
             assert!(matches!(
                 ast.0.unwrap(),
-                Expression::IdentifierExpression(Identifier("myVar"))
+                Expression::Identifier(Identifier("myVar"))
             ));
         }
 
@@ -766,7 +787,7 @@ mod populators {
             let ast = ReturnStatement::populate(result.next().unwrap().into_inner());
             assert!(ast.0.is_some());
             let _f = Literal::Float(0.51);
-            assert!(matches!(ast.0.unwrap(), Expression::LiteralExpression(_f)));
+            assert!(matches!(ast.0.unwrap(), Expression::Literal(_f)));
         }
     }
 
@@ -778,10 +799,7 @@ mod populators {
             let mut result = CoriumParser::parse(Rule::MutableVariable, "let x = 10\n").unwrap();
             let ast = MutableVariable::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "x");
-            assert!(matches!(
-                ast.value,
-                Expression::LiteralExpression(Literal::Int(10))
-            ));
+            assert!(matches!(ast.value, Expression::Literal(Literal::Int(10))));
             assert!(ast.type_hint.is_none());
         }
 
@@ -791,7 +809,7 @@ mod populators {
             let ast = MutableVariable::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "x");
             let _f = Literal::Float(10.0);
-            assert!(matches!(ast.value, Expression::LiteralExpression(_f)));
+            assert!(matches!(ast.value, Expression::Literal(_f)));
             assert!(ast.type_hint.is_none());
         }
 
@@ -800,10 +818,7 @@ mod populators {
             let mut result = CoriumParser::parse(Rule::MutableVariable, "let x = 'x'\n").unwrap();
             let ast = MutableVariable::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "x");
-            assert!(matches!(
-                ast.value,
-                Expression::LiteralExpression(Literal::Char('x'))
-            ));
+            assert!(matches!(ast.value, Expression::Literal(Literal::Char('x'))));
             assert!(ast.type_hint.is_none());
         }
 
@@ -814,7 +829,7 @@ mod populators {
             assert_eq!(ast.name.0, "x");
             assert!(matches!(
                 ast.value,
-                Expression::LiteralExpression(Literal::Bool(true))
+                Expression::Literal(Literal::Bool(true))
             ));
             assert!(ast.type_hint.is_none());
         }
@@ -827,7 +842,7 @@ mod populators {
             assert_eq!(ast.name.0, "x");
             assert!(matches!(
                 ast.value,
-                Expression::LiteralExpression(Literal::String("Name"))
+                Expression::Literal(Literal::String("Name"))
             ));
             assert!(ast.type_hint.is_none());
         }
@@ -838,10 +853,7 @@ mod populators {
                 CoriumParser::parse(Rule::MutableVariable, "let x int = 10\n").unwrap();
             let ast = MutableVariable::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "x");
-            assert!(matches!(
-                ast.value,
-                Expression::LiteralExpression(Literal::Int(10))
-            ));
+            assert!(matches!(ast.value, Expression::Literal(Literal::Int(10))));
             assert!(ast.type_hint.is_some());
             assert_eq!(ast.type_hint.unwrap().full, "int");
         }
@@ -853,7 +865,7 @@ mod populators {
             let ast = MutableVariable::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "x");
             let _f = Literal::Float(10.0);
-            assert!(matches!(ast.value, Expression::LiteralExpression(_f)));
+            assert!(matches!(ast.value, Expression::Literal(_f)));
             assert!(ast.type_hint.is_some());
             assert_eq!(ast.type_hint.unwrap().full, "float");
         }
@@ -864,10 +876,7 @@ mod populators {
                 CoriumParser::parse(Rule::MutableVariable, "let x char = 'x'\n").unwrap();
             let ast = MutableVariable::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "x");
-            assert!(matches!(
-                ast.value,
-                Expression::LiteralExpression(Literal::Char('x'))
-            ));
+            assert!(matches!(ast.value, Expression::Literal(Literal::Char('x'))));
             assert!(ast.type_hint.is_some());
             assert_eq!(ast.type_hint.unwrap().full, "char");
         }
@@ -880,7 +889,7 @@ mod populators {
             assert_eq!(ast.name.0, "x");
             assert!(matches!(
                 ast.value,
-                Expression::LiteralExpression(Literal::Bool(true))
+                Expression::Literal(Literal::Bool(true))
             ));
             assert!(ast.type_hint.is_some());
             assert_eq!(ast.type_hint.unwrap().full, "bool");
@@ -894,7 +903,7 @@ mod populators {
             assert_eq!(ast.name.0, "x");
             assert!(matches!(
                 ast.value,
-                Expression::LiteralExpression(Literal::String("Name"))
+                Expression::Literal(Literal::String("Name"))
             ));
             assert!(ast.type_hint.is_some());
             assert_eq!(ast.type_hint.unwrap().full, "string");
@@ -910,10 +919,7 @@ mod populators {
                 CoriumParser::parse(Rule::ImmutableVariable, "const x = 10\n").unwrap();
             let ast = ImmutableVariable::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "x");
-            assert!(matches!(
-                ast.value,
-                Expression::LiteralExpression(Literal::Int(10))
-            ));
+            assert!(matches!(ast.value, Expression::Literal(Literal::Int(10))));
             assert!(ast.type_hint.is_none());
         }
 
@@ -924,7 +930,7 @@ mod populators {
             let ast = ImmutableVariable::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "x");
             let _f = Literal::Float(10.0);
-            assert!(matches!(ast.value, Expression::LiteralExpression(_f)));
+            assert!(matches!(ast.value, Expression::Literal(_f)));
             assert!(ast.type_hint.is_none());
         }
 
@@ -934,10 +940,7 @@ mod populators {
                 CoriumParser::parse(Rule::ImmutableVariable, "const x = 'x'\n").unwrap();
             let ast = ImmutableVariable::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "x");
-            assert!(matches!(
-                ast.value,
-                Expression::LiteralExpression(Literal::Char('x'))
-            ));
+            assert!(matches!(ast.value, Expression::Literal(Literal::Char('x'))));
             assert!(ast.type_hint.is_none());
         }
 
@@ -949,7 +952,7 @@ mod populators {
             assert_eq!(ast.name.0, "x");
             assert!(matches!(
                 ast.value,
-                Expression::LiteralExpression(Literal::Bool(true))
+                Expression::Literal(Literal::Bool(true))
             ));
             assert!(ast.type_hint.is_none());
         }
@@ -962,7 +965,7 @@ mod populators {
             assert_eq!(ast.name.0, "x");
             assert!(matches!(
                 ast.value,
-                Expression::LiteralExpression(Literal::String("Name"))
+                Expression::Literal(Literal::String("Name"))
             ));
             assert!(ast.type_hint.is_none());
         }
@@ -973,10 +976,7 @@ mod populators {
                 CoriumParser::parse(Rule::ImmutableVariable, "const x int = 10\n").unwrap();
             let ast = ImmutableVariable::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "x");
-            assert!(matches!(
-                ast.value,
-                Expression::LiteralExpression(Literal::Int(10))
-            ));
+            assert!(matches!(ast.value, Expression::Literal(Literal::Int(10))));
             assert!(ast.type_hint.is_some());
             assert_eq!(ast.type_hint.unwrap().full, "int");
         }
@@ -988,7 +988,7 @@ mod populators {
             let ast = ImmutableVariable::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "x");
             let _f = Literal::Float(10.0);
-            assert!(matches!(ast.value, Expression::LiteralExpression(_f)));
+            assert!(matches!(ast.value, Expression::Literal(_f)));
             assert!(ast.type_hint.is_some());
             assert_eq!(ast.type_hint.unwrap().full, "float");
         }
@@ -999,10 +999,7 @@ mod populators {
                 CoriumParser::parse(Rule::ImmutableVariable, "const x char = 'x'\n").unwrap();
             let ast = ImmutableVariable::populate(result.next().unwrap().into_inner());
             assert_eq!(ast.name.0, "x");
-            assert!(matches!(
-                ast.value,
-                Expression::LiteralExpression(Literal::Char('x'))
-            ));
+            assert!(matches!(ast.value, Expression::Literal(Literal::Char('x'))));
             assert!(ast.type_hint.is_some());
             assert_eq!(ast.type_hint.unwrap().full, "char");
         }
@@ -1015,7 +1012,7 @@ mod populators {
             assert_eq!(ast.name.0, "x");
             assert!(matches!(
                 ast.value,
-                Expression::LiteralExpression(Literal::Bool(true))
+                Expression::Literal(Literal::Bool(true))
             ));
             assert!(ast.type_hint.is_some());
             assert_eq!(ast.type_hint.unwrap().full, "bool");
@@ -1030,7 +1027,7 @@ mod populators {
             assert_eq!(ast.name.0, "x");
             assert!(matches!(
                 ast.value,
-                Expression::LiteralExpression(Literal::String("Name"))
+                Expression::Literal(Literal::String("Name"))
             ));
             assert!(ast.type_hint.is_some());
             assert_eq!(ast.type_hint.unwrap().full, "string");
@@ -1098,7 +1095,7 @@ mod populators {
                 LocalStatement::MutableVariable(MutableVariable {
                     name: Identifier("x"),
                     type_hint: None,
-                    value: Expression::LiteralExpression(Literal::Int(10))
+                    value: Expression::Literal(Literal::Int(10))
                 })
             ));
         }
@@ -1112,7 +1109,7 @@ mod populators {
                 LocalStatement::ImmutableVariable(ImmutableVariable {
                     name: Identifier("x"),
                     type_hint: None,
-                    value: Expression::LiteralExpression(Literal::Int(10))
+                    value: Expression::Literal(Literal::Int(10))
                 })
             ));
         }
@@ -1133,9 +1130,9 @@ mod populators {
             let ast = LocalStatement::populate(result.next().unwrap().into_inner());
             assert!(matches!(
                 ast,
-                LocalStatement::ReturnStatement(ReturnStatement(Some(
-                    Expression::LiteralExpression(Literal::Bool(true))
-                )))
+                LocalStatement::ReturnStatement(ReturnStatement(Some(Expression::Literal(
+                    Literal::Bool(true)
+                ))))
             ));
         }
     }
@@ -1160,7 +1157,7 @@ mod populators {
                 &ast.0[0],
                 LocalStatement::MutableVariable(MutableVariable {
                     name: Identifier("x"),
-                    value: Expression::LiteralExpression(Literal::Int(10)),
+                    value: Expression::Literal(Literal::Int(10)),
                     type_hint: None
                 })
             ));
@@ -1170,7 +1167,7 @@ mod populators {
                 &ast.0[1],
                 LocalStatement::MutableVariable(MutableVariable {
                     name: Identifier("y"),
-                    value: Expression::LiteralExpression(Literal::Bool(true)),
+                    value: Expression::Literal(Literal::Bool(true)),
                     type_hint: Some(_name)
                 })
             ));
@@ -1179,7 +1176,7 @@ mod populators {
                 &ast.0[2],
                 LocalStatement::MutableVariable(MutableVariable {
                     name: Identifier("name"),
-                    value: Expression::LiteralExpression(Literal::String("Hey")),
+                    value: Expression::Literal(Literal::String("Hey")),
                     type_hint: None
                 })
             ));
@@ -1189,7 +1186,7 @@ mod populators {
                 &ast.0[3],
                 LocalStatement::ImmutableVariable(ImmutableVariable {
                     name: Identifier("z"),
-                    value: Expression::LiteralExpression(Literal::Char('y')),
+                    value: Expression::Literal(Literal::Char('y')),
                     type_hint: Some(_name)
                 })
             ));
@@ -1200,7 +1197,7 @@ mod populators {
                 &ast.0[4],
                 LocalStatement::MutableVariable(MutableVariable {
                     name: Identifier("zw"),
-                    value: Expression::LiteralExpression(_f),
+                    value: Expression::Literal(_f),
                     type_hint: Some(_name)
                 })
             ));
@@ -1223,22 +1220,20 @@ mod populators {
             ));
             assert!(matches!(
                 &ast.0[1],
-                LocalStatement::ReturnStatement(ReturnStatement(Some(
-                    Expression::LiteralExpression(Literal::Bool(true))
-                )))
+                LocalStatement::ReturnStatement(ReturnStatement(Some(Expression::Literal(
+                    Literal::Bool(true)
+                ))))
             ));
             assert!(matches!(
                 &ast.0[2],
-                LocalStatement::ReturnStatement(ReturnStatement(Some(
-                    Expression::LiteralExpression(Literal::String("Hey"))
-                )))
+                LocalStatement::ReturnStatement(ReturnStatement(Some(Expression::Literal(
+                    Literal::String("Hey")
+                ))))
             ));
             let _f = Literal::Float(2.33225);
             assert!(matches!(
                 &ast.0[3],
-                LocalStatement::ReturnStatement(ReturnStatement(Some(
-                    Expression::LiteralExpression(_f)
-                )))
+                LocalStatement::ReturnStatement(ReturnStatement(Some(Expression::Literal(_f))))
             ));
         }
 
@@ -1258,28 +1253,28 @@ mod populators {
                 &ast.0[0],
                 LocalStatement::MutableVariable(MutableVariable {
                     name: Identifier("x"),
-                    value: Expression::LiteralExpression(Literal::Int(10)),
+                    value: Expression::Literal(Literal::Int(10)),
                     type_hint: None
                 })
             ));
             assert!(matches!(
                 &ast.0[1],
-                LocalStatement::ReturnStatement(ReturnStatement(Some(
-                    Expression::LiteralExpression(Literal::Bool(true))
-                )))
+                LocalStatement::ReturnStatement(ReturnStatement(Some(Expression::Literal(
+                    Literal::Bool(true)
+                ))))
             ));
             assert!(matches!(
                 &ast.0[2],
-                LocalStatement::ReturnStatement(ReturnStatement(Some(
-                    Expression::LiteralExpression(Literal::String("Hey"))
-                )))
+                LocalStatement::ReturnStatement(ReturnStatement(Some(Expression::Literal(
+                    Literal::String("Hey")
+                ))))
             ));
             let _name = QualifiedName::from("bool");
             assert!(matches!(
                 &ast.0[3],
                 LocalStatement::MutableVariable(MutableVariable {
                     name: Identifier("z"),
-                    value: Expression::LiteralExpression(Literal::Bool(true)),
+                    value: Expression::Literal(Literal::Bool(true)),
                     type_hint: Some(_name)
                 })
             ));
@@ -1289,7 +1284,7 @@ mod populators {
                 &ast.0[4],
                 LocalStatement::MutableVariable(MutableVariable {
                     name: Identifier("z"),
-                    value: Expression::LiteralExpression(_f),
+                    value: Expression::Literal(_f),
                     type_hint: Some(_name)
                 })
             ));
@@ -1376,7 +1371,7 @@ mod populators {
                 Parameter {
                     name: Identifier("ok"),
                     type_hint: _name,
-                    value: Some(Expression::LiteralExpression(Literal::Bool(true)))
+                    value: Some(Expression::Literal(Literal::Bool(true)))
                 }
             ));
         }
@@ -1485,7 +1480,7 @@ mod populators {
                 Parameter {
                     name: Identifier("ok"),
                     type_hint: _name,
-                    value: Some(Expression::LiteralExpression(Literal::Bool(true)))
+                    value: Some(Expression::Literal(Literal::Bool(true)))
                 }
             ));
         }
@@ -1598,7 +1593,7 @@ mod populators {
                 Parameter {
                     name: Identifier("ok"),
                     type_hint: _name,
-                    value: Some(Expression::LiteralExpression(Literal::Bool(true)))
+                    value: Some(Expression::Literal(Literal::Bool(true)))
                 }
             ));
         }
@@ -1637,9 +1632,9 @@ mod populators {
             assert_eq!(ast.block.0.len(), 1);
             assert!(matches!(
                 &ast.block.0[0],
-                LocalStatement::ReturnStatement(ReturnStatement(Some(
-                    Expression::LiteralExpression(Literal::Int(10))
-                )))
+                LocalStatement::ReturnStatement(ReturnStatement(Some(Expression::Literal(
+                    Literal::Int(10)
+                ))))
             ))
         }
 
@@ -1663,7 +1658,7 @@ mod populators {
                 Parameter {
                     name: Identifier("x"),
                     type_hint: _name,
-                    value: Some(Expression::LiteralExpression(Literal::Int(0)))
+                    value: Some(Expression::Literal(Literal::Int(0)))
                 }
             ));
             assert_eq!(ast.signature.return_type.unwrap().full, "int");
@@ -1672,14 +1667,14 @@ mod populators {
                 LocalStatement::MutableVariable(MutableVariable {
                     name: Identifier("result"),
                     type_hint: None,
-                    value: Expression::LiteralExpression(Literal::String("LOL"))
+                    value: Expression::Literal(Literal::String("LOL"))
                 })
             ));
             assert!(matches!(
                 &ast.block.0[1],
-                LocalStatement::ReturnStatement(ReturnStatement(Some(
-                    Expression::LiteralExpression(Literal::Int(23))
-                )))
+                LocalStatement::ReturnStatement(ReturnStatement(Some(Expression::Literal(
+                    Literal::Int(23)
+                ))))
             ));
         }
     }
@@ -1695,7 +1690,7 @@ mod populators {
             let _block = vec![LocalStatement::MutableVariable(MutableVariable {
                 name: Identifier("x"),
                 type_hint: None,
-                value: Expression::LiteralExpression(Literal::Int(10)),
+                value: Expression::Literal(Literal::Int(10)),
             })];
             assert!(matches!(
                 ast,
@@ -1737,7 +1732,7 @@ mod populators {
                 GlobalStatement::MutableVariable(MutableVariable {
                     name: Identifier("x"),
                     type_hint: None,
-                    value: Expression::LiteralExpression(Literal::Int(10))
+                    value: Expression::Literal(Literal::Int(10))
                 })
             ));
         }
@@ -1752,7 +1747,7 @@ mod populators {
                 GlobalStatement::ImmutableVariable(ImmutableVariable {
                     name: Identifier("x"),
                     type_hint: None,
-                    value: Expression::LiteralExpression(Literal::Int(10))
+                    value: Expression::Literal(Literal::Int(10))
                 })
             ));
         }
@@ -1823,7 +1818,7 @@ mod populators {
             let _block = Block(vec![LocalStatement::MutableVariable(MutableVariable {
                 name: Identifier("x"),
                 type_hint: Some(QualifiedName::from("int")),
-                value: Expression::LiteralExpression(Literal::Int(10)),
+                value: Expression::Literal(Literal::Int(10)),
             })]);
             assert!(matches!(
                 &ast.statements[1],
