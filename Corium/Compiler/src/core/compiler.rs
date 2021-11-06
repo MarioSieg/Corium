@@ -204,7 +204,7 @@
 //    limitations under the License.
 
 use crate::ast::populator::NestedAstPopulator;
-use crate::ast::CompilationUnit;
+use crate::ast::tree::compilation_unit::CompilationUnit;
 use crate::core::unit::FcuDescriptor;
 use crate::error::list::ErrorList;
 use crate::parser::parse_source;

@@ -203,7 +203,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::*;
+use crate::ast::tree::prelude::*;
 
 pub enum Record<'a> {
     MutableVariable(&'a MutableVariable<'a>),

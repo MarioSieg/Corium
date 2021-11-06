@@ -203,7 +203,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::*;
+use crate::ast::tree::prelude::*;
 use crate::parser::*;
 use num_traits::FromPrimitive;
 use std::str::FromStr;

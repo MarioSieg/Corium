@@ -204,7 +204,7 @@
 //    limitations under the License.
 
 use super::record::Record;
-use crate::ast::*;
+use crate::ast::tree::prelude::*;
 use std::collections::HashMap;
 
 pub struct SymbolTable<'a>(HashMap<Identifier<'a>, Record<'a>>);

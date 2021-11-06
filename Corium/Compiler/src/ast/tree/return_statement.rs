@@ -203,71 +203,22 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::tree::prelude::*;
-use crate::error::Error;
-use crate::semantic::global_state::GlobalState;
-use crate::semantic::local_state::LocalState;
-use crate::semantic::record::Record;
+use super::expression::Expression;
+use super::tree_prelude::*;
 
-pub trait GlobalSemanticAnalysis<'a> {
-    fn analyze(&'a self, state: &mut GlobalState<'a>) -> Result<(), Error>;
+#[derive(Clone, Debug)]
+pub struct ReturnStatement<'ast>(pub Option<Expression<'ast>>);
+
+impl<'ast> AstComponent for ReturnStatement<'ast> {
+    const CORRESPONDING_RULE: Rule = Rule::ReturnStatement;
 }
 
-pub trait LocalSemanticAnalysis<'a> {
-    fn analyze(&'a self, state: &mut LocalState<'a>) -> Result<(), Error>;
-}
-
-impl<'a> GlobalSemanticAnalysis<'a> for GlobalStatement<'a> {
-    fn analyze(&'a self, state: &mut GlobalState<'a>) -> Result<(), Error> {
-        let existing = match self {
-            Self::MutableVariable(x) => state.table.insert(x.name, Record::MutableVariable(x)),
-            Self::ImmutableVariable(x) => state.table.insert(x.name, Record::ImmutableVariable(x)),
-            Self::Function(x) => {
-                x.analyze(&mut state.local)?;
-                state.table.insert(x.signature.name, Record::Function(x))
-            }
-            Self::NativeFunction(x) => state
-                .table
-                .insert(x.signature.name, Record::NativeFunction(x)),
-        };
-        if let Some(existing) = existing {
-            Err(state.definition_error(&existing, self))
+impl<'ast> fmt::Display for ReturnStatement<'ast> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        if let Some(expr) = &self.0 {
+            write!(f, "return {}", expr)
         } else {
-            Ok(())
+            write!(f, "return")
         }
-    }
-}
-
-impl<'a> LocalSemanticAnalysis<'a> for LocalStatement<'a> {
-    fn analyze(&'a self, state: &mut LocalState<'a>) -> Result<(), Error> {
-        match self {
-            Self::MutableVariable(variable) => state.insert_mutable_variable(self, variable),
-            Self::ImmutableVariable(variable) => state.insert_immutable_variable(self, variable),
-            Self::ReturnStatement(statement) => statement.analyze(state),
-        }
-    }
-}
-
-impl<'a> LocalSemanticAnalysis<'a> for ReturnStatement<'a> {
-    fn analyze(&'a self, state: &mut LocalState<'a>) -> Result<(), Error> {
-        if state.function_return_type.is_none() && self.0.is_some() {
-            Err(state.unexpected_return_error(self))
-        } else if state.function_return_type.is_some() && self.0.is_none() {
-            Err(state.missing_return_expr_error(state.function_return_type.unwrap()))
-        } else {
-            Ok(())
-        }
-    }
-}
-
-impl<'a> LocalSemanticAnalysis<'a> for Function<'a> {
-    fn analyze(&'a self, state: &mut LocalState<'a>) -> Result<(), Error> {
-        state.table.clear();
-        state.function_name = self.signature.name;
-        state.function_return_type = self.signature.return_type.as_ref();
-        for local in &self.block.0 {
-            local.analyze(state)?;
-        }
-        Ok(())
     }
 }

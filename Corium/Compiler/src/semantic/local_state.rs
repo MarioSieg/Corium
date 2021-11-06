@@ -203,10 +203,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::{
-    Identifier, ImmutableVariable, LocalStatement, MutableVariable, QualifiedName, ReturnStatement,
-    Statement,
-};
+use crate::ast::tree::prelude::*;
 use crate::error::Error;
 use crate::semantic::record::Record;
 use crate::semantic::table::SymbolTable;
