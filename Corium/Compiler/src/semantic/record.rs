@@ -243,7 +243,7 @@ mod tests {
             Record::MutableVariable(&MutableVariable {
                 name: Identifier("x"),
                 type_hint: None,
-                value: Expression::Literal(Literal::Bool(true))
+                value: Expression::LiteralExpression(Literal::Bool(true))
             })
             .descriptive_name(),
             "mutable variable"
@@ -256,7 +256,7 @@ mod tests {
             Record::ImmutableVariable(&ImmutableVariable {
                 name: Identifier("x"),
                 type_hint: None,
-                value: Expression::Literal(Literal::Bool(true))
+                value: Expression::LiteralExpression(Literal::Bool(true))
             })
             .descriptive_name(),
             "immutable variable"
@@ -299,7 +299,7 @@ mod tests {
         assert!(!Record::MutableVariable(&MutableVariable {
             name: Identifier("x"),
             type_hint: None,
-            value: Expression::Literal(Literal::Bool(true))
+            value: Expression::LiteralExpression(Literal::Bool(true))
         })
         .is_function());
     }
@@ -309,7 +309,7 @@ mod tests {
         assert!(!Record::ImmutableVariable(&ImmutableVariable {
             name: Identifier("x"),
             type_hint: None,
-            value: Expression::Literal(Literal::Bool(true))
+            value: Expression::LiteralExpression(Literal::Bool(true))
         })
         .is_function());
     }
@@ -344,7 +344,7 @@ mod tests {
         assert!(Record::MutableVariable(&MutableVariable {
             name: Identifier("x"),
             type_hint: None,
-            value: Expression::Literal(Literal::Bool(true))
+            value: Expression::LiteralExpression(Literal::Bool(true))
         })
         .is_variable());
     }
@@ -354,7 +354,7 @@ mod tests {
         assert!(Record::ImmutableVariable(&ImmutableVariable {
             name: Identifier("x"),
             type_hint: None,
-            value: Expression::Literal(Literal::Bool(true))
+            value: Expression::LiteralExpression(Literal::Bool(true))
         })
         .is_variable());
     }

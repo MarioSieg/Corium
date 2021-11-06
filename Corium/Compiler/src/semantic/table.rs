@@ -275,7 +275,7 @@ mod tests {
             Record::ImmutableVariable(&ImmutableVariable {
                 name: Identifier("x"),
                 type_hint: None,
-                value: Expression::Literal(Literal::Bool(true)),
+                value: Expression::LiteralExpression(Literal::Bool(true)),
             }),
         );
         assert!(r.is_none());
@@ -291,7 +291,7 @@ mod tests {
             Record::ImmutableVariable(&ImmutableVariable {
                 name: Identifier("x"),
                 type_hint: None,
-                value: Expression::Literal(Literal::Bool(true)),
+                value: Expression::LiteralExpression(Literal::Bool(true)),
             }),
         );
         assert!(r.is_none());
@@ -302,7 +302,7 @@ mod tests {
             Record::ImmutableVariable(&ImmutableVariable {
                 name: Identifier("x"),
                 type_hint: None,
-                value: Expression::Literal(Literal::Bool(true)),
+                value: Expression::LiteralExpression(Literal::Bool(true)),
             }),
         );
         assert!(r2.is_some());
@@ -318,7 +318,7 @@ mod tests {
             Record::ImmutableVariable(&ImmutableVariable {
                 name: Identifier("x"),
                 type_hint: None,
-                value: Expression::Literal(Literal::Bool(true)),
+                value: Expression::LiteralExpression(Literal::Bool(true)),
             }),
         );
         assert!(r.is_none());
@@ -329,7 +329,7 @@ mod tests {
             Record::ImmutableVariable(&ImmutableVariable {
                 name: Identifier("y"),
                 type_hint: None,
-                value: Expression::Literal(Literal::Bool(true)),
+                value: Expression::LiteralExpression(Literal::Bool(true)),
             }),
         );
         assert!(r2.is_none());

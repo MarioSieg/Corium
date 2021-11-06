@@ -546,18 +546,18 @@ impl<'ast> fmt::Display for ImmutableVariable<'ast> {
 #[derive(Clone, Debug)]
 pub enum Expression<'ast> {
     /// Constant literal.
-    Literal(Literal<'ast>),
+    LiteralExpression(Literal<'ast>),
 
     /// Some identifier.
-    Identifier(Identifier<'ast>),
+    IdentifierExpression(Identifier<'ast>),
 
     /// Sub expression.
-    Sub(Box<Expression<'ast>>),
+    ParenthesisExpression(Box<Expression<'ast>>),
 
-    /// Unary operation (operation with one operand).
-    UnaryOperation {
-        op: Operator,
-        sub: Box<Expression<'ast>>,
+    /// Operation chain such as: 3 + 2 & x
+    ChainedExpression {
+        root: Box<Expression<'ast>>,
+        chain: Vec<ExpressionOperation<'ast>>,
     },
 }
 
@@ -568,13 +568,30 @@ impl<'ast> AstComponent for Expression<'ast> {
 impl<'ast> fmt::Display for Expression<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Self::Literal(x) => write!(f, "{}", x),
-            Self::Identifier(x) => write!(f, "{}", x),
-            Self::Sub(x) => write!(f, "{}", x),
-            Self::UnaryOperation { op, sub } => {
-                write!(f, "{}{}", op, sub)
+            Self::LiteralExpression(x) => write!(f, "{}", x),
+            Self::IdentifierExpression(x) => write!(f, "{}", x),
+            Self::ParenthesisExpression(x) => write!(f, "{}", x),
+            Self::ChainedExpression { root, chain } => {
+                write!(f, "({}", root)?;
+                for op in chain {
+                    write!(f, " {}", op)?;
+                }
+                write!(f, ")")
             }
         }
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct ExpressionOperation<'ast> {
+    pub op: Operator,
+    pub expr: Expression<'ast>,
+}
+
+impl<'ast> fmt::Display for ExpressionOperation<'ast> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.op)?;
+        write!(f, " {}", self.expr)
     }
 }
 
