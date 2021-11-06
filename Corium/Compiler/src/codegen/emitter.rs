@@ -64,7 +64,7 @@ impl Emitter {
                 self.stream.push_instr(Instruction::MPOP);
             }
             _ => {
-                // reduce
+                // flatten
                 while count > 0 {
                     if count >= 16 {
                         self.stream.push_instr(Instruction::MPOP);

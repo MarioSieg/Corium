@@ -203,7 +203,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::core::compiler::compile;
+use crate::core::compiler::compile_source;
 use crate::error::list::ErrorList;
 use std::default;
 use std::fs;
@@ -212,13 +212,13 @@ use std::time::{Duration, Instant};
 use uuid::Uuid;
 
 /// FileCompilationUnitDescriptor
-pub struct FCUDescriptor {
+pub struct FcuDescriptor {
     pub dump_ast: bool,
     pub dump_asm: bool,
     pub opt_level: u8,
 }
 
-impl default::Default for FCUDescriptor {
+impl default::Default for FcuDescriptor {
     fn default() -> Self {
         Self {
             dump_ast: false,
@@ -238,11 +238,11 @@ pub struct FileCompilationUnit {
     file_name: String,
     id: Uuid,
     file_load_time: Duration,
-    pub descriptor: FCUDescriptor,
+    pub descriptor: FcuDescriptor,
 }
 
 impl FileCompilationUnit {
-    pub fn load(file: PathBuf, descriptor: FCUDescriptor) -> Box<Self> {
+    pub fn load(file: PathBuf, descriptor: FcuDescriptor) -> Box<Self> {
         let clock = Instant::now();
         let source_code = fs::read_to_string(&file)
             .unwrap_or_else(|_| panic!("Failed to read source file: {:?}", &file));
@@ -262,7 +262,7 @@ impl FileCompilationUnit {
     pub fn compile(&mut self) -> CompilationResult {
         let clock = Instant::now();
         println!("Compiling `{}`...", self.file_name);
-        let result = compile(&self.source_code, &self.file_name);
+        let result = compile_source(&self.source_code, &self.file_name, &self.descriptor);
         let time = self.compute_compile_time(clock);
         if let Err(e) = result {
             Err((time, e))

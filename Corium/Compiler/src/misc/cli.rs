@@ -290,7 +290,7 @@ impl Options {
             } => {
                 let mut context = crate::core::context::CompilerContext::new();
                 for file in input_files {
-                    let descriptor = crate::core::unit::FCUDescriptor {
+                    let descriptor = crate::core::unit::FcuDescriptor {
                         dump_ast,
                         dump_asm,
                         opt_level,

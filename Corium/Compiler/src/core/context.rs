@@ -203,7 +203,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::core::unit::{CompilationResult, FCUDescriptor, FileCompilationUnit};
+use crate::core::unit::{CompilationResult, FcuDescriptor, FileCompilationUnit};
 use std::collections::VecDeque;
 use std::path::PathBuf;
 use std::thread::{self, JoinHandle};
@@ -229,7 +229,7 @@ impl CompilerContext {
     }
 
     #[inline]
-    pub fn enqueue_file(&mut self, path: PathBuf, desc: FCUDescriptor) {
+    pub fn enqueue_file(&mut self, path: PathBuf, desc: FcuDescriptor) {
         self.queue.push_front(FileCompilationUnit::load(path, desc));
     }
 
@@ -308,7 +308,7 @@ mod tests {
     #[test]
     fn enqueue_file() {
         let mut ctx = CompilerContext::new();
-        ctx.enqueue_file(PathBuf::from(TEST_FILE_PATH), FCUDescriptor::default());
+        ctx.enqueue_file(PathBuf::from(TEST_FILE_PATH), FcuDescriptor::default());
         assert_eq!(ctx.get_queue().len(), 1);
         assert!(ctx.has_compilation_units());
     }
@@ -316,6 +316,6 @@ mod tests {
     #[test]
     fn compile() {
         let mut ctx = CompilerContext::new();
-        ctx.enqueue_file(PathBuf::from(TEST_FILE_PATH), FCUDescriptor::default());
+        ctx.enqueue_file(PathBuf::from(TEST_FILE_PATH), FcuDescriptor::default());
     }
 }

@@ -241,11 +241,13 @@ impl<'ast> AstComponent for CompilationUnit<'ast> {
 
 impl<'ast> fmt::Display for CompilationUnit<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        if let Some(module) = &self.module {
-            write!(f, "{}", module)?;
-        }
+        writeln!(
+            f,
+            "Module `{}`",
+            self.module.as_ref().unwrap_or(&Module::default())
+        )?;
         for smt in &self.statements {
-            write!(f, "{}", smt)?;
+            writeln!(f, "{}", smt)?;
         }
         Ok(())
     }
@@ -350,7 +352,7 @@ impl<'ast> AstComponent for FunctionSignature<'ast> {
 
 impl<'ast> fmt::Display for FunctionSignature<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.name)?;
+        write!(f, "function {}", self.name)?;
         if let Some(params) = &self.parameters {
             write!(f, "{}", params)?;
         } else {
