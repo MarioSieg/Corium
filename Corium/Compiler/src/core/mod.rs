@@ -206,4 +206,6 @@
 pub mod compiler;
 pub mod context;
 pub mod intrinsics;
+pub mod pass;
+pub mod passes;
 pub mod unit;

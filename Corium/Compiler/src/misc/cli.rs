@@ -248,6 +248,9 @@ pub enum Options {
 
         #[structopt(long, help = "Enable Nominax bytecode dump per file.")]
         dump_asm: bool,
+
+        #[structopt(long, help = "Enables pass time logging.")]
+        pass_timer: bool,
     },
     Build,
     Clean,
@@ -284,16 +287,19 @@ impl Options {
                 input_files,
                 output_file: _output_file,
                 opt_level,
-                verbose: _verbose,
+                verbose,
                 dump_ast,
                 dump_asm,
+                pass_timer,
             } => {
                 let mut context = crate::core::context::CompilerContext::new();
                 for file in input_files {
-                    let descriptor = crate::core::unit::FcuDescriptor {
+                    let descriptor = crate::core::unit::CompileDescriptor {
                         dump_ast,
                         dump_asm,
                         opt_level,
+                        verbose,
+                        pass_timer,
                     };
                     context.enqueue_file(file, descriptor);
                 }

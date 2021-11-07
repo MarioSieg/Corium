@@ -203,24 +203,17 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::populator::NestedAstPopulator;
-use crate::ast::tree::compilation_unit::CompilationUnit;
-use crate::core::unit::FcuDescriptor;
+use crate::core::passes::prelude::*;
+use crate::core::unit::CompileDescriptor;
 use crate::error::list::ErrorList;
-use crate::parser::parse_source;
-use crate::semantic;
 
-pub fn compile_source(src: &str, file: &str, desc: &FcuDescriptor) -> Result<(), ErrorList> {
-    // parse source code to parse tree
-    let parse_tree = parse_source(src, file)?;
+pub fn compile_source(src: &str, file: &str, desc: &CompileDescriptor) -> Result<(), ErrorList> {
+    let verbose = desc.verbose;
+    let pass_timer = desc.pass_timer;
 
-    // convert parse tree to abstract syntax tree
-    let ast_tree = CompilationUnit::populate(parse_tree);
-    if desc.dump_ast || cfg!(debug_assertions) {
-        println!("{:#?}", ast_tree);
-    }
+    let result = ParsePass::run(src, verbose, pass_timer, file)?;
+    let result = AstPopulationPass::run(result, verbose, pass_timer, file)?;
+    let result = SemanticPass::run(result, verbose, pass_timer, file)?;
 
-    // perform semantic analysis
-    semantic::analyze(&ast_tree, file)?;
-    Ok(())
+    Ok(result)
 }
