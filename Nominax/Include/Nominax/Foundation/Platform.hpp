@@ -349,6 +349,10 @@
 #	undef NOX_COM_MINGW
 #	define NOX_COM_MINGW true
 #	define NOX_COM_NAME "MinGW"
+#elif defined(_MSC_VER)
+#	error "Platform.hpp": MSVC is NOT supported! Please use Clang or GCC on Windows!
+#else
+#	error "Platform.hpp": Unknown compiler!
 #endif
 
 #if NOX_COM_CLANG

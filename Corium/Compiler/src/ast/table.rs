@@ -203,7 +203,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::*;
+use super::tree::prelude::*;
 use std::collections::HashMap;
 
 pub type FunctionTable<'ast> = HashMap<Identifier<'ast>, Function<'ast>>;

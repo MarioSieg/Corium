@@ -203,7 +203,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::*;
+use crate::ast::tree::compilation_unit::CompilationUnit;
 use crate::error::list::ErrorList;
 
 pub mod analyzers;

@@ -1001,6 +1001,66 @@ mod rules {
                 let result = result.into_inner().next().unwrap();
                 assert_eq!(result.as_rule(), Rule::Literal);
             }
+
+            #[test]
+            fn addition() {
+                let mut result = CoriumParser::parse(Rule::Expression, "1 + 1")
+                    .unwrap()
+                    .next()
+                    .unwrap()
+                    .into_inner();
+                {
+                    let root = result.next().unwrap();
+                    assert_eq!(root.as_rule(), Rule::RootExpression);
+                    let literal = root.into_inner().next().unwrap();
+                    assert_eq!(literal.as_rule(), Rule::LiteralExpression);
+                }
+                {
+                    let root = result.next().unwrap();
+                    assert_eq!(root.as_rule(), Rule::Operator);
+                }
+                {
+                    let root = result.next().unwrap();
+                    assert_eq!(root.as_rule(), Rule::RootExpression);
+                    let literal = root.into_inner().next().unwrap();
+                    assert_eq!(literal.as_rule(), Rule::LiteralExpression);
+                }
+            }
+
+            #[test]
+            fn calculation() {
+                let mut result = CoriumParser::parse(Rule::Expression, "1 + 1 * x")
+                    .unwrap()
+                    .next()
+                    .unwrap()
+                    .into_inner();
+                {
+                    let root = result.next().unwrap();
+                    assert_eq!(root.as_rule(), Rule::RootExpression);
+                    let literal = root.into_inner().next().unwrap();
+                    assert_eq!(literal.as_rule(), Rule::LiteralExpression);
+                }
+                {
+                    let root = result.next().unwrap();
+                    assert_eq!(root.as_rule(), Rule::Operator);
+                }
+                {
+                    let root = result.next().unwrap();
+                    assert_eq!(root.as_rule(), Rule::RootExpression);
+                    let literal = root.into_inner().next().unwrap();
+                    assert_eq!(literal.as_rule(), Rule::LiteralExpression);
+                }
+                {
+                    let root = result.next().unwrap();
+                    assert_eq!(root.as_rule(), Rule::Operator);
+                }
+                {
+                    let root = result.next().unwrap();
+                    assert_eq!(root.as_rule(), Rule::RootExpression);
+                    let literal = root.into_inner().next().unwrap();
+                    assert_eq!(literal.as_rule(), Rule::IdentifierExpression);
+                }
+            }
         }
 
         mod invalid {

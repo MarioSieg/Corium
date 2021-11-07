@@ -7,6 +7,8 @@ native function print (value string, end char = '\n')
 
 const PI = 3.14
 
+# This file contains all syntax feature -
+# it is only used to the the compiler
 function test2 () {
     let a = 10
     let b = 2.5
@@ -14,7 +16,7 @@ function test2 () {
     let d = 'x'
     let e = "Hey"
 
-    let a int = 2.5
+    let a int = 2.5 + 2.5
     let b2 float = 2.5
     let c2 bool = true
     let d2 char = 'x'
@@ -22,7 +24,7 @@ function test2 () {
 }
 
 function compute (x int, y int, normalize bool) int {
-    let result = 10
+    let result = x + y * 5
     return result
 }
 
@@ -42,20 +44,4 @@ function loop () int {
 function retIdent () int {
     let result = 10
     return result
-}
-
-function unaryPlus () int {
-    return +10
-}
-
-function unaryMinus () float {
-    return -0.3
-}
-
-function unaryNot (x bool) bool {
-    return !x
-}
-
-function unaryCom (x int) int {
-    return ~x
 }

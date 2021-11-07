@@ -203,7 +203,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::{populator::*, *};
+use crate::ast::{populator::prelude::*, tree::prelude::*};
 use crate::parser::*;
 
 #[test]
@@ -435,7 +435,7 @@ mod populators {
             let mut result = CoriumParser::parse(Rule::Expression, "(10)").unwrap();
             let ast = Expression::populate(result.next().unwrap().into_inner());
             let _n1 = Box::new(Expression::Literal(Literal::Int(10)));
-            assert!(matches!(ast, Expression::Sub(_n1)));
+            assert!(matches!(ast, Expression::Parenthesis(_n1)));
         }
 
         #[test]
@@ -443,8 +443,8 @@ mod populators {
             let mut result = CoriumParser::parse(Rule::Expression, "((10))").unwrap();
             let ast = Expression::populate(result.next().unwrap().into_inner());
             let _n1 = Box::new(Expression::Literal(Literal::Int(10)));
-            let _n2 = Box::new(Expression::Sub(_n1));
-            assert!(matches!(ast, Expression::Sub(_n2)));
+            let _n2 = Box::new(Expression::Parenthesis(_n1));
+            assert!(matches!(ast, Expression::Parenthesis(_n2)));
         }
 
         #[test]
@@ -452,13 +452,57 @@ mod populators {
             let mut result = CoriumParser::parse(Rule::Expression, "(((10)))").unwrap();
             let ast = Expression::populate(result.next().unwrap().into_inner());
             let _n1 = Box::new(Expression::Literal(Literal::Int(10)));
-            let _n2 = Box::new(Expression::Sub(_n1));
-            let _n3 = Box::new(Expression::Sub(_n2));
-            assert!(matches!(ast, Expression::Sub(_n3)));
+            let _n2 = Box::new(Expression::Parenthesis(_n1));
+            let _n3 = Box::new(Expression::Parenthesis(_n2));
+            assert!(matches!(ast, Expression::Parenthesis(_n3)));
+        }
+
+        mod chain_2_tree {
+            use super::*;
+
+            #[test]
+            fn literal_addition() {
+                let mut result = CoriumParser::parse(Rule::Expression, "66 + 1").unwrap();
+                let ast = Expression::populate(result.next().unwrap().into_inner());
+                let _expr = Expression::Binary {
+                    lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                    op: Operator::Addition,
+                    rhs: Box::new(Expression::Literal(Literal::Int(1))),
+                };
+                assert!(matches!(ast, _expr));
+            }
+
+            #[test]
+            fn identifier_addition() {
+                let mut result = CoriumParser::parse(Rule::Expression, "66 + x").unwrap();
+                let ast = Expression::populate(result.next().unwrap().into_inner());
+                let _expr = Expression::Binary {
+                    lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                    op: Operator::Addition,
+                    rhs: Box::new(Expression::Identifier(Identifier("x"))),
+                };
+                assert!(matches!(ast, _expr));
+            }
+
+            #[test]
+            fn literal_calculation() {
+                let mut result = CoriumParser::parse(Rule::Expression, "66 + 1 * 5").unwrap();
+                let ast = Expression::populate(result.next().unwrap().into_inner());
+                let _expr = Expression::Binary {
+                    lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                    op: Operator::Addition,
+                    rhs: Box::new(Expression::Binary {
+                        lhs: Box::new(Expression::Literal(Literal::Int(1))),
+                        op: Operator::Multiplication,
+                        rhs: Box::new(Expression::Literal(Literal::Int(5))),
+                    }),
+                };
+                assert!(matches!(ast, _expr));
+            }
         }
     }
 
-    mod unary_operator {
+    mod operator {
         use super::*;
 
         #[test]
