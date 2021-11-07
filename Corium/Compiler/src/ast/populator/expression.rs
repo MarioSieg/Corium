@@ -207,7 +207,7 @@ use super::populator_prelude::*;
 
 impl<'ast> NestedAstPopulator<'ast> for Expression<'ast> {
     fn populate(mut rule: RulePairs<'ast>) -> Self {
-        let mut root = {
+        let root = {
             let base = rule.next().unwrap();
             let inner = if base.as_rule() == Rule::RootExpression {
                 base.into_inner().next().unwrap()
@@ -240,29 +240,36 @@ impl<'ast> NestedAstPopulator<'ast> for Expression<'ast> {
         }
 
         // if there are expressions left, read them into an expression tree
-        let chain = Self::create_chain(rule);
-        for (op, expr) in chain {
-            root = Self::Binary {
-                lhs: Box::new(root),
-                op,
-                rhs: Box::new(expr),
-            }
-        }
-
-        root
+        let chain = Self::build_expression_chain(rule);
+        root.build_expression_tree(chain)
     }
 }
 
+type Chain<'ast> = Vec<(Operator, Expression<'ast>)>;
+
 impl<'ast> Expression<'ast> {
-    fn create_chain(mut rule: RulePairs<'ast>) -> Vec<(Operator, Expression)> {
+    fn build_expression_chain(mut rule: RulePairs<'ast>) -> Chain<'ast> {
         let mut chain = Vec::new();
         while let (Some(op), Some(expr)) = (rule.next(), rule.next()) {
             debug_assert_eq!(op.as_rule(), Rule::Operator);
             let op = Operator::merge(op.as_str());
+
             debug_assert_eq!(expr.as_rule(), Rule::RootExpression);
             let expr = Self::populate(expr.into_inner());
+
             chain.push((op, expr));
         }
         chain
+    }
+
+    fn build_expression_tree(mut self, chain: Chain<'ast>) -> Self {
+        for (op, expr) in chain {
+            self = Self::Binary {
+                lhs: Box::new(self),
+                op,
+                rhs: Box::new(expr),
+            }
+        }
+        self
     }
 }
