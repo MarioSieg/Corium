@@ -202,29 +202,3 @@
 //    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
-
-pub use pest::Parser;
-use pest_derive::*;
-
-pub mod operator;
-
-#[cfg(test)]
-mod tests;
-
-use crate::error::list::ErrorList;
-use crate::error::Error;
-use pest::iterators::Pairs;
-
-pub type RulePairs<'a> = Pairs<'a, Rule>;
-
-// Will be replaced by own parser implementation
-#[derive(Parser)]
-#[grammar = "parser/corium.pest"]
-pub struct CoriumParser;
-
-pub fn parse_source<'a>(src: &'a str, file: &str) -> Result<RulePairs<'a>, ErrorList> {
-    match CoriumParser::parse(Rule::CompilationUnit, src) {
-        Ok(mut unit) => Ok(unit.next().unwrap().into_inner()),
-        Err(err) => Err(Error::Syntax(format!("{}", err), file.to_string()).into()),
-    }
-}
