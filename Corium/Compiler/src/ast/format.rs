@@ -203,8 +203,121 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-pub mod builtin_types;
-pub mod format;
-pub mod populator;
-pub mod table;
-pub mod tree;
+use crate::ast::tree::module::Module;
+use crate::ast::tree::prelude::*;
+use crate::ast::tree::Statement;
+use ptree::*;
+
+#[cold]
+pub fn pretty_print_ast(root: &CompilationUnit) {
+    let module_name = root
+        .module
+        .as_ref()
+        .unwrap_or(&Module::default())
+        .to_string();
+    let mut tree = TreeBuilder::new(module_name);
+    for global_statement in &root.statements {
+        tree.begin_child(global_statement.descriptive_name().to_string());
+        match global_statement {
+            GlobalStatement::NativeFunction(x) => {
+                print_function_signature(&mut tree, &x.signature);
+            }
+            GlobalStatement::Function(x) => {
+                print_function_signature(&mut tree, &x.signature);
+                for local_statement in &x.block.0 {
+                    tree.begin_child(local_statement.descriptive_name().to_string());
+                    match local_statement {
+                        LocalStatement::ImmutableVariable(x) => {
+                            print_immutable_variable(&mut tree, x);
+                        }
+                        LocalStatement::MutableVariable(x) => {
+                            print_mutable_variable(&mut tree, x);
+                        }
+                        LocalStatement::ReturnStatement(expr) => {
+                            if let Some(expr) = &expr.0 {
+                                print_expr(&mut tree, expr);
+                            }
+                        }
+                    }
+                    tree.end_child();
+                }
+            }
+            GlobalStatement::ImmutableVariable(x) => {
+                print_immutable_variable(&mut tree, x);
+            }
+            GlobalStatement::MutableVariable(x) => {
+                print_mutable_variable(&mut tree, x);
+            }
+        }
+        tree.end_child();
+    }
+    let result = tree.build();
+    print_tree(&result).unwrap();
+}
+
+#[cold]
+fn print_function_signature(tree: &mut TreeBuilder, signature: &FunctionSignature) {
+    tree.add_empty_child(signature.name.to_string());
+    if let Some(params) = &signature.parameters {
+        for (i, param) in params.0.iter().enumerate() {
+            tree.begin_child(format!("parameter {}", i));
+            tree.add_empty_child(param.name.to_string());
+            tree.add_empty_child(param.type_hint.to_string());
+            if let Some(expr) = &param.value {
+                print_expr(tree, expr);
+            }
+            tree.end_child();
+        }
+    }
+    if let Some(return_type) = &signature.return_type {
+        tree.add_empty_child(return_type.full.to_string());
+    }
+}
+
+#[cold]
+fn print_expr(tree: &mut TreeBuilder, expr: &Expression) {
+    match expr {
+        Expression::Literal(x) => {
+            tree.add_empty_child(x.to_string());
+        }
+        Expression::Identifier(x) => {
+            tree.add_empty_child(x.to_string());
+        }
+        Expression::Parenthesis(expr) => {
+            print_expr(tree, expr);
+        }
+        Expression::Unary { op, expr } => {
+            tree.add_empty_child(op.to_string());
+            print_expr(tree, expr);
+        }
+        Expression::Binary { lhs, op, rhs } => {
+            tree.begin_child(lhs.to_string());
+            print_expr(tree, lhs);
+            tree.end_child();
+
+            tree.add_empty_child(op.to_string());
+
+            tree.begin_child(rhs.to_string());
+            print_expr(tree, rhs);
+            tree.end_child();
+        }
+    }
+}
+
+#[cold]
+fn print_immutable_variable(tree: &mut TreeBuilder, variable: &ImmutableVariable) {
+    tree.add_empty_child(variable.name.to_string());
+    if let Some(type_hint) = &variable.type_hint {
+        tree.add_empty_child(type_hint.to_string());
+    }
+    print_expr(tree, &variable.value);
+}
+
+#[cold]
+fn print_mutable_variable(tree: &mut TreeBuilder, variable: &MutableVariable) {
+    tree.add_empty_child(variable.name.to_string());
+    if let Some(type_hint) = &variable.type_hint {
+        tree.add_empty_child(type_hint.to_string());
+    }
+    print_expr(tree, &variable.value);
+}

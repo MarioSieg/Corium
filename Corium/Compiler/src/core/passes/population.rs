@@ -204,6 +204,7 @@
 //    limitations under the License.
 
 use super::Pass;
+use crate::ast::format::pretty_print_ast;
 use crate::ast::populator::NestedAstPopulator;
 use crate::ast::tree::prelude::CompilationUnit;
 use crate::error::list::ErrorList;
@@ -221,7 +222,7 @@ impl<'a> Pass<RulePairs<'a>, CompilationUnit<'a>> for AstPopulationPass {
     ) -> Result<CompilationUnit<'a>, ErrorList> {
         let result = CompilationUnit::populate(input);
         if verbose {
-            println!("{:#?}", result);
+            pretty_print_ast(&result);
         }
         Ok(result)
     }

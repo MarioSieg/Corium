@@ -26,3 +26,4 @@ serde = { version = "1.0.130", features = ["derive"] }      # Data de/serializat
 walkdir = "2.3.2"                                           # Recursive directory iteration
 num-traits = "0.2.14"                                       # Helper for enums and primitive number types
 num-derive = "0.3.3"                                        # Helper for enums and primitive number types
+ptree = "0.4.0"                                             # Helper for pretty printing tree structures
