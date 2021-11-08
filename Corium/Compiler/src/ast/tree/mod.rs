@@ -1,5 +1,6 @@
 use std::fmt;
 
+pub mod binary_operator;
 pub mod block;
 pub mod compilation_unit;
 pub mod expression;
@@ -13,11 +14,11 @@ pub mod local_statement;
 pub mod module;
 pub mod mutable_variable;
 pub mod native_function;
-pub mod operator;
 pub mod parameter;
 pub mod parameter_list;
 pub mod qualified_name;
 pub mod return_statement;
+pub mod unary_operator;
 
 pub type Rule = crate::parser::Rule;
 
@@ -32,6 +33,7 @@ pub trait Statement: AstComponent {
 
 pub mod prelude {
     pub use super::super::builtin_types::*;
+    pub use super::binary_operator::*;
     pub use super::block::*;
     pub use super::compilation_unit::*;
     pub use super::expression::*;
@@ -45,11 +47,11 @@ pub mod prelude {
     pub use super::module::*;
     pub use super::mutable_variable::*;
     pub use super::native_function::*;
-    pub use super::operator::*;
     pub use super::parameter::*;
     pub use super::parameter_list::*;
     pub use super::qualified_name::*;
     pub use super::return_statement::*;
+    pub use super::unary_operator::*;
     pub use super::{AstComponent, Statement};
 }
 

@@ -207,6 +207,3 @@ pub mod builtin_types;
 pub mod populator;
 pub mod table;
 pub mod tree;
-
-#[cfg(test)]
-mod tests;

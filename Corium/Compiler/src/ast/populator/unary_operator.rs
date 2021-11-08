@@ -203,71 +203,16 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::tree::AstComponent;
-use crate::parser::RulePairs;
+use super::populator_prelude::*;
+use num_traits::FromPrimitive;
 
-pub mod binary_operator;
-pub mod block;
-pub mod compilation_unit;
-pub mod expression;
-pub mod function;
-pub mod function_signature;
-pub mod global_statement;
-pub mod identifier;
-pub mod immutable_variable;
-pub mod literal;
-pub mod local_statement;
-pub mod module;
-pub mod mutable_variable;
-pub mod native_function;
-pub mod parameter;
-pub mod parameter_list;
-pub mod qualified_name;
-pub mod return_statement;
-pub mod unary_operator;
-
-#[cfg(test)]
-mod tests;
-
-pub trait NestedAstPopulator<'ast>: AstComponent {
-    fn populate(rule: RulePairs<'ast>) -> Self;
-}
-
-pub trait AtomicAstPopulator<'ast>: AstComponent {
-    fn merge(span: &'ast str) -> Self;
-}
-
-pub trait AstPopulator<'ast>: NestedAstPopulator<'ast> + AtomicAstPopulator<'ast> {}
-
-pub mod prelude {
-    pub use super::binary_operator::*;
-    pub use super::block::*;
-    pub use super::compilation_unit::*;
-    pub use super::expression::*;
-    pub use super::function::*;
-    pub use super::function_signature::*;
-    pub use super::global_statement::*;
-    pub use super::identifier::*;
-    pub use super::immutable_variable::*;
-    pub use super::literal::*;
-    pub use super::local_statement::*;
-    pub use super::module::*;
-    pub use super::mutable_variable::*;
-    pub use super::native_function::*;
-    pub use super::parameter::*;
-    pub use super::parameter_list::*;
-    pub use super::qualified_name::*;
-    pub use super::return_statement::*;
-    pub use super::unary_operator::*;
-    pub use super::AstPopulator;
-    pub use super::AtomicAstPopulator;
-    pub use super::NestedAstPopulator;
-}
-
-mod populator_prelude {
-    pub use super::AstPopulator;
-    pub use super::AtomicAstPopulator;
-    pub use super::NestedAstPopulator;
-    pub use crate::ast::tree::prelude::*;
-    pub use crate::parser::*;
+impl<'ast> AtomicAstPopulator<'ast> for UnaryOperator {
+    fn merge(span: &'ast str) -> Self {
+        for (i, tok) in Self::TOKENS.iter().enumerate() {
+            if *tok == span {
+                return Self::from_u8(i as u8).unwrap();
+            }
+        }
+        unreachable!()
+    }
 }

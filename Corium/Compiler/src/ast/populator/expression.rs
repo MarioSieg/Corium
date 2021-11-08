@@ -245,14 +245,14 @@ impl<'ast> NestedAstPopulator<'ast> for Expression<'ast> {
     }
 }
 
-type Chain<'ast> = Vec<(Operator, Expression<'ast>)>;
+type Chain<'ast> = Vec<(BinaryOperator, Expression<'ast>)>;
 
 impl<'ast> Expression<'ast> {
     fn build_expression_chain(mut rule: RulePairs<'ast>) -> Chain<'ast> {
         let mut chain = Vec::new();
         while let (Some(op), Some(expr)) = (rule.next(), rule.next()) {
-            debug_assert_eq!(op.as_rule(), Rule::Operator);
-            let op = Operator::merge(op.as_str());
+            debug_assert_eq!(op.as_rule(), Rule::BinaryOperator);
+            let op = BinaryOperator::merge(op.as_str());
 
             debug_assert_eq!(expr.as_rule(), Rule::RootExpression);
             let expr = Self::populate(expr.into_inner());

@@ -209,73 +209,37 @@ use num_derive::FromPrimitive;
 /// Represents an unary operator having one operand. E.g. +10 or -0.5 or !x
 #[repr(u8)]
 #[derive(Copy, Clone, Eq, PartialEq, Debug, FromPrimitive)]
-pub enum Operator {
-    // Arithmetic
-    /// +
-    Addition,
-
-    /// -
-    Subtraction,
-
-    /// *
-    Multiplication,
-
-    /// /
-    Division,
-
-    /// %
-    Modulo,
-
-    // Bitwise
-    /// &
-    BitwiseAnd,
-
-    /// |
-    BitwiseOr,
-
-    /// ^
-    BitwiseXor,
-
-    /// ~
-    BitwiseComplement,
-
-    /// <<
-    BitwiseShiftLeft,
-
-    /// >>
-    BitwiseShiftRight,
-
-    /// <<<
-    BitwiseRotateLeft,
-
-    /// >>>
-    BitwiseRotateRight,
-
-    // Logical
-    /// not
-    LogicalNot,
-
-    /// and
-    LogicalAnd,
-
-    /// or
-    LogicalOr,
+pub enum UnaryOperator {
+    Plus,              // +
+    Minus,             // -
+    BitwiseComplement, // ~
+    LogicalNot,        // not
 }
 
-impl Operator {
-    pub const COUNT: usize = Self::LogicalOr as usize + 1;
+impl UnaryOperator {
+    pub const COUNT: usize = Self::LogicalNot as usize + 1;
 
-    pub const TOKENS: [&'static str; Self::COUNT] = [
-        "+", "-", "*", "/", "%", "&", "|", "^", "~", "<<", ">>", "<<<", ">>>", "not", "and", "or",
-    ];
+    pub const TOKENS: [&'static str; Self::COUNT] = ["+", "-", "~", "not"];
+
+    pub const PRECEDENCE_TABLE: [u8; Self::COUNT] = [2, 2, 2, 2];
+
+    #[inline]
+    pub fn token(&self) -> &'static str {
+        Self::TOKENS[*self as usize]
+    }
+
+    #[inline]
+    pub fn precedence(&self) -> u8 {
+        Self::PRECEDENCE_TABLE[*self as usize]
+    }
 }
 
-impl AstComponent for Operator {
-    const CORRESPONDING_RULE: Rule = Rule::Operator;
+impl AstComponent for UnaryOperator {
+    const CORRESPONDING_RULE: Rule = Rule::UnaryOperator;
 }
 
-impl fmt::Display for Operator {
+impl fmt::Display for UnaryOperator {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", Self::TOKENS[*self as usize])
+        write!(f, "{}", self.token())
     }
 }

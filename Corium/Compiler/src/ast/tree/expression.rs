@@ -204,10 +204,13 @@
 //    limitations under the License.
 
 use super::tree_prelude::*;
-use super::{identifier::Identifier, literal::Literal, operator::Operator};
+use super::{
+    binary_operator::BinaryOperator, identifier::Identifier, literal::Literal,
+    unary_operator::UnaryOperator,
+};
 
 /// Represents an expression.
-#[derive(Clone, Debug)]
+#[derive(PartialEq, Clone, Debug)]
 pub enum Expression<'ast> {
     /// Constant literal.
     Literal(Literal<'ast>),
@@ -218,10 +221,16 @@ pub enum Expression<'ast> {
     /// Sub-expression inside parenthesis.
     Parenthesis(Box<Expression<'ast>>),
 
-    /// Binary operation.
+    /// Unary expression.
+    Unary {
+        op: UnaryOperator,
+        expr: Box<Expression<'ast>>,
+    },
+
+    /// Binary expression.
     Binary {
         lhs: Box<Expression<'ast>>,
-        op: Operator,
+        op: BinaryOperator,
         rhs: Box<Expression<'ast>>,
     },
 }
@@ -236,6 +245,9 @@ impl<'ast> fmt::Display for Expression<'ast> {
             Self::Literal(x) => write!(f, "{}", x),
             Self::Identifier(x) => write!(f, "{}", x),
             Self::Parenthesis(x) => write!(f, "{}", x),
+            Self::Unary { op, expr } => {
+                write!(f, "({} {})", op, expr)
+            }
             Self::Binary { lhs, op, rhs } => {
                 write!(f, "({} {} {})", lhs, op, rhs)
             }

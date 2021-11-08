@@ -56,13 +56,14 @@ Parameter = {
 }
 
 Expression = {
-    RootExpression ~ (Whitespace? ~ Operator ~ Whitespace? ~ RootExpression)*
+    RootExpression ~ (Whitespace? ~ BinaryOperator ~ Whitespace? ~ RootExpression)*
 }
 
 RootExpression = {
     LiteralExpression |
     IdentifierExpression |
-    ParenthesisExpression
+    ParenthesisExpression |
+    UnaryExpression
 }
 
 LiteralExpression = {
@@ -77,7 +78,11 @@ ParenthesisExpression = {
     "(" ~ Expression ~ ")"
 }
 
-Operator = {
+UnaryExpression = {
+    UnaryOperator ~ RootExpression
+}
+
+BinaryOperator = {
    // Arithmetic
    "+" |   // addition
    "-" |   // subtraction
@@ -89,16 +94,21 @@ Operator = {
    "&" |   // and
    "|" |   // or
    "^" |   // xor
-   "~" |   // complement
+  "<<<" | // rotate left
+  ">>>" | // rotate right
    "<<" |  // shift left
    ">>" |  // shift right
-   "<<<" | // rotate left
-   ">>>" | // rotate right
 
    // Logical
-   "not" | // not
    "and" | // and
    "or"    // or
+}
+
+UnaryOperator = {
+    "+" |   // plus
+    "-" |   // minus
+    "~" |   // bitwise complement
+    "not"   // logical not
 }
 
 Literal = {
