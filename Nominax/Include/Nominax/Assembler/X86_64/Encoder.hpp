@@ -211,17 +211,15 @@
 #include "../../Foundation/Panic/Assertions.hpp"
 #include "../../Foundation/Algorithm/Enum.hpp"
 
+#define NOX_REX(w, r, x, b)             (0x40|(b)|((x)<<1)|((r)<<2)|((w)<<3))
+#define NOX_REXM(rr, rb)                (0x40|(((rr)>>1)&4)|(((rb)>>3)&1))
+#define NOX_MODRM(m, r1, r2)            ((m)|(((r1)&7)<<3)|((r2)&7))
+#define NOX_SIB(s, i)                   ((s)|(((i)&7)<<3)|4)
+#define NOX_CHECK_SIB(s, i)             (~(~((s)&~3)&~((i)&~7)))
+#define NOX_CHECK_MODRM(m, r1, r2)      (~(~((m)&~3)&~((r1)&~7)&~((r2)&~7)))
+
 namespace Nominax::Assembler::X86_64
 {
-#if false
-    #define NOX_REX(w, r, x, b)             (0x40|(b)|((x)<<1)|((r)<<2)|((w)<<3))
-    #define NOX_REXM(rr, rb)                (0x40|(((rr)>>1)&4)|(((rb)>>3)&1))
-    #define NOX_MODRM(m, r1, r2)            ((m)|(((r1)&7)<<3)|((r2)&7))
-    #define NOX_SIB(s, i)                   ((s)|(((i)&7)<<3)|4)
-    #define NOX_CHECK_SIB(s, i)             (~(~((s)&~3)&~((i)&~7)))
-    #define NOX_CHECK_MODRM(m, r1, r2)      (~(~((m)&~3)&~((r1)&~7)&~((r2)&~7)))
-#endif
-
     enum class MODField : std::uint8_t
     {
         Offset0 = 0x00,

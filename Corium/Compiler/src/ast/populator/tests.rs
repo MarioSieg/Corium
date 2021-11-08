@@ -486,8 +486,8 @@ mod populators {
 
             #[test]
             fn literal_calculation() {
-                let mut result = CoriumParser::parse(Rule::Expression, "66 + 1 * 5").unwrap();
-                let ast = Expression::populate(result.next().unwrap().into_inner());
+                let result = CoriumParser::parse(Rule::Expression, "66 + 1 * 5").unwrap();
+                let ast = crate::parser::precedence::climb(result);
                 let _expr = Expression::Binary {
                     lhs: Box::new(Expression::Literal(Literal::Int(66))),
                     op: BinaryOperator::Addition,
@@ -497,6 +497,7 @@ mod populators {
                         rhs: Box::new(Expression::Literal(Literal::Int(5))),
                     }),
                 };
+                println!("{}", ast);
                 assert_eq!(ast, _expr);
             }
         }
@@ -565,14 +566,14 @@ mod populators {
         fn bitwise_left_rotation() {
             let result = CoriumParser::parse(Rule::BinaryOperator, "<<<").unwrap();
             let ast = BinaryOperator::merge(result.as_str());
-            assert_eq!(ast, BinaryOperator::BitwiseRotateLeft);
+            assert_eq!(ast, BinaryOperator::BitwiseRotationLeft);
         }
 
         #[test]
         fn bitwise_right_rotation() {
             let result = CoriumParser::parse(Rule::BinaryOperator, ">>>").unwrap();
             let ast = BinaryOperator::merge(result.as_str());
-            assert_eq!(ast, BinaryOperator::BitwiseRotateRight);
+            assert_eq!(ast, BinaryOperator::BitwiseRotationRight);
         }
 
         #[test]

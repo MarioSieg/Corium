@@ -203,18 +203,19 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use super::RuleType;
 use crate::ast::tree::operator::OperatorAssociativity;
+use std::fmt::Debug;
+use std::hash::Hash;
 use std::ops::BitOr;
 
 #[derive(Debug)]
-pub struct OperatorSet<R: RuleType> {
+pub struct OperatorSet<R: Copy + Debug + Eq + Hash + Ord> {
     pub rule: R,
     pub assoc: OperatorAssociativity,
     pub next: Option<Box<OperatorSet<R>>>,
 }
 
-impl<R: RuleType> OperatorSet<R> {
+impl<R: Copy + Debug + Eq + Hash + Ord> OperatorSet<R> {
     pub fn new(rule: R, assoc: OperatorAssociativity) -> OperatorSet<R> {
         OperatorSet {
             rule,
@@ -224,11 +225,14 @@ impl<R: RuleType> OperatorSet<R> {
     }
 }
 
-impl<R: RuleType> BitOr for OperatorSet<R> {
+impl<R: Copy + Debug + Eq + Hash + Ord> BitOr for OperatorSet<R> {
     type Output = Self;
 
     fn bitor(mut self, rhs: Self) -> Self {
-        fn assign_next<R: RuleType>(op: &mut OperatorSet<R>, next: OperatorSet<R>) {
+        fn assign_next<R: Copy + Debug + Eq + Hash + Ord>(
+            op: &mut OperatorSet<R>,
+            next: OperatorSet<R>,
+        ) {
             if let Some(ref mut child) = op.next {
                 assign_next(child, next);
             } else {

@@ -213,14 +213,14 @@ use std::iter::Peekable;
 pub mod macros;
 pub mod operator_set;
 
-pub trait RuleType: Copy + Debug + Eq + Hash + Ord {}
-
 use operator_set::OperatorSet;
 
 #[derive(Debug)]
-pub struct PrecClimber<R: Clone + 'static>(pub Cow<'static, [(R, u32, OperatorAssociativity)]>);
+pub struct PrecedenceClimber<R: Clone + 'static>(
+    pub Cow<'static, [(R, u32, OperatorAssociativity)]>,
+);
 
-impl<R: RuleType> PrecClimber<R> {
+impl<R: Copy + Debug + Eq + Hash + Ord> PrecedenceClimber<R> {
     fn find_by_rule(&self, rule: &R) -> Option<(u32, OperatorAssociativity)> {
         self.0
             .iter()
@@ -228,7 +228,7 @@ impl<R: RuleType> PrecClimber<R> {
             .map(|(_, prec, assoc)| (*prec, *assoc))
     }
 
-    pub fn new(ops: Vec<OperatorSet<R>>) -> PrecClimber<R> {
+    pub fn new(ops: Vec<OperatorSet<R>>) -> PrecedenceClimber<R> {
         Self(Cow::Owned(ops.into_iter().zip(1..).fold(
             Vec::new(),
             |mut vec, (op, prec)| {
@@ -245,6 +245,16 @@ impl<R: RuleType> PrecClimber<R> {
                 vec
             },
         )))
+    }
+
+    pub fn climb<'a, P, F, G, T>(&self, mut pairs: P, mut primary: F, mut infix: G) -> T
+    where
+        P: Iterator<Item = Pair<'a, R>>,
+        F: FnMut(Pair<'a, R>) -> T,
+        G: FnMut(T, Pair<'a, R>, T) -> T,
+    {
+        let lhs = primary(pairs.next().expect("Empty pair!"));
+        self.climb_precedence(lhs, 0, &mut pairs.peekable(), &mut primary, &mut infix)
     }
 
     fn climb_precedence<'a, P, F, G, T>(
@@ -274,7 +284,7 @@ impl<R: RuleType> PrecClimber<R> {
                         let rule = pairs.peek().unwrap().as_rule();
                         if let Some((new_prec, assoc)) = self.find_by_rule(&rule) {
                             let fold = new_prec > prec
-                                || assoc == OperatorAssociativity::LeftToRight && new_prec == prec;
+                                || assoc == OperatorAssociativity::RightToLeft && new_prec == prec;
                             if fold {
                                 rhs = self.climb_precedence(rhs, new_prec, pairs, primary, infix);
                             } else {

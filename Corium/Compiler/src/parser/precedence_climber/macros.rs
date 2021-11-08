@@ -213,7 +213,7 @@ macro_rules! precedence_climber {
             $( [ $rule $( $rules )* ] )*
         );
 
-        $crate::parser::precedence_climber::PrecClimber(
+        $crate::parser::precedence_climber::PrecedenceClimber(
             std::borrow::Cow::Borrowed(precedence_climber!(
                 @array
                 $( $assoc $rule $(, $assoc $rules )* ),*
@@ -255,7 +255,7 @@ macro_rules! precedence_climber {
             const $rule: u32 = $precedence;
         )*
         precedence_climber!(
-            @precedences { 1u32 + $precedence }
+            @precedences { $precedence + 1u32 }
             $( [ $( $rules )* ] )*
         );
     };

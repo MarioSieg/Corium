@@ -83,33 +83,47 @@ UnaryExpression = {
 }
 
 BinaryOperator = {
-   // Arithmetic
-   "+" |   // addition
-   "-" |   // subtraction
-   "*" |   // multiplication
-   "/" |   // division
-   "%" |   // modulo
+    Addition |
+    Subtraction |
+    Multiplication |
+    Division |
+    Modulo |
 
-   // Bitwise
-   "&" |   // and
-   "|" |   // or
-   "^" |   // xor
-  "<<<" | // rotate left
-  ">>>" | // rotate right
-   "<<" |  // shift left
-   ">>" |  // shift right
-
-   // Logical
-   "and" | // and
-   "or"    // or
+    BitwiseAnd |
+    BitwiseOr |
+    BitwiseXor |
+    BitwiseRotationLeft |
+    BitwiseRotationRight |
+    BitwiseShiftLeft |
+    BitwiseShiftRight |
+    LogicalAnd |
+    LogicalOr
 }
 
 UnaryOperator = {
-    "+" |   // plus
-    "-" |   // minus
-    "~" |   // bitwise complement
-    "not"   // logical not
+    Addition |
+    Subtraction |
+    BitwiseComplement |
+    LogicalNot
 }
+
+Addition = @{ "+" }
+Subtraction = @{ "-" }
+Multiplication = @{ "*" }
+Division = @{ "/" }
+Modulo = @{ "%" }
+BitwiseAnd = @{ "&" }
+BitwiseOr = @{ "|" }
+BitwiseXor = @{ "^" }
+BitwiseShiftLeft = @{ "<<" }
+BitwiseShiftRight = @{ ">>" }
+BitwiseRotationLeft  = @{ "<<<" }
+BitwiseRotationRight = @{ ">>>" }
+LogicalAnd = @ { "and" }
+LogicalOr = @ { "or" }
+
+BitwiseComplement = @{ "~" }
+LogicalNot = @ { "not" }
 
 Literal = {
     FloatLiteral |

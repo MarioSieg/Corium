@@ -203,19 +203,42 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use super::precedence_climber::PrecClimber;
-use crate::ast::tree::binary_operator::BinaryOperator;
+use super::precedence_climber::PrecedenceClimber;
+use super::Rule;
+use crate::ast::populator::{AtomicAstPopulator, NestedAstPopulator};
+use crate::ast::tree::prelude::{BinaryOperator, Expression};
 use crate::precedence_climber;
+use pest::iterators::{Pair, Pairs};
 
-use BinaryOperator as Rule;
-
-static PRECEDENCE_CLIMBER: PrecClimber<BinaryOperator> = precedence_climber![
+const PRECEDENCE_CLIMBER: PrecedenceClimber<Rule> = precedence_climber![
     L Multiplication | Division | Modulo,
     L Addition | Subtraction,
-    L BitwiseShiftLeft | BitwiseShiftRight | BitwiseRotateLeft | BitwiseRotateRight,
+    L BitwiseShiftLeft | BitwiseShiftRight | BitwiseRotationLeft | BitwiseRotationRight,
     L BitwiseAnd,
     L BitwiseXor,
     L BitwiseOr,
     L LogicalAnd,
     L LogicalOr
 ];
+
+use pest::prec_climber::*;
+
+pub fn climb<'a>(rule: Pairs<'a, Rule>) -> Expression<'a> {
+    let primary = |expr: Pair<'a, Rule>| -> Expression<'a> {
+        dbg!(expr.as_rule());
+        Expression::populate(expr.into_inner())
+    };
+    let infix = |lhs: Expression<'a>, op: Pair<'a, Rule>, rhs: Expression<'a>| -> Expression<'a> {
+        dbg!(&lhs, &op, &rhs);
+        Expression::Binary {
+            lhs: Box::new(lhs),
+            op: BinaryOperator::merge(op.as_str()),
+            rhs: Box::new(rhs),
+        }
+    };
+    let climber = PrecClimber::new(vec![
+        Operator::new(Rule::Addition, Assoc::Left),
+        Operator::new(Rule::Multiplication, Assoc::Left),
+    ]);
+    climber.climb(rule, primary, infix)
+}

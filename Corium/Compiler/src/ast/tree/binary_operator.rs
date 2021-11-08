@@ -243,10 +243,10 @@ pub enum BinaryOperator {
     BitwiseShiftRight,
 
     /// <<<
-    BitwiseRotateLeft,
+    BitwiseRotationLeft,
 
     /// >>>
-    BitwiseRotateRight,
+    BitwiseRotationRight,
 
     /// and
     LogicalAnd,

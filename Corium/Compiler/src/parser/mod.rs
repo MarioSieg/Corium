@@ -206,7 +206,7 @@
 pub use pest::Parser;
 use pest_derive::*;
 
-pub mod operator_precedence;
+pub mod precedence;
 pub mod precedence_climber;
 
 #[cfg(test)]
@@ -214,8 +214,9 @@ mod tests;
 
 use crate::error::list::ErrorList;
 use crate::error::Error;
-use pest::iterators::Pairs;
+use pest::iterators::{Pair, Pairs};
 
+pub type RulePair<'a> = Pair<'a, Rule>;
 pub type RulePairs<'a> = Pairs<'a, Rule>;
 
 // Will be replaced by own parser implementation
