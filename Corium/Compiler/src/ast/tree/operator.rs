@@ -203,112 +203,21 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use super::tree_prelude::*;
-use num_derive::FromPrimitive;
+use crate::ast::tree::AstComponent;
 
-/// Represents an unary operator having one operand. E.g. +10 or -0.5 or !x
 #[repr(u8)]
-#[derive(Copy, Clone, Eq, PartialEq, Debug, FromPrimitive)]
-pub enum BinaryOperator {
-    // Arithmetic
-    /// +
-    Addition,
-
-    /// -
-    Subtraction,
-
-    /// *
-    Multiplication,
-
-    /// /
-    Division,
-
-    /// %
-    Modulo,
-
-    // Bitwise
-    /// &
-    BitwiseAnd,
-
-    /// |
-    BitwiseOr,
-
-    /// ^
-    BitwiseXor,
-
-    /// <<
-    BitwiseShiftLeft,
-
-    /// >>
-    BitwiseShiftRight,
-
-    /// <<<
-    BitwiseRotateLeft,
-
-    /// >>>
-    BitwiseRotateRight,
-
-    /// and
-    LogicalAnd,
-
-    /// or
-    LogicalOr,
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
+pub enum OperatorAssociativity {
+    LeftToRight,
+    RightToLeft,
 }
 
-impl Operator for BinaryOperator {
-    const COUNT: usize = Self::LogicalOr as usize + 1;
+pub trait Operator: Sized + Copy + Clone + AstComponent {
+    const COUNT: usize;
+    const TOKENS: &'static [&'static str];
+    const PRECEDENCE_TABLE: &'static [u8];
+    const ASSOCIATIVITY_TABLE: &'static [OperatorAssociativity];
 
-    const TOKENS: &'static [&'static str] = &[
-        "+", "-", "*", "/", "%", "&", "|", "^", "<<", ">>", "<<<", ">>>", "and", "or",
-    ];
-
-    const PRECEDENCE_TABLE: &'static [u8] = &[
-        4, 4, // + -
-        3, 3, 3,  // * / %
-        8,  // &
-        10, // |
-        9,  // ^
-        5, 5, 5, 5,  // << >> <<< >>>
-        11, // and
-        12, // or
-    ];
-
-    const ASSOCIATIVITY_TABLE: &'static [OperatorAssociativity] = &[
-        OperatorAssociativity::LeftToRight,
-        OperatorAssociativity::LeftToRight,
-        OperatorAssociativity::LeftToRight,
-        OperatorAssociativity::LeftToRight,
-        OperatorAssociativity::LeftToRight,
-        OperatorAssociativity::LeftToRight,
-        OperatorAssociativity::LeftToRight,
-        OperatorAssociativity::LeftToRight,
-        OperatorAssociativity::LeftToRight,
-        OperatorAssociativity::LeftToRight,
-        OperatorAssociativity::LeftToRight,
-        OperatorAssociativity::LeftToRight,
-        OperatorAssociativity::LeftToRight,
-        OperatorAssociativity::LeftToRight,
-        OperatorAssociativity::LeftToRight,
-        OperatorAssociativity::LeftToRight,
-    ];
-
-    #[inline]
-    fn token(&self) -> &'static str {
-        Self::TOKENS[*self as usize]
-    }
-
-    #[inline]
-    fn precedence(&self) -> u8 {
-        Self::PRECEDENCE_TABLE[*self as usize]
-    }
-}
-
-impl AstComponent for BinaryOperator {
-    const CORRESPONDING_RULE: Rule = Rule::BinaryOperator;
-}
-
-impl fmt::Display for BinaryOperator {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.token())
-    }
+    fn token(&self) -> &'static str;
+    fn precedence(&self) -> u8;
 }

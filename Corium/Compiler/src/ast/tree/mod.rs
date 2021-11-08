@@ -14,6 +14,7 @@ pub mod local_statement;
 pub mod module;
 pub mod mutable_variable;
 pub mod native_function;
+pub mod operator;
 pub mod parameter;
 pub mod parameter_list;
 pub mod qualified_name;
@@ -47,6 +48,7 @@ pub mod prelude {
     pub use super::module::*;
     pub use super::mutable_variable::*;
     pub use super::native_function::*;
+    pub use super::operator::*;
     pub use super::parameter::*;
     pub use super::parameter_list::*;
     pub use super::qualified_name::*;
@@ -57,6 +59,7 @@ pub mod prelude {
 
 mod tree_prelude {
     pub use super::super::builtin_types::*;
+    pub use super::operator::*;
     pub use super::AstComponent;
     pub use super::Rule;
     pub use super::Statement;

@@ -216,20 +216,27 @@ pub enum UnaryOperator {
     LogicalNot,        // not
 }
 
-impl UnaryOperator {
-    pub const COUNT: usize = Self::LogicalNot as usize + 1;
+impl Operator for UnaryOperator {
+    const COUNT: usize = Self::LogicalNot as usize + 1;
 
-    pub const TOKENS: [&'static str; Self::COUNT] = ["+", "-", "~", "not"];
+    const TOKENS: &'static [&'static str] = &["+", "-", "~", "not"];
 
-    pub const PRECEDENCE_TABLE: [u8; Self::COUNT] = [2, 2, 2, 2];
+    const PRECEDENCE_TABLE: &'static [u8] = &[2, 2, 2, 2];
+
+    const ASSOCIATIVITY_TABLE: &'static [OperatorAssociativity] = &[
+        OperatorAssociativity::RightToLeft,
+        OperatorAssociativity::RightToLeft,
+        OperatorAssociativity::RightToLeft,
+        OperatorAssociativity::RightToLeft,
+    ];
 
     #[inline]
-    pub fn token(&self) -> &'static str {
+    fn token(&self) -> &'static str {
         Self::TOKENS[*self as usize]
     }
 
     #[inline]
-    pub fn precedence(&self) -> u8 {
+    fn precedence(&self) -> u8 {
         Self::PRECEDENCE_TABLE[*self as usize]
     }
 }
