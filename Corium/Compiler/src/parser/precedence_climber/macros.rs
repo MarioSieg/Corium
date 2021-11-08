@@ -203,29 +203,60 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-pub use pest::Parser;
-use pest_derive::*;
+#[macro_export]
+macro_rules! precedence_climber {
+    (
+        $( $assoc:ident $rule:ident $( | $rules:ident )* ),+ $(,)?
+    ) => {{
+        precedence_climber!(
+            @precedences { 1u32 }
+            $( [ $rule $( $rules )* ] )*
+        );
 
-pub mod operator_precedence;
-pub mod precedence_climber;
+        $crate::parser::precedence_climber::PrecClimber(
+            std::borrow::Cow::Borrowed(precedence_climber!(
+                @array
+                $( $assoc $rule $(, $assoc $rules )* ),*
+            ))
+        )
+    }};
 
-#[cfg(test)]
-mod tests;
+    ( @assoc L ) => { $crate::ast::tree::operator::OperatorAssociativity::LeftToRight };
+    ( @assoc R ) => { $crate::ast::tree::operator::OperatorAssociativity::RightToLeft };
 
-use crate::error::list::ErrorList;
-use crate::error::Error;
-use pest::iterators::Pairs;
+    (
+        @array
+        $(
+            $assoc:ident $rule:ident
+        ),*
+    ) => {
+        &[
+            $(
+                (
+                    Rule::$rule,
+                    $rule,
+                    precedence_climber!( @assoc $assoc ),
+                )
+            ),*
+        ]
+    };
 
-pub type RulePairs<'a> = Pairs<'a, Rule>;
+    (
+        @precedences { $precedence:expr }
+    ) => {};
 
-// Will be replaced by own parser implementation
-#[derive(Parser)]
-#[grammar = "parser/corium.pest"]
-pub struct CoriumParser;
-
-pub fn parse_source<'a>(src: &'a str, file: &str) -> Result<RulePairs<'a>, ErrorList> {
-    match CoriumParser::parse(Rule::CompilationUnit, src) {
-        Ok(mut unit) => Ok(unit.next().unwrap().into_inner()),
-        Err(err) => Err(Error::Syntax(format!("{}", err), file.to_string()).into()),
-    }
+    (
+        @precedences { $precedence:expr }
+        [ $( $rule:ident )* ]
+        $( [ $( $rules:ident )* ] )*
+    ) => {
+        $(
+            #[allow(non_upper_case_globals)]
+            const $rule: u32 = $precedence;
+        )*
+        precedence_climber!(
+            @precedences { 1u32 + $precedence }
+            $( [ $( $rules )* ] )*
+        );
+    };
 }

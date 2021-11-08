@@ -202,3 +202,96 @@
 //    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
+
+use crate::ast::tree::operator::OperatorAssociativity;
+use pest::iterators::Pair;
+use std::borrow::Cow;
+use std::fmt::Debug;
+use std::hash::Hash;
+use std::iter::Peekable;
+
+pub mod macros;
+pub mod operator_set;
+
+pub trait RuleType: Copy + Debug + Eq + Hash + Ord {}
+
+use operator_set::OperatorSet;
+
+#[derive(Debug)]
+pub struct PrecClimber<R: Clone + 'static>(pub Cow<'static, [(R, u32, OperatorAssociativity)]>);
+
+impl<R: RuleType> PrecClimber<R> {
+    fn find_by_rule(&self, rule: &R) -> Option<(u32, OperatorAssociativity)> {
+        self.0
+            .iter()
+            .find(|(r, _, _)| r == rule)
+            .map(|(_, prec, assoc)| (*prec, *assoc))
+    }
+
+    pub fn new(ops: Vec<OperatorSet<R>>) -> PrecClimber<R> {
+        Self(Cow::Owned(ops.into_iter().zip(1..).fold(
+            Vec::new(),
+            |mut vec, (op, prec)| {
+                let mut next = Some(op);
+                while let Some(op) = next.take() {
+                    let OperatorSet {
+                        rule,
+                        assoc,
+                        next: op_next,
+                    } = op;
+                    vec.push((rule, prec, assoc));
+                    next = op_next.map(|op| *op);
+                }
+                vec
+            },
+        )))
+    }
+
+    fn climb_precedence<'a, P, F, G, T>(
+        &self,
+        mut lhs: T,
+        min: u32,
+        pairs: &mut Peekable<P>,
+        primary: &mut F,
+        infix: &mut G,
+    ) -> T
+    where
+        P: Iterator<Item = Pair<'a, R>>,
+        F: FnMut(Pair<'a, R>) -> T,
+        G: FnMut(T, Pair<'a, R>, T) -> T,
+    {
+        'climb: while pairs.peek().is_some() {
+            let rule = pairs.peek().unwrap().as_rule();
+            if let Some((prec, _)) = self.find_by_rule(&rule) {
+                if prec >= min {
+                    let op = pairs.next().unwrap();
+                    let mut rhs = primary(
+                        pairs
+                            .next()
+                            .expect("Infix operator must be followed by a primary expression!"),
+                    );
+                    'recursive_reduce: while pairs.peek().is_some() {
+                        let rule = pairs.peek().unwrap().as_rule();
+                        if let Some((new_prec, assoc)) = self.find_by_rule(&rule) {
+                            let fold = new_prec > prec
+                                || assoc == OperatorAssociativity::LeftToRight && new_prec == prec;
+                            if fold {
+                                rhs = self.climb_precedence(rhs, new_prec, pairs, primary, infix);
+                            } else {
+                                break 'recursive_reduce;
+                            }
+                        } else {
+                            break 'recursive_reduce;
+                        }
+                    }
+                    lhs = infix(lhs, op, rhs);
+                } else {
+                    break 'climb;
+                }
+            } else {
+                break 'climb;
+            }
+        }
+        lhs
+    }
+}

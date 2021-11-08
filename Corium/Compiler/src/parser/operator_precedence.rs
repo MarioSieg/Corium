@@ -203,29 +203,19 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-pub use pest::Parser;
-use pest_derive::*;
+use super::precedence_climber::PrecClimber;
+use crate::ast::tree::binary_operator::BinaryOperator;
+use crate::precedence_climber;
 
-pub mod operator_precedence;
-pub mod precedence_climber;
+use BinaryOperator as Rule;
 
-#[cfg(test)]
-mod tests;
-
-use crate::error::list::ErrorList;
-use crate::error::Error;
-use pest::iterators::Pairs;
-
-pub type RulePairs<'a> = Pairs<'a, Rule>;
-
-// Will be replaced by own parser implementation
-#[derive(Parser)]
-#[grammar = "parser/corium.pest"]
-pub struct CoriumParser;
-
-pub fn parse_source<'a>(src: &'a str, file: &str) -> Result<RulePairs<'a>, ErrorList> {
-    match CoriumParser::parse(Rule::CompilationUnit, src) {
-        Ok(mut unit) => Ok(unit.next().unwrap().into_inner()),
-        Err(err) => Err(Error::Syntax(format!("{}", err), file.to_string()).into()),
-    }
-}
+static PRECEDENCE_CLIMBER: PrecClimber<BinaryOperator> = precedence_climber![
+    L Multiplication | Division | Modulo,
+    L Addition | Subtraction,
+    L BitwiseShiftLeft | BitwiseShiftRight | BitwiseRotateLeft | BitwiseRotateRight,
+    L BitwiseAnd,
+    L BitwiseXor,
+    L BitwiseOr,
+    L LogicalAnd,
+    L LogicalOr
+];

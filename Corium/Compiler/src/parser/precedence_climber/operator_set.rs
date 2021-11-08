@@ -203,29 +203,40 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-pub use pest::Parser;
-use pest_derive::*;
+use super::RuleType;
+use crate::ast::tree::operator::OperatorAssociativity;
+use std::ops::BitOr;
 
-pub mod operator_precedence;
-pub mod precedence_climber;
+#[derive(Debug)]
+pub struct OperatorSet<R: RuleType> {
+    pub rule: R,
+    pub assoc: OperatorAssociativity,
+    pub next: Option<Box<OperatorSet<R>>>,
+}
 
-#[cfg(test)]
-mod tests;
+impl<R: RuleType> OperatorSet<R> {
+    pub fn new(rule: R, assoc: OperatorAssociativity) -> OperatorSet<R> {
+        OperatorSet {
+            rule,
+            assoc,
+            next: None,
+        }
+    }
+}
 
-use crate::error::list::ErrorList;
-use crate::error::Error;
-use pest::iterators::Pairs;
+impl<R: RuleType> BitOr for OperatorSet<R> {
+    type Output = Self;
 
-pub type RulePairs<'a> = Pairs<'a, Rule>;
+    fn bitor(mut self, rhs: Self) -> Self {
+        fn assign_next<R: RuleType>(op: &mut OperatorSet<R>, next: OperatorSet<R>) {
+            if let Some(ref mut child) = op.next {
+                assign_next(child, next);
+            } else {
+                op.next = Some(Box::new(next));
+            }
+        }
 
-// Will be replaced by own parser implementation
-#[derive(Parser)]
-#[grammar = "parser/corium.pest"]
-pub struct CoriumParser;
-
-pub fn parse_source<'a>(src: &'a str, file: &str) -> Result<RulePairs<'a>, ErrorList> {
-    match CoriumParser::parse(Rule::CompilationUnit, src) {
-        Ok(mut unit) => Ok(unit.next().unwrap().into_inner()),
-        Err(err) => Err(Error::Syntax(format!("{}", err), file.to_string()).into()),
+        assign_next(&mut self, rhs);
+        self
     }
 }

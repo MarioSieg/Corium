@@ -204,6 +204,8 @@
 //    limitations under the License.
 
 use crate::ast::tree::AstComponent;
+use std::fmt::Debug;
+use std::hash::Hash;
 
 #[repr(u8)]
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
@@ -212,7 +214,9 @@ pub enum OperatorAssociativity {
     RightToLeft,
 }
 
-pub trait Operator: Sized + Copy + Clone + AstComponent {
+pub trait Operator:
+    Sized + AstComponent + Copy + Clone + Eq + PartialEq + Debug + Hash + Ord + PartialOrd
+{
     const COUNT: usize;
     const TOKENS: &'static [&'static str];
     const PRECEDENCE_TABLE: &'static [u8];

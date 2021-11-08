@@ -208,7 +208,7 @@ use num_derive::FromPrimitive;
 
 /// Represents an unary operator having one operand. E.g. +10 or -0.5 or !x
 #[repr(u8)]
-#[derive(Copy, Clone, Eq, PartialEq, Debug, FromPrimitive)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, FromPrimitive, Hash, Ord, PartialOrd)]
 pub enum BinaryOperator {
     // Arithmetic
     /// +
