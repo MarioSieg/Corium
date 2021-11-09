@@ -222,13 +222,7 @@ impl<'ast> NestedAstPopulator<'ast> for MutableVariable<'ast> {
                 let value = Expression::populate(inner.into_inner());
                 (type_hint, value)
             }
-            Rule::Expression => (
-                None,
-                Expression::populate({
-                    debug_assert_eq!(inner.as_rule(), Rule::Expression);
-                    inner.into_inner()
-                }),
-            ),
+            Rule::Expression => (None, climb_expression(inner.into_inner())),
             _ => unreachable!(),
         };
 

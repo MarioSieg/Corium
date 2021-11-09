@@ -241,7 +241,7 @@ const PRECEDENCE_CLIMBER: PrecedenceClimber<Rule> = precedence_climber![
         Modulo
 ];
 
-pub fn climb<'a>(rule: Pairs<'a, Rule>) -> Expression<'a> {
+pub fn climb_expression<'a>(rule: Pairs<'a, Rule>) -> Expression<'a> {
     let primary =
         |expr: Pair<'a, Rule>| -> Expression<'a> { Expression::populate(expr.into_inner()) };
     let infix = |lhs: Expression<'a>, op: Pair<'a, Rule>, rhs: Expression<'a>| -> Expression<'a> {

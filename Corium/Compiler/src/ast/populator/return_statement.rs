@@ -209,7 +209,7 @@ impl<'ast> NestedAstPopulator<'ast> for ReturnStatement<'ast> {
     fn populate(mut rule: RulePairs<'ast>) -> Self {
         Self(
             rule.next()
-                .map(|inner| Expression::populate(inner.into_inner())),
+                .map(|inner| climb_expression(inner.into_inner())),
         )
     }
 }

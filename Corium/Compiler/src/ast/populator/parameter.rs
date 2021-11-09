@@ -219,7 +219,7 @@ impl<'ast> NestedAstPopulator<'ast> for Parameter<'ast> {
         };
         let value = rule.next().map(|inner| {
             debug_assert_eq!(inner.as_rule(), Rule::Expression);
-            Expression::populate(inner.into_inner())
+            climb_expression(inner.into_inner())
         });
         Self {
             name,

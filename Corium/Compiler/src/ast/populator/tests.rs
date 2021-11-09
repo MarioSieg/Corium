@@ -491,7 +491,7 @@ mod populators {
                 fn multiply_addition_right() {
                     let mut result = CoriumParser::parse(Rule::Expression, "66 + 1 * 5").unwrap();
                     let result = result.next().unwrap().into_inner();
-                    let ast = crate::parser::precedence::climb(result);
+                    let ast = crate::parser::precedence::climb_expression(result);
                     let _expr = Expression::Binary {
                         lhs: Box::new(Expression::Literal(Literal::Int(66))),
                         op: BinaryOperator::Addition,
@@ -510,7 +510,7 @@ mod populators {
                     let mut result =
                         CoriumParser::parse(Rule::Expression, "66 * 1 & 2 % 5").unwrap();
                     let result = result.next().unwrap().into_inner();
-                    let ast = crate::parser::precedence::climb(result);
+                    let ast = crate::parser::precedence::climb_expression(result);
                     let _expr = Expression::Binary {
                         lhs: Box::new(Expression::Binary {
                             lhs: Box::new(Expression::Literal(Literal::Int(66))),
@@ -533,7 +533,7 @@ mod populators {
                     let mut result =
                         CoriumParser::parse(Rule::Expression, "66 ^ 1 | 2 & 5").unwrap();
                     let result = result.next().unwrap().into_inner();
-                    let ast = crate::parser::precedence::climb(result);
+                    let ast = crate::parser::precedence::climb_expression(result);
                     let _expr = Expression::Binary {
                         lhs: Box::new(Expression::Binary {
                             lhs: Box::new(Expression::Literal(Literal::Int(66))),
@@ -555,7 +555,7 @@ mod populators {
                 fn multiply_addition_left() {
                     let mut result = CoriumParser::parse(Rule::Expression, "66 * 1 + 5").unwrap();
                     let result = result.next().unwrap().into_inner();
-                    let ast = crate::parser::precedence::climb(result);
+                    let ast = crate::parser::precedence::climb_expression(result);
                     let _expr = Expression::Binary {
                         lhs: Box::new(Expression::Binary {
                             lhs: Box::new(Expression::Literal(Literal::Int(66))),
@@ -574,7 +574,7 @@ mod populators {
                     let mut result =
                         CoriumParser::parse(Rule::Expression, "66 + 1 * 5 + 2").unwrap();
                     let result = result.next().unwrap().into_inner();
-                    let ast = crate::parser::precedence::climb(result);
+                    let ast = crate::parser::precedence::climb_expression(result);
                     let _expr = Expression::Binary {
                         lhs: Box::new(Expression::Binary {
                             lhs: Box::new(Expression::Literal(Literal::Int(66))),
@@ -597,7 +597,7 @@ mod populators {
                     let mut result =
                         CoriumParser::parse(Rule::Expression, "66 + 1 / 5 + 2").unwrap();
                     let result = result.next().unwrap().into_inner();
-                    let ast = crate::parser::precedence::climb(result);
+                    let ast = crate::parser::precedence::climb_expression(result);
                     let _expr = Expression::Binary {
                         lhs: Box::new(Expression::Binary {
                             lhs: Box::new(Expression::Literal(Literal::Int(66))),
@@ -620,7 +620,7 @@ mod populators {
                     let mut result =
                         CoriumParser::parse(Rule::Expression, "66 + 1 % 5 + 2").unwrap();
                     let result = result.next().unwrap().into_inner();
-                    let ast = crate::parser::precedence::climb(result);
+                    let ast = crate::parser::precedence::climb_expression(result);
                     let _expr = Expression::Binary {
                         lhs: Box::new(Expression::Binary {
                             lhs: Box::new(Expression::Literal(Literal::Int(66))),
@@ -642,7 +642,7 @@ mod populators {
                 fn multiply_subtraction_right() {
                     let mut result = CoriumParser::parse(Rule::Expression, "66 - 1 * 5").unwrap();
                     let result = result.next().unwrap().into_inner();
-                    let ast = crate::parser::precedence::climb(result);
+                    let ast = crate::parser::precedence::climb_expression(result);
                     let _expr = Expression::Binary {
                         lhs: Box::new(Expression::Literal(Literal::Int(66))),
                         op: BinaryOperator::Subtraction,
@@ -660,7 +660,7 @@ mod populators {
                 fn multiply_subtraction_left() {
                     let mut result = CoriumParser::parse(Rule::Expression, "66 * 1 - 5").unwrap();
                     let result = result.next().unwrap().into_inner();
-                    let ast = crate::parser::precedence::climb(result);
+                    let ast = crate::parser::precedence::climb_expression(result);
                     let _expr = Expression::Binary {
                         lhs: Box::new(Expression::Binary {
                             lhs: Box::new(Expression::Literal(Literal::Int(66))),
@@ -679,7 +679,7 @@ mod populators {
                     let mut result =
                         CoriumParser::parse(Rule::Expression, "66 - 1 * 5 - 2").unwrap();
                     let result = result.next().unwrap().into_inner();
-                    let ast = crate::parser::precedence::climb(result);
+                    let ast = crate::parser::precedence::climb_expression(result);
                     let _expr = Expression::Binary {
                         lhs: Box::new(Expression::Binary {
                             lhs: Box::new(Expression::Literal(Literal::Int(66))),
@@ -702,7 +702,7 @@ mod populators {
                     let mut result =
                         CoriumParser::parse(Rule::Expression, "66 - 1 / 5 - 2").unwrap();
                     let result = result.next().unwrap().into_inner();
-                    let ast = crate::parser::precedence::climb(result);
+                    let ast = crate::parser::precedence::climb_expression(result);
                     let _expr = Expression::Binary {
                         lhs: Box::new(Expression::Binary {
                             lhs: Box::new(Expression::Literal(Literal::Int(66))),
@@ -725,7 +725,7 @@ mod populators {
                     let mut result =
                         CoriumParser::parse(Rule::Expression, "66 - 1 % 5 - 2").unwrap();
                     let result = result.next().unwrap().into_inner();
-                    let ast = crate::parser::precedence::climb(result);
+                    let ast = crate::parser::precedence::climb_expression(result);
                     let _expr = Expression::Binary {
                         lhs: Box::new(Expression::Binary {
                             lhs: Box::new(Expression::Literal(Literal::Int(66))),
@@ -747,7 +747,7 @@ mod populators {
                 fn bitwise_shift_left_addition_left() {
                     let mut result = CoriumParser::parse(Rule::Expression, "66 << 1 + 5").unwrap();
                     let result = result.next().unwrap().into_inner();
-                    let ast = crate::parser::precedence::climb(result);
+                    let ast = crate::parser::precedence::climb_expression(result);
                     let _expr = Expression::Binary {
                         lhs: Box::new(Expression::Literal(Literal::Int(66))),
                         op: BinaryOperator::BitwiseShiftLeft,
@@ -765,7 +765,7 @@ mod populators {
                 fn bitwise_shift_right_multiplication_left() {
                     let mut result = CoriumParser::parse(Rule::Expression, "66 >> 1 * 5").unwrap();
                     let result = result.next().unwrap().into_inner();
-                    let ast = crate::parser::precedence::climb(result);
+                    let ast = crate::parser::precedence::climb_expression(result);
                     let _expr = Expression::Binary {
                         lhs: Box::new(Expression::Literal(Literal::Int(66))),
                         op: BinaryOperator::BitwiseShiftRight,
@@ -783,7 +783,7 @@ mod populators {
                 fn bitwise_rotation_left_division_left() {
                     let mut result = CoriumParser::parse(Rule::Expression, "66 <<< 1 / 5").unwrap();
                     let result = result.next().unwrap().into_inner();
-                    let ast = crate::parser::precedence::climb(result);
+                    let ast = crate::parser::precedence::climb_expression(result);
                     let _expr = Expression::Binary {
                         lhs: Box::new(Expression::Literal(Literal::Int(66))),
                         op: BinaryOperator::BitwiseRotationLeft,
@@ -801,7 +801,7 @@ mod populators {
                 fn bitwise_rotation_right_modulo_left() {
                     let mut result = CoriumParser::parse(Rule::Expression, "66 >>> 1 % 5").unwrap();
                     let result = result.next().unwrap().into_inner();
-                    let ast = crate::parser::precedence::climb(result);
+                    let ast = crate::parser::precedence::climb_expression(result);
                     let _expr = Expression::Binary {
                         lhs: Box::new(Expression::Literal(Literal::Int(66))),
                         op: BinaryOperator::BitwiseRotationRight,
@@ -819,7 +819,7 @@ mod populators {
                 fn bitwise_and() {
                     let mut result = CoriumParser::parse(Rule::Expression, "66 ^ 1 & 5").unwrap();
                     let result = result.next().unwrap().into_inner();
-                    let ast = crate::parser::precedence::climb(result);
+                    let ast = crate::parser::precedence::climb_expression(result);
                     let _expr = Expression::Binary {
                         lhs: Box::new(Expression::Literal(Literal::Int(66))),
                         op: BinaryOperator::BitwiseXor,
@@ -837,7 +837,7 @@ mod populators {
                 fn bitwise_xor() {
                     let mut result = CoriumParser::parse(Rule::Expression, "66 | 1 ^ 5").unwrap();
                     let result = result.next().unwrap().into_inner();
-                    let ast = crate::parser::precedence::climb(result);
+                    let ast = crate::parser::precedence::climb_expression(result);
                     let _expr = Expression::Binary {
                         lhs: Box::new(Expression::Literal(Literal::Int(66))),
                         op: BinaryOperator::BitwiseOr,
@@ -855,7 +855,7 @@ mod populators {
                 fn bitwise_or() {
                     let mut result = CoriumParser::parse(Rule::Expression, "66 and 1 | 5").unwrap();
                     let result = result.next().unwrap().into_inner();
-                    let ast = crate::parser::precedence::climb(result);
+                    let ast = crate::parser::precedence::climb_expression(result);
                     let _expr = Expression::Binary {
                         lhs: Box::new(Expression::Literal(Literal::Int(66))),
                         op: BinaryOperator::LogicalAnd,
@@ -874,7 +874,7 @@ mod populators {
                     let mut result =
                         CoriumParser::parse(Rule::Expression, "66 or 1 and 5").unwrap();
                     let result = result.next().unwrap().into_inner();
-                    let ast = crate::parser::precedence::climb(result);
+                    let ast = crate::parser::precedence::climb_expression(result);
                     let _expr = Expression::Binary {
                         lhs: Box::new(Expression::Literal(Literal::Int(66))),
                         op: BinaryOperator::LogicalOr,
@@ -893,7 +893,7 @@ mod populators {
                     let mut result =
                         CoriumParser::parse(Rule::Expression, "true or 1 + 5").unwrap();
                     let result = result.next().unwrap().into_inner();
-                    let ast = crate::parser::precedence::climb(result);
+                    let ast = crate::parser::precedence::climb_expression(result);
                     let _expr = Expression::Binary {
                         lhs: Box::new(Expression::Literal(Literal::Bool(true))),
                         op: BinaryOperator::LogicalOr,

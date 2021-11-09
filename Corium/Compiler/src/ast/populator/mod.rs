@@ -269,5 +269,6 @@ mod populator_prelude {
     pub use super::AtomicAstPopulator;
     pub use super::NestedAstPopulator;
     pub use crate::ast::tree::prelude::*;
+    pub use crate::parser::precedence::climb_expression;
     pub use crate::parser::*;
 }
