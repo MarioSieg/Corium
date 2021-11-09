@@ -205,6 +205,7 @@
 
 #![allow(dead_code)]
 
+mod algorithm;
 mod ast;
 mod codegen;
 mod core;

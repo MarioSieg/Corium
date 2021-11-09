@@ -204,6 +204,7 @@
 //    limitations under the License.
 
 use super::populator_prelude::*;
+use crate::parser::operator::BINARY_OPERATOR_RULES;
 
 impl<'ast> NestedAstPopulator<'ast> for Expression<'ast> {
     fn populate(mut rule: RulePairs<'ast>) -> Self {
@@ -251,7 +252,7 @@ impl<'ast> Expression<'ast> {
     fn build_expression_chain(mut rule: RulePairs<'ast>) -> Chain<'ast> {
         let mut chain = Vec::new();
         while let (Some(op), Some(expr)) = (rule.next(), rule.next()) {
-            debug_assert_eq!(op.as_rule(), Rule::BinaryOperator);
+            debug_assert!(BINARY_OPERATOR_RULES.contains(&op.as_rule()));
             let op = BinaryOperator::merge(op.as_str());
 
             debug_assert_eq!(expr.as_rule(), Rule::RootExpression);

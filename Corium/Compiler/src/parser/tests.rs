@@ -1017,7 +1017,7 @@ mod rules {
                 }
                 {
                     let root = result.next().unwrap();
-                    assert_eq!(root.as_rule(), Rule::BinaryOperator);
+                    assert_eq!(root.as_rule(), Rule::Addition);
                 }
                 {
                     let root = result.next().unwrap();
@@ -1042,7 +1042,7 @@ mod rules {
                 }
                 {
                     let root = result.next().unwrap();
-                    assert_eq!(root.as_rule(), Rule::BinaryOperator);
+                    assert_eq!(root.as_rule(), Rule::Addition);
                 }
                 {
                     let root = result.next().unwrap();
@@ -1052,7 +1052,7 @@ mod rules {
                 }
                 {
                     let root = result.next().unwrap();
-                    assert_eq!(root.as_rule(), Rule::BinaryOperator);
+                    assert_eq!(root.as_rule(), Rule::Multiplication);
                 }
                 {
                     let root = result.next().unwrap();
@@ -1088,113 +1088,113 @@ mod rules {
 
             #[test]
             fn addition() {
-                let mut result = CoriumParser::parse(Rule::BinaryOperator, "+").unwrap();
+                let mut result = CoriumParser::parse(Rule::Addition, "+").unwrap();
                 let result = result.next().unwrap();
-                assert_eq!(result.as_rule(), Rule::BinaryOperator);
+                assert_eq!(result.as_rule(), Rule::Addition);
                 assert_eq!(result.as_str(), "+");
             }
 
             #[test]
             fn subtraction() {
-                let mut result = CoriumParser::parse(Rule::BinaryOperator, "-").unwrap();
+                let mut result = CoriumParser::parse(Rule::Subtraction, "-").unwrap();
                 let result = result.next().unwrap();
-                assert_eq!(result.as_rule(), Rule::BinaryOperator);
+                assert_eq!(result.as_rule(), Rule::Subtraction);
                 assert_eq!(result.as_str(), "-");
             }
 
             #[test]
             fn multiplication() {
-                let mut result = CoriumParser::parse(Rule::BinaryOperator, "*").unwrap();
+                let mut result = CoriumParser::parse(Rule::Multiplication, "*").unwrap();
                 let result = result.next().unwrap();
-                assert_eq!(result.as_rule(), Rule::BinaryOperator);
+                assert_eq!(result.as_rule(), Rule::Multiplication);
                 assert_eq!(result.as_str(), "*");
             }
 
             #[test]
             fn division() {
-                let mut result = CoriumParser::parse(Rule::BinaryOperator, "/").unwrap();
+                let mut result = CoriumParser::parse(Rule::Division, "/").unwrap();
                 let result = result.next().unwrap();
-                assert_eq!(result.as_rule(), Rule::BinaryOperator);
+                assert_eq!(result.as_rule(), Rule::Division);
                 assert_eq!(result.as_str(), "/");
             }
 
             #[test]
             fn modulo() {
-                let mut result = CoriumParser::parse(Rule::BinaryOperator, "%").unwrap();
+                let mut result = CoriumParser::parse(Rule::Modulo, "%").unwrap();
                 let result = result.next().unwrap();
-                assert_eq!(result.as_rule(), Rule::BinaryOperator);
+                assert_eq!(result.as_rule(), Rule::Modulo);
                 assert_eq!(result.as_str(), "%");
             }
 
             #[test]
             fn bitwise_and() {
-                let mut result = CoriumParser::parse(Rule::BinaryOperator, "&").unwrap();
+                let mut result = CoriumParser::parse(Rule::BitwiseAnd, "&").unwrap();
                 let result = result.next().unwrap();
-                assert_eq!(result.as_rule(), Rule::BinaryOperator);
+                assert_eq!(result.as_rule(), Rule::BitwiseAnd);
                 assert_eq!(result.as_str(), "&");
             }
 
             #[test]
             fn bitwise_or() {
-                let mut result = CoriumParser::parse(Rule::BinaryOperator, "|").unwrap();
+                let mut result = CoriumParser::parse(Rule::BitwiseOr, "|").unwrap();
                 let result = result.next().unwrap();
-                assert_eq!(result.as_rule(), Rule::BinaryOperator);
+                assert_eq!(result.as_rule(), Rule::BitwiseOr);
                 assert_eq!(result.as_str(), "|");
             }
 
             #[test]
             fn bitwise_xor() {
-                let mut result = CoriumParser::parse(Rule::BinaryOperator, "^").unwrap();
+                let mut result = CoriumParser::parse(Rule::BitwiseXor, "^").unwrap();
                 let result = result.next().unwrap();
-                assert_eq!(result.as_rule(), Rule::BinaryOperator);
+                assert_eq!(result.as_rule(), Rule::BitwiseXor);
                 assert_eq!(result.as_str(), "^");
             }
 
             #[test]
             fn bitwise_left_shift() {
-                let mut result = CoriumParser::parse(Rule::BinaryOperator, "<<").unwrap();
+                let mut result = CoriumParser::parse(Rule::BitwiseShiftLeft, "<<").unwrap();
                 let result = result.next().unwrap();
-                assert_eq!(result.as_rule(), Rule::BinaryOperator);
+                assert_eq!(result.as_rule(), Rule::BitwiseShiftLeft);
                 assert_eq!(result.as_str(), "<<");
             }
 
             #[test]
             fn bitwise_right_shift() {
-                let mut result = CoriumParser::parse(Rule::BinaryOperator, ">>").unwrap();
+                let mut result = CoriumParser::parse(Rule::BitwiseShiftRight, ">>").unwrap();
                 let result = result.next().unwrap();
-                assert_eq!(result.as_rule(), Rule::BinaryOperator);
+                assert_eq!(result.as_rule(), Rule::BitwiseShiftRight);
                 assert_eq!(result.as_str(), ">>");
             }
 
             #[test]
             fn bitwise_left_rotation() {
-                let mut result = CoriumParser::parse(Rule::BinaryOperator, "<<<").unwrap();
+                let mut result = CoriumParser::parse(Rule::BitwiseRotationLeft, "<<<").unwrap();
                 let result = result.next().unwrap();
-                assert_eq!(result.as_rule(), Rule::BinaryOperator);
+                assert_eq!(result.as_rule(), Rule::BitwiseRotationLeft);
                 assert_eq!(result.as_str(), "<<<");
             }
 
             #[test]
             fn bitwise_right_rotation() {
-                let mut result = CoriumParser::parse(Rule::BinaryOperator, ">>>").unwrap();
+                let mut result = CoriumParser::parse(Rule::BitwiseRotationRight, ">>>").unwrap();
                 let result = result.next().unwrap();
-                assert_eq!(result.as_rule(), Rule::BinaryOperator);
+                assert_eq!(result.as_rule(), Rule::BitwiseRotationRight);
                 assert_eq!(result.as_str(), ">>>");
             }
 
             #[test]
             fn logical_and() {
-                let mut result = CoriumParser::parse(Rule::BinaryOperator, "and").unwrap();
+                let mut result = CoriumParser::parse(Rule::LogicalAnd, "and").unwrap();
                 let result = result.next().unwrap();
-                assert_eq!(result.as_rule(), Rule::BinaryOperator);
+                assert_eq!(result.as_rule(), Rule::LogicalAnd);
                 assert_eq!(result.as_str(), "and");
             }
 
             #[test]
             fn logical_or() {
-                let mut result = CoriumParser::parse(Rule::BinaryOperator, "or").unwrap();
+                let mut result = CoriumParser::parse(Rule::LogicalOr, "or").unwrap();
                 let result = result.next().unwrap();
-                assert_eq!(result.as_rule(), Rule::BinaryOperator);
+                assert_eq!(result.as_rule(), Rule::LogicalOr);
                 assert_eq!(result.as_str(), "or");
             }
         }
@@ -1235,111 +1235,19 @@ mod rules {
             use super::*;
 
             #[test]
-            fn plus() {
-                let mut result = CoriumParser::parse(Rule::UnaryOperator, "+").unwrap();
-                let result = result.next().unwrap();
-                assert_eq!(result.as_rule(), Rule::UnaryOperator);
-                assert_eq!(result.as_str(), "+");
-            }
-
-            #[test]
-            fn minus() {
-                let mut result = CoriumParser::parse(Rule::UnaryOperator, "-").unwrap();
-                let result = result.next().unwrap();
-                assert_eq!(result.as_rule(), Rule::UnaryOperator);
-                assert_eq!(result.as_str(), "-");
-            }
-
-            #[test]
             fn bitwise_complement() {
-                let mut result = CoriumParser::parse(Rule::UnaryOperator, "~").unwrap();
+                let mut result = CoriumParser::parse(Rule::BitwiseComplement, "~").unwrap();
                 let result = result.next().unwrap();
-                assert_eq!(result.as_rule(), Rule::UnaryOperator);
+                assert_eq!(result.as_rule(), Rule::BitwiseComplement);
                 assert_eq!(result.as_str(), "~");
             }
 
             #[test]
             fn logical_not() {
-                let mut result = CoriumParser::parse(Rule::UnaryOperator, "not").unwrap();
+                let mut result = CoriumParser::parse(Rule::LogicalNot, "not").unwrap();
                 let result = result.next().unwrap();
-                assert_eq!(result.as_rule(), Rule::UnaryOperator);
+                assert_eq!(result.as_rule(), Rule::LogicalNot);
                 assert_eq!(result.as_str(), "not");
-            }
-        }
-
-        mod invalid {
-            use super::*;
-
-            #[test]
-            fn multiplication() {
-                let result = CoriumParser::parse(Rule::UnaryOperator, "*");
-                assert!(result.is_err());
-            }
-
-            #[test]
-            fn division() {
-                let result = CoriumParser::parse(Rule::UnaryOperator, "/");
-                assert!(result.is_err());
-            }
-
-            #[test]
-            fn modulo() {
-                let result = CoriumParser::parse(Rule::UnaryOperator, "%");
-                assert!(result.is_err());
-            }
-
-            #[test]
-            fn bitwise_and() {
-                let result = CoriumParser::parse(Rule::UnaryOperator, "&");
-                assert!(result.is_err());
-            }
-
-            #[test]
-            fn bitwise_or() {
-                let result = CoriumParser::parse(Rule::UnaryOperator, "|");
-                assert!(result.is_err());
-            }
-
-            #[test]
-            fn bitwise_xor() {
-                let result = CoriumParser::parse(Rule::UnaryOperator, "^");
-                assert!(result.is_err());
-            }
-
-            #[test]
-            fn bitwise_left_shift() {
-                let result = CoriumParser::parse(Rule::UnaryOperator, "<<");
-                assert!(result.is_err());
-            }
-
-            #[test]
-            fn bitwise_right_shift() {
-                let result = CoriumParser::parse(Rule::UnaryOperator, ">>");
-                assert!(result.is_err());
-            }
-
-            #[test]
-            fn bitwise_left_rotation() {
-                let result = CoriumParser::parse(Rule::UnaryOperator, "<<<");
-                assert!(result.is_err());
-            }
-
-            #[test]
-            fn bitwise_right_rotation() {
-                let result = CoriumParser::parse(Rule::UnaryOperator, ">>>");
-                assert!(result.is_err());
-            }
-
-            #[test]
-            fn logical_and() {
-                let result = CoriumParser::parse(Rule::UnaryOperator, "and");
-                assert!(result.is_err());
-            }
-
-            #[test]
-            fn logical_or() {
-                let result = CoriumParser::parse(Rule::UnaryOperator, "or");
-                assert!(result.is_err());
             }
         }
     }

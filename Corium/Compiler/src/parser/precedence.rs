@@ -211,34 +211,19 @@ use crate::precedence_climber;
 use pest::iterators::{Pair, Pairs};
 
 const PRECEDENCE_CLIMBER: PrecedenceClimber<Rule> = precedence_climber![
-    L Multiplication | Division | Modulo,
     L Addition | Subtraction,
-    L BitwiseShiftLeft | BitwiseShiftRight | BitwiseRotationLeft | BitwiseRotationRight,
-    L BitwiseAnd,
-    L BitwiseXor,
-    L BitwiseOr,
-    L LogicalAnd,
-    L LogicalOr
+    L Multiplication | Division | Modulo,
 ];
 
-use pest::prec_climber::*;
-
 pub fn climb<'a>(rule: Pairs<'a, Rule>) -> Expression<'a> {
-    let primary = |expr: Pair<'a, Rule>| -> Expression<'a> {
-        dbg!(expr.as_rule());
-        Expression::populate(expr.into_inner())
-    };
+    let primary =
+        |expr: Pair<'a, Rule>| -> Expression<'a> { Expression::populate(expr.into_inner()) };
     let infix = |lhs: Expression<'a>, op: Pair<'a, Rule>, rhs: Expression<'a>| -> Expression<'a> {
-        dbg!(&lhs, &op, &rhs);
         Expression::Binary {
             lhs: Box::new(lhs),
             op: BinaryOperator::merge(op.as_str()),
             rhs: Box::new(rhs),
         }
     };
-    let climber = PrecClimber::new(vec![
-        Operator::new(Rule::Addition, Assoc::Left),
-        Operator::new(Rule::Multiplication, Assoc::Left),
-    ]);
-    climber.climb(rule, primary, infix)
+    PRECEDENCE_CLIMBER.climb(rule, primary, infix)
 }

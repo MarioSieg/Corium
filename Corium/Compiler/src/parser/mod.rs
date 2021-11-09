@@ -206,6 +206,7 @@
 pub use pest::Parser;
 use pest_derive::*;
 
+pub mod operator;
 pub mod precedence;
 pub mod precedence_climber;
 

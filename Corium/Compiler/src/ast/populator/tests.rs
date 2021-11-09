@@ -486,7 +486,8 @@ mod populators {
 
             #[test]
             fn literal_calculation() {
-                let result = CoriumParser::parse(Rule::Expression, "66 + 1 * 5").unwrap();
+                let mut result = CoriumParser::parse(Rule::Expression, "66 + 1 * 5").unwrap();
+                let result = result.next().unwrap().into_inner();
                 let ast = crate::parser::precedence::climb(result);
                 let _expr = Expression::Binary {
                     lhs: Box::new(Expression::Literal(Literal::Int(66))),

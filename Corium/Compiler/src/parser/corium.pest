@@ -82,7 +82,7 @@ UnaryExpression = {
     UnaryOperator ~ RootExpression
 }
 
-BinaryOperator = {
+BinaryOperator = _{
     Addition |
     Subtraction |
     Multiplication |
@@ -100,7 +100,7 @@ BinaryOperator = {
     LogicalOr
 }
 
-UnaryOperator = {
+UnaryOperator = _{
     Addition |
     Subtraction |
     BitwiseComplement |
