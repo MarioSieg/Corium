@@ -224,7 +224,7 @@ where
         let mut d = p;
         while d > 0 {
             for i in 0..(v.len() - d) {
-                if (i & p) == r {
+                if i & p == r {
                     let (f, l) = v.split_at_mut(1 + i);
                     compare_and_swap(&mut l[d - 1], &mut f[i], cmp);
                 }
@@ -250,14 +250,15 @@ where
 #[cfg(test)]
 mod tests {
     use rand::prelude::*;
+
     #[test]
-    fn test_correct() {
+    fn correct() {
         for x in 0..=255usize {
             let mut a = vec![0; x];
             for val in a.iter_mut() {
                 *val = thread_rng().gen_range(0..100);
             }
-            super::const_sort(&mut a, &|l, r| (l < r).into());
+            super::const_sort(&mut a, &|l, r| l < r);
             let mut ans = a.clone();
             ans.sort();
             assert_eq!(ans, a);
@@ -265,10 +266,10 @@ mod tests {
     }
 
     #[test]
-    fn test_bitonic_u8_exhaustive() {
+    fn bitonic_u8_exhaustive() {
         for x in 0..=7u8 {
-            let mut a = [1u8 & (x >> 0), 1u8 & (x >> 1), 1u8 & (x >> 2)];
-            super::const_sort(&mut a, &|l, r| (l < r).into());
+            let mut a = [1u8 & x >> 0, 1u8 & x >> 1, 1u8 & x >> 2];
+            super::const_sort(&mut a, &|l, r| l < r);
             let mut ans = a.clone();
             ans.sort();
             assert_eq!(ans, a);
@@ -276,13 +277,13 @@ mod tests {
     }
 
     #[test]
-    fn test_bitonic_random_large_prime() {
+    fn bitonic_random_large_prime() {
         for _ in 0..=255u8 {
             let mut a = [0u8; 7919];
             for i in 0..7919 {
                 a[i] = thread_rng().gen_range(0..=1);
             }
-            super::const_sort(&mut a, &|l, r| (l < r).into());
+            super::const_sort(&mut a, &|l, r| l < r);
             let mut ans = a.clone();
             ans.sort();
             assert_eq!(ans[..], a[..]);
