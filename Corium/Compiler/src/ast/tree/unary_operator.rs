@@ -230,6 +230,13 @@ impl Operator for UnaryOperator {
         OperatorAssociativity::RightToLeft,
     ];
 
+    const RULE_TABLE: &'static [Rule] = &[
+        Rule::Addition,
+        Rule::Subtraction,
+        Rule::BitwiseComplement,
+        Rule::LogicalNot,
+    ];
+
     #[inline]
     fn token(&self) -> &'static str {
         Self::TOKENS[*self as usize]

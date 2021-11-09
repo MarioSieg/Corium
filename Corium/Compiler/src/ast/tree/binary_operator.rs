@@ -292,6 +292,23 @@ impl Operator for BinaryOperator {
         OperatorAssociativity::LeftToRight,
     ];
 
+    const RULE_TABLE: &'static [Rule] = &[
+        Rule::Addition,
+        Rule::Subtraction,
+        Rule::Multiplication,
+        Rule::Division,
+        Rule::Modulo,
+        Rule::BitwiseAnd,
+        Rule::BitwiseOr,
+        Rule::BitwiseXor,
+        Rule::BitwiseShiftLeft,
+        Rule::BitwiseShiftRight,
+        Rule::BitwiseRotationLeft,
+        Rule::BitwiseRotationRight,
+        Rule::LogicalAnd,
+        Rule::LogicalOr,
+    ];
+
     #[inline]
     fn token(&self) -> &'static str {
         Self::TOKENS[*self as usize]

@@ -484,22 +484,382 @@ mod populators {
                 assert!(matches!(ast, _expr));
             }
 
-            #[test]
-            fn literal_calculation() {
-                let mut result = CoriumParser::parse(Rule::Expression, "66 + 1 * 5").unwrap();
-                let result = result.next().unwrap().into_inner();
-                let ast = crate::parser::precedence::climb(result);
-                let _expr = Expression::Binary {
-                    lhs: Box::new(Expression::Literal(Literal::Int(66))),
-                    op: BinaryOperator::Addition,
-                    rhs: Box::new(Expression::Binary {
-                        lhs: Box::new(Expression::Literal(Literal::Int(1))),
-                        op: BinaryOperator::Multiplication,
+            mod precedence {
+                use super::*;
+
+                #[test]
+                fn multiply_addition_right() {
+                    let mut result = CoriumParser::parse(Rule::Expression, "66 + 1 * 5").unwrap();
+                    let result = result.next().unwrap().into_inner();
+                    let ast = crate::parser::precedence::climb(result);
+                    let _expr = Expression::Binary {
+                        lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                        op: BinaryOperator::Addition,
+                        rhs: Box::new(Expression::Binary {
+                            lhs: Box::new(Expression::Literal(Literal::Int(1))),
+                            op: BinaryOperator::Multiplication,
+                            rhs: Box::new(Expression::Literal(Literal::Int(5))),
+                        }),
+                    };
+                    println!("{}", ast);
+                    assert_eq!(ast, _expr);
+                }
+
+                #[test]
+                fn multiply_addition_left() {
+                    let mut result = CoriumParser::parse(Rule::Expression, "66 * 1 + 5").unwrap();
+                    let result = result.next().unwrap().into_inner();
+                    let ast = crate::parser::precedence::climb(result);
+                    let _expr = Expression::Binary {
+                        lhs: Box::new(Expression::Binary {
+                            lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                            op: BinaryOperator::Multiplication,
+                            rhs: Box::new(Expression::Literal(Literal::Int(1))),
+                        }),
+                        op: BinaryOperator::Addition,
                         rhs: Box::new(Expression::Literal(Literal::Int(5))),
-                    }),
-                };
-                println!("{}", ast);
-                assert_eq!(ast, _expr);
+                    };
+                    println!("{}", ast);
+                    assert_eq!(ast, _expr);
+                }
+
+                #[test]
+                fn multiply_double_addition() {
+                    let mut result =
+                        CoriumParser::parse(Rule::Expression, "66 + 1 * 5 + 2").unwrap();
+                    let result = result.next().unwrap().into_inner();
+                    let ast = crate::parser::precedence::climb(result);
+                    let _expr = Expression::Binary {
+                        lhs: Box::new(Expression::Binary {
+                            lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                            op: BinaryOperator::Addition,
+                            rhs: Box::new(Expression::Binary {
+                                lhs: Box::new(Expression::Literal(Literal::Int(1))),
+                                op: BinaryOperator::Multiplication,
+                                rhs: Box::new(Expression::Literal(Literal::Int(5))),
+                            }),
+                        }),
+                        op: BinaryOperator::Addition,
+                        rhs: Box::new(Expression::Literal(Literal::Int(2))),
+                    };
+                    println!("{}", ast);
+                    assert_eq!(ast, _expr);
+                }
+
+                #[test]
+                fn dvision_double_addition() {
+                    let mut result =
+                        CoriumParser::parse(Rule::Expression, "66 + 1 / 5 + 2").unwrap();
+                    let result = result.next().unwrap().into_inner();
+                    let ast = crate::parser::precedence::climb(result);
+                    let _expr = Expression::Binary {
+                        lhs: Box::new(Expression::Binary {
+                            lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                            op: BinaryOperator::Addition,
+                            rhs: Box::new(Expression::Binary {
+                                lhs: Box::new(Expression::Literal(Literal::Int(1))),
+                                op: BinaryOperator::Division,
+                                rhs: Box::new(Expression::Literal(Literal::Int(5))),
+                            }),
+                        }),
+                        op: BinaryOperator::Addition,
+                        rhs: Box::new(Expression::Literal(Literal::Int(2))),
+                    };
+                    println!("{}", ast);
+                    assert_eq!(ast, _expr);
+                }
+
+                #[test]
+                fn modulo_double_addition() {
+                    let mut result =
+                        CoriumParser::parse(Rule::Expression, "66 + 1 % 5 + 2").unwrap();
+                    let result = result.next().unwrap().into_inner();
+                    let ast = crate::parser::precedence::climb(result);
+                    let _expr = Expression::Binary {
+                        lhs: Box::new(Expression::Binary {
+                            lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                            op: BinaryOperator::Addition,
+                            rhs: Box::new(Expression::Binary {
+                                lhs: Box::new(Expression::Literal(Literal::Int(1))),
+                                op: BinaryOperator::Modulo,
+                                rhs: Box::new(Expression::Literal(Literal::Int(5))),
+                            }),
+                        }),
+                        op: BinaryOperator::Addition,
+                        rhs: Box::new(Expression::Literal(Literal::Int(2))),
+                    };
+                    println!("{}", ast);
+                    assert_eq!(ast, _expr);
+                }
+
+                #[test]
+                fn multiply_subtraction_right() {
+                    let mut result = CoriumParser::parse(Rule::Expression, "66 - 1 * 5").unwrap();
+                    let result = result.next().unwrap().into_inner();
+                    let ast = crate::parser::precedence::climb(result);
+                    let _expr = Expression::Binary {
+                        lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                        op: BinaryOperator::Subtraction,
+                        rhs: Box::new(Expression::Binary {
+                            lhs: Box::new(Expression::Literal(Literal::Int(1))),
+                            op: BinaryOperator::Multiplication,
+                            rhs: Box::new(Expression::Literal(Literal::Int(5))),
+                        }),
+                    };
+                    println!("{}", ast);
+                    assert_eq!(ast, _expr);
+                }
+
+                #[test]
+                fn multiply_subtraction_left() {
+                    let mut result = CoriumParser::parse(Rule::Expression, "66 * 1 - 5").unwrap();
+                    let result = result.next().unwrap().into_inner();
+                    let ast = crate::parser::precedence::climb(result);
+                    let _expr = Expression::Binary {
+                        lhs: Box::new(Expression::Binary {
+                            lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                            op: BinaryOperator::Multiplication,
+                            rhs: Box::new(Expression::Literal(Literal::Int(1))),
+                        }),
+                        op: BinaryOperator::Subtraction,
+                        rhs: Box::new(Expression::Literal(Literal::Int(5))),
+                    };
+                    println!("{}", ast);
+                    assert_eq!(ast, _expr);
+                }
+
+                #[test]
+                fn multiply_double_subtraction() {
+                    let mut result =
+                        CoriumParser::parse(Rule::Expression, "66 - 1 * 5 - 2").unwrap();
+                    let result = result.next().unwrap().into_inner();
+                    let ast = crate::parser::precedence::climb(result);
+                    let _expr = Expression::Binary {
+                        lhs: Box::new(Expression::Binary {
+                            lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                            op: BinaryOperator::Subtraction,
+                            rhs: Box::new(Expression::Binary {
+                                lhs: Box::new(Expression::Literal(Literal::Int(1))),
+                                op: BinaryOperator::Multiplication,
+                                rhs: Box::new(Expression::Literal(Literal::Int(5))),
+                            }),
+                        }),
+                        op: BinaryOperator::Subtraction,
+                        rhs: Box::new(Expression::Literal(Literal::Int(2))),
+                    };
+                    println!("{}", ast);
+                    assert_eq!(ast, _expr);
+                }
+
+                #[test]
+                fn dvision_double_subtraction() {
+                    let mut result =
+                        CoriumParser::parse(Rule::Expression, "66 - 1 / 5 - 2").unwrap();
+                    let result = result.next().unwrap().into_inner();
+                    let ast = crate::parser::precedence::climb(result);
+                    let _expr = Expression::Binary {
+                        lhs: Box::new(Expression::Binary {
+                            lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                            op: BinaryOperator::Subtraction,
+                            rhs: Box::new(Expression::Binary {
+                                lhs: Box::new(Expression::Literal(Literal::Int(1))),
+                                op: BinaryOperator::Division,
+                                rhs: Box::new(Expression::Literal(Literal::Int(5))),
+                            }),
+                        }),
+                        op: BinaryOperator::Subtraction,
+                        rhs: Box::new(Expression::Literal(Literal::Int(2))),
+                    };
+                    println!("{}", ast);
+                    assert_eq!(ast, _expr);
+                }
+
+                #[test]
+                fn modulo_double_subtraction() {
+                    let mut result =
+                        CoriumParser::parse(Rule::Expression, "66 - 1 % 5 - 2").unwrap();
+                    let result = result.next().unwrap().into_inner();
+                    let ast = crate::parser::precedence::climb(result);
+                    let _expr = Expression::Binary {
+                        lhs: Box::new(Expression::Binary {
+                            lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                            op: BinaryOperator::Subtraction,
+                            rhs: Box::new(Expression::Binary {
+                                lhs: Box::new(Expression::Literal(Literal::Int(1))),
+                                op: BinaryOperator::Modulo,
+                                rhs: Box::new(Expression::Literal(Literal::Int(5))),
+                            }),
+                        }),
+                        op: BinaryOperator::Subtraction,
+                        rhs: Box::new(Expression::Literal(Literal::Int(2))),
+                    };
+                    println!("{}", ast);
+                    assert_eq!(ast, _expr);
+                }
+
+                #[test]
+                fn bitwise_shift_left_addition_left() {
+                    let mut result = CoriumParser::parse(Rule::Expression, "66 << 1 + 5").unwrap();
+                    let result = result.next().unwrap().into_inner();
+                    let ast = crate::parser::precedence::climb(result);
+                    let _expr = Expression::Binary {
+                        lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                        op: BinaryOperator::BitwiseShiftLeft,
+                        rhs: Box::new(Expression::Binary {
+                            lhs: Box::new(Expression::Literal(Literal::Int(1))),
+                            op: BinaryOperator::Addition,
+                            rhs: Box::new(Expression::Literal(Literal::Int(5))),
+                        }),
+                    };
+                    println!("{}", ast);
+                    assert_eq!(ast, _expr);
+                }
+
+                #[test]
+                fn bitwise_shift_right_multiplication_left() {
+                    let mut result = CoriumParser::parse(Rule::Expression, "66 >> 1 * 5").unwrap();
+                    let result = result.next().unwrap().into_inner();
+                    let ast = crate::parser::precedence::climb(result);
+                    let _expr = Expression::Binary {
+                        lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                        op: BinaryOperator::BitwiseShiftRight,
+                        rhs: Box::new(Expression::Binary {
+                            lhs: Box::new(Expression::Literal(Literal::Int(1))),
+                            op: BinaryOperator::Multiplication,
+                            rhs: Box::new(Expression::Literal(Literal::Int(5))),
+                        }),
+                    };
+                    println!("{}", ast);
+                    assert_eq!(ast, _expr);
+                }
+
+                #[test]
+                fn bitwise_rotation_left_division_left() {
+                    let mut result = CoriumParser::parse(Rule::Expression, "66 <<< 1 / 5").unwrap();
+                    let result = result.next().unwrap().into_inner();
+                    let ast = crate::parser::precedence::climb(result);
+                    let _expr = Expression::Binary {
+                        lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                        op: BinaryOperator::BitwiseRotationLeft,
+                        rhs: Box::new(Expression::Binary {
+                            lhs: Box::new(Expression::Literal(Literal::Int(1))),
+                            op: BinaryOperator::Division,
+                            rhs: Box::new(Expression::Literal(Literal::Int(5))),
+                        }),
+                    };
+                    println!("{}", ast);
+                    assert_eq!(ast, _expr);
+                }
+
+                #[test]
+                fn bitwise_rotation_right_modulo_left() {
+                    let mut result = CoriumParser::parse(Rule::Expression, "66 >>> 1 % 5").unwrap();
+                    let result = result.next().unwrap().into_inner();
+                    let ast = crate::parser::precedence::climb(result);
+                    let _expr = Expression::Binary {
+                        lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                        op: BinaryOperator::BitwiseRotationRight,
+                        rhs: Box::new(Expression::Binary {
+                            lhs: Box::new(Expression::Literal(Literal::Int(1))),
+                            op: BinaryOperator::Modulo,
+                            rhs: Box::new(Expression::Literal(Literal::Int(5))),
+                        }),
+                    };
+                    println!("{}", ast);
+                    assert_eq!(ast, _expr);
+                }
+
+                #[test]
+                fn bitwise_and() {
+                    let mut result = CoriumParser::parse(Rule::Expression, "66 ^ 1 & 5").unwrap();
+                    let result = result.next().unwrap().into_inner();
+                    let ast = crate::parser::precedence::climb(result);
+                    let _expr = Expression::Binary {
+                        lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                        op: BinaryOperator::BitwiseXor,
+                        rhs: Box::new(Expression::Binary {
+                            lhs: Box::new(Expression::Literal(Literal::Int(1))),
+                            op: BinaryOperator::BitwiseAnd,
+                            rhs: Box::new(Expression::Literal(Literal::Int(5))),
+                        }),
+                    };
+                    println!("{}", ast);
+                    assert_eq!(ast, _expr);
+                }
+
+                #[test]
+                fn bitwise_xor() {
+                    let mut result = CoriumParser::parse(Rule::Expression, "66 | 1 ^ 5").unwrap();
+                    let result = result.next().unwrap().into_inner();
+                    let ast = crate::parser::precedence::climb(result);
+                    let _expr = Expression::Binary {
+                        lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                        op: BinaryOperator::BitwiseOr,
+                        rhs: Box::new(Expression::Binary {
+                            lhs: Box::new(Expression::Literal(Literal::Int(1))),
+                            op: BinaryOperator::BitwiseXor,
+                            rhs: Box::new(Expression::Literal(Literal::Int(5))),
+                        }),
+                    };
+                    println!("{}", ast);
+                    assert_eq!(ast, _expr);
+                }
+
+                #[test]
+                fn bitwise_or() {
+                    let mut result = CoriumParser::parse(Rule::Expression, "66 and 1 | 5").unwrap();
+                    let result = result.next().unwrap().into_inner();
+                    let ast = crate::parser::precedence::climb(result);
+                    let _expr = Expression::Binary {
+                        lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                        op: BinaryOperator::LogicalAnd,
+                        rhs: Box::new(Expression::Binary {
+                            lhs: Box::new(Expression::Literal(Literal::Int(1))),
+                            op: BinaryOperator::BitwiseOr,
+                            rhs: Box::new(Expression::Literal(Literal::Int(5))),
+                        }),
+                    };
+                    println!("{}", ast);
+                    assert_eq!(ast, _expr);
+                }
+
+                #[test]
+                fn logical_and() {
+                    let mut result =
+                        CoriumParser::parse(Rule::Expression, "66 or 1 and 5").unwrap();
+                    let result = result.next().unwrap().into_inner();
+                    let ast = crate::parser::precedence::climb(result);
+                    let _expr = Expression::Binary {
+                        lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                        op: BinaryOperator::LogicalOr,
+                        rhs: Box::new(Expression::Binary {
+                            lhs: Box::new(Expression::Literal(Literal::Int(1))),
+                            op: BinaryOperator::LogicalAnd,
+                            rhs: Box::new(Expression::Literal(Literal::Int(5))),
+                        }),
+                    };
+                    println!("{}", ast);
+                    assert_eq!(ast, _expr);
+                }
+
+                #[test]
+                fn logical_or() {
+                    let mut result =
+                        CoriumParser::parse(Rule::Expression, "true or 1 + 5").unwrap();
+                    let result = result.next().unwrap().into_inner();
+                    let ast = crate::parser::precedence::climb(result);
+                    let _expr = Expression::Binary {
+                        lhs: Box::new(Expression::Literal(Literal::Bool(true))),
+                        op: BinaryOperator::LogicalOr,
+                        rhs: Box::new(Expression::Binary {
+                            lhs: Box::new(Expression::Literal(Literal::Int(1))),
+                            op: BinaryOperator::Addition,
+                            rhs: Box::new(Expression::Literal(Literal::Int(5))),
+                        }),
+                    };
+                    println!("{}", ast);
+                    assert_eq!(ast, _expr);
+                }
             }
         }
     }

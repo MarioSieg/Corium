@@ -204,6 +204,7 @@
 //    limitations under the License.
 
 use crate::ast::tree::AstComponent;
+pub use crate::parser::Rule;
 use std::fmt::Debug;
 use std::hash::Hash;
 
@@ -221,7 +222,12 @@ pub trait Operator:
     const TOKENS: &'static [&'static str];
     const PRECEDENCE_TABLE: &'static [u8];
     const ASSOCIATIVITY_TABLE: &'static [OperatorAssociativity];
+    const RULE_TABLE: &'static [Rule];
 
     fn token(&self) -> &'static str;
     fn precedence(&self) -> u8;
+
+    fn is_valid(r: Rule) -> bool {
+        Self::RULE_TABLE.contains(&r)
+    }
 }

@@ -203,16 +203,42 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use super::precedence_climber::PrecedenceClimber;
 use super::Rule;
+use crate::algorithm::precedence_climber::PrecedenceClimber;
 use crate::ast::populator::{AtomicAstPopulator, NestedAstPopulator};
 use crate::ast::tree::prelude::{BinaryOperator, Expression};
 use crate::precedence_climber;
 use pest::iterators::{Pair, Pairs};
 
 const PRECEDENCE_CLIMBER: PrecedenceClimber<Rule> = precedence_climber![
-    L Addition | Subtraction,
-    L Multiplication | Division | Modulo,
+    L   // 12
+        LogicalOr,
+
+    L   // 11
+        LogicalAnd,
+
+    L   // 10
+        BitwiseOr,
+
+    L   // 9
+        BitwiseXor,
+
+    L   // 8
+        BitwiseAnd,
+
+    L   // 5
+        BitwiseShiftLeft |
+        BitwiseShiftRight |
+        BitwiseRotationLeft |
+        BitwiseRotationRight,
+
+    L   // 4
+        Addition | Subtraction,
+
+    L   // 3
+        Multiplication |
+        Division |
+        Modulo
 ];
 
 pub fn climb<'a>(rule: Pairs<'a, Rule>) -> Expression<'a> {

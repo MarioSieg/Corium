@@ -203,30 +203,60 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use super::Rule;
-use crate::ast::tree::operator::Operator;
-use crate::ast::tree::{binary_operator::BinaryOperator, unary_operator::UnaryOperator};
+#[macro_export]
+macro_rules! precedence_climber {
+    (
+        $( $assoc:ident $rule:ident $( | $rules:ident )* ),+ $(,)?
+    ) => {{
+        precedence_climber!(
+            @precedences { 1u32 }
+            $( [ $rule $( $rules )* ] )*
+        );
 
-pub const UNARY_OPERATOR_RULES: [Rule; UnaryOperator::COUNT] = [
-    Rule::Addition,
-    Rule::Subtraction,
-    Rule::BitwiseComplement,
-    Rule::LogicalNot,
-];
+        $crate::algorithm::precedence_climber::PrecedenceClimber(
+            std::borrow::Cow::Borrowed(precedence_climber!(
+                @array
+                $( $assoc $rule $(, $assoc $rules )* ),*
+            ))
+        )
+    }};
 
-pub const BINARY_OPERATOR_RULES: [Rule; BinaryOperator::COUNT] = [
-    Rule::Addition,
-    Rule::Subtraction,
-    Rule::Multiplication,
-    Rule::Division,
-    Rule::Modulo,
-    Rule::BitwiseAnd,
-    Rule::BitwiseOr,
-    Rule::BitwiseXor,
-    Rule::BitwiseShiftLeft,
-    Rule::BitwiseShiftRight,
-    Rule::BitwiseRotationLeft,
-    Rule::BitwiseRotationRight,
-    Rule::LogicalAnd,
-    Rule::LogicalOr,
-];
+    ( @assoc L ) => { $crate::ast::tree::operator::OperatorAssociativity::LeftToRight };
+    ( @assoc R ) => { $crate::ast::tree::operator::OperatorAssociativity::RightToLeft };
+
+    (
+        @array
+        $(
+            $assoc:ident $rule:ident
+        ),*
+    ) => {
+        &[
+            $(
+                (
+                    Rule::$rule,
+                    $rule,
+                    precedence_climber!( @assoc $assoc ),
+                )
+            ),*
+        ]
+    };
+
+    (
+        @precedences { $precedence:expr }
+    ) => {};
+
+    (
+        @precedences { $precedence:expr }
+        [ $( $rule:ident )* ]
+        $( [ $( $rules:ident )* ] )*
+    ) => {
+        $(
+            #[allow(non_upper_case_globals)]
+            const $rule: u32 = $precedence;
+        )*
+        precedence_climber!(
+            @precedences { $precedence + 1u32 }
+            $( [ $( $rules )* ] )*
+        );
+    };
+}
