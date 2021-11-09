@@ -208,21 +208,48 @@ use super::tree_prelude::*;
 use std::default;
 
 /// Represents a module definition.
-#[derive(Clone, Debug)]
-pub struct Module<'ast>(pub QualifiedName<'ast>);
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum Module<'ast> {
+    /// Module name is derived from file.
+    Derived(String),
+
+    /// Module name is explicitly defined in the source code.
+    Explicit(QualifiedName<'ast>),
+}
 
 impl<'ast> AstComponent for Module<'ast> {
     const CORRESPONDING_RULE: Rule = Rule::Module;
 }
 
+impl<'ast> Module<'ast> {
+    #[inline]
+    pub fn qualified_name(&self) -> &str {
+        match self {
+            Self::Explicit(name) => name.full,
+            Self::Derived(name) => &name,
+        }
+    }
+
+    #[inline]
+    pub fn split_name(&self) -> Vec<&str> {
+        match self {
+            Self::Explicit(name) => name.split.clone(),
+            Self::Derived(name) => vec![name.as_str()],
+        }
+    }
+}
+
 impl<'ast> fmt::Display for Module<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.0)
+        match self {
+            Self::Derived(name) => write!(f, "{}", name),
+            Self::Explicit(name) => write!(f, "{}", name),
+        }
     }
 }
 
 impl<'ast> default::Default for Module<'ast> {
     fn default() -> Self {
-        Self(QualifiedName::from("default"))
+        Self::Explicit(QualifiedName::from("?default?"))
     }
 }

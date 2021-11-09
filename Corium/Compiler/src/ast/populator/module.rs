@@ -207,6 +207,6 @@ use super::populator_prelude::*;
 
 impl<'ast> NestedAstPopulator<'ast> for Module<'ast> {
     fn populate(mut rule: RulePairs<'ast>) -> Self {
-        Self(QualifiedName::populate(rule.next().unwrap().into_inner()))
+        Self::Explicit(QualifiedName::populate(rule.next().unwrap().into_inner()))
     }
 }

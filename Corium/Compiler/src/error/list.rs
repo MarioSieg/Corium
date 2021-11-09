@@ -207,6 +207,7 @@ use crate::error::Error;
 use std::default;
 use std::fmt;
 
+#[derive(Clone, Debug)]
 pub struct ErrorList(pub Vec<Error>);
 
 impl ErrorList {

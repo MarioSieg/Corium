@@ -28,6 +28,7 @@ num-traits = "0.2.14"                                       # Helper for enums a
 num-derive = "0.3.3"                                        # Helper for enums and primitive number types
 ptree = "0.4.0"                                             # Helper for pretty printing tree structures
 subtle = "1.0.0"                                            # Traits and utilities for constant-time cryptographic implementations.
+smallvec = "1.7.0"                                          # Small vector
 
 [dev-dependencies]
 rand = "0.8.4"

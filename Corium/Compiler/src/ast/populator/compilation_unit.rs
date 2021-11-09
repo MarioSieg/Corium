@@ -208,14 +208,14 @@ use super::populator_prelude::*;
 impl<'ast> NestedAstPopulator<'ast> for CompilationUnit<'ast> {
     fn populate(rule: RulePairs<'ast>) -> Self {
         let mut statements = Vec::new();
-        let mut module = None;
+        let mut module = Module::default();
 
         for inner in rule {
             match inner.as_rule() {
                 Rule::GlobalStatement => {
                     statements.push(GlobalStatement::populate(inner.into_inner()))
                 }
-                Rule::Module => module = Some(Module::populate(inner.into_inner())),
+                Rule::Module => module = Module::populate(inner.into_inner()),
                 _ => (),
             }
         }

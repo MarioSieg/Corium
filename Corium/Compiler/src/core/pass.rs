@@ -207,12 +207,12 @@ use crate::error::list::ErrorList;
 use colored::Colorize;
 use std::time::Instant;
 
-pub trait Pass<Input, Output> {
+pub trait Pass<'a, Input, Output> {
     const NAME: &'static str;
 
-    fn execute(input: Input, verbose: bool, file: &str) -> Result<Output, ErrorList>;
+    fn execute(input: Input, verbose: bool, file: &'a str) -> Result<Output, ErrorList>;
 
-    fn run(input: Input, verbose: bool, timer: bool, file: &str) -> Result<Output, ErrorList> {
+    fn run(input: Input, verbose: bool, timer: bool, file: &'a str) -> Result<Output, ErrorList> {
         let clock = Instant::now();
         let result = Self::execute(input, verbose, file);
         if timer {

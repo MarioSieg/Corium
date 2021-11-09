@@ -206,24 +206,183 @@
 use super::Pass;
 use crate::ast::format::pretty_print_ast;
 use crate::ast::populator::NestedAstPopulator;
+use crate::ast::tree::module::Module;
 use crate::ast::tree::prelude::CompilationUnit;
-use crate::error::list::ErrorList;
+use crate::error::{list::ErrorList, Error};
 use crate::parser::RulePairs;
+use std::path::Path;
 
 pub struct AstPopulationPass;
 
-impl<'a> Pass<RulePairs<'a>, CompilationUnit<'a>> for AstPopulationPass {
+impl<'a> Pass<'a, RulePairs<'a>, CompilationUnit<'a>> for AstPopulationPass {
     const NAME: &'static str = "AST Population";
 
     fn execute(
         input: RulePairs<'a>,
         verbose: bool,
-        _file: &str,
+        file: &'a str,
     ) -> Result<CompilationUnit<'a>, ErrorList> {
-        let result = CompilationUnit::populate(input);
+        let mut result = CompilationUnit::populate(input);
+        if result.module == Module::default() {
+            file_name_to_module(file, &mut result.module)?;
+        }
         if verbose {
             pretty_print_ast(&result);
         }
         Ok(result)
+    }
+}
+
+fn file_name_to_module<'a>(file: &'a str, out: &mut Module<'a>) -> Result<(), ErrorList> {
+    let err = || -> Result<(), ErrorList> {
+        Err(Error::Semantic(
+            format!(
+                "Invalid file name: {}! File names must follow module name rules!",
+                file
+            ),
+            file.to_string(),
+        )
+        .into())
+    };
+    let path = Path::new(file);
+    let file_name = path.file_name();
+    if file_name.is_none() {
+        return err();
+    }
+    let file_name = file_name.unwrap().to_os_string().into_string();
+    if file_name.is_err() {
+        return err();
+    }
+    let file_name = file_name.unwrap();
+    let is_invalid_name = file_name.is_empty()
+        || !file_name.chars().next().unwrap().is_alphabetic()
+        || file_name
+            .chars()
+            .any(|c| matches!(c, ' ' | '\n' | '\t' | '\r' | '\0'));
+    if is_invalid_name {
+        return err();
+    }
+    let module = Module::Derived(file_name);
+    *out = module;
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::ast::tree::qualified_name::QualifiedName;
+    use crate::core::passes::parse::ParsePass;
+
+    #[test]
+    fn file_name_to_module_empty() {
+        let mut x = Module::Derived(String::new());
+        assert!(file_name_to_module("", &mut x).is_err());
+    }
+
+    #[test]
+    fn file_name_to_module_empty2() {
+        let mut x = Module::Derived(String::new());
+        assert!(file_name_to_module(".cor", &mut x).is_err());
+    }
+
+    #[test]
+    fn file_name_to_module_space1() {
+        let mut x = Module::Derived(String::new());
+        assert!(file_name_to_module(" ", &mut x).is_err());
+    }
+
+    #[test]
+    fn file_name_to_module_space2() {
+        let mut x = Module::Derived(String::new());
+        assert!(file_name_to_module("Noel ", &mut x).is_err());
+    }
+
+    #[test]
+    fn file_name_to_module_newline1() {
+        let mut x = Module::Derived(String::new());
+        assert!(file_name_to_module("File\nName", &mut x).is_err());
+    }
+
+    #[test]
+    fn file_name_to_module_newline2() {
+        let mut x = Module::Derived(String::new());
+        assert!(file_name_to_module("\n", &mut x).is_err());
+    }
+
+    #[test]
+    fn file_name_to_module_control1() {
+        let mut x = Module::Derived(String::new());
+        assert!(file_name_to_module("File\tName.cor", &mut x).is_err());
+    }
+
+    #[test]
+    fn file_name_to_module_control2() {
+        let mut x = Module::Derived(String::new());
+        assert!(file_name_to_module("File\rName.cor", &mut x).is_err());
+    }
+
+    #[test]
+    fn file_name_to_module_control3() {
+        let mut x = Module::Derived(String::new());
+        assert!(file_name_to_module("File\0Name.cor", &mut x).is_err());
+    }
+
+    #[test]
+    fn file_name_to_module_number() {
+        let mut x = Module::Derived(String::new());
+        assert!(file_name_to_module("3name", &mut x).is_err());
+    }
+
+    #[test]
+    fn ok1() {
+        let mut x = Module::Derived(String::new());
+        assert!(file_name_to_module("MyFileName", &mut x).is_ok());
+        let _str = String::from("MyFileName");
+        assert!(matches!(x, Module::Derived(_str)));
+    }
+
+    #[test]
+    fn ok2() {
+        let mut x = Module::Derived(String::new());
+        assert!(file_name_to_module("MyFile5Name", &mut x).is_ok());
+        let _str = String::from("MyFile5Name");
+        assert!(matches!(x, Module::Derived(_str)));
+    }
+
+    #[test]
+    fn ok3() {
+        let mut x = Module::Derived(String::new());
+        assert!(file_name_to_module("MyFileName.cor", &mut x).is_ok());
+        let _str = String::from("MyFileName");
+        assert!(matches!(x, Module::Derived(_str)));
+    }
+
+    #[test]
+    fn without_module_decl() {
+        let src = r#"
+            let x float = 0.2
+        "#;
+        let file = "ParseTest.cor";
+        let mut result = ParsePass::execute(src, true, file).unwrap();
+        let result: CompilationUnit =
+            AstPopulationPass::execute(result.next().unwrap().into_inner(), true, file).unwrap();
+        let _str = String::from("ParseTest");
+        assert!(matches!(result.module, Module::Derived(_str)));
+    }
+
+    #[test]
+    fn with_module_decl() {
+        let src = concat!("module myModule\n", "let x = 10\n");
+        let file = "ParseTest.cor";
+        let mut result = ParsePass::execute(src, true, file).unwrap();
+        let mut result = ParsePass::execute(src, true, file).unwrap();
+        let result: CompilationUnit =
+            AstPopulationPass::execute(result.next().unwrap().into_inner(), true, file).unwrap();
+        let _str = QualifiedName::from("myModule");
+        if let Module::Explicit(name) = result.module {
+            assert_eq!(name, _str);
+        } else {
+            panic!("Invalid module type!");
+        }
     }
 }

@@ -210,7 +210,7 @@ use crate::parser::RulePairs;
 
 pub struct ParsePass;
 
-impl<'a> Pass<&'a str, RulePairs<'a>> for ParsePass {
+impl<'a> Pass<'a, &'a str, RulePairs<'a>> for ParsePass {
     const NAME: &'static str = "Parsing";
 
     fn execute(input: &'a str, _verbose: bool, file: &str) -> Result<RulePairs<'a>, ErrorList> {

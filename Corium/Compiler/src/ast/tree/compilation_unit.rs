@@ -208,7 +208,7 @@ use super::{global_statement::GlobalStatement, module::Module};
 
 #[derive(Clone, Debug)]
 pub struct CompilationUnit<'ast> {
-    pub module: Option<Module<'ast>>,
+    pub module: Module<'ast>,
     pub statements: Vec<GlobalStatement<'ast>>,
 }
 
@@ -218,11 +218,7 @@ impl<'ast> AstComponent for CompilationUnit<'ast> {
 
 impl<'ast> fmt::Display for CompilationUnit<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        writeln!(
-            f,
-            "Module `{}`",
-            self.module.as_ref().unwrap_or(&Module::default())
-        )?;
+        writeln!(f, "Module `{}`", self.module)?;
         for smt in &self.statements {
             writeln!(f, "{}", smt)?;
         }

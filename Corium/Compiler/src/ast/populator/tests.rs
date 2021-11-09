@@ -906,6 +906,15 @@ mod populators {
                     println!("{}", ast);
                     assert_eq!(ast, _expr);
                 }
+
+                #[test]
+                fn all_binary_operators() {
+                    let mut result =
+                        CoriumParser::parse(Rule::Expression, "1 + 2 - 3 * 4 / 5 % 6 & 7 | 8 ^ 9 << 10 >> 11 <<< 12 >>> 13 and true or false").unwrap();
+                    let result = result.next().unwrap().into_inner();
+                    let ast = crate::parser::precedence::climb_expression(result);
+                    println!("{}", ast);
+                }
             }
         }
     }
@@ -1551,19 +1560,19 @@ mod populators {
         fn simple() {
             let mut result = CoriumParser::parse(Rule::Module, "module MyPackage\n").unwrap();
             let ast = Module::populate(result.next().unwrap().into_inner());
-            assert_eq!(ast.0.full, "MyPackage");
-            assert_eq!(ast.0.split.len(), 1);
-            assert_eq!(ast.0.split[0], "MyPackage");
+            assert_eq!(ast.qualified_name(), "MyPackage");
+            assert_eq!(ast.split_name().len(), 1);
+            assert_eq!(ast.split_name()[0], "MyPackage");
         }
 
         #[test]
         fn nested() {
             let mut result = CoriumParser::parse(Rule::Module, "module MyPackage.Class\n").unwrap();
             let ast = Module::populate(result.next().unwrap().into_inner());
-            assert_eq!(ast.0.full, "MyPackage.Class");
-            assert_eq!(ast.0.split.len(), 2);
-            assert_eq!(ast.0.split[0], "MyPackage");
-            assert_eq!(ast.0.split[1], "Class");
+            assert_eq!(ast.qualified_name(), "MyPackage.Class");
+            assert_eq!(ast.split_name().len(), 2);
+            assert_eq!(ast.split_name()[0], "MyPackage");
+            assert_eq!(ast.split_name()[1], "Class");
         }
 
         #[test]
@@ -1571,11 +1580,11 @@ mod populators {
             let mut result =
                 CoriumParser::parse(Rule::Module, "module MyPackage.Class.StaticMember\n").unwrap();
             let ast = Module::populate(result.next().unwrap().into_inner());
-            assert_eq!(ast.0.full, "MyPackage.Class.StaticMember");
-            assert_eq!(ast.0.split.len(), 3);
-            assert_eq!(ast.0.split[0], "MyPackage");
-            assert_eq!(ast.0.split[1], "Class");
-            assert_eq!(ast.0.split[2], "StaticMember");
+            assert_eq!(ast.qualified_name(), "MyPackage.Class.StaticMember");
+            assert_eq!(ast.split_name().len(), 3);
+            assert_eq!(ast.split_name()[0], "MyPackage");
+            assert_eq!(ast.split_name()[1], "Class");
+            assert_eq!(ast.split_name()[2], "StaticMember");
         }
 
         #[test]
@@ -1584,12 +1593,12 @@ mod populators {
                 CoriumParser::parse(Rule::Module, "module MyPackage.Class.StaticMember.Field\n")
                     .unwrap();
             let ast = Module::populate(result.next().unwrap().into_inner());
-            assert_eq!(ast.0.full, "MyPackage.Class.StaticMember.Field");
-            assert_eq!(ast.0.split.len(), 4);
-            assert_eq!(ast.0.split[0], "MyPackage");
-            assert_eq!(ast.0.split[1], "Class");
-            assert_eq!(ast.0.split[2], "StaticMember");
-            assert_eq!(ast.0.split[3], "Field");
+            assert_eq!(ast.qualified_name(), "MyPackage.Class.StaticMember.Field");
+            assert_eq!(ast.split_name().len(), 4);
+            assert_eq!(ast.split_name()[0], "MyPackage");
+            assert_eq!(ast.split_name()[1], "Class");
+            assert_eq!(ast.split_name()[2], "StaticMember");
+            assert_eq!(ast.split_name()[3], "Field");
         }
     }
 
@@ -2298,7 +2307,7 @@ mod populators {
         fn module() {
             let mut result = CoriumParser::parse(Rule::CompilationUnit, "module x\n").unwrap();
             let ast = CompilationUnit::populate(result.next().unwrap().into_inner());
-            assert_eq!(ast.module.unwrap().0.full, "x");
+            assert_eq!(ast.module.qualified_name(), "x");
         }
 
         #[test]
@@ -2313,7 +2322,7 @@ mod populators {
             );
             let mut result = CoriumParser::parse(Rule::CompilationUnit, src).unwrap();
             let ast = CompilationUnit::populate(result.next().unwrap().into_inner());
-            assert_eq!(ast.module.unwrap().0.full, "test");
+            assert_eq!(ast.module.qualified_name(), "test");
             assert_eq!(ast.statements.len(), 3);
             assert!(matches!(
                 &ast.statements[0],

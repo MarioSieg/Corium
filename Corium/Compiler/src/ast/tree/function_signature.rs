@@ -240,7 +240,7 @@ impl<'ast> FunctionSignature<'ast> {
         if let Some(params) = &self.parameters {
             for param in &params.0 {
                 result.push(PARAM_MANGLE_SEPARATOR);
-                result.push_str(param.type_hint.full);
+                result.push_str(&param.type_hint.full);
             }
         }
         result

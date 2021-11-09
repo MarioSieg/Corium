@@ -210,7 +210,7 @@ use crate::semantic::analyze;
 
 pub struct SemanticPass;
 
-impl<'a> Pass<CompilationUnit<'a>, ()> for SemanticPass {
+impl<'a> Pass<'a, CompilationUnit<'a>, ()> for SemanticPass {
     const NAME: &'static str = "Semantic analysis";
 
     fn execute(input: CompilationUnit<'a>, _verbose: bool, file: &str) -> Result<(), ErrorList> {

@@ -203,18 +203,13 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::tree::module::Module;
 use crate::ast::tree::prelude::*;
 use crate::ast::tree::Statement;
 use ptree::*;
 
 #[cold]
 pub fn pretty_print_ast(root: &CompilationUnit) {
-    let module_name = root
-        .module
-        .as_ref()
-        .unwrap_or(&Module::default())
-        .to_string();
+    let module_name = root.module.to_string();
     let mut tree = TreeBuilder::new(module_name);
     for global_statement in &root.statements {
         tree.begin_child(global_statement.descriptive_name().to_string());
