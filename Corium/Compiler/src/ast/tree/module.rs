@@ -226,7 +226,7 @@ impl<'ast> Module<'ast> {
     pub fn qualified_name(&self) -> &str {
         match self {
             Self::Explicit(name) => name.full,
-            Self::Derived(name) => &name,
+            Self::Derived(name) => name,
         }
     }
 
@@ -250,6 +250,6 @@ impl<'ast> fmt::Display for Module<'ast> {
 
 impl<'ast> default::Default for Module<'ast> {
     fn default() -> Self {
-        Self::Explicit(QualifiedName::from("?default?"))
+        Self::Explicit(QualifiedName::from("?"))
     }
 }
