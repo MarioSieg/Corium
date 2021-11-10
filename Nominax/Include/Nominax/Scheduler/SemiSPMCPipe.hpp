@@ -215,6 +215,8 @@ namespace Nominax::Scheduler
 	template <const std::uint8_t SizeLog2, typename T> requires std::is_trivial_v<T> && (SizeLog2 < 32)
 	struct SemiSPMCPipe
 	{
+		static_assert(std::atomic_uint32_t::is_always_lock_free);
+
 		constexpr SemiSPMCPipe() = default;
 		constexpr SemiSPMCPipe(const SemiSPMCPipe& other) noexcept = default;
 		constexpr SemiSPMCPipe(SemiSPMCPipe&& other) noexcept = default;

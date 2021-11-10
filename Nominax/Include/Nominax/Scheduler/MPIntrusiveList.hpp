@@ -205,5 +205,68 @@
 
 #pragma once
 
-#include "MPIntrusiveList.hpp"
-#include "SemiSPMCPipe.hpp"
+#include <atomic>
+#include <type_traits>
+
+namespace Nominax::Scheduler
+{
+	template <typename T> requires std::is_trivial_v<T>
+	struct MultiProducerIntrusiveList
+	{
+		static_assert(std::atomic<T*>::is_always_lock_free);
+
+		struct Node final
+		{
+			T Value;
+			std::atomic<T*> Next;
+		};
+
+		auto ProduceFront(Node* node) noexcept -> void;
+		auto ConsumeBack() noexcept -> Node*;
+		auto IsEmpty() const noexcept -> bool;
+
+	private:
+		std::atomic<T*> Head_ { };
+		Node Tail_ { };
+	};
+
+	template <typename T> requires std::is_trivial_v<T>
+	inline auto MultiProducerIntrusiveList<T>::ProduceFront(Node* const node) noexcept -> void
+	{
+		node->Next.load(nullptr);
+		Node* const prev { this->Head_.exchange(node) };
+		prev->Next.load(node);
+	}
+
+	template <typename T> requires std::is_trivial_v<T>
+	auto MultiProducerIntrusiveList<T>::ConsumeBack() noexcept -> Node*
+	{
+		Node* const tailNext { this->Tail_.Next.load() };
+		if (!tailNext)
+		{
+			return nullptr;
+		}
+		if (Node* const tailNextNext { tailNext->Next.load() }; tailNextNext)
+		{
+			this->Tail_.Next.store(tailNextNext);
+		}
+		else
+		{
+			this->Tail_.Next.store(nullptr);
+			T* const cmp { tailNext };
+			if (!this->Head_.compare_exchange_strong(cmp, &this->Tail_))
+			{
+				while (!tailNext);
+				this->Tail_.Next.store(tailNext->Next.load());
+				tailNext->Next.store(nullptr);
+			}
+		}
+		return tailNext;
+	}
+
+	template <typename T> requires std::is_trivial_v<T>
+	inline auto MultiProducerIntrusiveList<T>::IsEmpty() const noexcept -> bool
+	{
+		return this->Head_.load() == &this->Tail_;
+	}
+}
