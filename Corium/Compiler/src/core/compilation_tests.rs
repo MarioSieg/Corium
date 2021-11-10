@@ -203,114 +203,59 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::core::compiler::compile_source;
-use crate::error::list::ErrorList;
-use crate::misc::source_code::SourceCode;
-use std::default;
-use std::path::{Path, PathBuf};
-use std::time::{Duration, Instant};
-use uuid::Uuid;
+use crate::core::unit::CompileDescriptor;
 
-/// FileCompilationUnitDescriptor
-pub struct CompileDescriptor {
-    pub dump_ast: bool,
-    pub dump_asm: bool,
-    pub opt_level: u8,
-    pub verbose: bool,
-    pub pass_timer: bool,
-}
+const FILE: &str = "Test.cor";
+const DESC: CompileDescriptor = CompileDescriptor {
+    dump_ast: true,
+    pass_timer: true,
+    dump_asm: true,
+    verbose: true,
+    opt_level: 0,
+};
 
-impl default::Default for CompileDescriptor {
-    fn default() -> Self {
-        Self {
-            dump_ast: false,
-            dump_asm: false,
-            opt_level: 0,
-            verbose: false,
-            pass_timer: false,
-        }
-    }
-}
+mod global {
+    use super::*;
+    use crate::core::compiler::compile_source;
+    use crate::include_corium_source;
 
-pub type CompilationResult = Result<Duration, (Duration, ErrorList)>;
-
-/// Represents a compilation unit.
-/// Each file contains a single compilation unit.
-pub struct FileCompilationUnit {
-    source_code: SourceCode,
-    file: PathBuf,
-    file_name: String,
-    id: Uuid,
-    file_load_time: Duration,
-    pub descriptor: CompileDescriptor,
-}
-
-impl FileCompilationUnit {
-    pub fn load(file: PathBuf, descriptor: CompileDescriptor) -> Box<Self> {
-        let clock = Instant::now();
-        let source_code = SourceCode::read(&file);
-        let file_name = Self::extract_file_name(&file);
-        let id = Uuid::new_v4();
-        let file_load_time = clock.elapsed();
-        Box::new(Self {
-            source_code,
-            file,
-            file_name,
-            id,
-            file_load_time,
-            descriptor,
-        })
-    }
-
-    pub fn compile(&mut self) -> CompilationResult {
-        let clock = Instant::now();
-        println!("Compiling `{}`...", self.file_name);
-        if self.descriptor.pass_timer {
-            println!(
-                "File load time: {}",
-                humantime::Duration::from(self.file_load_time)
-            );
-        }
-        let result = compile_source(&self.source_code, &self.file_name, &self.descriptor);
-        let time = self.compute_compile_time(clock);
-        if let Err(e) = result {
-            Err((time, e))
-        } else {
-            Ok(time)
+    #[test]
+    fn mutable_variable() {
+        let src = include_corium_source!("../../../ValidationSource/MutableVariables.cor");
+        if let Err(e) = compile_source(&src, FILE, &DESC) {
+            panic!("{}", e);
         }
     }
 
-    fn compute_compile_time(&self, clock: Instant) -> Duration {
-        self.file_load_time
-            .checked_add(clock.elapsed())
-            .unwrap_or_else(|| Duration::from_secs(0))
+    #[test]
+    fn immutable_variable() {
+        let src = include_corium_source!("../../../ValidationSource/ImmutableVariables.cor");
+        if let Err(e) = compile_source(&src, FILE, &DESC) {
+            panic!("{}", e);
+        }
     }
 
-    fn extract_file_name(file: &Path) -> String {
-        file.file_name()
-            .unwrap_or_else(|| panic!("Missing file name: {:?}", file))
-            .to_str()
-            .unwrap_or_else(|| panic!("Failed to convert path: {:?}", file))
-            .into()
+    #[test]
+    fn all_operators() {
+        let src = include_corium_source!("../../../ValidationSource/Operators.cor");
+        if let Err(e) = compile_source(&src, FILE, &DESC) {
+            panic!("{}", e);
+        }
     }
 
-    #[inline]
-    pub fn source_code(&self) -> &SourceCode {
-        &self.source_code
+    #[test]
+    fn function() {
+        let src = include_corium_source!("../../../ValidationSource/Functions.cor");
+        if let Err(e) = compile_source(&src, FILE, &DESC) {
+            panic!("{}", e);
+        }
     }
 
-    #[inline]
-    pub fn file_name(&self) -> &String {
-        &self.file_name
-    }
-
-    #[inline]
-    pub fn uuid(&self) -> &Uuid {
-        &self.id
-    }
-
-    #[inline]
-    pub fn full_file_path(&self) -> &PathBuf {
-        &self.file
+    #[test]
+    fn comments() {
+        let src = include_corium_source!("../../../ValidationSource/Comments.cor");
+        if let Err(e) = compile_source(&src, FILE, &DESC) {
+            panic!("{}", e);
+        }
     }
 }

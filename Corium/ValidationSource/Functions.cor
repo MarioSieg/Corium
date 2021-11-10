@@ -1,0 +1,6 @@
+# Intrinsic function linked by Nominax automatically:
+native function sin (x float)
+
+function square (x float, y float) float {
+    return x * y
+}

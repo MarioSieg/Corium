@@ -209,3 +209,6 @@ pub mod intrinsics;
 pub mod pass;
 pub mod passes;
 pub mod unit;
+
+#[cfg(test)]
+mod compilation_tests;

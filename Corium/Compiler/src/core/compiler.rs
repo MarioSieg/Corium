@@ -206,8 +206,14 @@
 use crate::core::passes::prelude::*;
 use crate::core::unit::CompileDescriptor;
 use crate::error::list::ErrorList;
+use crate::misc::source_code::SourceCode;
 
-pub fn compile_source(src: &str, file: &str, desc: &CompileDescriptor) -> Result<(), ErrorList> {
+pub fn compile_source(
+    src: &SourceCode,
+    file: &str,
+    desc: &CompileDescriptor,
+) -> Result<(), ErrorList> {
+    let src = &src.0;
     let verbose = desc.verbose;
     let pass_timer = desc.pass_timer;
 
@@ -216,50 +222,4 @@ pub fn compile_source(src: &str, file: &str, desc: &CompileDescriptor) -> Result
     let result = SemanticPass::run(result, verbose, pass_timer, file)?;
 
     Ok(result)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    const FILE: &str = "Test.cor";
-    const DESC: CompileDescriptor = CompileDescriptor {
-        dump_ast: true,
-        pass_timer: true,
-        dump_asm: true,
-        verbose: true,
-        opt_level: 0,
-    };
-
-    mod global {
-        use super::*;
-
-        #[test]
-        fn mutable_variable() {
-            let src = r#"
-                let x = 10 + 3 * 5 & 2
-                let y = x
-                let z = y << x >> 2 * (2 ^ z)
-            "#;
-            assert!(compile_source(src, FILE, &DESC).is_ok());
-        }
-
-        #[test]
-        fn immutable_variable() {
-            let src = r#"
-                const x = 10 + 3 * 5 & 2
-                let y = x
-                const z = y << x >> 2 * (2 ^ z)
-            "#;
-            assert!(compile_source(src, FILE, &DESC).is_ok());
-        }
-
-        #[test]
-        fn all_operators() {
-            let src = r#"
-                const condition bool = 1 + 2 - 3 * 4 / 5 % 6 & 7 | 8 ^ 9 << 10 >> 11 <<< 12 >>> 13 and true or false
-            "#;
-            assert!(compile_source(src, FILE, &DESC).is_ok());
-        }
-    }
 }

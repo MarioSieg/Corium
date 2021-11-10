@@ -374,7 +374,7 @@ mod tests {
     fn with_module_decl() {
         let src = concat!("module myModule\n", "let x = 10\n");
         let file = "ParseTest2.cor";
-        let mut result = ParsePass::execute(src, true, file).unwrap();
+        let result = ParsePass::execute(src, true, file).unwrap();
         let result: CompilationUnit = AstPopulationPass::execute(result, true, file).unwrap();
         let _str = QualifiedName::from("myModule");
         if let Module::Explicit(name) = result.module {

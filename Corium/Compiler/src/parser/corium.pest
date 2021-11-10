@@ -176,6 +176,9 @@ Whitespace = _{
    " " | "\t"
 }
 
+CommentBlock = @{ "##" ~ (!"##" ~ ANY)* ~ "##" }
+CommentLine = @{ "#" ~ (!("\r" | "\n") ~ ANY)* }
+
 COMMENT = _{
-    "#" ~ (!"\n" ~ ANY)*
+    CommentBlock | CommentLine
 }
