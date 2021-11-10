@@ -208,8 +208,11 @@
 #include "Assembler/_Assembler.hpp"
 #include "ByteCode/_ByteCode.hpp"
 #include "Core/_Core.hpp"
+#include "FFI/NominaxFFI.hpp"
 #include "Foundation/_Foundation.hpp"
 #include "JIT/_JIT.hpp"
+#include "Scheduler/_Scheduler.hpp"
+#include "SCM/_SCM.hpp"
 
 // Re-exports the most used modules.
 namespace Nominax::Prelude

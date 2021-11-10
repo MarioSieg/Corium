@@ -205,345 +205,146 @@
 
 #pragma once
 
-#include <memory_resource>
+#include <array>
+#include <atomic>
+#include <cstdint>
+#include <type_traits>
 
-#include "TaskQueueThread.hpp"
-
-namespace Nominax::Core
+namespace Nominax::Scheduler
 {
-	/// <summary>
-	/// Contains a pool of scheduler queues.
-	/// </summary>
-	class TaskQueueThreadPool final
+	template <const std::uint8_t SizeLog2, typename T> requires std::is_trivial_v<T> && (SizeLog2 < 32)
+	struct SemiSPMCPipe
 	{
-		std::pmr::monotonic_buffer_resource* Allocator_ { nullptr };
+		constexpr SemiSPMCPipe() = default;
+		constexpr SemiSPMCPipe(const SemiSPMCPipe& other) noexcept = default;
+		constexpr SemiSPMCPipe(SemiSPMCPipe&& other) noexcept = default;
+		constexpr auto operator =(const SemiSPMCPipe& other) noexcept -> SemiSPMCPipe& = default;
+		constexpr auto operator =(SemiSPMCPipe&& other) noexcept -> SemiSPMCPipe& = default;
+		virtual ~SemiSPMCPipe() = default;
 
-	public:
-		/// <summary>
-		/// Data types used to store.
-		/// </summary>
-		using StorageType = std::pmr::vector<std::unique_ptr<TaskQueueThread>>;
+		auto TryConsumeBack(T& out) noexcept -> bool;
+		auto TryConsumeFront(T& out) noexcept -> bool;
+		auto TryProduceFront(const T& in) noexcept -> bool;
+		auto IsEmpty() const noexcept -> bool;
+		auto Clear() noexcept -> void;
 
-		/// <summary>
-		/// The list of task queue threads.
-		/// </summary>
-		StorageType Threads { };
+	private:
+		static constexpr std::uint32_t SIZE { 1 << SizeLog2 };
+		static constexpr std::uint32_t INDEX_MASK { SIZE - 1 };
+		static constexpr std::uint32_t FLAG_INVALID { 0xFFFFFFFF };		/* 32-bit for atomic CAS */
+		static constexpr std::uint32_t FLAG_READ { 0x00000000 };		/* 32-bit for atomic CAS */
+		static constexpr std::uint32_t FLAG_WRITE { 0x11111111 };		/* 32-bit for atomic CAS */
 
-		/// <summary>
-		/// Default constructor.
-		/// </summary>
-		/// <returns></returns>
-		TaskQueueThreadPool() = default;
-
-		/// <summary>
-		/// Construct and start n threads.
-		/// </summary>
-		/// <param name="threadCount"></param>
-		/// <returns></returns>
-		explicit TaskQueueThreadPool(std::uint64_t threadCount);
-
-		/// <summary>
-		/// Construct empty with allocator.
-		/// </summary>
-		/// <param name="allocator"></param>
-		/// <returns></returns>
-		explicit TaskQueueThreadPool(std::pmr::monotonic_buffer_resource& allocator);
-
-		/// <summary>
-		/// Construct with allocator and launch threads.
-		/// </summary>
-		/// <param name="allocator"></param>
-		/// <param name="threadCount"></param>
-		/// <returns></returns>
-		TaskQueueThreadPool(std::pmr::monotonic_buffer_resource& allocator, std::uint64_t threadCount);
-
-		/// <summary>
-		/// No copying.
-		/// </summary>
-		/// <param name="other"></param>
-		TaskQueueThreadPool(const TaskQueueThreadPool& other) = delete;
-
-		/// <summary>
-		/// Move constructor.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		TaskQueueThreadPool(TaskQueueThreadPool&& other) = default;
-
-		/// <summary>
-		/// No copying.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		auto operator =(const TaskQueueThreadPool& other) -> TaskQueueThreadPool& = delete;
-
-		/// <summary>
-		/// Copy assignment operator.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		auto operator =(TaskQueueThreadPool&& other) -> TaskQueueThreadPool& = default;
-
-		/// <summary>
-		/// Destructor.
-		/// </summary>
-		~TaskQueueThreadPool() = default;
-
-		/// <summary>
-		/// Join all threads.
-		/// </summary>
-		/// <returns></returns>
-		auto JoinAll() -> void;
-
-		/// <summary>
-		/// Joins and removes all threads.
-		/// </summary>
-		/// <returns></returns>
-		auto Clear() -> void;
-
-		/// <summary>
-		/// Resizes the container size.
-		/// </summary>
-		/// <param name="size"></param>
-		/// <returns></returns>
-		auto Resize(std::uint64_t size) -> void;
-
-		/// <summary>
-		/// Pushes a new task queue thread into the queue.
-		/// </summary>
-		/// <param name="elem"></param>
-		/// <returns></returns>
-		auto Push() -> void;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>The amount of threads.</returns>
-		[[nodiscard]]
-		auto GetSize() const -> std::uint64_t;
-
-		/// <summary>
-		/// STL iterator interface.
-		/// </summary>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto begin() -> StorageType::iterator;
-
-		/// <summary>
-		/// STL iterator interface.
-		/// </summary>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto end() -> StorageType::iterator;
-
-		/// <summary>
-		/// STL iterator interface.
-		/// </summary>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto rbegin() -> StorageType::reverse_iterator;
-
-		/// <summary>
-		/// STL iterator interface.
-		/// </summary>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto rend() -> StorageType::reverse_iterator;
-
-		/// <summary>
-		/// STL iterator interface.
-		/// </summary>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto cbegin() const -> StorageType::const_iterator;
-
-		/// <summary>
-		/// STL iterator interface.
-		/// </summary>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto cend() const -> StorageType::const_iterator;
-
-		/// <summary>
-		/// STL iterator interface.
-		/// </summary>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto crbegin() const -> StorageType::const_reverse_iterator;
-
-		/// <summary>
-		/// STL iterator interface.
-		/// </summary>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto crend() const -> StorageType::const_reverse_iterator;
+		std::array<T, SIZE> Buffer_ { };
+		std::atomic_uint32_t WriteIndex_ { };
+		std::atomic_uint32_t ReadIndex_ { };
+		std::atomic_uint32_t ReadCount_ { };
+		std::array<std::atomic_uint32_t, SIZE> Flags_ { };
 	};
 
-	inline auto TaskQueueThreadPool::Clear() -> void
+	template <const std::uint8_t SizeLog2, typename T> requires std::is_trivial_v<T> && (SizeLog2 < 32)
+	auto SemiSPMCPipe<SizeLog2, T>::TryConsumeBack(T& out) noexcept -> bool
 	{
-		this->JoinAll();
-		this->Threads.clear();
+		std::uint32_t actualReadIndex { };
+		std::uint32_t readCount { this->ReadCount_.load(std::memory_order_relaxed) };
+		std::uint32_t usedReadIndex { readCount };
+
+		for (;;)
+		{
+			const std::uint32_t writeIndex { this->WriteIndex_.load(std::memory_order_relaxed) };
+			const std::uint32_t pipeCount { writeIndex - readCount };
+			if (pipeCount == 0)
+			{
+				return false;
+			}
+			if (usedReadIndex >= writeIndex)
+			{
+				usedReadIndex = this->ReadIndex_.load(std::memory_order_relaxed);
+			}
+			actualReadIndex = usedReadIndex & INDEX_MASK; // use & instead of % because size is pow2
+			std::uint32_t prevFlag { FLAG_READ };
+			std::atomic<std::uint32_t>& flag { this->Flags_[actualReadIndex] };
+			const bool success { flag.compare_exchange_strong(prevFlag, FLAG_INVALID, std::memory_order_acq_rel, std::memory_order_relaxed) };
+			if (success)
+			{
+				break;
+			}
+			++usedReadIndex;
+			readCount = this->ReadCount_.load(std::memory_order_relaxed);
+		}
+
+		this->ReadCount_.fetch_add(1, std::memory_order_relaxed);
+		out = this->Buffer_[actualReadIndex];
+		std::atomic<std::uint32_t>& flag { this->Flags_[actualReadIndex] };
+		flag.store(FLAG_WRITE, std::memory_order_release);
+		return true;
 	}
 
-	inline auto TaskQueueThreadPool::Resize(const std::uint64_t size) -> void
+	template <const std::uint8_t SizeLog2, typename T> requires std::is_trivial_v<T> && (SizeLog2 < 32)
+	auto SemiSPMCPipe<SizeLog2, T>::TryConsumeFront(T& out) noexcept -> bool
 	{
-		this->Threads.resize(size);
+		const std::uint32_t writeIndex { this->WriteIndex_.load(std::memory_order_relaxed };
+		const std::uint32_t frontReadIndex { writeIndex };
+		std::uint32_t actualReadIndex { };
+
+		for (;;)
+		{
+			const std::uint32_t readCount { this->ReadCount_.load(std::memory_order_relaxed) };
+			if (const std::uint32_t pipeCount { writeIndex - readCount }; pipeCount == 0) [[unlikely]]
+			{
+				this->ReadIndex_.store(readCount, std::memory_order_release);
+				return false;
+			}
+			--frontReadIndex;
+			actualReadIndex = frontReadIndex & INDEX_MASK;
+			std::uint32_t prevFlag { FLAG_READ };
+			std::atomic<std::uint32_t>& flag { this->Flags_[actualReadIndex] };
+			const bool success { flag.compare_exchange_strong(prevFlag, FLAG_INVALID, std::memory_order_acq_rel, std::memory_order_relaxed) };
+			if (success)
+			{
+				break;
+			}
+			else if(this->ReadIndex_.load(std::memory_order_acquire) >= frontReadIndex)
+			{
+				return false;
+			}
+		}
+
+		out = this->Buffer_[actualReadIndex];
+		std::atomic<std::uint32_t>& flag { this->Flags_[actualReadIndex] };
+		flag.store(FLAG_WRITE, std::memory_order_release);
+		this->WriteIndex_.store(writeIndex - 1, std::memory_order_relaxed);
+		return true;
 	}
 
-	inline auto TaskQueueThreadPool::GetSize() const -> std::uint64_t
+	template <const std::uint8_t SizeLog2, typename T> requires std::is_trivial_v<T> && (SizeLog2 < 32)
+	auto SemiSPMCPipe<SizeLog2, T>::TryProduceFront(const T& in) noexcept -> bool
 	{
-		return this->Threads.size();
+		const std::uint32_t writeIndex { this->WriteIndex_.load(std::memory_order_relaxed) };
+		const std::uint32_t actualWriteIndex { writeIndex & INDEX_MASK };
+		std::atomic<std::uint32_t>& flag { this->Flags_[actualWriteIndex] };
+		if (flag.load(std::memory_order_acquire) != FLAG_WRITE)
+		{
+			return false;
+		}
+		this->Buffer_[actualWriteIndex] = in;
+		flag.store(FLAG_READ, std::memory_order_release);
+		this->WriteIndex_.fetch_add(1, std::memory_order_relaxed);
+		return true;
 	}
 
-	/// <summary>
-	/// STL iterator interface.
-	/// </summary>
-	/// <returns></returns>
-	inline auto TaskQueueThreadPool::begin() -> StorageType::iterator
+	template <const std::uint8_t SizeLog2, typename T> requires std::is_trivial_v<T> && (SizeLog2 < 32)
+	inline auto SemiSPMCPipe<SizeLog2, T>::IsEmpty() const noexcept -> bool
 	{
-		return std::begin(this->Threads);
+		return this->WriteIndex_.load(std::memory_order_relaxed) - this->ReadCount_.load(std::memory_order_relaxed) == 0;
 	}
 
-	/// <summary>
-	/// STL iterator interface.
-	/// </summary>
-	/// <returns></returns>
-	inline auto TaskQueueThreadPool::end() -> StorageType::iterator
+	template <const std::uint8_t SizeLog2, typename T> requires std::is_trivial_v<T> && (SizeLog2 < 32)
+	inline auto SemiSPMCPipe<SizeLog2, T>::Clear() noexcept -> void
 	{
-		return std::end(this->Threads);
-	}
-
-	/// <summary>
-	/// STL iterator interface.
-	/// </summary>
-	/// <returns></returns>
-	inline auto TaskQueueThreadPool::rbegin() -> StorageType::reverse_iterator
-	{
-		return std::rbegin(this->Threads);
-	}
-
-	/// <summary>
-	/// STL iterator interface.
-	/// </summary>
-	/// <returns></returns>
-	inline auto TaskQueueThreadPool::rend() -> StorageType::reverse_iterator
-	{
-		return std::rend(this->Threads);
-	}
-
-	/// <summary>
-	/// STL iterator interface.
-	/// </summary>
-	/// <returns></returns>
-	inline auto TaskQueueThreadPool::cbegin() const -> StorageType::const_iterator
-	{
-		return std::cbegin(this->Threads);
-	}
-
-	/// <summary>
-	/// STL iterator interface.
-	/// </summary>
-	/// <returns></returns>
-	inline auto TaskQueueThreadPool::cend() const -> StorageType::const_iterator
-	{
-		return std::cend(this->Threads);
-	}
-
-	/// <summary>
-	/// STL iterator interface.
-	/// </summary>
-	/// <returns></returns>
-	inline auto TaskQueueThreadPool::crbegin() const -> StorageType::const_reverse_iterator
-	{
-		return std::crbegin(this->Threads);
-	}
-
-	/// <summary>
-	/// STL iterator interface.
-	/// </summary>
-	/// <returns></returns>
-	inline auto TaskQueueThreadPool::crend() const -> StorageType::const_reverse_iterator
-	{
-		return std::crend(this->Threads);
-	}
-
-	/// <summary>
-	/// STL iterator interface.
-	/// </summary>
-	/// <returns></returns>
-	[[nodiscard]]
-	inline auto begin(TaskQueueThreadPool& pool) -> auto
-	{
-		return pool.begin();
-	}
-
-	/// <summary>
-	/// STL iterator interface.
-	/// </summary>
-	/// <returns></returns>
-	[[nodiscard]]
-	inline auto end(TaskQueueThreadPool& pool) -> auto
-	{
-		return pool.end();
-	}
-
-	/// <summary>
-	/// STL iterator interface.
-	/// </summary>
-	/// <returns></returns>
-	[[nodiscard]]
-	inline auto rbegin(TaskQueueThreadPool& pool) -> auto
-	{
-		return pool.rbegin();
-	}
-
-	/// <summary>
-	/// STL iterator interface.
-	/// </summary>
-	/// <returns></returns>
-	[[nodiscard]]
-	inline auto rend(TaskQueueThreadPool& pool) -> auto
-	{
-		return pool.rend();
-	}
-
-	/// <summary>
-	/// STL iterator interface.
-	/// </summary>
-	/// <returns></returns>
-	[[nodiscard]]
-	inline auto cbegin(const TaskQueueThreadPool& pool) -> auto
-	{
-		return pool.cbegin();
-	}
-
-	/// <summary>
-	/// STL iterator interface.
-	/// </summary>
-	/// <returns></returns>
-	[[nodiscard]]
-	inline auto cend(const TaskQueueThreadPool& pool) -> auto
-	{
-		return pool.cend();
-	}
-
-	/// <summary>
-	/// STL iterator interface.
-	/// </summary>
-	/// <returns></returns>
-	[[nodiscard]]
-	inline auto crbegin(const TaskQueueThreadPool& pool) -> auto
-	{
-		return pool.crbegin();
-	}
-
-	/// <summary>
-	/// STL iterator interface.
-	/// </summary>
-	/// <returns></returns>
-	[[nodiscard]]
-	inline auto crend(const TaskQueueThreadPool& pool) -> auto
-	{
-		return pool.crend();
+		std::memset(std::data(this->Buffer_), 0, SIZE * sizeof(T));
+		this->WriteIndex_ = { };
+		this->ReadIndex_ = { };
+		this->ReadCount_ = { };
 	}
 }

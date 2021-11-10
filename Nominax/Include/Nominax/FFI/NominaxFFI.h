@@ -245,10 +245,12 @@ extern "C" {
 
 	#ifdef __cplusplus
 	#	define NOX_REGISTER
-	#	ifdef _MSC_VER
-	#		define NOX_RESTRICT __restrict
-	#	else
-	#		define NOX_RESTRICT __restrict__
+	#	ifndef NOX_RESTRICT
+	#		ifdef _MSC_VER
+	#			define NOX_RESTRICT __restrict
+	#		else
+	#			define NOX_RESTRICT __restrict__
+	#		endif
 	#	endif
 	#else
 	#	define NOX_REGISTER register
@@ -263,7 +265,7 @@ extern "C" {
 	#	define NOX_DYEXPORT __attribute__((visibility("default")))
 	#endif
 
-	#if defined(__cplusplus) && defined(__NOMINAX__)
+	#if defined(__cplusplus) && defined(__NOMINAX__) && false // TODO fix record size
 		extern "C++"
 		{
 			namespace Nominax::FFI
