@@ -4,3 +4,4 @@ let x = 10
 ## This
 is a long block comment
 ##
+let y = 10

@@ -216,7 +216,7 @@ impl<'ast> AstComponent for Block<'ast> {
 impl<'ast> fmt::Display for Block<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for smt in &self.0 {
-            write!(f, "{}", smt)?;
+            writeln!(f, "{}", smt)?;
         }
         Ok(())
     }

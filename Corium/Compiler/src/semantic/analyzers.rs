@@ -208,66 +208,128 @@ use crate::error::Error;
 use crate::semantic::global_state::GlobalState;
 use crate::semantic::local_state::LocalState;
 use crate::semantic::record::Record;
+use crate::semantic::table::SymbolTable;
 
-pub trait GlobalSemanticAnalysis<'a> {
-    fn analyze(&'a self, state: &mut GlobalState<'a>) -> Result<(), Error>;
+pub trait GlobalSemanticAnalysis<'ast> {
+    fn analyze(&'ast self, global_state: &mut GlobalState<'ast>) -> Result<(), Error>;
 }
 
-pub trait LocalSemanticAnalysis<'a> {
-    fn analyze(&'a self, state: &mut LocalState<'a>) -> Result<(), Error>;
+pub trait LocalSemanticAnalysis<'ast> {
+    fn analyze(
+        &'ast self,
+        local_state: &mut LocalState<'ast>,
+        _global_table: &SymbolTable<'ast>,
+    ) -> Result<(), Error>;
 }
 
 impl<'a> GlobalSemanticAnalysis<'a> for GlobalStatement<'a> {
-    fn analyze(&'a self, state: &mut GlobalState<'a>) -> Result<(), Error> {
+    fn analyze(&'a self, global_state: &mut GlobalState<'a>) -> Result<(), Error> {
+        // save the existing symbol (if any)
         let existing = match self {
-            Self::MutableVariable(x) => state.table.insert(x.name, Record::MutableVariable(x)),
-            Self::ImmutableVariable(x) => state.table.insert(x.name, Record::ImmutableVariable(x)),
-            Self::Function(x) => {
-                x.analyze(&mut state.local)?;
-                state.table.insert(x.signature.name, Record::Function(x))
-            }
-            Self::NativeFunction(x) => state
+            Self::MutableVariable(variable) => global_state
                 .table
-                .insert(x.signature.name, Record::NativeFunction(x)),
+                .insert(variable.name, Record::MutableVariable(variable)),
+
+            Self::ImmutableVariable(variable) => global_state
+                .table
+                .insert(variable.name, Record::ImmutableVariable(variable)),
+
+            Self::Function(function) => {
+                function.analyze(&mut global_state.local, &global_state.table)?;
+                global_state
+                    .table
+                    .insert(function.signature.name, Record::Function(function))
+            }
+
+            Self::NativeFunction(native_function) => global_state.table.insert(
+                native_function.signature.name,
+                Record::NativeFunction(native_function),
+            ),
         };
+
+        // if the symbol is already defined -> error
         if let Some(existing) = existing {
-            Err(state.definition_error(&existing, self))
+            Err(global_state.definition_error(&existing, self))
         } else {
             Ok(())
         }
     }
 }
 
-impl<'a> LocalSemanticAnalysis<'a> for LocalStatement<'a> {
-    fn analyze(&'a self, state: &mut LocalState<'a>) -> Result<(), Error> {
+impl<'ast> LocalSemanticAnalysis<'ast> for LocalStatement<'ast> {
+    fn analyze(
+        &'ast self,
+        local_state: &mut LocalState<'ast>,
+        global_table: &SymbolTable<'ast>,
+    ) -> Result<(), Error> {
         match self {
-            Self::MutableVariable(variable) => state.insert_mutable_variable(self, variable),
-            Self::ImmutableVariable(variable) => state.insert_immutable_variable(self, variable),
-            Self::ReturnStatement(statement) => statement.analyze(state),
+            Self::MutableVariable(variable) => {
+                // check if identifier is already used in the global scope
+                if global_table.contains(variable.name) {
+                    // local shadowing is not allowed - symbol already defined -> error
+                    Err(local_state
+                        .global_definition_error(&Record::MutableVariable(variable), self))
+                } else {
+                    // not yet defined, insert it
+                    local_state.insert_mutable_variable(self, variable)
+                }
+            }
+            Self::ImmutableVariable(variable) => {
+                // check if identifier is already used in the global scope
+                if global_table.contains(variable.name) {
+                    // local shadowing is not allowed - symbol already defined -> error
+                    Err(local_state
+                        .global_definition_error(&Record::ImmutableVariable(variable), self))
+                } else {
+                    // not yet defined, insert it
+                    local_state.insert_immutable_variable(self, variable)
+                }
+            }
+            Self::ReturnStatement(statement) => statement.analyze(local_state, global_table),
         }
     }
 }
 
-impl<'a> LocalSemanticAnalysis<'a> for ReturnStatement<'a> {
-    fn analyze(&'a self, state: &mut LocalState<'a>) -> Result<(), Error> {
-        if state.function_return_type.is_none() && self.0.is_some() {
-            Err(state.unexpected_return_error(self))
-        } else if state.function_return_type.is_some() && self.0.is_none() {
-            Err(state.missing_return_expr_error(state.function_return_type.unwrap()))
-        } else {
+impl<'ast> LocalSemanticAnalysis<'ast> for ReturnStatement<'ast> {
+    fn analyze(
+        &'ast self,
+        local_state: &mut LocalState<'ast>,
+        _global_table: &SymbolTable<'ast>,
+    ) -> Result<(), Error> {
+        let return_type = &local_state.signature().return_type;
+
+        // if we are returning something, but the function has no return value specified -> error
+        if return_type.is_none() && self.0.is_some() {
+            Err(local_state.unexpected_return_error(self))
+        }
+        // if the function has a return value specified, but we do not return anything -> error
+        else if return_type.is_some() && self.0.is_none() {
+            Err(local_state.missing_return_expr_error(return_type.as_ref().unwrap()))
+        }
+        // if the states match -> okay
+        else {
             Ok(())
         }
     }
 }
 
-impl<'a> LocalSemanticAnalysis<'a> for Function<'a> {
-    fn analyze(&'a self, state: &mut LocalState<'a>) -> Result<(), Error> {
-        state.table.clear();
-        state.function_name = self.signature.name;
-        state.function_return_type = self.signature.return_type.as_ref();
+impl<'ast> LocalSemanticAnalysis<'ast> for Function<'ast> {
+    fn analyze(
+        &'ast self,
+        local_state: &mut LocalState<'ast>,
+        global_table: &SymbolTable<'ast>,
+    ) -> Result<(), Error> {
+        // begin a new function local scope
+        local_state.begin_new_scope(&self.signature);
+
+        // now analyze all locals statements
         for local in &self.block.0 {
-            local.analyze(state)?;
+            local.analyze(local_state, global_table)?;
         }
+
+        println!("{}", self.block);
+        println!("{}", local_state.table);
+
         Ok(())
     }
 }

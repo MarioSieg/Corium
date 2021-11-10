@@ -203,119 +203,13 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::core::unit::{CompilationResult, CompileDescriptor, FileCompilationUnit};
-use std::collections::VecDeque;
-use std::path::PathBuf;
-use std::thread::{self, JoinHandle};
+pub mod builtin_types;
 
-struct CompilationJob {
-    pub file: String,
-    pub handle: JoinHandle<CompilationResult>,
-}
+use crate::ast::tree::prelude::QualifiedName;
+use builtin_types::BuiltinType;
 
-pub struct CompilerContext {
-    queue: VecDeque<Box<FileCompilationUnit>>,
-    jobs: VecDeque<CompilationJob>,
-    failed_compilations: u32,
-}
-
-impl CompilerContext {
-    pub fn new() -> Self {
-        Self {
-            queue: VecDeque::new(),
-            jobs: VecDeque::new(),
-            failed_compilations: 0,
-        }
-    }
-
-    #[inline]
-    pub fn enqueue_file(&mut self, path: PathBuf, desc: CompileDescriptor) {
-        self.queue.push_front(FileCompilationUnit::load(path, desc));
-    }
-
-    #[inline]
-    pub fn get_queue(&self) -> &VecDeque<Box<FileCompilationUnit>> {
-        &self.queue
-    }
-
-    #[inline]
-    pub fn has_compilation_units(&self) -> bool {
-        !self.queue.is_empty()
-    }
-
-    pub fn compile(&mut self) {
-        while let Some(mut unit) = self.queue.pop_front() {
-            self.jobs.push_front(CompilationJob {
-                file: unit.file_name().clone(),
-                handle: thread::spawn(move || unit.compile()),
-            });
-        }
-        self.await_all_jobs();
-    }
-
-    fn await_all_jobs(&mut self) {
-        while let Some(job) = self.jobs.pop_front() {
-            let result = job.handle.join().expect("Failed to await job thread!");
-            self.print_status(&job.file, result);
-        }
-    }
-
-    fn print_status(&mut self, file: &str, result: CompilationResult) {
-        use colored::Colorize;
-
-        match result {
-            Ok(time) => {
-                let message = format!(
-                    "{} `{}` in {}",
-                    "Compiled".green().bold(),
-                    file,
-                    humantime::Duration::from(time)
-                );
-                println!("{}", message);
-            }
-            Err((time, errors)) => {
-                let suffix = if errors.len() > 1 { "s" } else { "" };
-                let error_info = format!("{} error{}", errors.len(), suffix).red().bold();
-                let message = format!(
-                    "{} `{}` because of {} in {}:",
-                    "Failed to compile".red().bold(),
-                    file,
-                    error_info,
-                    humantime::Duration::from(time)
-                );
-                println!("{}", message);
-                for error in errors.0 {
-                    println!("    {}", error);
-                }
-            }
-        }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    const TEST_FILE_PATH: &str = "../ValidationSource/ParseTest.cor";
-
-    #[test]
-    fn new() {
-        let ctx = CompilerContext::new();
-        assert!(ctx.get_queue().is_empty());
-        assert!(!ctx.has_compilation_units());
-    }
-
-    #[test]
-    fn enqueue_file() {
-        let mut ctx = CompilerContext::new();
-        ctx.enqueue_file(PathBuf::from(TEST_FILE_PATH), CompileDescriptor::default());
-        assert_eq!(ctx.get_queue().len(), 1);
-        assert!(ctx.has_compilation_units());
-    }
-
-    #[test]
-    fn compile() {
-        let mut ctx = CompilerContext::new();
-        ctx.enqueue_file(PathBuf::from(TEST_FILE_PATH), CompileDescriptor::default());
-    }
+#[derive(Debug, Clone)]
+pub enum Type<'ast> {
+    Builtin(BuiltinType),
+    Custom(QualifiedName<'ast>),
 }

@@ -7,6 +7,8 @@ native function print (value string, end char = '\n')
 
 const PI = 3.14
 
+let a = 10
+
 # This file contains all syntax feature -
 # it is only used to the the compiler
 function test2 () {

@@ -210,14 +210,14 @@ use crate::semantic::record::Record;
 use crate::semantic::table::SymbolTable;
 use colored::Colorize;
 
-pub struct GlobalState<'a> {
-    pub file: &'a str,
-    pub table: SymbolTable<'a>,
-    pub local: LocalState<'a>,
+pub struct GlobalState<'ast> {
+    pub file: &'ast str,
+    pub table: SymbolTable<'ast>,
+    pub local: LocalState<'ast>,
 }
 
-impl<'a> GlobalState<'a> {
-    pub fn new(file: &'a str) -> Self {
+impl<'ast> GlobalState<'ast> {
+    pub fn new(file: &'ast str) -> Self {
         Self {
             file,
             table: SymbolTable::new(),
@@ -226,10 +226,10 @@ impl<'a> GlobalState<'a> {
     }
 
     #[cold]
-    pub fn definition_error(&self, record: &Record, statement: &GlobalStatement) -> Error {
-        let smt_type = statement.descriptive_name();
-        let smt_ident = statement.code_identifier().0.red().bold();
-        let rec_name = record.descriptive_name();
+    pub fn definition_error(&self, previous: &Record, current: &GlobalStatement) -> Error {
+        let smt_type = current.descriptive_name();
+        let smt_ident = current.code_identifier().0.red().bold();
+        let rec_name = previous.descriptive_name();
         let message = format!(
             "Global {} `{}` already defined as {} before",
             smt_type, smt_ident, rec_name

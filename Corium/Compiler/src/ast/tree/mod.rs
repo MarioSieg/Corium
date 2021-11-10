@@ -33,7 +33,6 @@ pub trait Statement: AstComponent {
 }
 
 pub mod prelude {
-    pub use super::super::builtin_types::*;
     pub use super::binary_operator::*;
     pub use super::block::*;
     pub use super::compilation_unit::*;
@@ -55,13 +54,14 @@ pub mod prelude {
     pub use super::return_statement::*;
     pub use super::unary_operator::*;
     pub use super::{AstComponent, Statement};
+    pub use crate::types::builtin_types::*;
 }
 
 mod tree_prelude {
-    pub use super::super::builtin_types::*;
     pub use super::operator::*;
     pub use super::AstComponent;
     pub use super::Rule;
     pub use super::Statement;
+    pub use crate::types::builtin_types::*;
     pub use std::fmt;
 }

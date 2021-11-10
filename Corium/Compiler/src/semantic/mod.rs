@@ -213,14 +213,24 @@ pub mod local_state;
 pub mod record;
 pub mod table;
 
+#[cfg(test)]
+mod tests;
+
 use context::Context;
 
-pub fn analyze(root: &CompilationUnit, file: &str) -> Result<(), ErrorList> {
+pub fn analyze<'ast>(
+    root: &'ast CompilationUnit<'ast>,
+    file: &'ast str,
+) -> Result<Context<'ast>, ErrorList> {
     let mut context = Context::new(file);
 
-    for global in &root.statements {
-        context.analyze_global(global);
-    }
+    root.statements.iter().for_each(|smt| {
+        context.analyze_global(smt);
+    });
 
-    context.errors.into()
+    if context.errors.is_empty() {
+        Ok(context)
+    } else {
+        Err(context.errors)
+    }
 }

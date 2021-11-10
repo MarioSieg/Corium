@@ -2201,6 +2201,47 @@ mod populators {
     mod global_statement {
         use super::*;
 
+        fn fun1() -> GlobalStatement<'static> {
+            GlobalStatement::Function(Function {
+                signature: FunctionSignature {
+                    name: Identifier("square"),
+                    parameters: Some(ParameterList(vec![
+                        Parameter {
+                            name: Identifier("x"),
+                            type_hint: QualifiedName::from("float"),
+                            value: None,
+                        },
+                        Parameter {
+                            name: Identifier("y"),
+                            type_hint: QualifiedName::from("float"),
+                            value: Some(Expression::Literal(Literal::Float(1.0))),
+                        },
+                    ])),
+                    return_type: Some(QualifiedName::from("float")),
+                },
+                block: Block(vec![LocalStatement::ReturnStatement(ReturnStatement(
+                    Some(Expression::Binary {
+                        lhs: Box::new(Expression::Identifier(Identifier("x"))),
+                        op: BinaryOperator::Multiplication,
+                        rhs: Box::new(Expression::Identifier(Identifier("y"))),
+                    }),
+                ))]),
+            })
+        }
+
+        #[test]
+        fn function_calculation() {
+            let src = concat!(
+                "function square (x float, y float = 1.0) float {\n",
+                "return x * y\n",
+                "}\n"
+            );
+            let mut result = CoriumParser::parse(Rule::GlobalStatement, src).unwrap();
+            let ast = GlobalStatement::populate(result.next().unwrap().into_inner());
+            let _fun = fun1();
+            assert!(matches!(ast, _fun));
+        }
+
         #[test]
         fn function() {
             let src = "function f () {\nlet x = 10\n}\n";

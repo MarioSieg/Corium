@@ -214,6 +214,10 @@ impl<'a> Pass<'a, CompilationUnit<'a>, ()> for SemanticPass {
     const NAME: &'static str = "Semantic analysis";
 
     fn execute(input: CompilationUnit<'a>, _verbose: bool, file: &str) -> Result<(), ErrorList> {
-        analyze(&input, file)
+        if let Err(e) = analyze(&input, file) {
+            Err(e)
+        } else {
+            Ok(())
+        }
     }
 }

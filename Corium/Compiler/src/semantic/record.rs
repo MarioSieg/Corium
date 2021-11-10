@@ -204,12 +204,14 @@
 //    limitations under the License.
 
 use crate::ast::tree::prelude::*;
+use std::fmt;
 
-pub enum Record<'a> {
-    MutableVariable(&'a MutableVariable<'a>),
-    ImmutableVariable(&'a ImmutableVariable<'a>),
-    Function(&'a Function<'a>),
-    NativeFunction(&'a NativeFunction<'a>),
+#[derive(Debug)]
+pub enum Record<'ast> {
+    MutableVariable(&'ast MutableVariable<'ast>),
+    ImmutableVariable(&'ast ImmutableVariable<'ast>),
+    Function(&'ast Function<'ast>),
+    NativeFunction(&'ast NativeFunction<'ast>),
 }
 
 impl<'a> Record<'a> {
@@ -230,6 +232,17 @@ impl<'a> Record<'a> {
     #[inline]
     pub fn is_variable(&self) -> bool {
         matches!(self, Self::MutableVariable(_) | Self::ImmutableVariable(_))
+    }
+}
+
+impl<'ast> fmt::Display for Record<'ast> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::MutableVariable(x) => write!(f, "{}", x),
+            Self::ImmutableVariable(x) => write!(f, "{}", x),
+            Self::Function(x) => write!(f, "{}", x),
+            Self::NativeFunction(x) => write!(f, "{}", x),
+        }
     }
 }
 

@@ -206,10 +206,12 @@
 use super::record::Record;
 use crate::ast::tree::prelude::*;
 use std::collections::HashMap;
+use std::fmt;
 
-pub struct SymbolTable<'a>(HashMap<Identifier<'a>, Record<'a>>);
+#[derive(Debug)]
+pub struct SymbolTable<'a>(pub HashMap<Identifier<'a>, Record<'a>>);
 
-impl<'a> SymbolTable<'a> {
+impl<'ast> SymbolTable<'ast> {
     #[inline]
     pub fn new() -> Self {
         Self(HashMap::new())
@@ -226,8 +228,13 @@ impl<'a> SymbolTable<'a> {
     }
 
     #[inline]
-    pub fn insert(&mut self, ident: Identifier<'a>, elem: Record<'a>) -> Option<Record<'a>> {
+    pub fn insert(&mut self, ident: Identifier<'ast>, elem: Record<'ast>) -> Option<Record<'ast>> {
         self.0.insert(ident, elem)
+    }
+
+    #[inline]
+    pub fn contains(&self, ident: Identifier<'ast>) -> bool {
+        self.0.contains_key(&ident)
     }
 
     #[inline]
@@ -243,6 +250,15 @@ impl<'a> SymbolTable<'a> {
     #[inline]
     pub fn capacity(&self) -> usize {
         self.0.capacity()
+    }
+}
+
+impl<'ast> fmt::Display for SymbolTable<'ast> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        for (k, v) in &self.0 {
+            writeln!(f, "{} <=> {}", k, v)?;
+        }
+        Ok(())
     }
 }
 

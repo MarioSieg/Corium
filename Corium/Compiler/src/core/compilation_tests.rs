@@ -205,7 +205,6 @@
 
 use crate::core::unit::CompileDescriptor;
 
-const FILE: &str = "Test.cor";
 const DESC: CompileDescriptor = CompileDescriptor {
     dump_ast: true,
     pass_timer: true,
@@ -222,7 +221,7 @@ mod global {
     #[test]
     fn mutable_variable() {
         let src = include_corium_source!("../../../ValidationSource/MutableVariables.cor");
-        if let Err(e) = compile_source(&src, FILE, &DESC) {
+        if let Err(e) = compile_source(&src, "MutableVariables.cor", &DESC) {
             panic!("{}", e);
         }
     }
@@ -230,7 +229,7 @@ mod global {
     #[test]
     fn immutable_variable() {
         let src = include_corium_source!("../../../ValidationSource/ImmutableVariables.cor");
-        if let Err(e) = compile_source(&src, FILE, &DESC) {
+        if let Err(e) = compile_source(&src, "ImmutableVariables.cor", &DESC) {
             panic!("{}", e);
         }
     }
@@ -238,7 +237,7 @@ mod global {
     #[test]
     fn all_operators() {
         let src = include_corium_source!("../../../ValidationSource/Operators.cor");
-        if let Err(e) = compile_source(&src, FILE, &DESC) {
+        if let Err(e) = compile_source(&src, "Operators.cor", &DESC) {
             panic!("{}", e);
         }
     }
@@ -246,7 +245,7 @@ mod global {
     #[test]
     fn function() {
         let src = include_corium_source!("../../../ValidationSource/Functions.cor");
-        if let Err(e) = compile_source(&src, FILE, &DESC) {
+        if let Err(e) = compile_source(&src, "Functions.cor", &DESC) {
             panic!("{}", e);
         }
     }
@@ -254,7 +253,7 @@ mod global {
     #[test]
     fn comments() {
         let src = include_corium_source!("../../../ValidationSource/Comments.cor");
-        if let Err(e) = compile_source(&src, FILE, &DESC) {
+        if let Err(e) = compile_source(&src, "Comments.cor", &DESC) {
             panic!("{}", e);
         }
     }

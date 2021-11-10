@@ -209,11 +209,10 @@ use crate::semantic::record::Record;
 use crate::semantic::table::SymbolTable;
 use colored::Colorize;
 
-pub struct LocalState<'a> {
-    pub file: &'a str,
-    pub table: SymbolTable<'a>,
-    pub function_name: Identifier<'a>,
-    pub function_return_type: Option<&'a QualifiedName<'a>>,
+pub struct LocalState<'ast> {
+    pub file: &'ast str,
+    pub table: SymbolTable<'ast>,
+    signature: Option<&'ast FunctionSignature<'ast>>,
 }
 
 impl<'a> LocalState<'a> {
@@ -221,9 +220,18 @@ impl<'a> LocalState<'a> {
         Self {
             file,
             table: SymbolTable::new(),
-            function_name: Identifier("?"),
-            function_return_type: None,
+            signature: None,
         }
+    }
+
+    #[inline]
+    pub fn signature(&self) -> &'a FunctionSignature<'a> {
+        self.signature.as_ref().unwrap()
+    }
+
+    pub fn begin_new_scope(&mut self, signature: &'a FunctionSignature) {
+        self.table.clear();
+        self.signature = Some(signature);
     }
 
     pub fn insert_mutable_variable(
@@ -257,11 +265,11 @@ impl<'a> LocalState<'a> {
     }
 
     #[cold]
-    pub fn definition_error(&self, record: &Record, statement: &LocalStatement) -> Error {
-        let smt_type = statement.descriptive_name();
-        let smt_ident = statement.code_identifier().0.red().bold();
-        let fun_name = self.function_name.0.red().bold();
-        let rec_name = record.descriptive_name();
+    pub fn definition_error(&self, previous: &Record, current: &LocalStatement) -> Error {
+        let smt_type = current.descriptive_name();
+        let smt_ident = current.code_identifier().0.red().bold();
+        let fun_name = self.signature().name.to_string().red().bold();
+        let rec_name = previous.descriptive_name();
         let message = format!(
             "Local {} `{}` in function `{}` already defined as {} before",
             smt_type, smt_ident, fun_name, rec_name
@@ -270,8 +278,21 @@ impl<'a> LocalState<'a> {
     }
 
     #[cold]
+    pub fn global_definition_error(&self, previous: &Record, current: &LocalStatement) -> Error {
+        let smt_type = current.descriptive_name();
+        let smt_ident = current.code_identifier().0.red().bold();
+        let fun_name = self.signature().name.to_string().red().bold();
+        let rec_name = previous.descriptive_name();
+        let message = format!(
+            "Local {} `{}` in function `{}` already defined as global {} before",
+            smt_type, smt_ident, fun_name, rec_name
+        );
+        Error::Semantic(message, self.file.to_string())
+    }
+
+    #[cold]
     pub fn unexpected_return_error(&self, statement: &ReturnStatement) -> Error {
-        let fun_name = self.function_name.0.red().bold();
+        let fun_name = self.signature().name.to_string().red().bold();
         let smt = format!("{}", statement).red().bold();
         let message = format!(
             "Unexpected return statement `{}` in function `{}` - function does not return any value",
@@ -282,7 +303,7 @@ impl<'a> LocalState<'a> {
 
     #[cold]
     pub fn missing_return_expr_error(&self, required_type: &QualifiedName) -> Error {
-        let fun_name = self.function_name.0.red().bold();
+        let fun_name = self.signature().name.to_string().red().bold();
         let required_type = required_type.full.red().bold();
         let message = format!(
             "Return statement is missing an expression of type `{}` in function `{}`",

@@ -1,0 +1,14 @@
+# 3:
+let a = 10
+let a = 10
+const a = 10
+const b = 10
+const b = 10
+
+# 3
+function f () {
+    let a = 10
+    let b = 10
+    const c = 10
+    let c = 10
+}

@@ -214,6 +214,7 @@ mod misc;
 mod nominax;
 mod parser;
 mod semantic;
+mod types;
 
 use misc::cli::Options;
 use structopt::StructOpt;

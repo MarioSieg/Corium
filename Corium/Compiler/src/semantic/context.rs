@@ -222,6 +222,7 @@ impl<'a> Context<'a> {
         }
     }
 
+    #[inline]
     pub fn analyze_global(&mut self, statement: &'a GlobalStatement) {
         let result = statement.analyze(&mut self.global);
         self.push_if_err(result);
@@ -233,7 +234,9 @@ impl<'a> Context<'a> {
             self.errors.push(err);
         }
     }
-}
 
-#[cfg(test)]
-mod tests {}
+    #[inline]
+    pub fn has_errors(&self) -> bool {
+        !self.errors.is_empty()
+    }
+}
