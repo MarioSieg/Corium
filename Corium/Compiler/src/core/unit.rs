@@ -246,20 +246,20 @@ pub struct FileCompilationUnit {
 }
 
 impl FileCompilationUnit {
-    pub fn load(file: PathBuf, descriptor: CompileDescriptor) -> Box<Self> {
+    pub fn load(file: PathBuf, descriptor: CompileDescriptor) -> Self {
         let clock = Instant::now();
         let source_code = SourceCode::read(&file);
         let file_name = Self::extract_file_name(&file);
         let id = Uuid::new_v4();
         let file_load_time = clock.elapsed();
-        Box::new(Self {
+        Self {
             source_code,
             file,
             file_name,
             id,
             file_load_time,
             descriptor,
-        })
+        }
     }
 
     pub fn compile(&mut self) -> CompilationResult {

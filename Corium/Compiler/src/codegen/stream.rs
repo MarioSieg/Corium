@@ -213,7 +213,7 @@ pub struct Stream(pub Vec<Signal>);
 
 impl Stream {
     pub fn new() -> Self {
-        Self(Vec::new())
+        Self::default()
     }
 
     pub fn with_capacity(cap: usize) -> Self {
@@ -243,6 +243,12 @@ impl Stream {
     #[inline]
     pub fn push_instr(&mut self, instr: Instruction) {
         self.0.push(Signal::Instruction(instr))
+    }
+}
+
+impl Default for Stream {
+    fn default() -> Self {
+        Self(Vec::new())
     }
 }
 

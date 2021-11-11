@@ -214,7 +214,7 @@ pub struct SymbolTable<'a>(pub HashMap<Identifier<'a>, Record<'a>>);
 impl<'ast> SymbolTable<'ast> {
     #[inline]
     pub fn new() -> Self {
-        Self(HashMap::new())
+        Self::default()
     }
 
     #[inline]
@@ -250,6 +250,12 @@ impl<'ast> SymbolTable<'ast> {
     #[inline]
     pub fn capacity(&self) -> usize {
         self.0.capacity()
+    }
+}
+
+impl<'ast> Default for SymbolTable<'ast> {
+    fn default() -> Self {
+        Self(HashMap::new())
     }
 }
 

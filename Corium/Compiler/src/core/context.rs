@@ -203,64 +203,80 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+use crate::core::job::CompilationJob;
 use crate::core::unit::{CompilationResult, CompileDescriptor, FileCompilationUnit};
 use std::collections::VecDeque;
 use std::path::PathBuf;
-use std::thread::{self, JoinHandle};
-
-struct CompilationJob {
-    pub file: String,
-    pub handle: JoinHandle<CompilationResult>,
-}
 
 pub struct CompilerContext {
-    queue: VecDeque<Box<FileCompilationUnit>>,
-    jobs: VecDeque<CompilationJob>,
-    failed_compilations: u32,
+    file_queue: VecDeque<FileCompilationUnit>,
+    job_queue: VecDeque<CompilationJob>,
+    failed_compilations: usize,
 }
 
 impl CompilerContext {
     pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn with_capacity(capacity: usize) -> Self {
         Self {
-            queue: VecDeque::new(),
-            jobs: VecDeque::new(),
-            failed_compilations: 0,
+            file_queue: VecDeque::with_capacity(capacity),
+            job_queue: VecDeque::with_capacity(capacity),
+            ..Default::default()
         }
     }
 
     #[inline]
     pub fn enqueue_file(&mut self, path: PathBuf, desc: CompileDescriptor) {
-        self.queue.push_front(FileCompilationUnit::load(path, desc));
+        self.file_queue
+            .push_front(FileCompilationUnit::load(path, desc));
     }
 
     #[inline]
-    pub fn get_queue(&self) -> &VecDeque<Box<FileCompilationUnit>> {
-        &self.queue
+    pub fn prepare_for_n_files(&mut self, n: usize) {
+        self.file_queue.reserve(n);
+        self.job_queue.reserve(n)
+    }
+
+    #[inline]
+    pub fn file_queue(&self) -> &VecDeque<FileCompilationUnit> {
+        &self.file_queue
+    }
+
+    #[inline]
+    pub fn job_queue(&self) -> &VecDeque<CompilationJob> {
+        &self.job_queue
     }
 
     #[inline]
     pub fn has_compilation_units(&self) -> bool {
-        !self.queue.is_empty()
+        !self.file_queue.is_empty()
+    }
+
+    #[inline]
+    pub fn failed_compilations(&self) -> usize {
+        self.failed_compilations
     }
 
     pub fn compile(&mut self) {
-        while let Some(mut unit) = self.queue.pop_front() {
-            self.jobs.push_front(CompilationJob {
-                file: unit.file_name().clone(),
-                handle: thread::spawn(move || unit.compile()),
-            });
+        while let Some(unit) = self.file_queue.pop_back() {
+            self.job_queue.push_front(CompilationJob::launch(unit));
         }
-        self.await_all_jobs();
+        self.finalize_compilation_jobs();
     }
 
-    fn await_all_jobs(&mut self) {
-        while let Some(job) = self.jobs.pop_front() {
-            let result = job.handle.join().expect("Failed to await job thread!");
-            self.print_status(&job.file, result);
+    fn finalize_compilation_jobs(&mut self) {
+        while let Some(job) = self.job_queue.pop_back() {
+            let (file_name, result) = job.join();
+            if result.is_err() {
+                self.failed_compilations += 1;
+            }
+            self.print_compilation_status(&file_name, result);
         }
     }
 
-    fn print_status(&mut self, file: &str, result: CompilationResult) {
+    fn print_compilation_status(&mut self, file: &str, result: CompilationResult) {
         use colored::Colorize;
 
         match result {
@@ -292,6 +308,16 @@ impl CompilerContext {
     }
 }
 
+impl Default for CompilerContext {
+    fn default() -> Self {
+        Self {
+            file_queue: VecDeque::new(),
+            job_queue: VecDeque::new(),
+            failed_compilations: 0,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -301,7 +327,7 @@ mod tests {
     #[test]
     fn new() {
         let ctx = CompilerContext::new();
-        assert!(ctx.get_queue().is_empty());
+        assert!(ctx.file_queue().is_empty());
         assert!(!ctx.has_compilation_units());
     }
 
@@ -309,7 +335,7 @@ mod tests {
     fn enqueue_file() {
         let mut ctx = CompilerContext::new();
         ctx.enqueue_file(PathBuf::from(TEST_FILE_PATH), CompileDescriptor::default());
-        assert_eq!(ctx.get_queue().len(), 1);
+        assert_eq!(ctx.file_queue().len(), 1);
         assert!(ctx.has_compilation_units());
     }
 

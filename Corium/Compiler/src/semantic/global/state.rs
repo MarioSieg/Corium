@@ -206,7 +206,7 @@
 use crate::ast::tree::{global_statement::GlobalStatement, Statement};
 use crate::error::list::ErrorList;
 use crate::error::Error;
-use crate::semantic::local_state::LocalState;
+use crate::semantic::local::state::LocalState;
 use crate::semantic::record::Record;
 use crate::semantic::table::SymbolTable;
 use colored::Colorize;

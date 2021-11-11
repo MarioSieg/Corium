@@ -203,41 +203,19 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::tree::prelude::*;
 use crate::error::list::ErrorList;
-use crate::semantic::analysis::GlobalSemanticAnalysis;
 use crate::semantic::global::state::GlobalState;
+use crate::semantic::local::state::LocalState;
+use crate::semantic::table::SymbolTable;
 
-pub struct Context<'a> {
-    pub errors: ErrorList,
-    pub global: GlobalState<'a>,
+pub trait GlobalSemanticAnalysis<'ast> {
+    fn analyze(&'ast self, global_state: &mut GlobalState<'ast>) -> Result<(), ErrorList>;
 }
 
-impl<'a> Context<'a> {
-    pub fn new(file: &'a str) -> Self {
-        Self {
-            errors: ErrorList::new(),
-            global: GlobalState::new(file),
-        }
-    }
-
-    #[inline]
-    pub fn analyze_global(&mut self, statement: &'a GlobalStatement) {
-        let result = statement.analyze(&mut self.global);
-        self.push_if_err(result);
-    }
-
-    pub fn push_if_err(&mut self, errors: Result<(), ErrorList>) {
-        if let Err(errors) = errors {
-            self.errors.0.reserve(errors.len());
-            for error in errors.0 {
-                self.errors.push(error);
-            }
-        }
-    }
-
-    #[inline]
-    pub fn has_errors(&self) -> bool {
-        !self.errors.is_empty()
-    }
+pub trait LocalSemanticAnalysis<'ast> {
+    fn analyze(
+        &'ast self,
+        local_state: &mut LocalState<'ast>,
+        _global_table: &SymbolTable<'ast>,
+    ) -> Result<(), ErrorList>;
 }

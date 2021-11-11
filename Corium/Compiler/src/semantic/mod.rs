@@ -206,13 +206,13 @@
 use crate::ast::tree::compilation_unit::CompilationUnit;
 use crate::error::list::ErrorList;
 
-pub mod analyzers;
 pub mod context;
-pub mod global_state;
-pub mod local_state;
+pub mod global;
+pub mod local;
 pub mod record;
 pub mod table;
 
+pub mod analysis;
 #[cfg(test)]
 mod tests;
 

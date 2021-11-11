@@ -205,39 +205,84 @@
 
 use crate::ast::tree::prelude::*;
 use crate::error::list::ErrorList;
-use crate::semantic::analysis::GlobalSemanticAnalysis;
-use crate::semantic::global::state::GlobalState;
+use crate::semantic::analysis::LocalSemanticAnalysis;
+use crate::semantic::local::state::LocalState;
+use crate::semantic::record::Record;
+use crate::semantic::table::SymbolTable;
 
-pub struct Context<'a> {
-    pub errors: ErrorList,
-    pub global: GlobalState<'a>,
+impl<'ast> LocalSemanticAnalysis<'ast> for LocalStatement<'ast> {
+    fn analyze(
+        &'ast self,
+        local_state: &mut LocalState<'ast>,
+        global_table: &SymbolTable<'ast>,
+    ) -> Result<(), ErrorList> {
+        match self {
+            Self::MutableVariable(variable) => {
+                // check if identifier is already used in the global scope
+                if global_table.contains(variable.name) {
+                    // local shadowing is not allowed - symbol already defined -> error
+                    Err(local_state
+                        .global_definition_error(&Record::MutableVariable(variable), self))
+                } else {
+                    // not yet defined, insert it
+                    local_state.insert_mutable_variable(self, variable)
+                }
+            }
+            Self::ImmutableVariable(variable) => {
+                // check if identifier is already used in the global scope
+                if global_table.contains(variable.name) {
+                    // local shadowing is not allowed - symbol already defined -> error
+                    Err(local_state
+                        .global_definition_error(&Record::ImmutableVariable(variable), self))
+                } else {
+                    // not yet defined, insert it
+                    local_state.insert_immutable_variable(self, variable)
+                }
+            }
+            Self::ReturnStatement(statement) => statement.analyze(local_state, global_table),
+        }
+    }
 }
 
-impl<'a> Context<'a> {
-    pub fn new(file: &'a str) -> Self {
-        Self {
-            errors: ErrorList::new(),
-            global: GlobalState::new(file),
+impl<'ast> LocalSemanticAnalysis<'ast> for ReturnStatement<'ast> {
+    fn analyze(
+        &'ast self,
+        local_state: &mut LocalState<'ast>,
+        _global_table: &SymbolTable<'ast>,
+    ) -> Result<(), ErrorList> {
+        let return_type = &local_state.signature().return_type;
+
+        // if we are returning something, but the function has no return value specified -> error
+        if return_type.is_none() && self.0.is_some() {
+            Err(local_state.unexpected_return_error(self))
+        }
+        // if the function has a return value specified, but we do not return anything -> error
+        else if return_type.is_some() && self.0.is_none() {
+            Err(local_state.missing_return_expr_error(return_type.as_ref().unwrap()))
+        }
+        // if the states match -> okay
+        else {
+            Ok(())
         }
     }
+}
 
-    #[inline]
-    pub fn analyze_global(&mut self, statement: &'a GlobalStatement) {
-        let result = statement.analyze(&mut self.global);
-        self.push_if_err(result);
-    }
+impl<'ast> LocalSemanticAnalysis<'ast> for Function<'ast> {
+    fn analyze(
+        &'ast self,
+        local_state: &mut LocalState<'ast>,
+        global_table: &SymbolTable<'ast>,
+    ) -> Result<(), ErrorList> {
+        // begin a new function local scope
+        local_state.begin_new_scope(&self.signature);
 
-    pub fn push_if_err(&mut self, errors: Result<(), ErrorList>) {
-        if let Err(errors) = errors {
-            self.errors.0.reserve(errors.len());
-            for error in errors.0 {
-                self.errors.push(error);
-            }
+        let mut errors = ErrorList::new();
+
+        // now analyze all locals statements
+        for local in &self.block.0 {
+            errors.merge_if_err(local.analyze(local_state, global_table));
         }
-    }
 
-    #[inline]
-    pub fn has_errors(&self) -> bool {
-        !self.errors.is_empty()
+        errors.into()
     }
 }

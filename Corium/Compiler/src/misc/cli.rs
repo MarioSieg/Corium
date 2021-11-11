@@ -259,22 +259,6 @@ pub enum Options {
     DumpIntrinsics,
 }
 
-#[inline]
-fn go_one_dir_up() {
-    env::set_current_dir(env::current_dir().unwrap().join("../")).unwrap();
-}
-
-#[inline]
-fn check_project_dir() {
-    if !std::env::current_dir()
-        .unwrap()
-        .join(Project::ROOT_FILE)
-        .exists()
-    {
-        panic!("Project root fie `{}` not found in current path! Make sure you are inside a project directory!", Project::ROOT_FILE);
-    }
-}
-
 impl Options {
     pub fn process(self) {
         match self {
