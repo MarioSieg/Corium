@@ -203,12 +203,13 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-extern crate coriumc;
-
-use coriumc::misc::cli::Options;
-use structopt::StructOpt;
-
-fn main() {
-    let options = Options::from_args();
-    options.process();
-}
+pub mod algorithm;
+pub mod ast;
+pub mod codegen;
+pub mod core;
+pub mod error;
+pub mod misc;
+pub mod nominax;
+pub mod parser;
+pub mod semantic;
+pub mod types;

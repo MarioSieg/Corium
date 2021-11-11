@@ -203,12 +203,30 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-extern crate coriumc;
+use criterion::{black_box, criterion_group, criterion_main, Criterion};
 
-use coriumc::misc::cli::Options;
-use structopt::StructOpt;
+use coriumc::core::compiler::compile_source;
+use coriumc::core::unit::CompileDescriptor;
+use coriumc::misc::source_code::SourceCode;
 
-fn main() {
-    let options = Options::from_args();
-    options.process();
+const DESC: CompileDescriptor = CompileDescriptor {
+    dump_ast: false,
+    pass_timer: true,
+    dump_asm: false,
+    verbose: false,
+    opt_level: 0,
+};
+
+fn criterion_benchmark(c: &mut Criterion) {
+    c.bench_function("compile_huge_file", |b| {
+        b.iter(|| {
+            let src = SourceCode::read("../ValidationSource/HugeFile.cor");
+            if let Err(e) = compile_source(&src, "HugeFile.cor", &DESC) {
+                panic!("{}", e);
+            }
+        })
+    });
 }
+
+criterion_group!(benches, criterion_benchmark);
+criterion_main!(benches);

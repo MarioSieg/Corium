@@ -4,6 +4,14 @@ version = "0.1.1"
 edition = "2018"
 authors = ["Mario \"pinsrq\" Sieg <mt3000@gmx.de>"]
 
+[lib]
+name = "coriumc"
+path = "src/lib.rs"
+
+[[bin]]
+name = "corium"
+path = "src/main.rs"
+
 [profile.release]
 lto = "fat"
 codegen-units = 1
@@ -29,7 +37,11 @@ num-derive = "0.3.3"                                        # Helper for enums a
 ptree = "0.4.0"                                             # Helper for pretty printing tree structures
 subtle = "1.0.0"                                            # Traits and utilities for constant-time cryptographic implementations.
 smallvec = "1.7.0"                                          # Small vector
-hashbrown = "0.11.2"                                        # A Rust port of Google's SwissTable hash map
 
 [dev-dependencies]
 rand = "0.8.4"
+criterion = "0.3.5"
+
+[[bench]]
+name = "compilation"
+harness = false
