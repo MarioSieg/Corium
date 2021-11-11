@@ -204,6 +204,7 @@
 //    limitations under the License.
 
 use crate::ast::tree::prelude::*;
+use crate::error::list::ErrorList;
 use crate::error::Error;
 use crate::semantic::record::Record;
 use crate::semantic::table::SymbolTable;
@@ -238,7 +239,7 @@ impl<'a> LocalState<'a> {
         &mut self,
         statement: &LocalStatement,
         variable: &'a MutableVariable<'a>,
-    ) -> Result<(), Error> {
+    ) -> Result<(), ErrorList> {
         if let Some(existing) = self
             .table
             .insert(variable.name, Record::MutableVariable(variable))
@@ -253,7 +254,7 @@ impl<'a> LocalState<'a> {
         &mut self,
         statement: &LocalStatement,
         variable: &'a ImmutableVariable<'a>,
-    ) -> Result<(), Error> {
+    ) -> Result<(), ErrorList> {
         if let Some(existing) = self
             .table
             .insert(variable.name, Record::ImmutableVariable(variable))
@@ -265,7 +266,7 @@ impl<'a> LocalState<'a> {
     }
 
     #[cold]
-    pub fn definition_error(&self, previous: &Record, current: &LocalStatement) -> Error {
+    pub fn definition_error(&self, previous: &Record, current: &LocalStatement) -> ErrorList {
         let smt_type = current.descriptive_name();
         let smt_ident = current.code_identifier().0.red().bold();
         let fun_name = self.signature().name.to_string().red().bold();
@@ -274,11 +275,15 @@ impl<'a> LocalState<'a> {
             "Local {} `{}` in function `{}` already defined as {} before",
             smt_type, smt_ident, fun_name, rec_name
         );
-        Error::Semantic(message, self.file.to_string())
+        Error::Semantic(message, self.file.to_string()).into()
     }
 
     #[cold]
-    pub fn global_definition_error(&self, previous: &Record, current: &LocalStatement) -> Error {
+    pub fn global_definition_error(
+        &self,
+        previous: &Record,
+        current: &LocalStatement,
+    ) -> ErrorList {
         let smt_type = current.descriptive_name();
         let smt_ident = current.code_identifier().0.red().bold();
         let fun_name = self.signature().name.to_string().red().bold();
@@ -287,28 +292,28 @@ impl<'a> LocalState<'a> {
             "Local {} `{}` in function `{}` already defined as global {} before",
             smt_type, smt_ident, fun_name, rec_name
         );
-        Error::Semantic(message, self.file.to_string())
+        Error::Semantic(message, self.file.to_string()).into()
     }
 
     #[cold]
-    pub fn unexpected_return_error(&self, statement: &ReturnStatement) -> Error {
+    pub fn unexpected_return_error(&self, statement: &ReturnStatement) -> ErrorList {
         let fun_name = self.signature().name.to_string().red().bold();
         let smt = format!("{}", statement).red().bold();
         let message = format!(
             "Unexpected return statement `{}` in function `{}` - function does not return any value",
             smt, fun_name
         );
-        Error::Semantic(message, self.file.to_string())
+        Error::Semantic(message, self.file.to_string()).into()
     }
 
     #[cold]
-    pub fn missing_return_expr_error(&self, required_type: &QualifiedName) -> Error {
+    pub fn missing_return_expr_error(&self, required_type: &QualifiedName) -> ErrorList {
         let fun_name = self.signature().name.to_string().red().bold();
         let required_type = required_type.full.red().bold();
         let message = format!(
             "Return statement is missing an expression of type `{}` in function `{}`",
             required_type, fun_name
         );
-        Error::Semantic(message, self.file.to_string())
+        Error::Semantic(message, self.file.to_string()).into()
     }
 }

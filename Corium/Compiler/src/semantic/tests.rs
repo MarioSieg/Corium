@@ -271,6 +271,26 @@ mod tables {
         });
         assert!(matches!(a, _b));
     }
+
+    #[test]
+    fn locals() {
+        let src = concat!(
+            "function f () {\n",
+            "let x = 10\n",
+            "const y = true\n",
+            "}\n"
+        );
+        let result = ParsePass::run(src, false, false, "Test.cor").unwrap();
+        let result = AstPopulationPass::run(result, false, false, "Test.cor").unwrap();
+        let result = analyze(&result, "Test.cor").unwrap();
+        assert!(result.errors.is_empty());
+        assert_eq!(result.global.table.len(), 1);
+        assert!(result.global.table.contains(Identifier("f")));
+
+        assert_eq!(result.global.local.table.len(), 2);
+        assert!(result.global.local.table.contains(Identifier("x")));
+        assert!(result.global.local.table.contains(Identifier("y")));
+    }
 }
 
 mod mocks {
@@ -588,7 +608,7 @@ mod invalid {
         };
         if let Err(e) = compile_source(&src, "AllSemanticErrors.cor", &desc) {
             println!("{}", e);
-            assert_eq!(e.len(), 3 + 3 + 3 + 2);
+            assert_eq!(e.len(), 3 + 4 + 3);
         } else {
             panic!("Expected errors!");
         }

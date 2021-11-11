@@ -204,6 +204,7 @@
 //    limitations under the License.
 
 use crate::ast::tree::{global_statement::GlobalStatement, Statement};
+use crate::error::list::ErrorList;
 use crate::error::Error;
 use crate::semantic::local_state::LocalState;
 use crate::semantic::record::Record;
@@ -226,7 +227,7 @@ impl<'ast> GlobalState<'ast> {
     }
 
     #[cold]
-    pub fn definition_error(&self, previous: &Record, current: &GlobalStatement) -> Error {
+    pub fn definition_error(&self, previous: &Record, current: &GlobalStatement) -> ErrorList {
         let smt_type = current.descriptive_name();
         let smt_ident = current.code_identifier().0.red().bold();
         let rec_name = previous.descriptive_name();
@@ -234,6 +235,6 @@ impl<'ast> GlobalState<'ast> {
             "Global {} `{}` already defined as {} before",
             smt_type, smt_ident, rec_name
         );
-        Error::Semantic(message, self.file.to_string())
+        Error::Semantic(message, self.file.to_string()).into()
     }
 }

@@ -219,14 +219,40 @@ impl ErrorList {
         Self(Vec::with_capacity(cap))
     }
 
+    #[inline]
     pub fn push(&mut self, item: Error) {
         self.0.push(item)
     }
 
+    #[inline]
+    pub fn push_if_err<R>(&mut self, result: Result<R, Error>) {
+        if let Err(error) = result {
+            self.0.push(error)
+        }
+    }
+
+    pub fn merge(&mut self, errors: Self) {
+        self.0.reserve(errors.len());
+        for error in errors.0 {
+            self.0.push(error);
+        }
+    }
+
+    pub fn merge_if_err<R>(&mut self, result: Result<R, Self>) {
+        if let Err(errors) = result {
+            self.0.reserve(errors.len());
+            for error in errors.0 {
+                self.0.push(error);
+            }
+        }
+    }
+
+    #[inline]
     pub fn len(&self) -> usize {
         self.0.len()
     }
 
+    #[inline]
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()
     }

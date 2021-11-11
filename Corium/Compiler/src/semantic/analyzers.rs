@@ -204,14 +204,14 @@
 //    limitations under the License.
 
 use crate::ast::tree::prelude::*;
-use crate::error::Error;
+use crate::error::list::ErrorList;
 use crate::semantic::global_state::GlobalState;
 use crate::semantic::local_state::LocalState;
 use crate::semantic::record::Record;
 use crate::semantic::table::SymbolTable;
 
 pub trait GlobalSemanticAnalysis<'ast> {
-    fn analyze(&'ast self, global_state: &mut GlobalState<'ast>) -> Result<(), Error>;
+    fn analyze(&'ast self, global_state: &mut GlobalState<'ast>) -> Result<(), ErrorList>;
 }
 
 pub trait LocalSemanticAnalysis<'ast> {
@@ -219,11 +219,13 @@ pub trait LocalSemanticAnalysis<'ast> {
         &'ast self,
         local_state: &mut LocalState<'ast>,
         _global_table: &SymbolTable<'ast>,
-    ) -> Result<(), Error>;
+    ) -> Result<(), ErrorList>;
 }
 
 impl<'a> GlobalSemanticAnalysis<'a> for GlobalStatement<'a> {
-    fn analyze(&'a self, global_state: &mut GlobalState<'a>) -> Result<(), Error> {
+    fn analyze(&'a self, global_state: &mut GlobalState<'a>) -> Result<(), ErrorList> {
+        let mut analyze_error = Ok(());
+
         // save the existing symbol (if any)
         let existing = match self {
             Self::MutableVariable(variable) => global_state
@@ -235,7 +237,7 @@ impl<'a> GlobalSemanticAnalysis<'a> for GlobalStatement<'a> {
                 .insert(variable.name, Record::ImmutableVariable(variable)),
 
             Self::Function(function) => {
-                function.analyze(&mut global_state.local, &global_state.table)?;
+                analyze_error = function.analyze(&mut global_state.local, &global_state.table);
                 global_state
                     .table
                     .insert(function.signature.name, Record::Function(function))
@@ -248,8 +250,16 @@ impl<'a> GlobalSemanticAnalysis<'a> for GlobalStatement<'a> {
         };
 
         // if the symbol is already defined -> error
-        if let Some(existing) = existing {
-            Err(global_state.definition_error(&existing, self))
+        if existing.is_some() || analyze_error.is_err() {
+            let mut errors = ErrorList::new();
+            let definition_error = if let Some(existing) = existing {
+                Err(global_state.definition_error(&existing, self))
+            } else {
+                Ok(())
+            };
+            errors.merge_if_err(definition_error);
+            errors.merge_if_err(analyze_error);
+            Err(errors)
         } else {
             Ok(())
         }
@@ -261,7 +271,7 @@ impl<'ast> LocalSemanticAnalysis<'ast> for LocalStatement<'ast> {
         &'ast self,
         local_state: &mut LocalState<'ast>,
         global_table: &SymbolTable<'ast>,
-    ) -> Result<(), Error> {
+    ) -> Result<(), ErrorList> {
         match self {
             Self::MutableVariable(variable) => {
                 // check if identifier is already used in the global scope
@@ -295,7 +305,7 @@ impl<'ast> LocalSemanticAnalysis<'ast> for ReturnStatement<'ast> {
         &'ast self,
         local_state: &mut LocalState<'ast>,
         _global_table: &SymbolTable<'ast>,
-    ) -> Result<(), Error> {
+    ) -> Result<(), ErrorList> {
         let return_type = &local_state.signature().return_type;
 
         // if we are returning something, but the function has no return value specified -> error
@@ -318,18 +328,17 @@ impl<'ast> LocalSemanticAnalysis<'ast> for Function<'ast> {
         &'ast self,
         local_state: &mut LocalState<'ast>,
         global_table: &SymbolTable<'ast>,
-    ) -> Result<(), Error> {
+    ) -> Result<(), ErrorList> {
         // begin a new function local scope
         local_state.begin_new_scope(&self.signature);
 
+        let mut errors = ErrorList::new();
+
         // now analyze all locals statements
         for local in &self.block.0 {
-            local.analyze(local_state, global_table)?;
+            errors.merge_if_err(local.analyze(local_state, global_table));
         }
 
-        println!("{}", self.block);
-        println!("{}", local_state.table);
-
-        Ok(())
+        errors.into()
     }
 }

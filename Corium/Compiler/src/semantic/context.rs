@@ -205,7 +205,6 @@
 
 use crate::ast::tree::prelude::*;
 use crate::error::list::ErrorList;
-use crate::error::Error;
 use crate::semantic::analyzers::GlobalSemanticAnalysis;
 use crate::semantic::global_state::GlobalState;
 
@@ -228,10 +227,12 @@ impl<'a> Context<'a> {
         self.push_if_err(result);
     }
 
-    #[inline]
-    pub fn push_if_err(&mut self, err: Result<(), Error>) {
-        if let Err(err) = err {
-            self.errors.push(err);
+    pub fn push_if_err(&mut self, errors: Result<(), ErrorList>) {
+        if let Err(errors) = errors {
+            self.errors.0.reserve(errors.len());
+            for error in errors.0 {
+                self.errors.push(error);
+            }
         }
     }
 

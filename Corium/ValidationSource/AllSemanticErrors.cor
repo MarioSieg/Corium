@@ -4,11 +4,20 @@ let a = 10
 const a = 10
 const b = 10
 const b = 10
+const c = 3
 
-# 3
-function f () {
+# 4
+function proc () {
     let a = 10
     let b = 10
     const c = 10
     let c = 10
 }
+
+# 3
+let proc = 1
+function a () {
+
+}
+native function proc ()
+
