@@ -21,3 +21,11 @@ function a () {
 }
 native function proc ()
 
+# 2
+function f1 () {
+    return "Hey"
+}
+
+function f2 () int {
+    return
+}

@@ -608,7 +608,7 @@ mod invalid {
         };
         if let Err(e) = compile_source(&src, "AllSemanticErrors.cor", &desc) {
             println!("{}", e);
-            assert_eq!(e.len(), 3 + 4 + 3);
+            assert_eq!(e.len(), 3 + 4 + 3 + 2);
         } else {
             panic!("Expected errors!");
         }
