@@ -1,4 +1,7 @@
+use num_traits::FromPrimitive;
 use std::fmt;
+use std::fmt::Debug;
+use std::hash::Hash;
 
 pub mod binary_operator;
 pub mod block;
@@ -14,7 +17,6 @@ pub mod local_statement;
 pub mod module;
 pub mod mutable_variable;
 pub mod native_function;
-pub mod operator;
 pub mod parameter;
 pub mod parameter_list;
 pub mod qualified_name;
@@ -32,6 +34,42 @@ pub trait Statement: AstComponent {
     fn code_identifier(&self) -> identifier::Identifier;
 }
 
+#[repr(u8)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
+pub enum OperatorAssociativity {
+    LeftToRight,
+    RightToLeft,
+}
+
+pub trait Operator:
+    Sized
+    + AstComponent
+    + Copy
+    + Clone
+    + Eq
+    + PartialEq
+    + Debug
+    + Hash
+    + Ord
+    + PartialOrd
+    + FromPrimitive
+{
+    const COUNT: usize;
+    const TOKENS: &'static [&'static str];
+    const PRECEDENCE_TABLE: &'static [u8];
+    const ASSOCIATIVITY_TABLE: &'static [OperatorAssociativity];
+    const RULE_TABLE: &'static [Rule];
+
+    fn token(&self) -> &'static str;
+    fn precedence(&self) -> u8;
+    fn associativity(&self) -> OperatorAssociativity;
+    fn rule(&self) -> Rule;
+
+    fn is_valid(r: Rule) -> bool {
+        Self::RULE_TABLE.contains(&r)
+    }
+}
+
 pub mod prelude {
     pub use super::binary_operator::*;
     pub use super::block::*;
@@ -47,21 +85,20 @@ pub mod prelude {
     pub use super::module::*;
     pub use super::mutable_variable::*;
     pub use super::native_function::*;
-    pub use super::operator::*;
     pub use super::parameter::*;
     pub use super::parameter_list::*;
     pub use super::qualified_name::*;
     pub use super::return_statement::*;
     pub use super::unary_operator::*;
-    pub use super::{AstComponent, Statement};
+    pub use super::{AstComponent, Operator, OperatorAssociativity, Statement};
     pub use crate::types::builtin_types::*;
 }
 
 mod tree_prelude {
-    pub use super::operator::*;
     pub use super::AstComponent;
     pub use super::Rule;
     pub use super::Statement;
+    pub use super::{Operator, OperatorAssociativity};
     pub use crate::types::builtin_types::*;
     pub use std::fmt;
 }

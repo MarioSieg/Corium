@@ -221,8 +221,8 @@ macro_rules! precedence_climber {
         )
     }};
 
-    ( @assoc L ) => { $crate::ast::tree::operator::OperatorAssociativity::LeftToRight };
-    ( @assoc R ) => { $crate::ast::tree::operator::OperatorAssociativity::RightToLeft };
+    ( @assoc L ) => { $crate::ast::tree::OperatorAssociativity::LeftToRight };
+    ( @assoc R ) => { $crate::ast::tree::OperatorAssociativity::RightToLeft };
 
     (
         @array

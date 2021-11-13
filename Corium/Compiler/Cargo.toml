@@ -37,6 +37,7 @@ num-derive = "0.3.3"                                        # Helper for enums a
 ptree = "0.4.0"                                             # Helper for pretty printing tree structures
 subtle = "1.0.0"                                            # Traits and utilities for constant-time cryptographic implementations.
 smallvec = "1.7.0"                                          # Small vector
+lazy_static = "1.4.0"                                       # A macro for declaring lazily evaluated statics.
 
 [dev-dependencies]
 rand = "0.8.4"

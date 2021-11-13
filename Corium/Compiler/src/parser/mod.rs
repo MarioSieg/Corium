@@ -220,7 +220,7 @@ pub type RulePairs<'a> = Pairs<'a, Rule>;
 
 // Will be replaced by own parser implementation
 #[derive(Parser)]
-#[grammar = "parser/corium.pest"]
+#[grammar = "parser/grammar/corium.pest"]
 pub struct CoriumParser;
 
 pub fn parse_source<'a>(src: &'a str, file: &str) -> Result<RulePairs<'a>, ErrorList> {

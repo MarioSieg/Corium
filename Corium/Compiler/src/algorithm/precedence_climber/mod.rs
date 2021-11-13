@@ -203,7 +203,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::tree::operator::OperatorAssociativity;
+use crate::ast::tree::OperatorAssociativity;
 use pest::iterators::Pair;
 use std::borrow::Cow;
 use std::fmt::Debug;
@@ -217,11 +217,11 @@ use operator_set::OperatorSet;
 
 #[derive(Debug)]
 pub struct PrecedenceClimber<R: Clone + 'static>(
-    pub Cow<'static, [(R, u32, OperatorAssociativity)]>,
+    pub Cow<'static, [(R, u8, OperatorAssociativity)]>,
 );
 
 impl<R: Copy + Debug + Eq + Hash + Ord> PrecedenceClimber<R> {
-    fn find_by_rule(&self, rule: &R) -> Option<(u32, OperatorAssociativity)> {
+    fn find_by_rule(&self, rule: &R) -> Option<(u8, OperatorAssociativity)> {
         self.0
             .iter()
             .find(|(r, _, _)| r == rule)
@@ -260,7 +260,7 @@ impl<R: Copy + Debug + Eq + Hash + Ord> PrecedenceClimber<R> {
     fn climb_precedence<'a, P, F, G, T>(
         &self,
         mut lhs: T,
-        min: u32,
+        min: u8,
         pairs: &mut Peekable<P>,
         primary: &mut F,
         infix: &mut G,

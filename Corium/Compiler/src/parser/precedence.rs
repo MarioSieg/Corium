@@ -204,42 +204,19 @@
 //    limitations under the License.
 
 use super::Rule;
+use crate::algorithm::precedence_climber::operator_set::OperatorSet;
 use crate::algorithm::precedence_climber::PrecedenceClimber;
 use crate::ast::populator::{AtomicAstPopulator, NestedAstPopulator};
 use crate::ast::tree::prelude::{BinaryOperator, Expression};
-use crate::precedence_climber;
+use crate::ast::tree::Operator;
+use lazy_static::lazy_static;
+use num_traits::FromPrimitive;
 use pest::iterators::{Pair, Pairs};
+use std::collections::BTreeMap;
 
-const PRECEDENCE_CLIMBER: PrecedenceClimber<Rule> = precedence_climber![
-    L   // 12
-        LogicalOr,
-
-    L   // 11
-        LogicalAnd,
-
-    L   // 10
-        BitwiseOr,
-
-    L   // 9
-        BitwiseXor,
-
-    L   // 8
-        BitwiseAnd,
-
-    L   // 5
-        BitwiseShiftLeft |
-        BitwiseShiftRight |
-        BitwiseRotationLeft |
-        BitwiseRotationRight,
-
-    L   // 4
-        Addition | Subtraction,
-
-    L   // 3
-        Multiplication |
-        Division |
-        Modulo
-];
+lazy_static! {
+    static ref PRECEDENCE_CLIMBER: PrecedenceClimber<Rule> = build_precedence_climber();
+}
 
 pub fn climb_expression<'a>(rule: Pairs<'a, Rule>) -> Expression<'a> {
     let primary =
@@ -252,4 +229,59 @@ pub fn climb_expression<'a>(rule: Pairs<'a, Rule>) -> Expression<'a> {
         }
     };
     PRECEDENCE_CLIMBER.climb(rule, primary, infix)
+}
+
+fn build_precedence_climber() -> PrecedenceClimber<Rule> {
+    let operators = (0..BinaryOperator::COUNT)
+        .into_iter()
+        .map(|i| BinaryOperator::from_usize(i).unwrap())
+        .collect::<Vec<BinaryOperator>>();
+
+    let unique_keys: BTreeMap<_, _> = operators.iter().map(|x| (x.precedence(), *x)).collect();
+
+    let mapper = |(prec, _)| {
+        let groups = operators
+            .iter()
+            .copied()
+            .filter(|x| x.precedence() == prec)
+            .collect::<Vec<BinaryOperator>>();
+        let mut out = OperatorSet::new(groups[0].rule(), groups[0].associativity());
+        for op in &groups[1..groups.len()] {
+            out = out | OperatorSet::new(op.rule(), op.associativity());
+        }
+        out
+    };
+
+    let mut operators = unique_keys
+        .into_iter()
+        .map(mapper)
+        .collect::<Vec<OperatorSet<Rule>>>();
+    operators.reverse();
+
+    PrecedenceClimber::new(operators)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::PRECEDENCE_CLIMBER;
+    use crate::ast::tree::{OperatorAssociativity, Rule};
+
+    #[test]
+    fn precedence_climber_max() {
+        let data: (Rule, u8, OperatorAssociativity) =
+            PRECEDENCE_CLIMBER.0[PRECEDENCE_CLIMBER.0.len() - 1];
+        assert_eq!(data.0, Rule::Modulo);
+        let data: (Rule, u8, OperatorAssociativity) =
+            PRECEDENCE_CLIMBER.0[PRECEDENCE_CLIMBER.0.len() - 2];
+        assert_eq!(data.0, Rule::Division);
+        let data: (Rule, u8, OperatorAssociativity) =
+            PRECEDENCE_CLIMBER.0[PRECEDENCE_CLIMBER.0.len() - 3];
+        assert_eq!(data.0, Rule::Multiplication);
+    }
+
+    #[test]
+    fn precedence_climber_min() {
+        let data: &(Rule, u8, OperatorAssociativity) = PRECEDENCE_CLIMBER.0.first().unwrap();
+        assert_eq!(data.0, Rule::LogicalOr);
+    }
 }

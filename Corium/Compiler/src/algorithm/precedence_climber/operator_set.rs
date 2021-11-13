@@ -203,7 +203,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::tree::operator::OperatorAssociativity;
+use crate::ast::tree::OperatorAssociativity;
 use std::fmt::Debug;
 use std::hash::Hash;
 use std::ops::BitOr;

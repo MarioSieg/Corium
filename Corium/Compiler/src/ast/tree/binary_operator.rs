@@ -318,6 +318,16 @@ impl Operator for BinaryOperator {
     fn precedence(&self) -> u8 {
         Self::PRECEDENCE_TABLE[*self as usize]
     }
+
+    #[inline]
+    fn associativity(&self) -> OperatorAssociativity {
+        Self::ASSOCIATIVITY_TABLE[*self as usize]
+    }
+
+    #[inline]
+    fn rule(&self) -> Rule {
+        Self::RULE_TABLE[*self as usize]
+    }
 }
 
 impl AstComponent for BinaryOperator {

@@ -276,7 +276,8 @@ impl Options {
                 dump_asm,
                 pass_timer,
             } => {
-                let mut context = crate::core::context::CompilerContext::new();
+                let mut context =
+                    crate::core::context::CompilerContext::with_capacity(input_files.len());
                 for file in input_files {
                     let descriptor = crate::core::unit::CompileDescriptor {
                         dump_ast,
