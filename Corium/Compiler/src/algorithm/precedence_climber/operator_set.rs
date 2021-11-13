@@ -206,7 +206,7 @@
 use crate::ast::tree::OperatorAssociativity;
 use std::fmt::Debug;
 use std::hash::Hash;
-use std::ops::BitOr;
+use std::ops::{BitOr, BitOrAssign};
 
 #[derive(Debug)]
 pub struct OperatorSet<R: Copy + Debug + Eq + Hash + Ord> {
@@ -229,18 +229,21 @@ impl<R: Copy + Debug + Eq + Hash + Ord> BitOr for OperatorSet<R> {
     type Output = Self;
 
     fn bitor(mut self, rhs: Self) -> Self {
-        fn assign_next<R: Copy + Debug + Eq + Hash + Ord>(
-            op: &mut OperatorSet<R>,
-            next: OperatorSet<R>,
-        ) {
-            if let Some(ref mut child) = op.next {
-                assign_next(child, next);
-            } else {
-                op.next = Some(Box::new(next));
-            }
-        }
-
         assign_next(&mut self, rhs);
         self
+    }
+}
+
+impl<R: Copy + Debug + Eq + Hash + Ord> BitOrAssign for OperatorSet<R> {
+    fn bitor_assign(&mut self, rhs: Self) {
+        assign_next(self, rhs);
+    }
+}
+
+fn assign_next<R: Copy + Debug + Eq + Hash + Ord>(op: &mut OperatorSet<R>, next: OperatorSet<R>) {
+    if let Some(ref mut child) = op.next {
+        assign_next(child, next);
+    } else {
+        op.next = Some(Box::new(next));
     }
 }

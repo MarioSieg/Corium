@@ -212,7 +212,7 @@ use crate::ast::tree::Operator;
 use lazy_static::lazy_static;
 use num_traits::FromPrimitive;
 use pest::iterators::{Pair, Pairs};
-use std::collections::BTreeMap;
+use smallvec::SmallVec;
 
 lazy_static! {
     static ref PRECEDENCE_CLIMBER: PrecedenceClimber<Rule> = build_precedence_climber();
@@ -235,20 +235,25 @@ fn build_precedence_climber() -> PrecedenceClimber<Rule> {
     let operators = (0..BinaryOperator::COUNT)
         .into_iter()
         .map(|i| BinaryOperator::from_usize(i).unwrap())
-        .collect::<Vec<BinaryOperator>>();
+        .collect::<SmallVec<[BinaryOperator; BinaryOperator::COUNT]>>();
 
-    let unique_keys: BTreeMap<_, _> = operators.iter().map(|x| (x.precedence(), *x)).collect();
+    let mut unique_keys = operators
+        .iter()
+        .map(|x| x.precedence())
+        .collect::<SmallVec<[u8; BinaryOperator::COUNT]>>();
+    unique_keys.sort_unstable();
+    unique_keys.dedup();
 
-    let mapper = |(prec, _)| {
+    let mapper = |prec| {
         let groups = operators
             .iter()
             .copied()
             .filter(|x| x.precedence() == prec)
-            .collect::<Vec<BinaryOperator>>();
+            .collect::<SmallVec<[BinaryOperator; BinaryOperator::COUNT]>>();
         let mut out = OperatorSet::new(groups[0].rule(), groups[0].associativity());
-        for op in &groups[1..groups.len()] {
-            out = out | OperatorSet::new(op.rule(), op.associativity());
-        }
+        (&groups[1..groups.len()]).iter().for_each(|op| {
+            out |= OperatorSet::new(op.rule(), op.associativity());
+        });
         out
     };
 
