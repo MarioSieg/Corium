@@ -205,11 +205,71 @@
 
 pub mod builtin_types;
 
-use crate::ast::tree::prelude::QualifiedName;
+use crate::ast::tree::prelude::*;
+use crate::error::list::ErrorList;
+use crate::semantic::record::Record;
+use crate::semantic::table::SymbolTable;
 use builtin_types::BuiltinType;
 
 #[derive(Debug, Clone)]
 pub enum Type<'ast> {
     Builtin(BuiltinType),
-    Custom(QualifiedName<'ast>),
+    Custom(Identifier<'ast>),
+}
+
+impl<'ast> Type<'ast> {
+    pub fn type_of(
+        local: &SymbolTable<'ast>,
+        global: &SymbolTable<'ast>,
+        expr: &Expression<'ast>,
+    ) -> Result<Self, ErrorList> {
+        match expr {
+            Expression::Literal(literal) => Ok(Self::type_of_literal(literal)),
+            Expression::Identifier(identifier) => {
+                Self::type_of_identifier(local, global, *identifier)
+            }
+            _ => unreachable!(),
+        }
+    }
+
+    fn type_of_literal(literal: &Literal) -> Self {
+        let builtin = match literal {
+            Literal::Int(_) => BuiltinType::Int,
+            Literal::Float(_) => BuiltinType::Float,
+            Literal::Bool(_) => BuiltinType::Bool,
+            Literal::Char(_) => BuiltinType::Char,
+            Literal::String(_) => BuiltinType::String,
+        };
+        Self::Builtin(builtin)
+    }
+
+    fn type_of_identifier(
+        local: &SymbolTable<'ast>,
+        global: &SymbolTable<'ast>,
+        identifier: Identifier,
+    ) -> Result<Self, ErrorList> {
+        let record_evaluator = |record: &Record| match record {
+            Record::ImmutableVariable(var) | Record::MutableVariable(var) => {
+                if let Some(type_hint) = &var.type_hint {
+                    Self::Custom(Identifier(type_hint.full))
+                } else {
+                    Self::type_of(local, global, &var.value)
+                }
+            }
+            Record::Function(f) | Record::NativeFunction(f) => Self::Custom(f.signature.name),
+        };
+
+        // first, look if the variable exists in the local symbol table
+        if let Some(symbol) = local.lookup(identifier) {
+            Ok(record_evaluator(symbol))
+        }
+        // if not, search in the global symbol table
+        else if let Some(symbol) = global.lookup(identifier) {
+            Ok(record_evaluator(symbol))
+        }
+        // we haven't found the variable -> error
+        else {
+            Err(())
+        }
+    }
 }

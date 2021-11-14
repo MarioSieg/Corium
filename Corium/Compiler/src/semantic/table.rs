@@ -238,6 +238,11 @@ impl<'ast> SymbolTable<'ast> {
     }
 
     #[inline]
+    pub fn lookup(&self, ident: Identifier<'ast>) -> Option<&Record<'ast>> {
+        self.0.get(&ident)
+    }
+
+    #[inline]
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
