@@ -242,7 +242,7 @@ impl<'a> LocalState<'a> {
     ) -> Result<(), ErrorList> {
         if let Some(existing) = self
             .table
-            .insert(variable.name, Record::MutableVariable(variable))
+            .insert(&variable.name, Record::MutableVariable(variable))
         {
             Err(self.definition_error(&existing, statement))
         } else {
@@ -257,7 +257,7 @@ impl<'a> LocalState<'a> {
     ) -> Result<(), ErrorList> {
         if let Some(existing) = self
             .table
-            .insert(variable.name, Record::ImmutableVariable(variable))
+            .insert(&variable.name, Record::ImmutableVariable(variable))
         {
             Err(self.definition_error(&existing, statement))
         } else {
@@ -268,7 +268,7 @@ impl<'a> LocalState<'a> {
     #[cold]
     pub fn definition_error(&self, previous: &Record, current: &LocalStatement) -> ErrorList {
         let smt_type = current.descriptive_name();
-        let smt_ident = current.code_identifier().0.red().bold();
+        let smt_ident = current.code_identifier().full.red().bold();
         let fun_name = self.signature().name.to_string().red().bold();
         let rec_name = previous.descriptive_name();
         let message = format!(
@@ -285,7 +285,7 @@ impl<'a> LocalState<'a> {
         current: &LocalStatement,
     ) -> ErrorList {
         let smt_type = current.descriptive_name();
-        let smt_ident = current.code_identifier().0.red().bold();
+        let smt_ident = current.code_identifier().full.red().bold();
         let fun_name = self.signature().name.to_string().red().bold();
         let rec_name = previous.descriptive_name();
         let message = format!(
@@ -307,7 +307,7 @@ impl<'a> LocalState<'a> {
     }
 
     #[cold]
-    pub fn missing_return_expr_error(&self, required_type: &QualifiedName) -> ErrorList {
+    pub fn missing_return_expr_error(&self, required_type: &Identifier) -> ErrorList {
         let fun_name = self.signature().name.to_string().red().bold();
         let required_type = required_type.full.red().bold();
         let message = format!(

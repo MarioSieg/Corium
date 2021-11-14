@@ -239,11 +239,11 @@ impl<'ast> Statement for LocalStatement<'ast> {
         }
     }
 
-    fn code_identifier(&self) -> Identifier {
+    fn code_identifier(&self) -> &'ast Identifier {
         match self {
-            Self::MutableVariable(x) => x.name,
-            Self::ImmutableVariable(x) => x.name,
-            Self::ReturnStatement(_) => Identifier("return"),
+            Self::MutableVariable(x) => &x.name,
+            Self::ImmutableVariable(x) => &x.name,
+            _ => unreachable!(),
         }
     }
 }

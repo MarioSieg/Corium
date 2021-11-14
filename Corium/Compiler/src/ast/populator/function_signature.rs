@@ -210,7 +210,7 @@ impl<'ast> NestedAstPopulator<'ast> for FunctionSignature<'ast> {
         let name = {
             let inner = rule.next().unwrap();
             debug_assert_eq!(inner.as_rule(), Rule::Identifier);
-            Identifier::merge(inner.as_str())
+            Identifier::populate(inner.into_inner())
         };
         let (parameters, return_type) = if let Some(inner) = rule.next() {
             match inner.as_rule() {
@@ -218,18 +218,18 @@ impl<'ast> NestedAstPopulator<'ast> for FunctionSignature<'ast> {
                     debug_assert_eq!(inner.as_rule(), Rule::ParameterList);
                     let parameters = Some(ParameterList::populate(inner.into_inner()));
                     let return_type = if let Some(inner) = rule.next() {
-                        debug_assert_eq!(inner.as_rule(), Rule::QualifiedName);
-                        Some(QualifiedName::populate(inner.into_inner()))
+                        debug_assert_eq!(inner.as_rule(), Rule::Identifier);
+                        Some(Identifier::populate(inner.into_inner()))
                     } else {
                         None
                     };
                     (parameters, return_type)
                 }
-                Rule::QualifiedName => (
+                Rule::Identifier => (
                     None,
                     Some({
-                        debug_assert_eq!(inner.as_rule(), Rule::QualifiedName);
-                        QualifiedName::populate(inner.into_inner())
+                        debug_assert_eq!(inner.as_rule(), Rule::Identifier);
+                        Identifier::populate(inner.into_inner())
                     }),
                 ),
                 _ => unreachable!(),

@@ -210,13 +210,13 @@ impl<'ast> NestedAstPopulator<'ast> for MutableVariable<'ast> {
         let name = {
             let inner = rule.next().unwrap();
             debug_assert_eq!(inner.as_rule(), Rule::Identifier);
-            Identifier::merge(inner.as_str())
+            Identifier::populate(inner.into_inner())
         };
         let inner = rule.next().unwrap();
         let (type_hint, value) = match inner.as_rule() {
-            Rule::QualifiedName => {
-                debug_assert_eq!(inner.as_rule(), Rule::QualifiedName);
-                let type_hint = Some(QualifiedName::populate(inner.into_inner()));
+            Rule::Identifier => {
+                debug_assert_eq!(inner.as_rule(), Rule::Identifier);
+                let type_hint = Some(Identifier::populate(inner.into_inner()));
                 let inner = rule.next().unwrap();
                 debug_assert_eq!(inner.as_rule(), Rule::Expression);
                 let value = Expression::populate(inner.into_inner());

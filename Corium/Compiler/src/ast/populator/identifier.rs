@@ -205,8 +205,8 @@
 
 use super::populator_prelude::*;
 
-impl<'ast> AtomicAstPopulator<'ast> for Identifier<'ast> {
-    fn merge(span: &'ast str) -> Self {
-        Self(span)
+impl<'ast> NestedAstPopulator<'ast> for Identifier<'ast> {
+    fn populate(rule: RulePairs<'ast>) -> Self {
+        Self::new(rule.as_str())
     }
 }

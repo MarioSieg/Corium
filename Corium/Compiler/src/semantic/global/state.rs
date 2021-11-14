@@ -229,7 +229,7 @@ impl<'ast> GlobalState<'ast> {
     #[cold]
     pub fn definition_error(&self, previous: &Record, current: &GlobalStatement) -> ErrorList {
         let smt_type = current.descriptive_name();
-        let smt_ident = current.code_identifier().0.red().bold();
+        let smt_ident = current.code_identifier().full.red().bold();
         let rec_name = previous.descriptive_name();
         let message = format!(
             "Global {} `{}` already defined as {} before",

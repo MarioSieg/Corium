@@ -222,7 +222,6 @@ pub mod mutable_variable;
 pub mod native_function;
 pub mod parameter;
 pub mod parameter_list;
-pub mod qualified_name;
 pub mod return_statement;
 pub mod unary_operator;
 
@@ -256,7 +255,6 @@ pub mod prelude {
     pub use super::native_function::*;
     pub use super::parameter::*;
     pub use super::parameter_list::*;
-    pub use super::qualified_name::*;
     pub use super::return_statement::*;
     pub use super::unary_operator::*;
     pub use super::AstPopulator;

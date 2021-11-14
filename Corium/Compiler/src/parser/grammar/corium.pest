@@ -18,7 +18,7 @@ NativeFunction = {
 }
 
 FunctionSignature = {
-    "function " ~ Identifier ~ " (" ~ ParameterList? ~ ")" ~ (" " ~ QualifiedName)?
+    "function " ~ Identifier ~ " (" ~ ParameterList? ~ ")" ~ (" " ~ Identifier)?
 }
 
 Block = {
@@ -32,15 +32,15 @@ LocalStatement = {
 }
 
 Module = {
-    "module " ~ QualifiedName ~ NEWLINE
+    "module " ~ Identifier ~ NEWLINE
 }
 
 MutableVariable = {
-    "let " ~ Identifier ~ (" " ~ QualifiedName)? ~ " = " ~ Expression ~ NEWLINE
+    "let " ~ Identifier ~ (" " ~ Identifier)? ~ " = " ~ Expression ~ NEWLINE
 }
 
 ImmutableVariable = {
-    "const " ~ Identifier ~ (" " ~ QualifiedName)? ~ " = " ~ Expression ~ NEWLINE
+    "const " ~ Identifier ~ (" " ~ Identifier)? ~ " = " ~ Expression ~ NEWLINE
 }
 
 ReturnStatement = {
@@ -52,7 +52,7 @@ ParameterList = {
 }
 
 Parameter = {
-    Identifier ~ " " ~ QualifiedName ~ (" = " ~ Expression)?
+    Identifier ~ " " ~ Identifier ~ (" = " ~ Expression)?
 }
 
 Expression = {
@@ -133,10 +133,6 @@ Literal = {
     StringLiteral
 }
 
-QualifiedName = {
-    Identifier ~ ("." ~ Identifier)*
-}
-
 FloatLiteral = @{
     (("_"? ~ ASCII_DIGIT)+ ~ "." ~ ("_"? ~ ASCII_DIGIT)+)
 }
@@ -158,7 +154,11 @@ StringLiteral = @{
 }
 
 Identifier = {
-    ASCII_ALPHA ~ ASCII_ALPHANUMERIC*
+    IdentifierText ~ ("." ~ IdentifierText)*
+}
+
+IdentifierText = @{
+ ASCII_ALPHA ~ ASCII_ALPHANUMERIC*
 }
 
 Char = @{

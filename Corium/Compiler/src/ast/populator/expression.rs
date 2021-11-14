@@ -223,7 +223,7 @@ impl<'ast> NestedAstPopulator<'ast> for Expression<'ast> {
                 Rule::IdentifierExpression => {
                     let inner = inner.into_inner().next().unwrap();
                     debug_assert_eq!(inner.as_rule(), Rule::Identifier);
-                    Self::Identifier(Identifier::merge(inner.as_str()))
+                    Self::Identifier(Identifier::populate(inner.into_inner()))
                 }
                 Rule::ParenthesisExpression => {
                     let inner = inner.into_inner().next().unwrap();

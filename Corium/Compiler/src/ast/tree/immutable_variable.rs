@@ -204,12 +204,12 @@
 //    limitations under the License.
 
 use super::tree_prelude::*;
-use super::{expression::Expression, identifier::Identifier, qualified_name::QualifiedName};
+use super::{expression::Expression, identifier::Identifier};
 
 #[derive(Clone, Debug)]
 pub struct ImmutableVariable<'ast> {
     pub name: Identifier<'ast>,
-    pub type_hint: Option<QualifiedName<'ast>>,
+    pub type_hint: Option<Identifier<'ast>>,
     pub value: Expression<'ast>,
 }
 

@@ -205,15 +205,29 @@
 
 use super::tree_prelude::*;
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
-pub struct Identifier<'ast>(pub &'ast str);
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+pub struct Identifier<'ast> {
+    pub full: &'ast str,
+    pub split: Vec<&'ast str>,
+}
+
+impl<'ast> fmt::Display for Identifier<'ast> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.full)
+    }
+}
 
 impl<'ast> AstComponent for Identifier<'ast> {
     const CORRESPONDING_RULE: Rule = Rule::Identifier;
 }
 
-impl<'ast> fmt::Display for Identifier<'ast> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.0)
+impl<'ast> Identifier<'ast> {
+    #[inline]
+    pub fn new(full: &'ast str) -> Self {
+        let split = full.split('.').collect();
+        Self {
+            full,
+            split
+        }
     }
 }

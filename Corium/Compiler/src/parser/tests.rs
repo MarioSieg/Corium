@@ -229,7 +229,7 @@ mod rules {
 
             #[test]
             fn simple() {
-                let result = CoriumParser::parse(Rule::QualifiedName, "MyPackage")
+                let result = CoriumParser::parse(Rule::Identifier, "MyPackage")
                     .unwrap()
                     .as_str();
                 assert_eq!(result, "MyPackage");
@@ -237,7 +237,7 @@ mod rules {
 
             #[test]
             fn nested() {
-                let result = CoriumParser::parse(Rule::QualifiedName, "MyPackage.Class")
+                let result = CoriumParser::parse(Rule::Identifier, "MyPackage.Class")
                     .unwrap()
                     .as_str();
                 assert_eq!(result, "MyPackage.Class");
@@ -245,17 +245,16 @@ mod rules {
 
             #[test]
             fn nested2() {
-                let result =
-                    CoriumParser::parse(Rule::QualifiedName, "MyPackage.Class.StaticMember")
-                        .unwrap()
-                        .as_str();
+                let result = CoriumParser::parse(Rule::Identifier, "MyPackage.Class.StaticMember")
+                    .unwrap()
+                    .as_str();
                 assert_eq!(result, "MyPackage.Class.StaticMember");
             }
 
             #[test]
             fn nested3() {
                 let result =
-                    CoriumParser::parse(Rule::QualifiedName, "MyPackage.Class.StaticMember.Field")
+                    CoriumParser::parse(Rule::Identifier, "MyPackage.Class.StaticMember.Field")
                         .unwrap()
                         .as_str();
                 assert_eq!(result, "MyPackage.Class.StaticMember.Field");
@@ -267,13 +266,13 @@ mod rules {
 
             #[test]
             fn numeric() {
-                let result = CoriumParser::parse(Rule::QualifiedName, "+MyPackage");
+                let result = CoriumParser::parse(Rule::Identifier, "+MyPackage");
                 assert!(result.is_err());
             }
 
             #[test]
             fn missing_subpackage() {
-                let result = CoriumParser::parse(Rule::QualifiedName, "MyPackage.")
+                let result = CoriumParser::parse(Rule::Identifier, "MyPackage.")
                     .unwrap()
                     .as_str();
                 assert_eq!(result, "MyPackage");
@@ -281,7 +280,7 @@ mod rules {
 
             #[test]
             fn nested_numeric() {
-                let result = CoriumParser::parse(Rule::QualifiedName, "MyPackage.10Class")
+                let result = CoriumParser::parse(Rule::Identifier, "MyPackage.10Class")
                     .unwrap()
                     .as_str();
                 assert_eq!(result, "MyPackage");
@@ -289,19 +288,19 @@ mod rules {
 
             #[test]
             fn no_names() {
-                let result = CoriumParser::parse(Rule::QualifiedName, ".");
+                let result = CoriumParser::parse(Rule::Identifier, ".");
                 assert!(result.is_err());
             }
 
             #[test]
             fn missing_super_package() {
-                let result = CoriumParser::parse(Rule::QualifiedName, ".MyPackage");
+                let result = CoriumParser::parse(Rule::Identifier, ".MyPackage");
                 assert!(result.is_err());
             }
 
             #[test]
             fn numeric_subpackage() {
-                let result = CoriumParser::parse(Rule::QualifiedName, "MyPackage.0")
+                let result = CoriumParser::parse(Rule::Identifier, "MyPackage.0")
                     .unwrap()
                     .as_str();
                 assert_eq!(result, "MyPackage");
@@ -309,7 +308,7 @@ mod rules {
 
             #[test]
             fn dots() {
-                let result = CoriumParser::parse(Rule::QualifiedName, "MyPackage.X..y")
+                let result = CoriumParser::parse(Rule::Identifier, "MyPackage.X..y")
                     .unwrap()
                     .as_str();
                 assert_eq!(result, "MyPackage.X");
@@ -317,7 +316,7 @@ mod rules {
 
             #[test]
             fn missing_subpackage_nested() {
-                let result = CoriumParser::parse(Rule::QualifiedName, "MyPackage.Class.")
+                let result = CoriumParser::parse(Rule::Identifier, "MyPackage.Class.")
                     .unwrap()
                     .as_str();
                 assert_eq!(result, "MyPackage.Class");
@@ -1266,7 +1265,7 @@ mod rules {
                 assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "myParam");
                 let typename = result.next().unwrap();
-                assert_eq!(typename.as_rule(), Rule::QualifiedName);
+                assert_eq!(typename.as_rule(), Rule::Identifier);
                 assert_eq!(typename.as_str(), "int");
             }
 
@@ -1278,7 +1277,7 @@ mod rules {
                 assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "myParam");
                 let typename = result.next().unwrap();
-                assert_eq!(typename.as_rule(), Rule::QualifiedName);
+                assert_eq!(typename.as_rule(), Rule::Identifier);
                 assert_eq!(typename.as_str(), "float");
             }
 
@@ -1290,7 +1289,7 @@ mod rules {
                 assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "myParam");
                 let typename = result.next().unwrap();
-                assert_eq!(typename.as_rule(), Rule::QualifiedName);
+                assert_eq!(typename.as_rule(), Rule::Identifier);
                 assert_eq!(typename.as_str(), "MyClass");
             }
 
@@ -1303,7 +1302,7 @@ mod rules {
                 assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "myParam");
                 let typename = result.next().unwrap();
-                assert_eq!(typename.as_rule(), Rule::QualifiedName);
+                assert_eq!(typename.as_rule(), Rule::Identifier);
                 assert_eq!(typename.as_str(), "MyPackage.MyClass");
             }
 
@@ -1315,7 +1314,7 @@ mod rules {
                 assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "myParam");
                 let typename = result.next().unwrap();
-                assert_eq!(typename.as_rule(), Rule::QualifiedName);
+                assert_eq!(typename.as_rule(), Rule::Identifier);
                 assert_eq!(typename.as_str(), "int");
                 let expr = result.next().unwrap();
                 assert_eq!(expr.as_rule(), Rule::Expression);
@@ -1341,7 +1340,7 @@ mod rules {
                 assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "myParam");
                 let typename = result.next().unwrap();
-                assert_eq!(typename.as_rule(), Rule::QualifiedName);
+                assert_eq!(typename.as_rule(), Rule::Identifier);
                 assert_eq!(typename.as_str(), "float");
                 let expr = result.next().unwrap();
                 assert_eq!(expr.as_rule(), Rule::Expression);
@@ -1367,7 +1366,7 @@ mod rules {
                 assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "myParam");
                 let typename = result.next().unwrap();
-                assert_eq!(typename.as_rule(), Rule::QualifiedName);
+                assert_eq!(typename.as_rule(), Rule::Identifier);
                 assert_eq!(typename.as_str(), "bool");
                 let expr = result.next().unwrap();
                 assert_eq!(expr.as_rule(), Rule::Expression);
@@ -1393,7 +1392,7 @@ mod rules {
                 assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "myParam");
                 let typename = result.next().unwrap();
-                assert_eq!(typename.as_rule(), Rule::QualifiedName);
+                assert_eq!(typename.as_rule(), Rule::Identifier);
                 assert_eq!(typename.as_str(), "char");
                 let expr = result.next().unwrap();
                 assert_eq!(expr.as_rule(), Rule::Expression);
@@ -1420,7 +1419,7 @@ mod rules {
                 assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "myParam");
                 let typename = result.next().unwrap();
-                assert_eq!(typename.as_rule(), Rule::QualifiedName);
+                assert_eq!(typename.as_rule(), Rule::Identifier);
                 assert_eq!(typename.as_str(), "string");
                 let expr = result.next().unwrap();
                 assert_eq!(expr.as_rule(), Rule::Expression);
@@ -1678,7 +1677,7 @@ mod rules {
                 assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "x");
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::QualifiedName);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "int");
                 let literal = result.next().unwrap();
                 assert_eq!(literal.as_rule(), Rule::Expression);
@@ -1695,7 +1694,7 @@ mod rules {
                 assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "x");
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::QualifiedName);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "float");
                 let literal = result.next().unwrap();
                 assert_eq!(literal.as_rule(), Rule::Expression);
@@ -1712,7 +1711,7 @@ mod rules {
                 assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "x");
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::QualifiedName);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "char");
                 let literal = result.next().unwrap();
                 assert_eq!(literal.as_rule(), Rule::Expression);
@@ -1729,7 +1728,7 @@ mod rules {
                 assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "x");
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::QualifiedName);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "bool");
                 let literal = result.next().unwrap();
                 assert_eq!(literal.as_rule(), Rule::Expression);
@@ -1747,7 +1746,7 @@ mod rules {
                 assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "x");
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::QualifiedName);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "string");
                 let literal = result.next().unwrap();
                 assert_eq!(literal.as_rule(), Rule::Expression);
@@ -1900,7 +1899,7 @@ mod rules {
                 assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "x");
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::QualifiedName);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "int");
                 let literal = result.next().unwrap();
                 assert_eq!(literal.as_rule(), Rule::Expression);
@@ -1917,7 +1916,7 @@ mod rules {
                 assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "x");
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::QualifiedName);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "float");
                 let literal = result.next().unwrap();
                 assert_eq!(literal.as_rule(), Rule::Expression);
@@ -1934,7 +1933,7 @@ mod rules {
                 assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "x");
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::QualifiedName);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "char");
                 let literal = result.next().unwrap();
                 assert_eq!(literal.as_rule(), Rule::Expression);
@@ -1951,7 +1950,7 @@ mod rules {
                 assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "x");
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::QualifiedName);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "bool");
                 let literal = result.next().unwrap();
                 assert_eq!(literal.as_rule(), Rule::Expression);
@@ -1969,7 +1968,7 @@ mod rules {
                 assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "x");
                 let ident = result.next().unwrap();
-                assert_eq!(ident.as_rule(), Rule::QualifiedName);
+                assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "string");
                 let literal = result.next().unwrap();
                 assert_eq!(literal.as_rule(), Rule::Expression);
@@ -2265,7 +2264,7 @@ mod rules {
                 assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "f");
                 let ret = result.next().unwrap();
-                assert_eq!(ret.as_rule(), Rule::QualifiedName);
+                assert_eq!(ret.as_rule(), Rule::Identifier);
                 assert_eq!(ret.as_str(), "int");
             }
 
@@ -2317,7 +2316,7 @@ mod rules {
                 assert_eq!(params.as_rule(), Rule::ParameterList);
                 assert_eq!(params.as_str(), "x float");
                 let ret = result.next().unwrap();
-                assert_eq!(ret.as_rule(), Rule::QualifiedName);
+                assert_eq!(ret.as_rule(), Rule::Identifier);
                 assert_eq!(ret.as_str(), "float");
             }
 
@@ -2409,7 +2408,7 @@ mod rules {
                 assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "f");
                 let ret = result.next().unwrap();
-                assert_eq!(ret.as_rule(), Rule::QualifiedName);
+                assert_eq!(ret.as_rule(), Rule::Identifier);
                 assert_eq!(ret.as_str(), "int");
             }
 
@@ -2467,7 +2466,7 @@ mod rules {
                 assert_eq!(params.as_rule(), Rule::ParameterList);
                 assert_eq!(params.as_str(), "x float");
                 let ret = result.next().unwrap();
-                assert_eq!(ret.as_rule(), Rule::QualifiedName);
+                assert_eq!(ret.as_rule(), Rule::Identifier);
                 assert_eq!(ret.as_str(), "float");
             }
 
@@ -2565,7 +2564,7 @@ mod rules {
                 assert_eq!(ident.as_rule(), Rule::Identifier);
                 assert_eq!(ident.as_str(), "f");
                 let ret = result.next().unwrap();
-                assert_eq!(ret.as_rule(), Rule::QualifiedName);
+                assert_eq!(ret.as_rule(), Rule::Identifier);
                 assert_eq!(ret.as_str(), "int");
             }
 
@@ -2620,7 +2619,7 @@ mod rules {
                 assert_eq!(params.as_rule(), Rule::ParameterList);
                 assert_eq!(params.as_str(), "x float");
                 let ret = result.next().unwrap();
-                assert_eq!(ret.as_rule(), Rule::QualifiedName);
+                assert_eq!(ret.as_rule(), Rule::Identifier);
                 assert_eq!(ret.as_str(), "float");
             }
 

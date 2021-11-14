@@ -228,45 +228,45 @@ mod tables {
         let result = analyze(&result, "Test.cor").unwrap();
         assert!(result.errors.is_empty());
         assert_eq!(result.global.table.len(), 4);
-        assert!(result.global.table.contains(Identifier("x")));
-        assert!(result.global.table.contains(Identifier("y")));
-        assert!(result.global.table.contains(Identifier("f")));
+        assert!(result.global.table.contains(&Identifier::new("x")));
+        assert!(result.global.table.contains(&Identifier::new("y")));
+        assert!(result.global.table.contains(&Identifier::new("f")));
 
-        let a = result.global.table.0.get(&Identifier("x"));
+        let a = result.global.table.0.get(&Identifier::new("x"));
         let _b = Record::MutableVariable(&MutableVariable {
-            name: Identifier("x"),
-            type_hint: Some(QualifiedName::from("int")),
+            name: Identifier::new("x"),
+            type_hint: Some(Identifier::new("int")),
             value: Expression::Literal(Literal::Int(10)),
         });
         assert!(matches!(a, _b));
 
-        let a = result.global.table.0.get(&Identifier("y"));
+        let a = result.global.table.0.get(&Identifier::new("y"));
         let _b = Record::ImmutableVariable(&ImmutableVariable {
-            name: Identifier("y"),
+            name: Identifier::new("y"),
             type_hint: None,
             value: Expression::Literal(Literal::Float(10.0)),
         });
         assert!(matches!(a, _b));
 
-        let a = result.global.table.0.get(&Identifier("f"));
+        let a = result.global.table.0.get(&Identifier::new("f"));
         let _b = Record::Function(&Function {
             signature: FunctionSignature {
-                name: Identifier("f"),
+                name: Identifier::new("f"),
                 parameters: Some(ParameterList(vec![Parameter {
-                    name: Identifier("x"),
-                    type_hint: QualifiedName::from("int"),
+                    name: Identifier::new("x"),
+                    type_hint: Identifier::new("int"),
                     value: Some(Expression::Literal(Literal::Int(3))),
                 }])),
-                return_type: Some(QualifiedName::from("bool")),
+                return_type: Some(Identifier::new("bool")),
             },
             block: Block(vec![]),
         });
         assert!(matches!(a, _b));
 
-        let a = result.global.table.0.get(&Identifier("z"));
+        let a = result.global.table.0.get(&Identifier::new("z"));
         let _b = Record::NativeFunction(&crate::ast::tree::native_function::NativeFunction {
             signature: FunctionSignature {
-                name: Identifier("z"),
+                name: Identifier::new("z"),
                 parameters: None,
                 return_type: None,
             },
@@ -287,11 +287,11 @@ mod tables {
         let result = analyze(&result, "Test.cor").unwrap();
         assert!(result.errors.is_empty());
         assert_eq!(result.global.table.len(), 1);
-        assert!(result.global.table.contains(Identifier("f")));
+        assert!(result.global.table.contains(&Identifier::new("f")));
 
         assert_eq!(result.global.local.table.len(), 2);
-        assert!(result.global.local.table.contains(Identifier("x")));
-        assert!(result.global.local.table.contains(Identifier("y")));
+        assert!(result.global.local.table.contains(&Identifier::new("x")));
+        assert!(result.global.local.table.contains(&Identifier::new("y")));
     }
 }
 
@@ -307,26 +307,26 @@ mod mocks {
         pub fn fun1() -> GlobalStatement<'static> {
             GlobalStatement::Function(Function {
                 signature: FunctionSignature {
-                    name: Identifier("square"),
+                    name: Identifier::new("square"),
                     parameters: Some(ParameterList(vec![
                         Parameter {
-                            name: Identifier("x"),
-                            type_hint: QualifiedName::from("float"),
+                            name: Identifier::new("x"),
+                            type_hint: Identifier::new("float"),
                             value: None,
                         },
                         Parameter {
-                            name: Identifier("y"),
-                            type_hint: QualifiedName::from("float"),
+                            name: Identifier::new("y"),
+                            type_hint: Identifier::new("float"),
                             value: Some(Expression::Literal(Literal::Float(1.0))),
                         },
                     ])),
-                    return_type: Some(QualifiedName::from("float")),
+                    return_type: Some(Identifier::new("float")),
                 },
                 block: Block(vec![LocalStatement::ReturnStatement(ReturnStatement(
                     Some(Expression::Binary {
-                        lhs: Box::new(Expression::Identifier(Identifier("x"))),
+                        lhs: Box::new(Expression::Identifier(Identifier::new("x"))),
                         op: BinaryOperator::Multiplication,
-                        rhs: Box::new(Expression::Identifier(Identifier("y"))),
+                        rhs: Box::new(Expression::Identifier(Identifier::new("y"))),
                     }),
                 ))]),
             })
@@ -335,8 +335,8 @@ mod mocks {
         // let counter int = 1
         pub fn mut_var1() -> GlobalStatement<'static> {
             GlobalStatement::MutableVariable(MutableVariable {
-                name: Identifier("counter"),
-                type_hint: Some(QualifiedName::from("int")),
+                name: Identifier::new("counter"),
+                type_hint: Some(Identifier::new("int")),
                 value: Expression::Literal(Literal::Int(1)),
             })
         }
@@ -344,7 +344,7 @@ mod mocks {
         // let name = "Mario Sieg"
         pub fn mut_var2() -> GlobalStatement<'static> {
             GlobalStatement::MutableVariable(MutableVariable {
-                name: Identifier("name"),
+                name: Identifier::new("name"),
                 type_hint: None,
                 value: Expression::Literal(Literal::String("Mario Sieg")),
             })
@@ -353,7 +353,7 @@ mod mocks {
         // let name = "Mario Sieg"
         pub fn mut_var3() -> GlobalStatement<'static> {
             GlobalStatement::MutableVariable(MutableVariable {
-                name: Identifier("square"),
+                name: Identifier::new("square"),
                 type_hint: None,
                 value: Expression::Literal(Literal::String("Mario Sieg")),
             })
@@ -362,8 +362,8 @@ mod mocks {
         // const counter int = 1
         pub fn const_var1() -> GlobalStatement<'static> {
             GlobalStatement::ImmutableVariable(ImmutableVariable {
-                name: Identifier("counter"),
-                type_hint: Some(QualifiedName::from("int")),
+                name: Identifier::new("counter"),
+                type_hint: Some(Identifier::new("int")),
                 value: Expression::Literal(Literal::Int(1)),
             })
         }
@@ -371,7 +371,7 @@ mod mocks {
         // const name = "Mario Sieg"
         pub fn const_var2() -> GlobalStatement<'static> {
             GlobalStatement::ImmutableVariable(ImmutableVariable {
-                name: Identifier("name"),
+                name: Identifier::new("name"),
                 type_hint: None,
                 value: Expression::Literal(Literal::String("Mario Sieg")),
             })
@@ -380,7 +380,7 @@ mod mocks {
         // const name = "Mario Sieg"
         pub fn const_var3() -> GlobalStatement<'static> {
             GlobalStatement::ImmutableVariable(ImmutableVariable {
-                name: Identifier("square"),
+                name: Identifier::new("square"),
                 type_hint: None,
                 value: Expression::Literal(Literal::String("Mario Sieg")),
             })
@@ -393,8 +393,8 @@ mod mocks {
         // let counter int = 1
         pub fn mut_var1() -> LocalStatement<'static> {
             LocalStatement::MutableVariable(MutableVariable {
-                name: Identifier("counter"),
-                type_hint: Some(QualifiedName::from("int")),
+                name: Identifier::new("counter"),
+                type_hint: Some(Identifier::new("int")),
                 value: Expression::Literal(Literal::Int(1)),
             })
         }
@@ -402,7 +402,7 @@ mod mocks {
         // let name = "Mario Sieg"
         pub fn mut_var2() -> LocalStatement<'static> {
             LocalStatement::MutableVariable(MutableVariable {
-                name: Identifier("name"),
+                name: Identifier::new("name"),
                 type_hint: None,
                 value: Expression::Literal(Literal::String("Mario Sieg")),
             })
@@ -411,7 +411,7 @@ mod mocks {
         // let name = "Mario Sieg"
         pub fn mut_var3() -> LocalStatement<'static> {
             LocalStatement::MutableVariable(MutableVariable {
-                name: Identifier("square"),
+                name: Identifier::new("square"),
                 type_hint: None,
                 value: Expression::Literal(Literal::String("Mario Sieg")),
             })
@@ -420,8 +420,8 @@ mod mocks {
         // const counter int = 1
         pub fn const_var1() -> LocalStatement<'static> {
             LocalStatement::ImmutableVariable(ImmutableVariable {
-                name: Identifier("counter"),
-                type_hint: Some(QualifiedName::from("int")),
+                name: Identifier::new("counter"),
+                type_hint: Some(Identifier::new("int")),
                 value: Expression::Literal(Literal::Int(1)),
             })
         }
@@ -429,7 +429,7 @@ mod mocks {
         // const name = "Mario Sieg"
         pub fn const_var2() -> LocalStatement<'static> {
             LocalStatement::ImmutableVariable(ImmutableVariable {
-                name: Identifier("name"),
+                name: Identifier::new("name"),
                 type_hint: None,
                 value: Expression::Literal(Literal::String("Mario Sieg")),
             })
@@ -438,7 +438,7 @@ mod mocks {
         // const name = "Mario Sieg"
         pub fn const_var3() -> LocalStatement<'static> {
             LocalStatement::ImmutableVariable(ImmutableVariable {
-                name: Identifier("square"),
+                name: Identifier::new("square"),
                 type_hint: None,
                 value: Expression::Literal(Literal::String("Mario Sieg")),
             })
@@ -529,7 +529,7 @@ mod invalid {
         fn local_to_global<'ast>(local: &[&LocalStatement<'ast>]) -> GlobalStatement<'ast> {
             GlobalStatement::Function(Function {
                 signature: FunctionSignature {
-                    name: Identifier("f"),
+                    name: Identifier::new("f"),
                     return_type: None,
                     parameters: None,
                 },

@@ -219,7 +219,7 @@ impl<'ast> LocalSemanticAnalysis<'ast> for LocalStatement<'ast> {
         match self {
             Self::MutableVariable(variable) => {
                 // check if identifier is already used in the global scope
-                if global_table.contains(variable.name) {
+                if global_table.contains(&variable.name) {
                     // local shadowing is not allowed - symbol already defined -> error
                     Err(local_state
                         .global_definition_error(&Record::MutableVariable(variable), self))
@@ -230,7 +230,7 @@ impl<'ast> LocalSemanticAnalysis<'ast> for LocalStatement<'ast> {
             }
             Self::ImmutableVariable(variable) => {
                 // check if identifier is already used in the global scope
-                if global_table.contains(variable.name) {
+                if global_table.contains(&variable.name) {
                     // local shadowing is not allowed - symbol already defined -> error
                     Err(local_state
                         .global_definition_error(&Record::ImmutableVariable(variable), self))

@@ -203,7 +203,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use super::qualified_name::QualifiedName;
+use super::identifier::Identifier;
 use super::tree_prelude::*;
 use std::default;
 
@@ -214,7 +214,7 @@ pub enum Module<'ast> {
     Derived(String),
 
     /// Module name is explicitly defined in the source code.
-    Explicit(QualifiedName<'ast>),
+    Explicit(Identifier<'ast>),
 }
 
 impl<'ast> AstComponent for Module<'ast> {
@@ -250,6 +250,6 @@ impl<'ast> fmt::Display for Module<'ast> {
 
 impl<'ast> default::Default for Module<'ast> {
     fn default() -> Self {
-        Self::Explicit(QualifiedName::from("?"))
+        Self::Explicit(Identifier::new("?"))
     }
 }

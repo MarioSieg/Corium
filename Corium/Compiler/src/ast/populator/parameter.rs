@@ -210,12 +210,12 @@ impl<'ast> NestedAstPopulator<'ast> for Parameter<'ast> {
         let name = {
             let inner = rule.next().unwrap();
             debug_assert_eq!(inner.as_rule(), Rule::Identifier);
-            Identifier::merge(inner.as_str())
+            Identifier::populate(inner.into_inner())
         };
         let type_hint = {
             let inner = rule.next().unwrap();
-            debug_assert_eq!(inner.as_rule(), Rule::QualifiedName);
-            QualifiedName::populate(inner.into_inner())
+            debug_assert_eq!(inner.as_rule(), Rule::Identifier);
+            Identifier::populate(inner.into_inner())
         };
         let value = rule.next().map(|inner| {
             debug_assert_eq!(inner.as_rule(), Rule::Expression);

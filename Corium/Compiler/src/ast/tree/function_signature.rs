@@ -204,7 +204,7 @@
 //    limitations under the License.
 
 use super::tree_prelude::*;
-use super::{identifier::Identifier, parameter_list::ParameterList, qualified_name::QualifiedName};
+use super::{identifier::Identifier, parameter_list::ParameterList};
 
 const PARAM_MANGLE_SEPARATOR: char = '_';
 
@@ -212,7 +212,7 @@ const PARAM_MANGLE_SEPARATOR: char = '_';
 pub struct FunctionSignature<'ast> {
     pub name: Identifier<'ast>,
     pub parameters: Option<ParameterList<'ast>>,
-    pub return_type: Option<QualifiedName<'ast>>,
+    pub return_type: Option<Identifier<'ast>>,
 }
 
 impl<'ast> AstComponent for FunctionSignature<'ast> {
@@ -236,7 +236,7 @@ impl<'ast> fmt::Display for FunctionSignature<'ast> {
 
 impl<'ast> FunctionSignature<'ast> {
     pub fn overloaded_mangled_name(&self) -> String {
-        let mut result = self.name.0.to_string();
+        let mut result = self.name.to_string();
         if let Some(params) = &self.parameters {
             for param in &params.0 {
                 result.push(PARAM_MANGLE_SEPARATOR);

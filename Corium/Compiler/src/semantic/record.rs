@@ -254,7 +254,7 @@ mod tests {
     fn descriptive_name_mutable_variable() {
         assert_eq!(
             Record::MutableVariable(&MutableVariable {
-                name: Identifier("x"),
+                name: Identifier::new("x"),
                 type_hint: None,
                 value: Expression::Literal(Literal::Bool(true))
             })
@@ -267,7 +267,7 @@ mod tests {
     fn descriptive_name_immutable_variable() {
         assert_eq!(
             Record::ImmutableVariable(&ImmutableVariable {
-                name: Identifier("x"),
+                name: Identifier::new("x"),
                 type_hint: None,
                 value: Expression::Literal(Literal::Bool(true))
             })
@@ -281,7 +281,7 @@ mod tests {
         assert_eq!(
             Record::Function(&Function {
                 signature: FunctionSignature {
-                    name: Identifier("x"),
+                    name: Identifier::new("x"),
                     parameters: None,
                     return_type: None
                 },
@@ -297,7 +297,7 @@ mod tests {
         assert_eq!(
             Record::NativeFunction(&NativeFunction {
                 signature: FunctionSignature {
-                    name: Identifier("x"),
+                    name: Identifier::new("x"),
                     parameters: None,
                     return_type: None
                 }
@@ -310,7 +310,7 @@ mod tests {
     #[test]
     fn is_function_mutable_variable() {
         assert!(!Record::MutableVariable(&MutableVariable {
-            name: Identifier("x"),
+            name: Identifier::new("x"),
             type_hint: None,
             value: Expression::Literal(Literal::Bool(true))
         })
@@ -320,7 +320,7 @@ mod tests {
     #[test]
     fn is_function_immutable_variable() {
         assert!(!Record::ImmutableVariable(&ImmutableVariable {
-            name: Identifier("x"),
+            name: Identifier::new("x"),
             type_hint: None,
             value: Expression::Literal(Literal::Bool(true))
         })
@@ -331,7 +331,7 @@ mod tests {
     fn is_function_function() {
         assert!(Record::Function(&Function {
             signature: FunctionSignature {
-                name: Identifier("x"),
+                name: Identifier::new("x"),
                 parameters: None,
                 return_type: None
             },
@@ -344,7 +344,7 @@ mod tests {
     fn is_function_native_function() {
         assert!(Record::NativeFunction(&NativeFunction {
             signature: FunctionSignature {
-                name: Identifier("x"),
+                name: Identifier::new("x"),
                 parameters: None,
                 return_type: None
             }
@@ -355,7 +355,7 @@ mod tests {
     #[test]
     fn is_variable_mutable_variable() {
         assert!(Record::MutableVariable(&MutableVariable {
-            name: Identifier("x"),
+            name: Identifier::new("x"),
             type_hint: None,
             value: Expression::Literal(Literal::Bool(true))
         })
@@ -365,7 +365,7 @@ mod tests {
     #[test]
     fn is_variable_immutable_variable() {
         assert!(Record::ImmutableVariable(&ImmutableVariable {
-            name: Identifier("x"),
+            name: Identifier::new("x"),
             type_hint: None,
             value: Expression::Literal(Literal::Bool(true))
         })
@@ -376,7 +376,7 @@ mod tests {
     fn is_variable_function() {
         assert!(!Record::Function(&Function {
             signature: FunctionSignature {
-                name: Identifier("x"),
+                name: Identifier::new("x"),
                 parameters: None,
                 return_type: None
             },
@@ -389,7 +389,7 @@ mod tests {
     fn is_variable_native_function() {
         assert!(!Record::NativeFunction(&NativeFunction {
             signature: FunctionSignature {
-                name: Identifier("x"),
+                name: Identifier::new("x"),
                 parameters: None,
                 return_type: None
             }

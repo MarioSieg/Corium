@@ -270,7 +270,7 @@ fn file_name_to_module<'a>(file: &'a str, out: &mut Module<'a>) -> Result<(), Er
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ast::tree::qualified_name::QualifiedName;
+    use crate::ast::tree::identifier::Identifier;
     use crate::core::passes::parse::ParsePass;
 
     #[test]
@@ -376,7 +376,7 @@ mod tests {
         let file = "ParseTest2.cor";
         let result = ParsePass::execute(src, true, file).unwrap();
         let result: CompilationUnit = AstPopulationPass::execute(result, true, file).unwrap();
-        let _str = QualifiedName::from("myModule");
+        let _str = Identifier::new("myModule");
         if let Module::Explicit(name) = result.module {
             assert_eq!(name, _str);
         } else {

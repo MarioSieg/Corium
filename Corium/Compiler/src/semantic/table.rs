@@ -209,7 +209,7 @@ use std::collections::HashMap;
 use std::fmt;
 
 #[derive(Debug)]
-pub struct SymbolTable<'a>(pub HashMap<Identifier<'a>, Record<'a>>);
+pub struct SymbolTable<'ast>(pub HashMap<&'ast Identifier<'ast>, Record<'ast>>);
 
 impl<'ast> SymbolTable<'ast> {
     #[inline]
@@ -228,17 +228,21 @@ impl<'ast> SymbolTable<'ast> {
     }
 
     #[inline]
-    pub fn insert(&mut self, ident: Identifier<'ast>, elem: Record<'ast>) -> Option<Record<'ast>> {
+    pub fn insert(
+        &mut self,
+        ident: &'ast Identifier<'ast>,
+        elem: Record<'ast>,
+    ) -> Option<Record<'ast>> {
         self.0.insert(ident, elem)
     }
 
     #[inline]
-    pub fn contains(&self, ident: Identifier<'ast>) -> bool {
+    pub fn contains(&self, ident: &'ast Identifier<'ast>) -> bool {
         self.0.contains_key(&ident)
     }
 
     #[inline]
-    pub fn lookup(&self, ident: Identifier<'ast>) -> Option<&Record<'ast>> {
+    pub fn lookup(&self, ident: &'ast Identifier<'ast>) -> Option<&'ast Record<'_>> {
         self.0.get(&ident)
     }
 
@@ -296,15 +300,14 @@ mod tests {
 
     #[test]
     fn insert() {
+        let ident = Identifier::new("x");
+        let var = ImmutableVariable {
+            name: Identifier::new("x"),
+            type_hint: None,
+            value: Expression::Literal(Literal::Bool(true)),
+        };
         let mut x = SymbolTable::new();
-        let r = x.insert(
-            Identifier("x"),
-            Record::ImmutableVariable(&ImmutableVariable {
-                name: Identifier("x"),
-                type_hint: None,
-                value: Expression::Literal(Literal::Bool(true)),
-            }),
-        );
+        let r = x.insert(&ident, Record::ImmutableVariable(&var));
         assert!(r.is_none());
         assert!(!x.is_empty());
         assert_eq!(x.len(), 1);
@@ -312,26 +315,24 @@ mod tests {
 
     #[test]
     fn insert_same() {
+        let var = ImmutableVariable {
+            name: Identifier::new("x"),
+            type_hint: None,
+            value: Expression::Literal(Literal::Bool(true)),
+        };
+        let ident = Identifier::new("x");
         let mut x = SymbolTable::new();
-        let r = x.insert(
-            Identifier("x"),
-            Record::ImmutableVariable(&ImmutableVariable {
-                name: Identifier("x"),
-                type_hint: None,
-                value: Expression::Literal(Literal::Bool(true)),
-            }),
-        );
+        let r = x.insert(&ident, Record::ImmutableVariable(&var));
         assert!(r.is_none());
         assert!(!x.is_empty());
         assert_eq!(x.len(), 1);
-        let r2 = x.insert(
-            Identifier("x"),
-            Record::ImmutableVariable(&ImmutableVariable {
-                name: Identifier("x"),
-                type_hint: None,
-                value: Expression::Literal(Literal::Bool(true)),
-            }),
-        );
+        let ident = Identifier::new("x");
+        let var = ImmutableVariable {
+            name: Identifier::new("x"),
+            type_hint: None,
+            value: Expression::Literal(Literal::Bool(true)),
+        };
+        let r2 = x.insert(&ident, Record::ImmutableVariable(&var));
         assert!(r2.is_some());
         assert!(!x.is_empty());
         assert_eq!(x.len(), 1);
@@ -339,26 +340,24 @@ mod tests {
 
     #[test]
     fn insert_unique2() {
+        let var = ImmutableVariable {
+            name: Identifier::new("x"),
+            type_hint: None,
+            value: Expression::Literal(Literal::Bool(true)),
+        };
+        let ident = Identifier::new("x");
         let mut x = SymbolTable::new();
-        let r = x.insert(
-            Identifier("x"),
-            Record::ImmutableVariable(&ImmutableVariable {
-                name: Identifier("x"),
-                type_hint: None,
-                value: Expression::Literal(Literal::Bool(true)),
-            }),
-        );
+        let r = x.insert(&ident, Record::ImmutableVariable(&var));
         assert!(r.is_none());
         assert!(!x.is_empty());
         assert_eq!(x.len(), 1);
-        let r2 = x.insert(
-            Identifier("y"),
-            Record::ImmutableVariable(&ImmutableVariable {
-                name: Identifier("y"),
-                type_hint: None,
-                value: Expression::Literal(Literal::Bool(true)),
-            }),
-        );
+        let var = ImmutableVariable {
+            name: Identifier::new("y"),
+            type_hint: None,
+            value: Expression::Literal(Literal::Bool(true)),
+        };
+        let ident = Identifier::new("y");
+        let r2 = x.insert(&ident, Record::ImmutableVariable(&var));
         assert!(r2.is_none());
         assert!(!x.is_empty());
         assert_eq!(x.len(), 2);

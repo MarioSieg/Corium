@@ -217,21 +217,21 @@ impl<'a> GlobalSemanticAnalysis<'a> for GlobalStatement<'a> {
         let existing = match self {
             Self::MutableVariable(variable) => global_state
                 .table
-                .insert(variable.name, Record::MutableVariable(variable)),
+                .insert(&variable.name, Record::MutableVariable(variable)),
 
             Self::ImmutableVariable(variable) => global_state
                 .table
-                .insert(variable.name, Record::ImmutableVariable(variable)),
+                .insert(&variable.name, Record::ImmutableVariable(variable)),
 
             Self::Function(function) => {
                 analyze_error = function.analyze(&mut global_state.local, &global_state.table);
                 global_state
                     .table
-                    .insert(function.signature.name, Record::Function(function))
+                    .insert(&function.signature.name, Record::Function(function))
             }
 
             Self::NativeFunction(native_function) => global_state.table.insert(
-                native_function.signature.name,
+                &native_function.signature.name,
                 Record::NativeFunction(native_function),
             ),
         };

@@ -243,12 +243,12 @@ impl<'ast> Statement for GlobalStatement<'ast> {
         }
     }
 
-    fn code_identifier(&self) -> Identifier {
+    fn code_identifier(&self) -> &Identifier {
         match self {
-            Self::MutableVariable(x) => x.name,
-            Self::ImmutableVariable(x) => x.name,
-            Self::Function(x) => x.signature.name,
-            Self::NativeFunction(x) => x.signature.name,
+            Self::MutableVariable(x) => &x.name,
+            Self::ImmutableVariable(x) => &x.name,
+            Self::Function(x) => &x.signature.name,
+            Self::NativeFunction(x) => &x.signature.name,
         }
     }
 }

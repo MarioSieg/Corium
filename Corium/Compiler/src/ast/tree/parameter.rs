@@ -204,12 +204,12 @@
 //    limitations under the License.
 
 use super::tree_prelude::*;
-use super::{expression::Expression, identifier::Identifier, qualified_name::QualifiedName};
+use super::{expression::Expression, identifier::Identifier};
 
 #[derive(Clone, Debug)]
 pub struct Parameter<'ast> {
     pub name: Identifier<'ast>,
-    pub type_hint: QualifiedName<'ast>,
+    pub type_hint: Identifier<'ast>,
     pub value: Option<Expression<'ast>>,
 }
 
