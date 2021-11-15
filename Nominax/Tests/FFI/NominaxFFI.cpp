@@ -15,4 +15,5 @@ NOX_FFI_NATIVE_CALL_IMPL(Test, sp)
 {
 	const union NOX_Record x { NOX_LDA(sp, 1) };
 	Print("{}\n", x.AsF32);
+	return sp;
 }

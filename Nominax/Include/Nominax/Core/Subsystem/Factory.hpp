@@ -203,22 +203,39 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../../Include/Nominax/Core/Subsystem/ISubsystem.hpp"
-#include "../../../Include/Nominax/Core/Subsystem/HypervisorHost.hpp"
+#pragma once
+
+#include <type_traits>
+
+#include "ISubsystem.hpp"
+#include "../../Foundation/Panic/Assertions.hpp"
 
 namespace Nominax::Core::Subsystem
 {
-	ISubsystem::ISubsystem
-	(
-		HypervisorHost& host,
-		const std::string_view name,
-		const std::string_view description,
-		const bool isEnabled
-	) noexcept :
-		Host_ { host },
-		Name_ { name },
-		Description_ { description },
-		ID_ { IDAccumulator_.fetch_add(1, std::memory_order_relaxed) },
-		IsEnabled_ { isEnabled }
-		{ }
+	using SubsystemHandle = std::unique_ptr<ISubsystem, ISubsystem::Deleter>;
+
+	inline auto ProxyInit(IEventHooks& self, std::unique_ptr<SubsystemConfig>&& config, void* const userData) -> void
+	{
+		self.OnConstruct(std::move(config), userData);
+	}
+
+	namespace Factory
+	{
+		template <typename T, typename... Args>
+		concept SubsystemFacory = requires
+		{
+			requires std::is_base_of_v<ISubsystem, T>;
+			requires std::is_default_constructible_v<T> || std::is_constructible_v<T, Args...>;
+		};
+
+		template <typename T, typename... Args> requires SubsystemFacory<T, Args...>
+		inline auto AllocateSubsystemInstance(std::unique_ptr<SubsystemConfig>&& config, void* const userData, Args&&... args) -> SubsystemHandle
+		{
+			ISubsystem* const instance = new(std::nothrow) T(std::forward<Args>(args)...);
+			NOX_PAS_NOT_NULL(instance, "Failed to allocate subsystem!");
+			IEventHooks* const hooks { instance };
+			ProxyInit(*hooks, std::move(config), userData);
+			return SubsystemHandle { instance };
+		}
+	}
 }

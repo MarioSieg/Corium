@@ -203,22 +203,12 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../../Include/Nominax/Core/Subsystem/ISubsystem.hpp"
-#include "../../../Include/Nominax/Core/Subsystem/HypervisorHost.hpp"
+#pragma once
 
 namespace Nominax::Core::Subsystem
 {
-	ISubsystem::ISubsystem
-	(
-		HypervisorHost& host,
-		const std::string_view name,
-		const std::string_view description,
-		const bool isEnabled
-	) noexcept :
-		Host_ { host },
-		Name_ { name },
-		Description_ { description },
-		ID_ { IDAccumulator_.fetch_add(1, std::memory_order_relaxed) },
-		IsEnabled_ { isEnabled }
-		{ }
+	struct HypervisorHost
+	{
+		
+	};
 }

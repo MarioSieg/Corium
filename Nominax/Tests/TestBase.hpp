@@ -216,6 +216,8 @@ using namespace IEEE754;
 using namespace Concurrency;
 
 using namespace Nominax::Core;
+using namespace Subsystem;
+
 using namespace Nominax::JIT;
 using namespace Nominax::ByteCode;
 using namespace Nominax::Assembler;

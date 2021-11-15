@@ -203,22 +203,166 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../../Include/Nominax/Core/Subsystem/ISubsystem.hpp"
-#include "../../../Include/Nominax/Core/Subsystem/HypervisorHost.hpp"
+#pragma once
+
+#include <memory>
+
+#include "Config.hpp"
+#include "../../Foundation/Algorithm/Enum.hpp"
+
+namespace Nominax
+{
+	namespace ByteCode
+	{
+		class Image;
+	}
+}
+
+namespace Nominax
+{
+	namespace Core
+	{
+		class Reactor;
+	}
+}
 
 namespace Nominax::Core::Subsystem
 {
-	ISubsystem::ISubsystem
-	(
-		HypervisorHost& host,
-		const std::string_view name,
-		const std::string_view description,
-		const bool isEnabled
-	) noexcept :
-		Host_ { host },
-		Name_ { name },
-		Description_ { description },
-		ID_ { IDAccumulator_.fetch_add(1, std::memory_order_relaxed) },
-		IsEnabled_ { isEnabled }
-		{ }
+	struct ISubsystem;
+
+	/// <summary>
+	/// Each bit flag corresponds to an event hook in IEventHooks.
+	///	Used to enable/disable hooks in a subsystem.
+	/// </summary>
+	enum class HookFlag : std::uint8_t
+	{
+		None			= 0 << 0,
+
+		OnConstruct		= 1 << 0,
+		OnDestruct		= 1 << 1,
+
+		OnPreBoot		= 1 << 2,
+		OnPostBoot		= 1 << 3,
+
+		OnPreExecute	= 1 << 4,
+		OnPostExecute	= 1 << 5,
+
+		OnPreShutdown	= 1 << 6,
+		OnPostShutdown	= 1 << 7
+	};
+
+	/// <summary>
+	/// Base interface for subsystem event hooks.
+	/// </summary>
+	struct IEventHooks
+	{
+		constexpr IEventHooks() noexcept = default;
+		constexpr IEventHooks(IEventHooks&& other) noexcept = default;
+		constexpr IEventHooks(const IEventHooks& other) noexcept = default;
+		constexpr auto operator =(const IEventHooks& other) noexcept -> IEventHooks& = default;
+		constexpr auto operator =(IEventHooks&& other) noexcept -> IEventHooks& = default;
+		virtual ~IEventHooks() = default;
+
+		constexpr auto Subscribe(HookFlag hook) const & noexcept -> void;
+		constexpr auto Unsubscribe(HookFlag hook) const & noexcept -> void;
+		constexpr auto ToggleSubscription(HookFlag hook) const & noexcept -> void;
+		constexpr auto SubscribedHooks() const & noexcept -> HookFlag;
+		constexpr auto ClearSubscriptions() const & noexcept -> void;
+		constexpr auto SetSubscriptions(HookFlag collection) const & noexcept -> HookFlag;
+		constexpr auto HasSubscribed(HookFlag flag) const & noexcept -> bool;
+
+	protected:
+		virtual auto OnConstruct(std::unique_ptr<SubsystemConfig>&& config, void* userData) & -> void;
+		virtual auto OnDestruct() & noexcept -> void;
+
+		virtual auto OnPreBoot() & -> bool;
+		virtual auto OnPostBoot() & -> bool;
+
+		virtual auto OnPreExecute(Reactor& vm, ByteCode::Image& code, void* userData) & -> bool;
+		virtual auto OnPostExecute(Reactor& vm, ByteCode::Image& code, void* userData) & -> bool;
+
+		virtual auto OnPreShutdown() & -> bool;
+		virtual auto OnPostShutdown() & -> bool;
+
+	private:
+		mutable std::underlying_type_t<HookFlag> HookFlags_ { };
+		friend auto ProxyInit(IEventHooks& , std::unique_ptr<SubsystemConfig>&&, void*) -> void;
+	};
+
+	inline auto IEventHooks::OnConstruct([[maybe_unused]] std::unique_ptr<SubsystemConfig>&& config, [[maybe_unused]] void* userData) & -> void
+	{
+
+	}
+
+	inline auto IEventHooks::OnDestruct() & noexcept -> void
+	{
+
+	}
+
+	inline auto IEventHooks::OnPreBoot() & -> bool
+	{
+		return true;
+	}
+
+	inline auto IEventHooks::OnPostBoot() & -> bool
+	{
+		return true;
+	}
+
+	inline auto IEventHooks::OnPreExecute([[maybe_unused]] Reactor& vm, [[maybe_unused]] ByteCode::Image& code, [[maybe_unused]] void* userData) & -> bool
+	{
+		return true;
+	}
+
+	inline auto IEventHooks::OnPostExecute([[maybe_unused]] Reactor& vm, [[maybe_unused]] ByteCode::Image& code, [[maybe_unused]] void* userData) & -> bool
+	{
+		return true;
+	}
+
+	inline auto IEventHooks::OnPreShutdown() & -> bool
+	{
+		return true;
+	}
+
+	inline auto IEventHooks::OnPostShutdown() & -> bool
+	{
+		return true;
+	}
+
+	constexpr auto IEventHooks::Subscribe(const HookFlag hook) const & noexcept -> void
+	{
+		this->HookFlags_ |= Foundation::Algorithm::ToUnderlying(hook);
+	}
+
+	constexpr auto IEventHooks::Unsubscribe(const HookFlag hook) const & noexcept -> void
+	{
+		this->HookFlags_ &= ~Foundation::Algorithm::ToUnderlying(hook);
+	}
+
+	constexpr auto IEventHooks::ToggleSubscription(const HookFlag hook) const & noexcept -> void
+	{
+		this->HookFlags_ ^= Foundation::Algorithm::ToUnderlying(hook);
+	}
+
+	constexpr auto IEventHooks::SubscribedHooks() const & noexcept -> HookFlag
+	{
+		return Foundation::Algorithm::FromUnderlying<HookFlag>(this->HookFlags_);
+	}
+
+	constexpr auto IEventHooks::ClearSubscriptions() const & noexcept -> void
+	{
+		this->HookFlags_ = 0;
+	}
+
+	constexpr auto IEventHooks::SetSubscriptions(const HookFlag collection) const & noexcept -> HookFlag
+	{
+		const auto backup { this->HookFlags_ };
+		this->HookFlags_ = Foundation::Algorithm::ToUnderlying(collection);
+		return Foundation::Algorithm::FromUnderlying<HookFlag>(backup);
+	}
+
+	constexpr auto IEventHooks::HasSubscribed(const HookFlag flag) const & noexcept -> bool
+	{
+		return this->HookFlags_ & Foundation::Algorithm::ToUnderlying(flag);
+	}
 }

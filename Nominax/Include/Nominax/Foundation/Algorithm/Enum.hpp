@@ -220,4 +220,16 @@ namespace Nominax::Foundation::Algorithm
 	{
 		return static_cast<std::underlying_type_t<std::decay_t<T>>>(x);
 	}
+
+	/// <summary>
+	/// Converts the underlying type into the enum.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="x"></param>
+	/// <returns></returns>
+	template <typename T> requires std::is_enum_v<T>
+	constexpr auto FromUnderlying(const std::underlying_type_t<std::decay_t<T>> x) noexcept -> auto
+	{
+		return static_cast<T>(x);
+	}
 }
