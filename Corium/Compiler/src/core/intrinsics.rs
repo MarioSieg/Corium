@@ -204,7 +204,7 @@
 //    limitations under the License.
 
 use crate::nominax::bci::SysCall;
-use crate::types::builtin_types::BuiltinType;
+use crate::semantic::types::builtin_types::BuiltinType;
 use std::fmt;
 
 pub struct Intrinsic<'a> {

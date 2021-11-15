@@ -225,9 +225,6 @@ impl<'ast> Identifier<'ast> {
     #[inline]
     pub fn new(full: &'ast str) -> Self {
         let split = full.split('.').collect();
-        Self {
-            full,
-            split
-        }
+        Self { full, split }
     }
 }

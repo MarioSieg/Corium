@@ -203,36 +203,6 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::tree::compilation_unit::CompilationUnit;
-use crate::error::list::ErrorList;
-
-pub mod context;
-pub mod global;
-pub mod local;
-pub mod record;
-pub mod table;
-
-pub mod analysis;
-pub mod linearizer;
-#[cfg(test)]
-mod tests;
-pub mod types;
-
-use context::Context;
-
-pub fn analyze<'ast>(
-    root: &'ast CompilationUnit<'ast>,
-    file: &'ast str,
-) -> Result<Context<'ast>, ErrorList> {
-    let mut context = Context::new(file);
-
-    root.statements.iter().for_each(|smt| {
-        context.analyze_global(smt);
-    });
-
-    if context.errors.is_empty() {
-        Ok(context)
-    } else {
-        Err(context.errors)
-    }
-}
+pub mod builtin_types;
+pub mod inference;
+pub mod r#typeof;

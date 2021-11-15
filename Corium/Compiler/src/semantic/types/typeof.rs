@@ -203,25 +203,259 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-/// Represents a Corium "int".
-pub type Int = i32;
+use super::inference::*;
+use crate::ast::tree::prelude::*;
+use crate::error::list::ErrorList;
+use crate::error::Error;
+use crate::semantic::record::Record;
 
-/// Represents a Corium "float".
-pub type Float = f32;
+impl<'ast> TypeOf<'ast> for Expression<'ast> {
+    fn type_of(
+        &'ast self,
+        context: &'ast RecursiveTypeInferenceContext<'ast>,
+    ) -> Result<Type<'ast>, ErrorList> {
+        match self {
+            Expression::Literal(literal) => literal.type_of(context),
+            Expression::Identifier(identifier) => identifier.type_of(context),
+            Expression::Parenthesis(inner) => inner.type_of(context),
+            Expression::Unary { op: _, expr } => expr.type_of(context),
+            Expression::Binary { lhs, op, rhs } => {
+                let left = lhs.type_of(context)?;
+                let right = rhs.type_of(context)?;
+                if left == right {
+                    Ok(left)
+                } else {
+                    Err(Error::Semantic(
+                        format!(
+                            "Different types in binary expression! {} {} {}",
+                            lhs, op, rhs
+                        ),
+                        context.file_name.to_string(),
+                    )
+                    .into())
+                }
+            }
+        }
+    }
+}
 
-/// Represents a Corium "bool".
-pub type Bool = bool;
+impl<'ast> TypeOf<'ast> for Literal<'ast> {
+    #[inline]
+    fn type_of(
+        &'ast self,
+        _context: &'ast RecursiveTypeInferenceContext<'ast>,
+    ) -> Result<Type<'ast>, ErrorList> {
+        Ok(Type::Builtin(BuiltinType::from(self)))
+    }
+}
 
-/// Represents a Corium "char".
-pub type Char = char;
+impl<'ast> TypeOf<'ast> for Record<'ast> {
+    fn type_of(
+        &'ast self,
+        context: &'ast RecursiveTypeInferenceContext<'ast>,
+    ) -> Result<Type<'ast>, ErrorList> {
+        match self {
+            Self::MutableVariable(var) => {
+                // if a type hint is given, use the type
+                if let Some(type_hint) = &var.type_hint {
+                    type_hint.type_of(context)
+                }
+                // if not type hint is given, infer the type from the expression
+                else {
+                    var.value.type_of(context)
+                }
+            }
+            Self::ImmutableVariable(var) => {
+                // if a type hint is given, use the type
+                if let Some(type_hint) = &var.type_hint {
+                    type_hint.type_of(context)
+                }
+                // if not type hint is given, infer the type from the expression
+                else {
+                    var.value.type_of(context)
+                }
+            }
+            Self::Function(fun) => Ok(Type::Custom(&fun.signature.name)),
+            Self::NativeFunction(fun) => Ok(Type::Custom(&fun.signature.name)),
+        }
+    }
+}
 
-#[derive(Copy, Clone, Eq, PartialEq, Debug)]
-#[repr(u8)]
-pub enum BuiltinType {
-    Int,
-    Float,
-    Bool,
-    Char,
-    String,
-    Object,
+impl<'ast> TypeOf<'ast> for Identifier<'ast> {
+    fn type_of(
+        &'ast self,
+        context: &'ast RecursiveTypeInferenceContext,
+    ) -> Result<Type<'ast>, ErrorList> {
+        // first, check if the identifier is a builtin type
+        if let Some(builtin) = Option::<BuiltinType>::from(self) {
+            Ok(Type::Builtin(builtin))
+        }
+        // then look if the variable exists in the local symbol table
+        else if let Some(symbol) = context.local.lookup(self) {
+            symbol.type_of(context)
+        }
+        // if not, search in the global symbol table
+        else if let Some(symbol) = context.global.lookup(self) {
+            symbol.type_of(context)
+        }
+        // we haven't found the variable -> error
+        else {
+            Err(Error::Semantic(
+                format!("Undefined symbol: {}", self),
+                context.file_name.to_string(),
+            )
+            .into())
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::semantic::table::SymbolTable;
+
+    mod literal {
+        use super::*;
+
+        #[test]
+        fn l_int() {
+            let global = SymbolTable::new();
+            let local = SymbolTable::new();
+            let ctx = RecursiveTypeInferenceContext::new(&global, &local, "Test.cor");
+            let result = Literal::Int(3).type_of(&ctx).unwrap();
+            assert_eq!(result, Type::Builtin(BuiltinType::Int));
+        }
+
+        #[test]
+        fn l_float() {
+            let global = SymbolTable::new();
+            let local = SymbolTable::new();
+            let ctx = RecursiveTypeInferenceContext::new(&global, &local, "Test.cor");
+            let result = Literal::Float(3.0).type_of(&ctx).unwrap();
+            assert_eq!(result, Type::Builtin(BuiltinType::Float));
+        }
+
+        #[test]
+        fn l_bool() {
+            let global = SymbolTable::new();
+            let local = SymbolTable::new();
+            let ctx = RecursiveTypeInferenceContext::new(&global, &local, "Test.cor");
+            let result = Literal::Bool(false).type_of(&ctx).unwrap();
+            assert_eq!(result, Type::Builtin(BuiltinType::Bool));
+        }
+
+        #[test]
+        fn l_char() {
+            let global = SymbolTable::new();
+            let local = SymbolTable::new();
+            let ctx = RecursiveTypeInferenceContext::new(&global, &local, "Test.cor");
+            let result = Literal::Char('X').type_of(&ctx).unwrap();
+            assert_eq!(result, Type::Builtin(BuiltinType::Char));
+        }
+
+        #[test]
+        fn l_string() {
+            let global = SymbolTable::new();
+            let local = SymbolTable::new();
+            let ctx = RecursiveTypeInferenceContext::new(&global, &local, "Test.cor");
+            let result = Literal::String("Hey").type_of(&ctx).unwrap();
+            assert_eq!(result, Type::Builtin(BuiltinType::String));
+        }
+    }
+
+    mod identifier {
+        use super::*;
+
+        #[test]
+        fn builtin_ident_int() {
+            let global = SymbolTable::new();
+            let local = SymbolTable::new();
+            let ctx = RecursiveTypeInferenceContext::new(&global, &local, "Test.cor");
+            let ident = Identifier::new("int");
+            let result = ident.type_of(&ctx).unwrap();
+            assert_eq!(result, Type::Builtin(BuiltinType::Int));
+        }
+
+        #[test]
+        fn builtin_ident_float() {
+            let global = SymbolTable::new();
+            let local = SymbolTable::new();
+            let ctx = RecursiveTypeInferenceContext::new(&global, &local, "Test.cor");
+            let ident = Identifier::new("float");
+            let result = ident.type_of(&ctx).unwrap();
+            assert_eq!(result, Type::Builtin(BuiltinType::Float));
+        }
+
+        #[test]
+        fn builtin_ident_bool() {
+            let global = SymbolTable::new();
+            let local = SymbolTable::new();
+            let ctx = RecursiveTypeInferenceContext::new(&global, &local, "Test.cor");
+            let ident = Identifier::new("bool");
+            let result = ident.type_of(&ctx).unwrap();
+            assert_eq!(result, Type::Builtin(BuiltinType::Bool));
+        }
+
+        #[test]
+        fn builtin_ident_char() {
+            let global = SymbolTable::new();
+            let local = SymbolTable::new();
+            let ctx = RecursiveTypeInferenceContext::new(&global, &local, "Test.cor");
+            let ident = Identifier::new("char");
+            let result = ident.type_of(&ctx).unwrap();
+            assert_eq!(result, Type::Builtin(BuiltinType::Char));
+        }
+
+        #[test]
+        fn builtin_ident_string() {
+            let global = SymbolTable::new();
+            let local = SymbolTable::new();
+            let ctx = RecursiveTypeInferenceContext::new(&global, &local, "Test.cor");
+            let ident = Identifier::new("string");
+            let result = ident.type_of(&ctx).unwrap();
+            assert_eq!(result, Type::Builtin(BuiltinType::String));
+        }
+
+        #[test]
+        fn builtin_ident_object() {
+            let global = SymbolTable::new();
+            let local = SymbolTable::new();
+            let ctx = RecursiveTypeInferenceContext::new(&global, &local, "Test.cor");
+            let ident = Identifier::new("object");
+            let result = ident.type_of(&ctx).unwrap();
+            assert_eq!(result, Type::Builtin(BuiltinType::Object));
+        }
+
+        #[test]
+        fn record_type_mut_var() {
+            let global = SymbolTable::new();
+            let local = SymbolTable::new();
+            let ctx = RecursiveTypeInferenceContext::new(&global, &local, "Test.cor");
+            let var = MutableVariable {
+                name: Identifier::new("x"),
+                type_hint: Some(Identifier::new("float")),
+                value: Expression::Literal(Literal::Float(2.5)),
+            };
+            let record = Record::MutableVariable(&var);
+            let result = record.type_of(&ctx).unwrap();
+            assert_eq!(result, Type::Builtin(BuiltinType::Float));
+        }
+
+        #[test]
+        fn record_expr_mut_var() {
+            let global = SymbolTable::new();
+            let local = SymbolTable::new();
+            let ctx = RecursiveTypeInferenceContext::new(&global, &local, "Test.cor");
+            let var = MutableVariable {
+                name: Identifier::new("x"),
+                type_hint: None,
+                value: Expression::Parenthesis(Box::new(Expression::Parenthesis(Box::new(
+                    Expression::Literal(Literal::Float(2.5)),
+                )))),
+            };
+            let record = Record::MutableVariable(&var);
+            let result = record.type_of(&ctx).unwrap();
+            assert_eq!(result, Type::Builtin(BuiltinType::Float));
+        }
+    }
 }

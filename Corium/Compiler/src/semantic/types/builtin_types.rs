@@ -203,84 +203,54 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-pub mod builtin_types;
+use crate::ast::tree::prelude::{Identifier, Literal};
+use std::convert::From;
 
-use crate::ast::tree::prelude::*;
-use crate::error::list::ErrorList;
-use crate::error::Error;
-use crate::semantic::record::Record;
-use crate::semantic::table::SymbolTable;
-use builtin_types::BuiltinType;
+/// Represents a Corium "int".
+pub type Int = i32;
 
-#[derive(Debug, Clone)]
-pub enum Type<'ast> {
-    Builtin(BuiltinType),
-    Custom(&'ast Identifier<'ast>),
+/// Represents a Corium "float".
+pub type Float = f32;
+
+/// Represents a Corium "bool".
+pub type Bool = bool;
+
+/// Represents a Corium "char".
+pub type Char = char;
+
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
+#[repr(u8)]
+pub enum BuiltinType {
+    Int,
+    Float,
+    Bool,
+    Char,
+    String,
+    Object,
 }
 
-impl<'ast> Type<'ast> {
-    pub fn type_of(
-        local: &'ast SymbolTable<'ast>,
-        global: &'ast SymbolTable<'ast>,
-        expr: &'ast Expression<'ast>,
-    ) -> Result<Self, ErrorList> {
-        match expr {
-            Expression::Literal(literal) => Ok(Self::type_of_literal(literal)),
-            Expression::Identifier(identifier) => {
-                Self::type_of_identifier(local, global, identifier)
-            }
-            _ => unreachable!(),
+impl<'ast> From<&Identifier<'ast>> for Option<BuiltinType> {
+    fn from(x: &Identifier<'ast>) -> Self {
+        match x.full {
+            "int" => Some(BuiltinType::Int),
+            "float" => Some(BuiltinType::Float),
+            "bool" => Some(BuiltinType::Bool),
+            "char" => Some(BuiltinType::Char),
+            "string" => Some(BuiltinType::String),
+            "object" => Some(BuiltinType::Object),
+            _ => None,
         }
     }
+}
 
-    fn type_of_literal(literal: &'ast Literal) -> Self {
-        let builtin = match literal {
-            Literal::Int(_) => BuiltinType::Int,
-            Literal::Float(_) => BuiltinType::Float,
-            Literal::Bool(_) => BuiltinType::Bool,
-            Literal::Char(_) => BuiltinType::Char,
-            Literal::String(_) => BuiltinType::String,
-        };
-        Self::Builtin(builtin)
-    }
-
-    fn type_of_identifier(
-        local: &'ast SymbolTable<'ast>,
-        global: &'ast SymbolTable<'ast>,
-        identifier: &'ast Identifier<'ast>,
-    ) -> Result<Self, ErrorList> {
-        let record_evaluator = |record: &Record<'ast>| -> Result<Self, ErrorList> {
-            match record {
-                Record::MutableVariable(var) => {
-                    if let Some(type_hint) = &var.type_hint {
-                        Ok(Self::Custom(type_hint))
-                    } else {
-                        Self::type_of(local, global, &var.value)
-                    }
-                }
-                Record::ImmutableVariable(var) => {
-                    if let Some(type_hint) = &var.type_hint {
-                        Ok(Self::Custom(type_hint))
-                    } else {
-                        Self::type_of(local, global, &var.value)
-                    }
-                }
-                Record::Function(f) => Ok(Self::Custom(&f.signature.name)),
-                Record::NativeFunction(f) => Ok(Self::Custom(&f.signature.name)),
-            }
-        };
-
-        // first, look if the variable exists in the local symbol table
-        if let Some(symbol) = local.lookup(identifier) {
-            record_evaluator(symbol)
-        }
-        // if not, search in the global symbol table
-        else if let Some(symbol) = global.lookup(identifier) {
-            record_evaluator(symbol)
-        }
-        // we haven't found the variable -> error
-        else {
-            Err(Error::Semantic(format!("Undefined symbol: {}", identifier), String::new()).into())
+impl<'ast> From<&Literal<'ast>> for BuiltinType {
+    fn from(x: &Literal<'ast>) -> Self {
+        match x {
+            Literal::Int(_) => Self::Int,
+            Literal::Float(_) => Self::Float,
+            Literal::Bool(_) => Self::Bool,
+            Literal::Char(_) => Self::Char,
+            Literal::String(_) => Self::String,
         }
     }
 }

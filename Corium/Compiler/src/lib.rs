@@ -212,4 +212,3 @@ pub mod misc;
 pub mod nominax;
 pub mod parser;
 pub mod semantic;
-pub mod types;

@@ -89,7 +89,7 @@ pub mod prelude {
     pub use super::return_statement::*;
     pub use super::unary_operator::*;
     pub use super::{AstComponent, Operator, OperatorAssociativity, Statement};
-    pub use crate::types::builtin_types::*;
+    pub use crate::semantic::types::builtin_types::*;
 }
 
 mod tree_prelude {
@@ -97,6 +97,6 @@ mod tree_prelude {
     pub use super::Rule;
     pub use super::Statement;
     pub use super::{Operator, OperatorAssociativity};
-    pub use crate::types::builtin_types::*;
+    pub use crate::semantic::types::builtin_types::*;
     pub use std::fmt;
 }

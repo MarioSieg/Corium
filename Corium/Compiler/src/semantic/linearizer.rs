@@ -203,36 +203,39 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::tree::compilation_unit::CompilationUnit;
-use crate::error::list::ErrorList;
+use super::record::Record;
+use super::table::SymbolTable;
+use crate::ast::tree::prelude::*;
 
-pub mod context;
-pub mod global;
-pub mod local;
-pub mod record;
-pub mod table;
+/// Contains all AST nodes which require semantic validation in linear vectors.
+pub struct LinearASTScope<'ast> {
+    pub functions: Vec<&'ast Function<'ast>>,
+    pub native_functions: Vec<&'ast NativeFunction<'ast>>,
+    pub immutable_variables: Vec<&'ast ImmutableVariable<'ast>>,
+    pub mutable_variables: Vec<&'ast MutableVariable<'ast>>,
+}
 
-pub mod analysis;
-pub mod linearizer;
-#[cfg(test)]
-mod tests;
-pub mod types;
+impl<'ast> LinearASTScope<'ast> {
+    pub fn from_symbol_table(table: &SymbolTable<'ast>) -> Self {
+        let mut functions = Vec::new();
+        let mut native_functions = Vec::new();
+        let mut immutable_variables = Vec::new();
+        let mut mutable_variables = Vec::new();
 
-use context::Context;
+        for record in table.0.values() {
+            match record {
+                Record::MutableVariable(var) => mutable_variables.push(*var),
+                Record::ImmutableVariable(var) => immutable_variables.push(*var),
+                Record::Function(fun) => functions.push(*fun),
+                Record::NativeFunction(fun) => native_functions.push(*fun),
+            }
+        }
 
-pub fn analyze<'ast>(
-    root: &'ast CompilationUnit<'ast>,
-    file: &'ast str,
-) -> Result<Context<'ast>, ErrorList> {
-    let mut context = Context::new(file);
-
-    root.statements.iter().for_each(|smt| {
-        context.analyze_global(smt);
-    });
-
-    if context.errors.is_empty() {
-        Ok(context)
-    } else {
-        Err(context.errors)
+        Self {
+            functions,
+            native_functions,
+            immutable_variables,
+            mutable_variables,
+        }
     }
 }

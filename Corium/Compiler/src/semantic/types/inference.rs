@@ -203,36 +203,40 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::tree::compilation_unit::CompilationUnit;
+use crate::ast::tree::identifier::Identifier;
 use crate::error::list::ErrorList;
+use crate::semantic::table::SymbolTable;
+use crate::semantic::types::builtin_types::BuiltinType;
 
-pub mod context;
-pub mod global;
-pub mod local;
-pub mod record;
-pub mod table;
+#[derive(Debug, Clone, Eq, PartialEq)]
+pub enum Type<'ast> {
+    Builtin(BuiltinType),
+    Custom(&'ast Identifier<'ast>),
+}
 
-pub mod analysis;
-pub mod linearizer;
-#[cfg(test)]
-mod tests;
-pub mod types;
+pub struct RecursiveTypeInferenceContext<'ast> {
+    pub global: &'ast SymbolTable<'ast>,
+    pub local: &'ast SymbolTable<'ast>,
+    pub file_name: &'ast str,
+}
 
-use context::Context;
-
-pub fn analyze<'ast>(
-    root: &'ast CompilationUnit<'ast>,
-    file: &'ast str,
-) -> Result<Context<'ast>, ErrorList> {
-    let mut context = Context::new(file);
-
-    root.statements.iter().for_each(|smt| {
-        context.analyze_global(smt);
-    });
-
-    if context.errors.is_empty() {
-        Ok(context)
-    } else {
-        Err(context.errors)
+impl<'ast> RecursiveTypeInferenceContext<'ast> {
+    pub fn new(
+        global: &'ast SymbolTable<'ast>,
+        local: &'ast SymbolTable<'ast>,
+        file_name: &'ast str,
+    ) -> Self {
+        Self {
+            global,
+            local,
+            file_name,
+        }
     }
+}
+
+pub trait TypeOf<'ast> {
+    fn type_of(
+        &'ast self,
+        context: &'ast RecursiveTypeInferenceContext<'ast>,
+    ) -> Result<Type<'ast>, ErrorList>;
 }
