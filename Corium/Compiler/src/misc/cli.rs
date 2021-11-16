@@ -206,9 +206,11 @@
 use crate::core::context::CompilerContext;
 use crate::misc;
 use crate::misc::project::Project;
+use colored::Colorize;
 use indicatif::{ProgressBar, ProgressStyle};
 use std::env;
 use std::path::PathBuf;
+use std::sync::atomic::{AtomicUsize, Ordering};
 use structopt::StructOpt;
 
 #[derive(StructOpt, Debug)]
@@ -280,10 +282,12 @@ impl Options {
             } => {
                 let num_files = input_files.len();
                 let mut context = CompilerContext::with_capacity(num_files);
+                println!("{}", "Compiling...".yellow());
                 let progress_bar = if num_files > 1 {
                     let progress_bar = ProgressBar::new(num_files as u64);
                     progress_bar
                         .set_style(ProgressStyle::default_bar().template("{msg} {wide_bar}"));
+                    progress_bar.set_message(format!("[{}/{}]", 0, num_files));
                     Some(progress_bar)
                 } else {
                     None
@@ -298,10 +302,16 @@ impl Options {
                     };
                     context.enqueue_file(file, descriptor);
                 }
-                context.compile(Some(|file_name| {
+                let compiled = AtomicUsize::new(0);
+                context.compile(Some(|_| {
                     if let Some(progress_bar) = &progress_bar {
                         progress_bar.inc(1);
-                        progress_bar.set_message(format!("Compiled {}", file_name));
+                        compiled.fetch_add(1, Ordering::Relaxed);
+                        progress_bar.set_message(format!(
+                            "[{}/{}]",
+                            compiled.load(Ordering::Relaxed),
+                            num_files
+                        ));
                         progress_bar.tick();
                     }
                 }));
