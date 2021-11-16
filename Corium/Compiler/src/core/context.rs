@@ -259,7 +259,7 @@ impl CompilerContext {
         self.failed_compilations
     }
 
-    pub fn compile<'a, F>(&mut self, callback: Option<F>)
+    pub fn compile<F>(&mut self, callback: Option<F>)
     where
         F: Fn() + Copy,
     {
@@ -269,7 +269,7 @@ impl CompilerContext {
         self.finalize_compilation_jobs(callback);
     }
 
-    fn finalize_compilation_jobs<'a, F>(&mut self, callback: Option<F>)
+    fn finalize_compilation_jobs<F>(&mut self, callback: Option<F>)
     where
         F: Fn() + Copy,
     {
