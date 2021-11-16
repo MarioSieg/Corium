@@ -203,8 +203,10 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+use crate::core::context::CompilerContext;
 use crate::misc;
 use crate::misc::project::Project;
+use indicatif::ProgressBar;
 use std::env;
 use std::path::PathBuf;
 use structopt::StructOpt;
@@ -276,9 +278,10 @@ impl Options {
                 dump_asm,
                 pass_timer,
             } => {
-                let mut context =
-                    crate::core::context::CompilerContext::with_capacity(input_files.len());
-                for file in input_files {
+                let num_files = input_files.len();
+                let mut context = CompilerContext::with_capacity(num_files);
+                let progress_bar = ProgressBar::new(num_files as u64);
+                for file in input_files.into_iter() {
                     let descriptor = crate::core::unit::CompileDescriptor {
                         dump_ast,
                         dump_asm,
@@ -288,7 +291,10 @@ impl Options {
                     };
                     context.enqueue_file(file, descriptor);
                 }
-                context.compile();
+                context.compile(Some(|| {
+                    progress_bar.inc(1);
+                }));
+                progress_bar.finish_with_message(format!("Compiled {} files!", num_files));
             }
             Options::Build => {
                 let project = Project::open(env::current_dir().unwrap());

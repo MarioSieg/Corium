@@ -264,7 +264,6 @@ impl FileCompilationUnit {
 
     pub fn compile(&mut self) -> CompilationResult {
         let clock = Instant::now();
-        println!("Compiling `{}`...", self.file_name);
         if self.descriptor.pass_timer {
             println!(
                 "File load time: {}",

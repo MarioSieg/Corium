@@ -259,16 +259,25 @@ impl CompilerContext {
         self.failed_compilations
     }
 
-    pub fn compile(&mut self) {
+    pub fn compile<'a, F>(&mut self, callback: Option<F>)
+    where
+        F: Fn() + Copy,
+    {
         while let Some(unit) = self.file_queue.pop_back() {
             self.job_queue.push_front(CompilationJob::launch(unit));
         }
-        self.finalize_compilation_jobs();
+        self.finalize_compilation_jobs(callback);
     }
 
-    fn finalize_compilation_jobs(&mut self) {
+    fn finalize_compilation_jobs<'a, F>(&mut self, callback: Option<F>)
+    where
+        F: Fn() + Copy,
+    {
         while let Some(job) = self.job_queue.pop_back() {
             let (file_name, result) = job.join();
+            if let Some(callback) = callback {
+                callback();
+            }
             if result.is_err() {
                 self.failed_compilations += 1;
             }
@@ -279,30 +288,19 @@ impl CompilerContext {
     fn print_compilation_status(&mut self, file: &str, result: CompilationResult) {
         use colored::Colorize;
 
-        match result {
-            Ok(time) => {
-                let message = format!(
-                    "{} `{}` in {}",
-                    "Compiled".green().bold(),
-                    file,
-                    humantime::Duration::from(time)
-                );
-                println!("{}", message);
-            }
-            Err((time, errors)) => {
-                let suffix = if errors.len() > 1 { "s" } else { "" };
-                let error_info = format!("{} error{}", errors.len(), suffix).red().bold();
-                let message = format!(
-                    "{} `{}` because of {} in {}:",
-                    "Failed to compile".red().bold(),
-                    file,
-                    error_info,
-                    humantime::Duration::from(time)
-                );
-                println!("{}", message);
-                for error in errors.0 {
-                    println!("    {}", error);
-                }
+        if let Err((time, errors)) = result {
+            let suffix = if errors.len() > 1 { "s" } else { "" };
+            let error_info = format!("{} error{}", errors.len(), suffix).red().bold();
+            let message = format!(
+                "{} `{}` because of {} in {}:",
+                "Failed to compile".red().bold(),
+                file,
+                error_info,
+                humantime::Duration::from(time)
+            );
+            println!("{}", message);
+            for error in errors.0 {
+                println!("    {}", error);
             }
         }
     }
