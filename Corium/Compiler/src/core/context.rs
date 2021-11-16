@@ -205,12 +205,14 @@
 
 use crate::core::job::CompilationJob;
 use crate::core::unit::{CompilationResult, CompileDescriptor, FileCompilationUnit};
-use std::collections::VecDeque;
 use std::path::PathBuf;
+use std::sync::mpsc::{channel, Receiver, Sender};
 
 pub struct CompilerContext {
-    file_queue: VecDeque<FileCompilationUnit>,
-    job_queue: VecDeque<CompilationJob>,
+    file_queue: Vec<FileCompilationUnit>,
+    job_queue: Vec<CompilationJob>,
+    job_status_sender: Sender<(CompilationResult, String)>,
+    job_status_receiver: Receiver<(CompilationResult, String)>,
     failed_compilations: usize,
 }
 
@@ -221,16 +223,15 @@ impl CompilerContext {
 
     pub fn with_capacity(capacity: usize) -> Self {
         Self {
-            file_queue: VecDeque::with_capacity(capacity),
-            job_queue: VecDeque::with_capacity(capacity),
+            file_queue: Vec::with_capacity(capacity),
+            job_queue: Vec::with_capacity(capacity),
             ..Default::default()
         }
     }
 
     #[inline]
     pub fn enqueue_file(&mut self, path: PathBuf, desc: CompileDescriptor) {
-        self.file_queue
-            .push_front(FileCompilationUnit::load(path, desc));
+        self.file_queue.push(FileCompilationUnit::load(path, desc));
     }
 
     #[inline]
@@ -240,12 +241,12 @@ impl CompilerContext {
     }
 
     #[inline]
-    pub fn file_queue(&self) -> &VecDeque<FileCompilationUnit> {
+    pub fn file_queue(&self) -> &Vec<FileCompilationUnit> {
         &self.file_queue
     }
 
     #[inline]
-    pub fn job_queue(&self) -> &VecDeque<CompilationJob> {
+    pub fn job_queue(&self) -> &Vec<CompilationJob> {
         &self.job_queue
     }
 
@@ -261,31 +262,45 @@ impl CompilerContext {
 
     pub fn compile<F>(&mut self, callback: Option<F>)
     where
-        F: Fn() + Copy,
+        F: Fn(String) + Copy,
     {
-        while let Some(unit) = self.file_queue.pop_back() {
-            self.job_queue.push_front(CompilationJob::launch(unit));
+        while let Some(unit) = self.file_queue.pop() {
+            self.job_queue
+                .push(CompilationJob::launch(self.job_status_sender.clone(), unit));
         }
         self.finalize_compilation_jobs(callback);
     }
 
     fn finalize_compilation_jobs<F>(&mut self, callback: Option<F>)
     where
-        F: Fn() + Copy,
+        F: Fn(String) + Copy,
     {
-        while let Some(job) = self.job_queue.pop_back() {
-            let (file_name, result) = job.join();
-            if let Some(callback) = callback {
-                callback();
+        // wait for compilation job end messages in the MPSC queue
+        let mut received: usize = 0;
+        let expected = self.job_queue.len();
+        'busy_wait: while received < expected {
+            let result = self.job_status_receiver.try_recv();
+            if result.is_err() {
+                continue 'busy_wait;
             }
+            let (result, file_name) = result.unwrap();
             if result.is_err() {
                 self.failed_compilations += 1;
             }
-            self.print_compilation_status(&file_name, result);
+            if let Some(callback) = callback {
+                callback(file_name.clone());
+            }
+            self.print_compilation_status(result, file_name);
+            received += 1;
+        }
+
+        // join all jobs
+        while let Some(unit) = self.job_queue.pop() {
+            unit.join();
         }
     }
 
-    fn print_compilation_status(&mut self, file: &str, result: CompilationResult) {
+    fn print_compilation_status(&mut self, result: CompilationResult, file: String) {
         use colored::Colorize;
 
         if let Err((time, errors)) = result {
@@ -308,9 +323,12 @@ impl CompilerContext {
 
 impl Default for CompilerContext {
     fn default() -> Self {
+        let (job_status_sender, job_status_receiver) = channel::<(CompilationResult, String)>();
         Self {
-            file_queue: VecDeque::new(),
-            job_queue: VecDeque::new(),
+            file_queue: Vec::new(),
+            job_queue: Vec::new(),
+            job_status_receiver,
+            job_status_sender,
             failed_compilations: 0,
         }
     }

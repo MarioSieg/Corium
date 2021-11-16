@@ -204,30 +204,35 @@
 //    limitations under the License.
 
 use crate::core::unit::{CompilationResult, FileCompilationUnit};
+use std::sync::mpsc::Sender;
 use std::thread::{self, JoinHandle};
 
 #[derive(Debug)]
 pub struct CompilationJob {
     pub file_name: String,
-    pub handle: JoinHandle<CompilationResult>,
+    pub handle: JoinHandle<()>,
 }
 
 impl CompilationJob {
-    pub fn launch(mut unit: FileCompilationUnit) -> Self {
-        let file = unit.file_name().clone();
-        let handle = thread::spawn(move || unit.compile());
-        Self {
-            file_name: file,
-            handle,
-        }
+    pub fn launch(
+        sender: Sender<(CompilationResult, String)>,
+        mut unit: FileCompilationUnit,
+    ) -> Self {
+        let file_name = unit.file_name().clone();
+        let handle = thread::spawn(move || {
+            let result = unit.compile();
+            let file_name = unit.file_name;
+            sender
+                .send((result, file_name))
+                .expect("Failed to send compilation result via MPSC queue!");
+        });
+        Self { file_name, handle }
     }
 
-    pub fn join(self) -> (String, CompilationResult) {
-        let file_name = self.file_name;
-        let result = self
-            .handle
+    #[inline]
+    pub fn join(self) {
+        self.handle
             .join()
             .expect("Failed to wait for compilation job!");
-        (file_name, result)
     }
 }

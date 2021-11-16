@@ -206,7 +206,7 @@
 use crate::core::context::CompilerContext;
 use crate::misc;
 use crate::misc::project::Project;
-use indicatif::ProgressBar;
+use indicatif::{ProgressBar, ProgressStyle};
 use std::env;
 use std::path::PathBuf;
 use structopt::StructOpt;
@@ -280,7 +280,14 @@ impl Options {
             } => {
                 let num_files = input_files.len();
                 let mut context = CompilerContext::with_capacity(num_files);
-                let progress_bar = ProgressBar::new(num_files as u64);
+                let progress_bar = if num_files > 1 {
+                    let progress_bar = ProgressBar::new(num_files as u64);
+                    progress_bar
+                        .set_style(ProgressStyle::default_bar().template("{msg} {wide_bar}"));
+                    Some(progress_bar)
+                } else {
+                    None
+                };
                 for file in input_files.into_iter() {
                     let descriptor = crate::core::unit::CompileDescriptor {
                         dump_ast,
@@ -291,10 +298,16 @@ impl Options {
                     };
                     context.enqueue_file(file, descriptor);
                 }
-                context.compile(Some(|| {
-                    progress_bar.inc(1);
+                context.compile(Some(|file_name| {
+                    if let Some(progress_bar) = &progress_bar {
+                        progress_bar.inc(1);
+                        progress_bar.set_message(format!("Compiled {}", file_name));
+                        progress_bar.tick();
+                    }
                 }));
-                progress_bar.finish_with_message(format!("Compiled {} files!", num_files));
+                if let Some(progress_bar) = &progress_bar {
+                    progress_bar.finish_with_message(format!("Compiled {} files", num_files));
+                }
             }
             Options::Build => {
                 let project = Project::open(env::current_dir().unwrap());
