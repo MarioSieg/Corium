@@ -236,20 +236,53 @@ namespace Nominax::Core::Subsystem
 	/// </summary>
 	enum class HookFlag : std::uint8_t
 	{
+		/// <summary>
+		/// NO hooks.
+		/// </summary>
 		None			= 0 << 0,
 
+		/// <summary>
+		/// IEventHooks::OnConstruct()
+		/// </summary>
 		OnConstruct		= 1 << 0,
+
+		/// <summary>
+		/// IEventHooks::OnDestruct()
+		/// </summary>
 		OnDestruct		= 1 << 1,
 
+		/// <summary>
+		/// IEventHooks::OnPreBoot()
+		/// </summary>
 		OnPreBoot		= 1 << 2,
+
+		/// <summary>
+		/// IEventHooks::OnPostBoot()
+		/// </summary>
 		OnPostBoot		= 1 << 3,
 
+		/// <summary>
+		/// IEventHooks::OnPreExecute()
+		/// </summary>
 		OnPreExecute	= 1 << 4,
+
+		/// <summary>
+		/// IEventHooks::OnPostExecute()
+		/// </summary>
 		OnPostExecute	= 1 << 5,
 
+		/// <summary>
+		/// IEventHooks::OnPreShutdown()
+		/// </summary>
 		OnPreShutdown	= 1 << 6,
+
+		/// <summary>
+		/// IEventHooks::OnPostShutdown
+		/// </summary>
 		OnPostShutdown	= 1 << 7
 	};
+
+	NOX_IMPL_ENUM_BIT_FLAGS(HookFlag);
 
 	/// <summary>
 	/// Base interface for subsystem event hooks.

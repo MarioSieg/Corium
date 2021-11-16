@@ -212,24 +212,54 @@
 
 namespace Nominax::Core::Subsystem
 {
+	/// <summary>
+	/// Subsystem owning wrapper.
+	/// </summary>
 	using SubsystemHandle = std::unique_ptr<ISubsystem, ISubsystem::Deleter>;
 
+	/// <summary>
+	/// Friended proxy initializer invocation.
+	/// </summary>
+	/// <param name="self"></param>
+	/// <param name="config"></param>
+	/// <param name="userData"></param>
+	/// <returns></returns>
 	inline auto ProxyInit(IEventHooks& self, std::unique_ptr<SubsystemConfig>&& config, void* const userData) -> void
 	{
-		self.OnConstruct(std::move(config), userData);
+		if (self.HasSubscribed(HookFlag::OnConstruct))
+		{
+			self.OnConstruct(std::move(config), userData);
+		}
 	}
 
 	namespace Factory
 	{
+		/// <summary>
+		/// Restrict T to constructable subsystem.
+		/// </summary>
 		template <typename T, typename... Args>
-		concept SubsystemFacory = requires
+		concept IsValidSubsystem = requires
 		{
 			requires std::is_base_of_v<ISubsystem, T>;
 			requires std::is_default_constructible_v<T> || std::is_constructible_v<T, Args...>;
 		};
 
-		template <typename T, typename... Args> requires SubsystemFacory<T, Args...>
-		inline auto AllocateSubsystemInstance(std::unique_ptr<SubsystemConfig>&& config, void* const userData, Args&&... args) -> SubsystemHandle
+		/// <summary>
+		/// Allocates a new subsystem and invokes the subsystem hooks.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <typeparam name="...Args"></typeparam>
+		/// <param name="config"></param>
+		/// <param name="userData"></param>
+		/// <param name="args"></param>
+		/// <returns></returns>
+		template <typename T, typename... Args> requires IsValidSubsystem<T, Args...>
+		[[nodiscard]] auto AllocateSubsystemInstance
+		(
+			std::unique_ptr<SubsystemConfig>&& config,
+			void* const userData,
+			Args&&... args
+		) -> SubsystemHandle
 		{
 			ISubsystem* const instance = new(std::nothrow) T(std::forward<Args>(args)...);
 			NOX_PAS_NOT_NULL(instance, "Failed to allocate subsystem!");

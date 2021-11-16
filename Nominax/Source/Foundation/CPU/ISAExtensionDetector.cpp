@@ -270,29 +270,29 @@ namespace Nominax::Foundation::CPU
 
         // Validate OS support and update flags for AVX:
         const bool avxOsSupport { IsAVXSupportedByOS() };
-        (*this)[CFB::AVX] &= avxOsSupport;
-        (*this)[CFB::AVX2] &= avxOsSupport;
-        (*this)[CFB::F16C] &= avxOsSupport;
+        (*this)[CFB::AVX]   &= avxOsSupport;
+        (*this)[CFB::AVX2]  &= avxOsSupport;
+        (*this)[CFB::F16C]  &= avxOsSupport;
 
         // Validate OS support and update flags for AVX-512 F:
         const bool avx512OsSupport { avxOsSupport && IsAVX512SupportedByOS() };
-        (*this)[CFB::AVX512F] &= avx512OsSupport;
-        (*this)[CFB::AVX512DQ] &= avx512OsSupport;
-        (*this)[CFB::AVX512IFMA] &= avx512OsSupport;
-        (*this)[CFB::AVX512PF] &= avx512OsSupport;
-        (*this)[CFB::AVX512ER] &= avx512OsSupport;
-        (*this)[CFB::AVX512CD] &= avx512OsSupport;
-        (*this)[CFB::AVX512BW] &= avx512OsSupport;
-        (*this)[CFB::AVX512VL] &= avx512OsSupport;
-        (*this)[CFB::AVX512VBMI] &= avx512OsSupport;
-        (*this)[CFB::AVX512VBMI2] &= avx512OsSupport;
-        (*this)[CFB::AVX512GFNI] &= avx512OsSupport;
-        (*this)[CFB::AVX512VNNI] &= avx512OsSupport;
-        (*this)[CFB::AVX512Bitalg] &= avx512OsSupport;
-        (*this)[CFB::AVX512PopCNTDQ] &= avx512OsSupport;
-        (*this)[CFB::AVX512VNNIW4] &= avx512OsSupport;
-        (*this)[CFB::AVX512FMAPS4] &= avx512OsSupport;
-        (*this)[CFB::AVX512VP2Intersect] &= avx512OsSupport;
+        (*this)[CFB::AVX512F]               &= avx512OsSupport;
+        (*this)[CFB::AVX512DQ]              &= avx512OsSupport;
+        (*this)[CFB::AVX512IFMA]            &= avx512OsSupport;
+        (*this)[CFB::AVX512PF]              &= avx512OsSupport;
+        (*this)[CFB::AVX512ER]              &= avx512OsSupport;
+        (*this)[CFB::AVX512CD]              &= avx512OsSupport;
+        (*this)[CFB::AVX512BW]              &= avx512OsSupport;
+        (*this)[CFB::AVX512VL]              &= avx512OsSupport;
+        (*this)[CFB::AVX512VBMI]            &= avx512OsSupport;
+        (*this)[CFB::AVX512VBMI2]           &= avx512OsSupport;
+        (*this)[CFB::AVX512GFNI]            &= avx512OsSupport;
+        (*this)[CFB::AVX512VNNI]            &= avx512OsSupport;
+        (*this)[CFB::AVX512Bitalg]          &= avx512OsSupport;
+        (*this)[CFB::AVX512PopCNTDQ]        &= avx512OsSupport;
+        (*this)[CFB::AVX512VNNIW4]          &= avx512OsSupport;
+        (*this)[CFB::AVX512FMAPS4]          &= avx512OsSupport;
+        (*this)[CFB::AVX512VP2Intersect]    &= avx512OsSupport;
 
 #endif
     }

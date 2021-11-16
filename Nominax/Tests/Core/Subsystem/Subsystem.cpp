@@ -5,7 +5,7 @@ static HypervisorHost GHost { };
 
 struct MySubsystem : ISubsystem
 {
-	MySubsystem() : ISubsystem { GHost, "Test"} { }
+	MySubsystem() : ISubsystem { GHost, DEFAULT_HOOK_FLAGS, "Test" } { }
 
 	auto OnConstruct(std::unique_ptr<SubsystemConfig>&& config, void* userData) & -> void override
 	{

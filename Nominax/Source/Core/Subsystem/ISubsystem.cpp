@@ -211,6 +211,7 @@ namespace Nominax::Core::Subsystem
 	ISubsystem::ISubsystem
 	(
 		HypervisorHost& host,
+		const HookFlag subscriptions,
 		const std::string_view name,
 		const std::string_view description,
 		const bool isEnabled
@@ -220,5 +221,7 @@ namespace Nominax::Core::Subsystem
 		Description_ { description },
 		ID_ { IDAccumulator_.fetch_add(1, std::memory_order_relaxed) },
 		IsEnabled_ { isEnabled }
-		{ }
+	{
+		this->SetSubscriptions(subscriptions);
+	}
 }

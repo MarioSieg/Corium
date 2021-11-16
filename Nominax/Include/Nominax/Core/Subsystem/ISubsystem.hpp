@@ -216,11 +216,6 @@
 
 namespace Nominax::Core::Subsystem
 {
-	struct HookFlags final
-	{
-		
-	};
-
 	/// <summary>
 	/// Base class for all subsystems.
 	///	Designed for one subsystem per thread.
@@ -231,25 +226,110 @@ namespace Nominax::Core::Subsystem
 	{
 		friend class HypervisorHost;
 
+		/// <summary>
+		/// No copying.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
 		ISubsystem(const ISubsystem& other) noexcept = delete;
+
+		/// <summary>
+		/// No moving.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
 		ISubsystem(ISubsystem&& other) noexcept = default;
+
+		/// <summary>
+		/// No copying.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
 		auto operator =(const ISubsystem& other) -> ISubsystem & = delete;
+
+		/// <summary>
+		/// No moving.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
 		auto operator =(ISubsystem&& other) -> ISubsystem & = delete;
+
+		/// <summary>
+		/// Destructor.
+		/// </summary>
 		virtual ~ISubsystem() override = default;
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The host of this subsystem.</returns>
 		auto Host() const & noexcept -> const HypervisorHost&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The boot and runtime config.</returns>
 		auto Config() const & noexcept -> const SubsystemConfig&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>User data - if any.</returns>
 		auto UserData() const & noexcept -> const void*;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>True if the subsystem is enabled, else false.</returns>
 		auto IsEnabled() const & noexcept -> bool;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The short name.</returns>
 		auto Name() const & noexcept -> std::string_view;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The detailed description.</returns>
 		auto Description() const & noexcept -> std::string_view;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The unique subsystem ID.</returns>
 		auto ID() const & noexcept -> std::uint16_t;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The thread-id of the subsystem.</returns>
 		auto ThreadIDHash() const & noexcept -> DispatchThreadID;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The super event hooks class.</returns>
 		auto EventHooks() const & noexcept -> const IEventHooks&;
 
+		/// <summary>
+		/// Enable/disable the subsystem.
+		/// </summary>
+		/// <param name="enabled"></param>
+		/// <returns></returns>
 		auto SetEnabled(bool enabled) const noexcept -> void;
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The atomic ID generator accumulator.</returns>
 		static auto IDAccumulator() noexcept -> std::uint16_t;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The thread local id.</returns>
 		static auto ThreadID() noexcept -> DispatchThreadID;
 
 		struct Deleter final
@@ -257,10 +337,28 @@ namespace Nominax::Core::Subsystem
 			auto operator () (ISubsystem* instance) const noexcept -> void;
 		};
 
+		/// <summary>
+		/// Default hook flags used for initialization.
+		/// </summary>
+		static constexpr HookFlag DEFAULT_HOOK_FLAGS
+		{
+			HookFlag::OnConstruct | HookFlag::OnDestruct
+		};
+
 	protected:
+		/// <summary>
+		/// Construct and initialize subsystem interface.
+		/// </summary>
+		/// <param name="host"></param>
+		/// <param name="name"></param>
+		/// <param name="subscriptions"></param>
+		/// <param name="description"></param>
+		/// <param name="isEnabled"></param>
+		/// <returns></returns>
 		explicit ISubsystem
 		(
 			HypervisorHost& host,
+			HookFlag subscriptions,
 			std::string_view name,
 			std::string_view description = { },
 			bool isEnabled = true
@@ -286,7 +384,10 @@ namespace Nominax::Core::Subsystem
 
 	inline auto ISubsystem::Deleter::operator() (ISubsystem* const instance) const noexcept -> void
 	{
-		instance->OnDestruct();
+		if (instance->HasSubscribed(HookFlag::OnDestruct))
+		{
+			instance->OnDestruct();
+		}
 		delete instance;
 	}
 

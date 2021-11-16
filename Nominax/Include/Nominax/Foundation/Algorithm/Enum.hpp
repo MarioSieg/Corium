@@ -232,4 +232,55 @@ namespace Nominax::Foundation::Algorithm
 	{
 		return static_cast<T>(x);
 	}
+
+	/// <summary>
+	/// Implements all bit operators for an enum class to be used as bitflags.
+	/// </summary>
+	#define NOX_IMPL_ENUM_BIT_FLAGS(e)										\
+		constexpr auto operator & (const e a, const e b) noexcept -> e		\
+		{																	\
+			return Nominax::Foundation::Algorithm::FromUnderlying<e>		\
+			(																\
+				Nominax::Foundation::Algorithm::ToUnderlying<e>(a)			\
+				&															\
+				Nominax::Foundation::Algorithm::ToUnderlying<e>(b)			\
+			);																\
+		}																	\
+		constexpr auto operator | (const e a, const e b) noexcept -> e		\
+		{																	\
+			return Nominax::Foundation::Algorithm::FromUnderlying<e>		\
+			(																\
+				Nominax::Foundation::Algorithm::ToUnderlying<e>(a)			\
+				|															\
+				Nominax::Foundation::Algorithm::ToUnderlying<e>(b)			\
+			);																\
+		}																	\
+		constexpr auto operator ^ (const e a, const e b) noexcept -> e		\
+		{																	\
+			return Nominax::Foundation::Algorithm::FromUnderlying<e>		\
+			(																\
+				Nominax::Foundation::Algorithm::ToUnderlying<e>(a)			\
+				^															\
+				Nominax::Foundation::Algorithm::ToUnderlying<e>(b)			\
+			);																\
+		}																	\
+		constexpr auto operator &= (e& a, const e b) noexcept -> void		\
+		{																	\
+			a = a & b;														\
+		}																	\
+		constexpr auto operator |= (e& a, const e b) noexcept -> void		\
+		{																	\
+			a = a | b;														\
+		}																	\
+		constexpr auto operator ^= (e& a, const e b) noexcept -> void		\
+		{																	\
+			a = a ^ b;														\
+		}																	\
+		constexpr auto operator ~ (const e a) noexcept -> e					\
+		{																	\
+			return Nominax::Foundation::Algorithm::FromUnderlying<e>		\
+			(																\
+				~Nominax::Foundation::Algorithm::ToUnderlying<e>(a)			\
+			);																\
+		}
 }
