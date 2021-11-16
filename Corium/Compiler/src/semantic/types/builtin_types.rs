@@ -207,10 +207,10 @@ use crate::ast::tree::prelude::{Identifier, Literal};
 use std::convert::From;
 
 /// Represents a Corium "int".
-pub type Int = i32;
+pub type Int = i64;
 
 /// Represents a Corium "float".
-pub type Float = f32;
+pub type Float = f64;
 
 /// Represents a Corium "bool".
 pub type Bool = bool;
