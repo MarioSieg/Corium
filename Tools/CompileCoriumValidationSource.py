@@ -222,7 +222,7 @@ if not is_shell_tool_installed("corium"):
 
 src_dir = "../Corium/ValidationSource/"
 assert os.path.isdir(src_dir)
-source_files = glob.glob(src_dir + "*.cor")
+source_files = glob.glob(src_dir + "**/*.cor", recursive=True)
 for exclude in excludes:
     for file in source_files:
         if file.endswith(exclude):

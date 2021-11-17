@@ -239,7 +239,7 @@ pub type CompilationResult = Result<Duration, (Duration, ErrorList)>;
 pub struct FileCompilationUnit {
     source_code: SourceCode,
     file: PathBuf,
-    pub file_name: String,
+    file_name: String,
     id: Uuid,
     file_load_time: Duration,
     pub descriptor: CompileDescriptor,

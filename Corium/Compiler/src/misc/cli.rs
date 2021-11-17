@@ -210,7 +210,6 @@ use colored::Colorize;
 use indicatif::{ProgressBar, ProgressStyle};
 use std::env;
 use std::path::PathBuf;
-use std::sync::atomic::{AtomicUsize, Ordering};
 use structopt::StructOpt;
 
 #[derive(StructOpt, Debug)]
@@ -287,7 +286,8 @@ impl Options {
                     let progress_bar = ProgressBar::new(num_files as u64);
                     progress_bar
                         .set_style(ProgressStyle::default_bar().template("{msg} {wide_bar}"));
-                    progress_bar.set_message(format!("[{}/{}]", 0, num_files));
+                    progress_bar.set_message("[0 %]");
+                    progress_bar.tick();
                     Some(progress_bar)
                 } else {
                     None
@@ -302,16 +302,13 @@ impl Options {
                     };
                     context.enqueue_file(file, descriptor);
                 }
-                let compiled = AtomicUsize::new(0);
-                context.compile(Some(|_| {
+                let one_percent = 100.0 / num_files as f64;
+                let mut progress = 0.0;
+                context.compile(Some(|| {
                     if let Some(progress_bar) = &progress_bar {
                         progress_bar.inc(1);
-                        compiled.fetch_add(1, Ordering::Relaxed);
-                        progress_bar.set_message(format!(
-                            "[{}/{}]",
-                            compiled.load(Ordering::Relaxed),
-                            num_files
-                        ));
+                        progress += one_percent;
+                        progress_bar.set_message(format!("[{} %]", progress as u64));
                         progress_bar.tick();
                     }
                 }));

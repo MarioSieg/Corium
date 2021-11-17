@@ -211,8 +211,8 @@ use std::sync::mpsc::{channel, Receiver, Sender};
 pub struct CompilerContext {
     file_queue: Vec<FileCompilationUnit>,
     job_queue: Vec<CompilationJob>,
-    job_status_sender: Sender<(CompilationResult, String)>,
-    job_status_receiver: Receiver<(CompilationResult, String)>,
+    job_status_sender: Sender<(CompilationResult, FileCompilationUnit)>,
+    job_status_receiver: Receiver<(CompilationResult, FileCompilationUnit)>,
     failed_compilations: usize,
 }
 
@@ -262,7 +262,7 @@ impl CompilerContext {
 
     pub fn compile<F>(&mut self, callback: Option<F>)
     where
-        F: Fn(String) + Copy,
+        F: FnMut(),
     {
         while let Some(unit) = self.file_queue.pop() {
             self.job_queue
@@ -271,9 +271,9 @@ impl CompilerContext {
         self.finalize_compilation_jobs(callback);
     }
 
-    fn finalize_compilation_jobs<F>(&mut self, callback: Option<F>)
+    fn finalize_compilation_jobs<F>(&mut self, mut callback: Option<F>)
     where
-        F: Fn(String) + Copy,
+        F: FnMut(),
     {
         // wait for compilation job end messages in the MPSC queue
         let mut received: usize = 0;
@@ -283,14 +283,14 @@ impl CompilerContext {
             if result.is_err() {
                 continue 'busy_wait;
             }
-            let (result, file_name) = result.unwrap();
+            let (result, unit) = result.unwrap();
             if result.is_err() {
                 self.failed_compilations += 1;
             }
-            if let Some(callback) = callback {
-                callback(file_name.clone());
+            if let Some(ref mut callback) = callback {
+                callback();
             }
-            self.print_compilation_status(result, file_name);
+            self.print_compilation_status(result, unit.file_name());
             received += 1;
         }
 
@@ -300,7 +300,7 @@ impl CompilerContext {
         }
     }
 
-    fn print_compilation_status(&mut self, result: CompilationResult, file: String) {
+    fn print_compilation_status(&mut self, result: CompilationResult, file: &str) {
         use colored::Colorize;
 
         if let Err((time, errors)) = result {
@@ -323,7 +323,8 @@ impl CompilerContext {
 
 impl Default for CompilerContext {
     fn default() -> Self {
-        let (job_status_sender, job_status_receiver) = channel::<(CompilationResult, String)>();
+        let (job_status_sender, job_status_receiver) =
+            channel::<(CompilationResult, FileCompilationUnit)>();
         Self {
             file_queue: Vec::new(),
             job_queue: Vec::new(),

@@ -215,15 +215,14 @@ pub struct CompilationJob {
 
 impl CompilationJob {
     pub fn launch(
-        sender: Sender<(CompilationResult, String)>,
+        sender: Sender<(CompilationResult, FileCompilationUnit)>,
         mut unit: FileCompilationUnit,
     ) -> Self {
         let file_name = unit.file_name().clone();
         let handle = thread::spawn(move || {
             let result = unit.compile();
-            let file_name = unit.file_name;
             sender
-                .send((result, file_name))
+                .send((result, unit))
                 .expect("Failed to send compilation result via MPSC queue!");
         });
         Self { file_name, handle }
