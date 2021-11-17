@@ -1,0 +1,24 @@
+[package]
+name = "corium_compiler"
+version = "0.1.1"
+edition = "2021"
+authors = ["Mario \"pinsrq\" Sieg <mt3000@gmx.de>"]
+
+[dependencies]
+nominax_bytecode_interface = { path = "../../../Nominax/ByteCodeInterface/Rust/NominaxByteCodeInterface" }
+
+# Will be replaced by custom modified parser implementation later
+# The custom lexer and parser will provide better error messages and performance
+pest = "2.1.3"
+pest_derive = "2.1.0"
+
+ptree = "0.4.0"                                             # Helper for pretty printing tree structures
+lazy_static = "1.4.0"                                       # A macro for declaring lazily evaluated statics.
+
+[dev-dependencies]
+rand = "0.8.4"
+criterion = "0.3.5"
+
+[[bench]]
+name = "compilation"
+harness = false
