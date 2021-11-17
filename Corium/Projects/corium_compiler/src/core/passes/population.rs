@@ -204,7 +204,6 @@
 //    limitations under the License.
 
 use super::Pass;
-use crate::ast::format::pretty_print_ast;
 use crate::ast::populator::NestedAstPopulator;
 use crate::ast::tree::module::Module;
 use crate::ast::tree::prelude::CompilationUnit;
@@ -219,15 +218,12 @@ impl<'a> Pass<'a, RulePairs<'a>, CompilationUnit<'a>> for AstPopulationPass {
 
     fn execute(
         input: RulePairs<'a>,
-        verbose: bool,
+        _verbose: bool,
         file: &'a str,
     ) -> Result<CompilationUnit<'a>, ErrorList> {
         let mut result = CompilationUnit::populate(input);
         if result.module == Module::default() {
             file_name_to_module(file, &mut result.module)?;
-        }
-        if verbose {
-            pretty_print_ast(&result);
         }
         Ok(result)
     }

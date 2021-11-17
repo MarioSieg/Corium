@@ -312,8 +312,8 @@ impl CompilerContext {
             let suffix = if errors.len() > 1 { "s" } else { "" };
             let error_info = format!("{} error{}", errors.len(), suffix);
             let message = format!(
-                "{} `{}` because of {} in {:?}:",
-                "Failed to compile", file, error_info, time
+                "\nFailed to compile `{}` because of {} in {:?}:",
+                file, error_info, time
             );
             let mut result = Vec::with_capacity(errors.len() + 1);
             result.push(message);

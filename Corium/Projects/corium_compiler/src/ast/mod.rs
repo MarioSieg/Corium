@@ -203,7 +203,6 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-pub mod format;
 pub mod populator;
 pub mod table;
 pub mod tree;

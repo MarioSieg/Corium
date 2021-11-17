@@ -203,11 +203,8 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::project::Project;
-use colored::Colorize;
-use corium_compiler::core::context::CompilerContext;
-use indicatif::{ProgressBar, ProgressStyle};
-use std::env;
+use crate::commands;
+use crate::commands::CompileOptions;
 use std::path::PathBuf;
 use structopt::StructOpt;
 
@@ -265,74 +262,42 @@ impl Options {
     pub fn process(self) {
         match self {
             Options::New { name } => {
-                let working_dir = env::current_dir()
-                    .unwrap_or_else(|_| panic!("Failed to retrieve working dir!"));
-                crate::project::Project::create(name, working_dir);
+                commands::new(name);
             }
             Options::Compile {
                 input_files,
-                output_file: _output_file,
+                output_file,
                 opt_level,
                 verbose,
                 dump_ast,
                 dump_asm,
                 pass_timer,
             } => {
-                let num_files = input_files.len();
-                let mut context = CompilerContext::with_capacity(num_files);
-                println!("{}", "Compiling...".yellow());
-                let progress_bar = if num_files > 1 {
-                    let progress_bar = ProgressBar::new(num_files as u64);
-                    progress_bar
-                        .set_style(ProgressStyle::default_bar().template("{msg} {wide_bar}"));
-                    progress_bar.set_message("[0 %]");
-                    progress_bar.tick();
-                    Some(progress_bar)
-                } else {
-                    None
+                let options = CompileOptions {
+                    input_files,
+                    output_file,
+                    opt_level,
+                    verbose,
+                    dump_ast,
+                    dump_asm,
+                    pass_timer,
                 };
-                for file in input_files.into_iter() {
-                    let descriptor = corium_compiler::core::unit::CompileDescriptor {
-                        dump_ast,
-                        dump_asm,
-                        opt_level,
-                        verbose,
-                        pass_timer,
-                    };
-                    context.enqueue_file(file, descriptor);
-                }
-                let one_percent = 100.0 / num_files as f64;
-                let mut progress = 0.0;
-                context.compile(Some(|| {
-                    if let Some(progress_bar) = &progress_bar {
-                        progress_bar.inc(1);
-                        progress += one_percent;
-                        progress_bar.set_message(format!("[{} %]", progress as u64));
-                        progress_bar.tick();
-                    }
-                }));
-                if let Some(progress_bar) = &progress_bar {
-                    progress_bar.finish_with_message(format!("Compiled {} files", num_files));
-                }
+                commands::compile(options)
             }
             Options::Build => {
-                let project = Project::open(env::current_dir().unwrap());
-                dbg!(project);
+                commands::build();
             }
             Options::Clean => {
-                let project = Project::open(env::current_dir().unwrap());
-                project.clean();
-                println!("Cleaned project {}", project.name());
+                commands::clean();
             }
             Options::Rebuild => {
-                Options::Clean.process();
-                Options::Build.process();
+                commands::rebuild();
             }
             Options::Delete => {
-                Project::open(env::current_dir().unwrap()).delete();
+                commands::delete();
             }
             Options::DumpIntrinsics => {
-                corium_compiler::core::intrinsics::Intrinsic::dump_all();
+                commands::dump_intrinsics();
             }
         }
     }

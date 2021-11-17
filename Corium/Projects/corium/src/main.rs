@@ -206,8 +206,9 @@
 use cli::Options;
 use structopt::StructOpt;
 
-pub mod cli;
-pub mod project;
+mod cli;
+mod commands;
+mod project;
 
 fn main() {
     let options = Options::from_args();

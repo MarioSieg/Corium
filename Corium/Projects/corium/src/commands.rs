@@ -203,116 +203,90 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::tree::prelude::*;
-use crate::ast::tree::Statement;
-use ptree::*;
+use crate::project::Project;
+use colored::Colorize;
+use corium_compiler::core::context::CompilerContext;
+use indicatif::{ProgressBar, ProgressStyle};
+use std::env;
+use std::path::PathBuf;
 
-#[cold]
-pub fn pretty_print_ast(root: &CompilationUnit) {
-    let module_name = root.module.to_string();
-    let mut tree = TreeBuilder::new(module_name);
-    for global_statement in &root.statements {
-        tree.begin_child(global_statement.descriptive_name().to_string());
-        match global_statement {
-            GlobalStatement::NativeFunction(x) => {
-                print_function_signature(&mut tree, &x.signature);
-            }
-            GlobalStatement::Function(x) => {
-                print_function_signature(&mut tree, &x.signature);
-                for local_statement in &x.block.0 {
-                    tree.begin_child(local_statement.descriptive_name().to_string());
-                    match local_statement {
-                        LocalStatement::ImmutableVariable(x) => {
-                            print_immutable_variable(&mut tree, x);
-                        }
-                        LocalStatement::MutableVariable(x) => {
-                            print_mutable_variable(&mut tree, x);
-                        }
-                        LocalStatement::ReturnStatement(expr) => {
-                            if let Some(expr) = &expr.0 {
-                                print_expr(&mut tree, expr);
-                            }
-                        }
-                    }
-                    tree.end_child();
-                }
-            }
-            GlobalStatement::ImmutableVariable(x) => {
-                print_immutable_variable(&mut tree, x);
-            }
-            GlobalStatement::MutableVariable(x) => {
-                print_mutable_variable(&mut tree, x);
-            }
-        }
-        tree.end_child();
-    }
-    let result = tree.build();
-    print_tree(&result).unwrap();
+pub fn new(name: String) {
+    let working_dir =
+        env::current_dir().unwrap_or_else(|_| panic!("Failed to retrieve working dir!"));
+    Project::create(name, working_dir);
 }
 
-#[cold]
-fn print_function_signature(tree: &mut TreeBuilder, signature: &FunctionSignature) {
-    tree.add_empty_child(signature.name.to_string());
-    if let Some(params) = &signature.parameters {
-        for (i, param) in params.0.iter().enumerate() {
-            tree.begin_child(format!("parameter {}", i));
-            tree.add_empty_child(param.name.to_string());
-            tree.add_empty_child(param.type_hint.to_string());
-            if let Some(expr) = &param.value {
-                print_expr(tree, expr);
-            }
-            tree.end_child();
-        }
-    }
-    if let Some(return_type) = &signature.return_type {
-        tree.add_empty_child(return_type.full.to_string());
-    }
+pub fn build() {
+    let project = Project::open(env::current_dir().unwrap());
+    dbg!(project);
 }
 
-#[cold]
-fn print_expr(tree: &mut TreeBuilder, expr: &Expression) {
-    match expr {
-        Expression::Literal(x) => {
-            tree.add_empty_child(x.to_string());
-        }
-        Expression::Identifier(x) => {
-            tree.add_empty_child(x.to_string());
-        }
-        Expression::Parenthesis(expr) => {
-            print_expr(tree, expr);
-        }
-        Expression::Unary { op, expr } => {
-            tree.add_empty_child(op.to_string());
-            print_expr(tree, expr);
-        }
-        Expression::Binary { lhs, op, rhs } => {
-            tree.begin_child(lhs.to_string());
-            print_expr(tree, lhs);
-            tree.end_child();
-
-            tree.add_empty_child(op.to_string());
-
-            tree.begin_child(rhs.to_string());
-            print_expr(tree, rhs);
-            tree.end_child();
-        }
-    }
+pub fn clean() {
+    let project = Project::open(env::current_dir().unwrap());
+    project.clean();
+    println!("Cleaned project {}", project.name().green());
 }
 
-#[cold]
-fn print_immutable_variable(tree: &mut TreeBuilder, variable: &ImmutableVariable) {
-    tree.add_empty_child(variable.name.to_string());
-    if let Some(type_hint) = &variable.type_hint {
-        tree.add_empty_child(type_hint.to_string());
-    }
-    print_expr(tree, &variable.value);
+pub fn rebuild() {
+    clean();
+    build();
 }
 
-#[cold]
-fn print_mutable_variable(tree: &mut TreeBuilder, variable: &MutableVariable) {
-    tree.add_empty_child(variable.name.to_string());
-    if let Some(type_hint) = &variable.type_hint {
-        tree.add_empty_child(type_hint.to_string());
+pub fn delete() {
+    Project::open(env::current_dir().unwrap()).delete();
+}
+
+pub fn dump_intrinsics() {
+    corium_compiler::core::intrinsics::Intrinsic::dump_all();
+}
+
+pub struct CompileOptions {
+    pub input_files: Vec<PathBuf>,
+    pub output_file: Option<PathBuf>,
+    pub opt_level: u8,
+    pub verbose: bool,
+    pub dump_ast: bool,
+    pub dump_asm: bool,
+    pub pass_timer: bool,
+}
+
+pub fn compile(options: CompileOptions) {
+    let num_files = options.input_files.len();
+    let mut context = CompilerContext::with_capacity(num_files);
+    println!("{}", "Compiling...".yellow());
+    let progress_bar = ProgressBar::new(num_files as u64);
+    progress_bar.set_style(ProgressStyle::default_bar().template("{msg} {wide_bar}"));
+    progress_bar.set_message("[0 %]");
+    progress_bar.tick();
+    for file in options.input_files.into_iter() {
+        let descriptor = corium_compiler::core::unit::CompileDescriptor {
+            dump_ast: options.dump_ast,
+            dump_asm: options.dump_ast,
+            opt_level: options.opt_level,
+            verbose: options.verbose,
+            pass_timer: options.pass_timer,
+        };
+        context.enqueue_file(file, descriptor);
     }
-    print_expr(tree, &variable.value);
+    let one_percent = 100.0 / num_files as f64;
+    let mut progress = 0.0;
+    let errors = context.compile(Some(|| {
+        progress_bar.inc(1);
+        progress += one_percent;
+        progress_bar.set_message(format!("[{} %]", progress as u64));
+        progress_bar.tick();
+    }));
+    progress_bar.finish_and_clear();
+    let message = if errors.is_empty() {
+        format!("Compiled {} files", num_files).green().bold()
+    } else {
+        let failed = context.failed_compilations();
+        format!("Compiled {} files, {} failed", num_files - failed, failed)
+            .red()
+            .bold()
+    };
+    println!("{}", message);
+    for error in errors {
+        println!("{}", error.red().bold());
+    }
 }
