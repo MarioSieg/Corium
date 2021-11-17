@@ -6,9 +6,9 @@ authors = ["Mario \"pinsrq\" Sieg <mt3000@gmx.de>"]
 
 [dependencies]
 corium_compiler = { path = "../corium_compiler" }
-structopt = "0.3.23"                                        # CLI argument parsing
-colored = "2.0.0"                                           # Colored console printing
-indicatif = "0.16.2"                                        # Command line progress bar
-serde = { version = "1.0.130", features = ["derive"] }      # Data de/serialization
-toml = "0.5.8"                                              # TOML file de/serialization
-walkdir = "2.3.2"                                           # Recursive directory iteration
+structopt = "0.3.23"                                                    # CLI argument parsing
+colored = "2.0.0"                                                       # Colored console printing
+indicatif = { version = "0.16.2", features = ["improved_unicode"] }     # Command line progress bar
+serde = { version = "1.0.130", features = ["derive"] }                  # Data de/serialization
+toml = "0.5.8"                                                          # TOML file de/serialization
+walkdir = "2.3.2"                                                       # Recursive directory iteration

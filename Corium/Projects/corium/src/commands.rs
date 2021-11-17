@@ -254,10 +254,16 @@ pub fn compile(options: CompileOptions) {
     let num_files = options.input_files.len();
     let mut context = CompilerContext::with_capacity(num_files);
     println!("{}", "Compiling...".yellow());
+
     let progress_bar = ProgressBar::new(num_files as u64);
-    progress_bar.set_style(ProgressStyle::default_bar().template("{msg} {wide_bar}"));
+    progress_bar.set_style(
+        ProgressStyle::default_bar()
+            .template("{spinner:.green} [{elapsed_precise}] {msg} {wide_bar:.cyan/blue}")
+            .tick_chars("⠁⠂⠄⡀⢀⠠⠐⠈"),
+    );
     progress_bar.set_message("[0 %]");
-    progress_bar.tick();
+    progress_bar.enable_steady_tick(100);
+
     for file in options.input_files.into_iter() {
         let descriptor = corium_compiler::core::unit::CompileDescriptor {
             dump_ast: options.dump_ast,
@@ -268,14 +274,16 @@ pub fn compile(options: CompileOptions) {
         };
         context.enqueue_file(file, descriptor);
     }
+
     let one_percent = 100.0 / num_files as f64;
     let mut progress = 0.0;
+
     let errors = context.compile(Some(|| {
         progress_bar.inc(1);
         progress += one_percent;
         progress_bar.set_message(format!("[{} %]", progress as u64));
-        progress_bar.tick();
     }));
+
     progress_bar.finish_and_clear();
     let message = if errors.is_empty() {
         format!("Compiled {} files", num_files).green().bold()
@@ -285,6 +293,7 @@ pub fn compile(options: CompileOptions) {
             .red()
             .bold()
     };
+
     println!("{}", message);
     for error in errors {
         println!("{}", error.red().bold());
