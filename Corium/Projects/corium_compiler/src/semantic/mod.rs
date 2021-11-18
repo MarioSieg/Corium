@@ -207,13 +207,13 @@ use crate::ast::tree::compilation_unit::CompilationUnit;
 use crate::error::list::ErrorList;
 
 pub mod context;
-pub mod global;
-pub mod local;
 pub mod record;
 pub mod table;
 
 pub mod analysis;
+pub mod global_state;
 pub mod linearizer;
+pub mod local_state;
 #[cfg(test)]
 mod tests;
 pub mod types;

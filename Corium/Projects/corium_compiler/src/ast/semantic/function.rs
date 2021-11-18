@@ -203,5 +203,28 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-pub mod analysis;
-pub mod state;
+use crate::ast::tree::function::Function;
+use crate::error::list::ErrorList;
+use crate::semantic::analysis::LocalSemanticAnalysis;
+use crate::semantic::local_state::LocalState;
+use crate::semantic::table::SymbolTable;
+
+impl<'ast> LocalSemanticAnalysis<'ast> for Function<'ast> {
+    fn analyze(
+        &'ast self,
+        local_state: &mut LocalState<'ast>,
+        global_table: &SymbolTable<'ast>,
+    ) -> Result<(), ErrorList> {
+        // begin a new function local scope
+        local_state.begin_new_scope(&self.signature);
+
+        let mut errors = ErrorList::new();
+
+        // now analyze all locals statements
+        for local in &self.block.0 {
+            errors.merge_if_err(local.analyze(local_state, global_table));
+        }
+
+        errors.into()
+    }
+}

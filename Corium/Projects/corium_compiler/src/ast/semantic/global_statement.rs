@@ -203,41 +203,52 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::tree::prelude::*;
+use crate::ast::tree::global_statement::GlobalStatement;
 use crate::error::list::ErrorList;
-use crate::semantic::analysis::GlobalSemanticAnalysis;
+use crate::semantic::analysis::{GlobalSemanticAnalysis, LocalSemanticAnalysis};
 use crate::semantic::global_state::GlobalState;
+use crate::semantic::record::Record;
 
-pub struct Context<'a> {
-    pub errors: ErrorList,
-    pub global: GlobalState<'a>,
-}
+impl<'a> GlobalSemanticAnalysis<'a> for GlobalStatement<'a> {
+    fn analyze(&'a self, global_state: &mut GlobalState<'a>) -> Result<(), ErrorList> {
+        let mut analyze_error = Ok(());
 
-impl<'a> Context<'a> {
-    pub fn new(file: &'a str) -> Self {
-        Self {
-            errors: ErrorList::new(),
-            global: GlobalState::new(file),
-        }
-    }
+        // save the existing symbol (if any)
+        let existing = match self {
+            Self::MutableVariable(variable) => global_state
+                .table
+                .insert(&variable.name, Record::MutableVariable(variable)),
 
-    #[inline]
-    pub fn analyze_global(&mut self, statement: &'a GlobalStatement) {
-        let result = statement.analyze(&mut self.global);
-        self.push_if_err(result);
-    }
+            Self::ImmutableVariable(variable) => global_state
+                .table
+                .insert(&variable.name, Record::ImmutableVariable(variable)),
 
-    pub fn push_if_err(&mut self, errors: Result<(), ErrorList>) {
-        if let Err(errors) = errors {
-            self.errors.0.reserve(errors.len());
-            for error in errors.0 {
-                self.errors.push(error);
+            Self::Function(function) => {
+                analyze_error = function.analyze(&mut global_state.local, &global_state.table);
+                global_state
+                    .table
+                    .insert(&function.signature.name, Record::Function(function))
             }
-        }
-    }
 
-    #[inline]
-    pub fn has_errors(&self) -> bool {
-        !self.errors.is_empty()
+            Self::NativeFunction(native_function) => global_state.table.insert(
+                &native_function.signature.name,
+                Record::NativeFunction(native_function),
+            ),
+        };
+
+        // if the symbol is already defined -> error
+        if existing.is_some() || analyze_error.is_err() {
+            let mut errors = ErrorList::new();
+            let definition_error = if let Some(existing) = existing {
+                Err(global_state.definition_error(&existing, self))
+            } else {
+                Ok(())
+            };
+            errors.merge_if_err(definition_error);
+            errors.merge_if_err(analyze_error);
+            Err(errors)
+        } else {
+            Ok(())
+        }
     }
 }

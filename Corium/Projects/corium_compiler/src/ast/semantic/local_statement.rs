@@ -203,52 +203,43 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::tree::global_statement::GlobalStatement;
+use crate::ast::tree::local_statement::LocalStatement;
 use crate::error::list::ErrorList;
-use crate::semantic::analysis::{GlobalSemanticAnalysis, LocalSemanticAnalysis};
-use crate::semantic::global::state::GlobalState;
+use crate::semantic::analysis::LocalSemanticAnalysis;
+use crate::semantic::local_state::LocalState;
 use crate::semantic::record::Record;
+use crate::semantic::table::SymbolTable;
 
-impl<'a> GlobalSemanticAnalysis<'a> for GlobalStatement<'a> {
-    fn analyze(&'a self, global_state: &mut GlobalState<'a>) -> Result<(), ErrorList> {
-        let mut analyze_error = Ok(());
-
-        // save the existing symbol (if any)
-        let existing = match self {
-            Self::MutableVariable(variable) => global_state
-                .table
-                .insert(&variable.name, Record::MutableVariable(variable)),
-
-            Self::ImmutableVariable(variable) => global_state
-                .table
-                .insert(&variable.name, Record::ImmutableVariable(variable)),
-
-            Self::Function(function) => {
-                analyze_error = function.analyze(&mut global_state.local, &global_state.table);
-                global_state
-                    .table
-                    .insert(&function.signature.name, Record::Function(function))
+impl<'ast> LocalSemanticAnalysis<'ast> for LocalStatement<'ast> {
+    fn analyze(
+        &'ast self,
+        local_state: &mut LocalState<'ast>,
+        global_table: &SymbolTable<'ast>,
+    ) -> Result<(), ErrorList> {
+        match self {
+            Self::MutableVariable(variable) => {
+                // check if identifier is already used in the global scope
+                if global_table.contains(&variable.name) {
+                    // local shadowing is not allowed - symbol already defined -> error
+                    Err(local_state
+                        .global_definition_error(&Record::MutableVariable(variable), self))
+                } else {
+                    // not yet defined, insert it
+                    local_state.insert_mutable_variable(self, variable)
+                }
             }
-
-            Self::NativeFunction(native_function) => global_state.table.insert(
-                &native_function.signature.name,
-                Record::NativeFunction(native_function),
-            ),
-        };
-
-        // if the symbol is already defined -> error
-        if existing.is_some() || analyze_error.is_err() {
-            let mut errors = ErrorList::new();
-            let definition_error = if let Some(existing) = existing {
-                Err(global_state.definition_error(&existing, self))
-            } else {
-                Ok(())
-            };
-            errors.merge_if_err(definition_error);
-            errors.merge_if_err(analyze_error);
-            Err(errors)
-        } else {
-            Ok(())
+            Self::ImmutableVariable(variable) => {
+                // check if identifier is already used in the global scope
+                if global_table.contains(&variable.name) {
+                    // local shadowing is not allowed - symbol already defined -> error
+                    Err(local_state
+                        .global_definition_error(&Record::ImmutableVariable(variable), self))
+                } else {
+                    // not yet defined, insert it
+                    local_state.insert_immutable_variable(self, variable)
+                }
+            }
+            Self::ReturnStatement(statement) => statement.analyze(local_state, global_table),
         }
     }
 }

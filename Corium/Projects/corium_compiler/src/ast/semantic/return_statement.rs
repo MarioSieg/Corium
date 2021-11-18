@@ -203,46 +203,11 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::tree::prelude::*;
+use crate::ast::tree::return_statement::ReturnStatement;
 use crate::error::list::ErrorList;
 use crate::semantic::analysis::LocalSemanticAnalysis;
-use crate::semantic::local::state::LocalState;
-use crate::semantic::record::Record;
+use crate::semantic::local_state::LocalState;
 use crate::semantic::table::SymbolTable;
-
-impl<'ast> LocalSemanticAnalysis<'ast> for LocalStatement<'ast> {
-    fn analyze(
-        &'ast self,
-        local_state: &mut LocalState<'ast>,
-        global_table: &SymbolTable<'ast>,
-    ) -> Result<(), ErrorList> {
-        match self {
-            Self::MutableVariable(variable) => {
-                // check if identifier is already used in the global scope
-                if global_table.contains(&variable.name) {
-                    // local shadowing is not allowed - symbol already defined -> error
-                    Err(local_state
-                        .global_definition_error(&Record::MutableVariable(variable), self))
-                } else {
-                    // not yet defined, insert it
-                    local_state.insert_mutable_variable(self, variable)
-                }
-            }
-            Self::ImmutableVariable(variable) => {
-                // check if identifier is already used in the global scope
-                if global_table.contains(&variable.name) {
-                    // local shadowing is not allowed - symbol already defined -> error
-                    Err(local_state
-                        .global_definition_error(&Record::ImmutableVariable(variable), self))
-                } else {
-                    // not yet defined, insert it
-                    local_state.insert_immutable_variable(self, variable)
-                }
-            }
-            Self::ReturnStatement(statement) => statement.analyze(local_state, global_table),
-        }
-    }
-}
 
 impl<'ast> LocalSemanticAnalysis<'ast> for ReturnStatement<'ast> {
     fn analyze(
@@ -264,25 +229,5 @@ impl<'ast> LocalSemanticAnalysis<'ast> for ReturnStatement<'ast> {
         else {
             Ok(())
         }
-    }
-}
-
-impl<'ast> LocalSemanticAnalysis<'ast> for Function<'ast> {
-    fn analyze(
-        &'ast self,
-        local_state: &mut LocalState<'ast>,
-        global_table: &SymbolTable<'ast>,
-    ) -> Result<(), ErrorList> {
-        // begin a new function local scope
-        local_state.begin_new_scope(&self.signature);
-
-        let mut errors = ErrorList::new();
-
-        // now analyze all locals statements
-        for local in &self.block.0 {
-            errors.merge_if_err(local.analyze(local_state, global_table));
-        }
-
-        errors.into()
     }
 }

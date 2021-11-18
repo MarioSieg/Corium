@@ -346,7 +346,7 @@ impl Default for CompilerContext {
 mod tests {
     use super::*;
 
-    const TEST_FILE_PATH: &str = "../ValidationSource/ParseTest.cor";
+    const TEST_FILE_PATH: &str = "../../ValidationSource/ParseTest.cor";
 
     #[test]
     fn new() {

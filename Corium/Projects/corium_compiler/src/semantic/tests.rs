@@ -600,7 +600,7 @@ mod invalid {
 
     #[test]
     fn semantic_errors_file() {
-        let src = include_corium_source!("../../../ValidationSource/AllSemanticErrors.cor");
+        let src = include_corium_source!("../../../../ValidationSource/AllSemanticErrors.cor");
         let desc = CompileDescriptor {
             dump_ast: true,
             pass_timer: true,

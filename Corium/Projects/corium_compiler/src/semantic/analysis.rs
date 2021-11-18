@@ -204,8 +204,8 @@
 //    limitations under the License.
 
 use crate::error::list::ErrorList;
-use crate::semantic::global::state::GlobalState;
-use crate::semantic::local::state::LocalState;
+use crate::semantic::global_state::GlobalState;
+use crate::semantic::local_state::LocalState;
 use crate::semantic::table::SymbolTable;
 
 pub trait GlobalSemanticAnalysis<'ast> {
