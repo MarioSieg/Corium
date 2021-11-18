@@ -210,7 +210,10 @@ use crate::semantic::table::SymbolTable;
 
 pub mod function;
 pub mod global_statement;
+pub mod immutable_variable;
 pub mod local_statement;
+pub mod mutable_variable;
+pub mod native_function;
 pub mod return_statement;
 
 pub trait GlobalSemanticAnalysis<'ast> {

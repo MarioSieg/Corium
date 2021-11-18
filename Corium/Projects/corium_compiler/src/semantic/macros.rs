@@ -203,36 +203,11 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::tree::compilation_unit::CompilationUnit;
-use crate::error::list::ErrorList;
-
-pub mod context;
-pub mod record;
-pub mod table;
-
-pub mod global_state;
-pub mod local_state;
-pub mod macros;
-pub mod types;
-
-#[cfg(test)]
-mod tests;
-
-use context::Context;
-
-pub fn analyze<'ast>(
-    root: &'ast CompilationUnit<'ast>,
-    file: &'ast str,
-) -> Result<Context<'ast>, ErrorList> {
-    let mut context = Context::new(file);
-
-    root.statements.iter().for_each(|smt| {
-        context.analyze_global(smt);
-    });
-
-    if context.errors.is_empty() {
-        Ok(context)
-    } else {
-        Err(context.errors)
-    }
+#[macro_export]
+macro_rules! semantic_check {
+    ($var:expr, $name:expr, $state:expr, $rec:expr) => {{
+        let analyze_error = $var.analyze(&mut $state.local, &$state.table);
+        let existing = $state.table.insert(&$name, $rec);
+        (analyze_error, existing)
+    }};
 }

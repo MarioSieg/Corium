@@ -203,36 +203,18 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::tree::compilation_unit::CompilationUnit;
+use crate::ast::semantic::LocalSemanticAnalysis;
+use crate::ast::tree::native_function::NativeFunction;
 use crate::error::list::ErrorList;
+use crate::semantic::local_state::LocalState;
+use crate::semantic::table::SymbolTable;
 
-pub mod context;
-pub mod record;
-pub mod table;
-
-pub mod global_state;
-pub mod local_state;
-pub mod macros;
-pub mod types;
-
-#[cfg(test)]
-mod tests;
-
-use context::Context;
-
-pub fn analyze<'ast>(
-    root: &'ast CompilationUnit<'ast>,
-    file: &'ast str,
-) -> Result<Context<'ast>, ErrorList> {
-    let mut context = Context::new(file);
-
-    root.statements.iter().for_each(|smt| {
-        context.analyze_global(smt);
-    });
-
-    if context.errors.is_empty() {
-        Ok(context)
-    } else {
-        Err(context.errors)
+impl<'ast> LocalSemanticAnalysis<'ast> for NativeFunction<'ast> {
+    fn analyze(
+        &'ast self,
+        _local_state: &mut LocalState<'ast>,
+        _global_table: &SymbolTable<'ast>,
+    ) -> Result<(), ErrorList> {
+        Ok(())
     }
 }

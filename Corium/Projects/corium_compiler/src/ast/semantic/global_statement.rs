@@ -208,47 +208,45 @@ use crate::ast::tree::global_statement::GlobalStatement;
 use crate::error::list::ErrorList;
 use crate::semantic::global_state::GlobalState;
 use crate::semantic::record::Record;
+use crate::semantic_check;
 
 impl<'a> GlobalSemanticAnalysis<'a> for GlobalStatement<'a> {
     fn analyze(&'a self, global_state: &mut GlobalState<'a>) -> Result<(), ErrorList> {
-        let mut analyze_error = Ok(());
-
-        // save the existing symbol (if any)
-        let existing = match self {
-            Self::MutableVariable(variable) => global_state
-                .table
-                .insert(&variable.name, Record::MutableVariable(variable)),
-
-            Self::ImmutableVariable(variable) => global_state
-                .table
-                .insert(&variable.name, Record::ImmutableVariable(variable)),
-
-            Self::Function(function) => {
-                analyze_error = function.analyze(&mut global_state.local, &global_state.table);
-                global_state
-                    .table
-                    .insert(&function.signature.name, Record::Function(function))
+        let (analyze_error, existing) = match self {
+            Self::MutableVariable(x) => {
+                semantic_check!(x, x.name, global_state, Record::MutableVariable(x))
             }
-
-            Self::NativeFunction(native_function) => global_state.table.insert(
-                &native_function.signature.name,
-                Record::NativeFunction(native_function),
-            ),
+            Self::ImmutableVariable(x) => {
+                semantic_check!(x, x.name, global_state, Record::ImmutableVariable(x))
+            }
+            Self::Function(x) => {
+                semantic_check!(x, x.signature.name, global_state, Record::Function(x))
+            }
+            Self::NativeFunction(x) => {
+                semantic_check!(x, x.signature.name, global_state, Record::NativeFunction(x))
+            }
         };
+        make_error(self, analyze_error, existing)
+    }
+}
 
-        // if the symbol is already defined -> error
-        if existing.is_some() || analyze_error.is_err() {
-            let mut errors = ErrorList::new();
-            let definition_error = if let Some(existing) = existing {
-                Err(global_state.definition_error(&existing, self))
-            } else {
-                Ok(())
-            };
-            errors.merge_if_err(definition_error);
-            errors.merge_if_err(analyze_error);
-            Err(errors)
+fn make_error(
+    statement: &GlobalStatement,
+    analyze_error: Result<(), ErrorList>,
+    existing: Option<Record>,
+) -> Result<(), ErrorList> {
+    // if the symbol is already defined -> error
+    if existing.is_some() || analyze_error.is_err() {
+        let mut errors = ErrorList::new();
+        let definition_error = if let Some(existing) = existing {
+            Err(global_state.definition_error(&existing, statement))
         } else {
             Ok(())
-        }
+        };
+        errors.merge_if_err(definition_error);
+        errors.merge_if_err(analyze_error);
+        Err(errors)
+    } else {
+        Ok(())
     }
 }
