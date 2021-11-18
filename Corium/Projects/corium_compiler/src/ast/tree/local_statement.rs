@@ -231,7 +231,7 @@ impl<'ast> fmt::Display for LocalStatement<'ast> {
     }
 }
 
-impl<'ast> Statement for LocalStatement<'ast> {
+impl<'ast> Statement<'ast> for LocalStatement<'ast> {
     fn descriptive_name(&self) -> &'static str {
         match self {
             Self::MutableVariable(_) => "mutable variable",

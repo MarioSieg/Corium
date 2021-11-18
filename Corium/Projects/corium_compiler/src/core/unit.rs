@@ -204,8 +204,8 @@
 //    limitations under the License.
 
 use crate::core::compiler::compile_source;
+use crate::core::source_code::SourceCode;
 use crate::error::list::ErrorList;
-use crate::misc::source_code::SourceCode;
 use std::default;
 use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant};

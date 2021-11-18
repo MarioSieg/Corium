@@ -215,7 +215,7 @@ use std::path::Path;
 #[macro_export]
 macro_rules! include_corium_source {
     ($file:expr $(,)?) => {
-        crate::misc::source_code::SourceCode::from(include_str!($file))
+        crate::core::source_code::SourceCode::from(include_str!($file))
     };
 }
 

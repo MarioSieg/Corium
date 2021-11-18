@@ -204,9 +204,9 @@
 //    limitations under the License.
 
 use crate::core::passes::prelude::*;
+use crate::core::source_code::SourceCode;
 use crate::core::unit::CompileDescriptor;
 use crate::error::list::ErrorList;
-use crate::misc::source_code::SourceCode;
 
 pub fn compile_source(
     src: &SourceCode,

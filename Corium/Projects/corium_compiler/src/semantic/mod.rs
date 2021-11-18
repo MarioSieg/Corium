@@ -203,4 +203,8 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-pub mod source_code;
+use crate::ast::tree::identifier::Identifier;
+use std::collections::HashMap;
+
+/// Symbol table type. T should be a statement (local or global) and implement the Statement trait.
+pub type SymbolTable<'ast, T> = HashMap<&'ast Identifier<'ast>, &'ast T>;

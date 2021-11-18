@@ -234,7 +234,7 @@ impl<'ast> fmt::Display for GlobalStatement<'ast> {
     }
 }
 
-impl<'ast> Statement for GlobalStatement<'ast> {
+impl<'ast> Statement<'ast> for GlobalStatement<'ast> {
     fn descriptive_name(&self) -> &'static str {
         match self {
             Self::MutableVariable(_) => "mutable variable",
