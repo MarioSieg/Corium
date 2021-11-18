@@ -244,12 +244,13 @@ impl<'ast> Statement<'ast> for GlobalStatement<'ast> {
         }
     }
 
-    fn code_identifier(&self) -> &Identifier {
-        match self {
+    fn identifier(&self) -> Option<&Identifier> {
+        let name = match self {
             Self::MutableVariable(x) => &x.name,
             Self::ImmutableVariable(x) => &x.name,
             Self::Function(x) => &x.signature.name,
             Self::NativeFunction(x) => &x.signature.name,
-        }
+        };
+        Some(name)
     }
 }

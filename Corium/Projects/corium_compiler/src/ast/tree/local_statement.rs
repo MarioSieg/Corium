@@ -240,11 +240,11 @@ impl<'ast> Statement<'ast> for LocalStatement<'ast> {
         }
     }
 
-    fn code_identifier(&self) -> &'ast Identifier {
+    fn identifier(&self) -> Option<&Identifier> {
         match self {
-            Self::MutableVariable(x) => &x.name,
-            Self::ImmutableVariable(x) => &x.name,
-            _ => unreachable!(),
+            Self::MutableVariable(x) => Some(&x.name),
+            Self::ImmutableVariable(x) => Some(&x.name),
+            _ => None,
         }
     }
 }

@@ -203,4 +203,65 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-pub mod symbol_table;
+use crate::ast::tree::block::Block;
+use crate::ast::tree::compilation_unit::CompilationUnit;
+use crate::ast::tree::global_statement::GlobalStatement;
+use crate::ast::tree::identifier::Identifier;
+use crate::ast::tree::local_statement::LocalStatement;
+use crate::ast::tree::Statement;
+use crate::error::list::ErrorList;
+use crate::error::Error;
+use std::collections::HashMap;
+
+/// Symbol table type. T should be a statement (local or global) and implement the Statement trait.
+pub type SymbolTable<'ast, T> = HashMap<&'ast Identifier<'ast>, &'ast T>;
+
+pub type GlobalSymbolTable<'ast> = SymbolTable<'ast, GlobalStatement<'ast>>;
+pub type LocalSymbolTable<'ast> = SymbolTable<'ast, LocalStatement<'ast>>;
+
+macro_rules! definition_error {
+    ($existing:expr, $current:expr, $file:expr, $prefix:expr) => {{
+        let prev_name = $existing.identifier().unwrap();
+        let prev_type = $existing.descriptive_name();
+
+        let curr_name = $current.identifier().unwrap();
+        let curr_type = $current.descriptive_name();
+
+        let message = format!(
+            "{} {} {} already defined as {} {} before!",
+            $prefix, curr_type, curr_name, prev_type, prev_name
+        );
+        Error::Semantic(message, $file.to_string())
+    }};
+}
+
+pub fn build_global<'ast>(
+    errors: &mut ErrorList,
+    unit: &'ast CompilationUnit<'ast>,
+    file: &str,
+    out: &mut GlobalSymbolTable<'ast>,
+) {
+    out.clear();
+    out.reserve(unit.statements.len());
+    for statement in &unit.statements {
+        let existing = out.insert(statement.identifier().unwrap(), statement);
+        if let Some(existing) = existing {
+            errors.push(definition_error!(existing, statement, file, "global"));
+        }
+    }
+}
+
+pub fn build_local<'ast>(
+    errors: &mut ErrorList,
+    block: &'ast Block<'ast>,
+    file: &str,
+    out: &mut LocalSymbolTable<'ast>,
+) {
+    out.reserve(block.0.len());
+    for statement in &block.0 {
+        let existing = out.insert(statement.identifier().unwrap(), statement);
+        if let Some(existing) = existing {
+            errors.push(definition_error!(existing, statement, file, "local"));
+        }
+    }
+}

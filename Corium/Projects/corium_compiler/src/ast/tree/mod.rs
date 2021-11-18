@@ -1,4 +1,3 @@
-use crate::semantic::SymbolTable;
 use std::fmt;
 use std::fmt::Debug;
 use std::hash::Hash;
@@ -30,11 +29,8 @@ pub trait AstComponent: Clone + fmt::Display + fmt::Debug {
 }
 
 pub trait Statement<'ast>: AstComponent {
-    fn populate_symbols(&'ast self, table: &mut SymbolTable<'ast, Self>) -> Option<&Self> {
-        table.insert(self.code_identifier(), self)
-    }
     fn descriptive_name(&self) -> &'static str;
-    fn code_identifier(&self) -> &identifier::Identifier;
+    fn identifier(&self) -> Option<&identifier::Identifier>;
 }
 
 #[repr(u8)]
