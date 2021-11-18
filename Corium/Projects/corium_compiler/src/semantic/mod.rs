@@ -210,12 +210,12 @@ pub mod context;
 pub mod record;
 pub mod table;
 
-pub mod analysis;
 pub mod global_state;
 pub mod local_state;
+pub mod types;
+
 #[cfg(test)]
 mod tests;
-pub mod types;
 
 use context::Context;
 

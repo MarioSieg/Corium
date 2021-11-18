@@ -203,7 +203,24 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+use crate::error::list::ErrorList;
+use crate::semantic::global_state::GlobalState;
+use crate::semantic::local_state::LocalState;
+use crate::semantic::table::SymbolTable;
+
 pub mod function;
 pub mod global_statement;
 pub mod local_statement;
 pub mod return_statement;
+
+pub trait GlobalSemanticAnalysis<'ast> {
+    fn analyze(&'ast self, global_state: &mut GlobalState<'ast>) -> Result<(), ErrorList>;
+}
+
+pub trait LocalSemanticAnalysis<'ast> {
+    fn analyze(
+        &'ast self,
+        local_state: &mut LocalState<'ast>,
+        _global_table: &SymbolTable<'ast>,
+    ) -> Result<(), ErrorList>;
+}

@@ -203,9 +203,9 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+use crate::ast::semantic::{GlobalSemanticAnalysis, LocalSemanticAnalysis};
 use crate::ast::tree::global_statement::GlobalStatement;
 use crate::error::list::ErrorList;
-use crate::semantic::analysis::{GlobalSemanticAnalysis, LocalSemanticAnalysis};
 use crate::semantic::global_state::GlobalState;
 use crate::semantic::record::Record;
 

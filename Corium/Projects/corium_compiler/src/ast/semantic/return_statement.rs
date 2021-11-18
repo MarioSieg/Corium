@@ -203,9 +203,9 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+use crate::ast::semantic::LocalSemanticAnalysis;
 use crate::ast::tree::return_statement::ReturnStatement;
 use crate::error::list::ErrorList;
-use crate::semantic::analysis::LocalSemanticAnalysis;
 use crate::semantic::local_state::LocalState;
 use crate::semantic::table::SymbolTable;
 
