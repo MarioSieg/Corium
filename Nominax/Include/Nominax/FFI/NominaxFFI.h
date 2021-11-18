@@ -281,10 +281,9 @@ extern "C" {
 	{
 		if (x->AsU64 != y->AsRecord.AsU64)
 		{
-			uint64_t* const au = &x->AsU64, *const bu = &y->AsRecord.AsU64;
-			*au ^= *bu;
-			*bu ^= *au;
-			*au ^= *bu;
+			*(uint64_t*)x ^= *(uint64_t*)y;
+			*(uint64_t*)x ^= *(uint64_t*)y;
+			*(uint64_t*)x ^= *(uint64_t*)y;
 		}
 		return x;
 	}

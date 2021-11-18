@@ -268,7 +268,7 @@ namespace Nominax::Core
     /*
      * Compute vtor memory offset relative to %sp
      */
-    #define VEC_MOFFS(x) (sp-((x)+1))
+    #define VEC_MOFFS(x) (sp - ((x) + 1))
 
     /// <summary>
     /// Operator for double precision floating point modulo.
