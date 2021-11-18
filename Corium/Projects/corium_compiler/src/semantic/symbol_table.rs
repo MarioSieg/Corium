@@ -291,7 +291,7 @@ pub type GlobalSymbolTable<'ast> = SymbolTable<'ast, GlobalStatement<'ast>>;
 pub type LocalSymbolTable<'ast> = SymbolTable<'ast, LocalStatement<'ast>>;
 
 macro_rules! definition_error {
-    ($existing:expr, $current:expr, $file:expr, $prefix:expr) => {{
+    ($existing:expr, $current:expr, $file:expr, $curr_prefix:expr, $prev_prefix:expr) => {{
         let prev_name = $existing.identifier().unwrap();
         let prev_type = $existing.descriptive_name();
 
@@ -299,8 +299,8 @@ macro_rules! definition_error {
         let curr_type = $current.descriptive_name();
 
         let message = format!(
-            "{} {} {} already defined as {} {} before",
-            $prefix, curr_type, curr_name, prev_type, prev_name
+            "{} {} {} already defined as {} {} {} before",
+            $curr_prefix, curr_type, curr_name, $prev_prefix, prev_type, prev_name
         );
         Error::Semantic(message, $file.to_string())
     }};
@@ -315,9 +315,16 @@ pub fn build_global<'ast>(
     out.clear();
     out.reserve(unit.statements.len());
     for statement in &unit.statements {
-        let existing = out.insert(statement.identifier().unwrap(), statement);
+        if !statement.is_symbol_table_entry() {
+            continue;
+        }
+        let key = statement.identifier().unwrap();
+        let existing = out.insert(key, statement);
         if let Some(existing) = existing {
-            errors.push(definition_error!(existing, statement, file, "global"));
+            // check if variable is already present in global symbol table
+            errors.push(definition_error!(
+                existing, statement, file, "global", "global"
+            ));
         }
     }
 }
@@ -326,13 +333,33 @@ pub fn build_local<'ast>(
     errors: &mut ErrorList,
     out: &mut LocalSymbolTable<'ast>,
     block: &'ast Block<'ast>,
+    global: &GlobalSymbolTable,
     file: &str,
 ) {
+    out.clear();
     out.reserve(block.len());
     for statement in block.iter() {
-        let existing = out.insert(statement.identifier().unwrap(), statement);
+        if !statement.is_symbol_table_entry() {
+            continue;
+        }
+        let key = statement.identifier().unwrap();
+        if let Some(existing_global) = global.get(key) {
+            // check if variable is already present in global symbol table
+            errors.push(definition_error!(
+                existing_global,
+                statement,
+                file,
+                "local",
+                "global"
+            ));
+            continue;
+        }
+        let existing = out.insert(key, statement);
         if let Some(existing) = existing {
-            errors.push(definition_error!(existing, statement, file, "local"));
+            // check if variable is already present in local symbol table
+            errors.push(definition_error!(
+                existing, statement, file, "local", "local"
+            ));
         }
     }
 }
@@ -341,13 +368,16 @@ pub fn build_local<'ast>(
 mod tests {
     use crate::ast::tree::global_statement::GlobalStatement;
     use crate::ast::tree::identifier::Identifier;
+    use crate::ast::tree::local_statement::LocalStatement;
     use crate::core::pass::Pass;
     use crate::core::passes::parse::ParsePass;
     use crate::core::passes::population::AstPopulationPass;
     use crate::core::unit::CompileDescriptor;
     use crate::error::list::ErrorList;
     use crate::error::Error;
-    use crate::semantic::symbol_table::{build_global, GlobalSymbolTable};
+    use crate::semantic::symbol_table::{
+        build_global, build_local, GlobalSymbolTable, LocalSymbolTable,
+    };
 
     const DESC: CompileDescriptor = CompileDescriptor {
         dump_ast: true,
@@ -432,6 +462,189 @@ mod tests {
         match out.get(&Identifier::new("y")).unwrap() {
             GlobalStatement::ImmutableVariable(x) => {
                 assert_eq!(x.name, Identifier::new("y"));
+            }
+            _ => panic!(),
+        }
+    }
+
+    #[test]
+    fn local_ok() {
+        let src = concat!(
+            "let v = 3\n",
+            "function f () int {\n",
+            "let x int = 10 + 3 * 5 & 2\n",
+            "const y = x\n",
+            "let var = y << x >> 2 * (2 ^ z)\n",
+            "return var\n",
+            "}\n"
+        );
+
+        let verbose = DESC.verbose;
+        let pass_timer = DESC.pass_timer;
+        let file = "Test.cor";
+
+        let result = ParsePass::run(src, verbose, pass_timer, file).unwrap();
+        let result = AstPopulationPass::run(result, verbose, pass_timer, file).unwrap();
+        let mut errors = ErrorList::new();
+        let mut global = GlobalSymbolTable::new();
+        build_global(&mut errors, &mut global, &result, file);
+        assert!(errors.is_empty());
+        assert_eq!(global.len(), 2);
+        assert!(global.contains_key(&Identifier::new("v")));
+        assert!(global.contains_key(&Identifier::new("f")));
+        match global.get(&Identifier::new("v")).unwrap() {
+            GlobalStatement::MutableVariable(x) => {
+                assert_eq!(x.name, Identifier::new("v"));
+            }
+            _ => panic!(),
+        }
+        match global.get(&Identifier::new("f")).unwrap() {
+            GlobalStatement::Function(x) => {
+                assert_eq!(x.signature.name, Identifier::new("f"));
+                assert_eq!(x.block.len(), 4);
+                let mut local = LocalSymbolTable::new();
+                build_local(&mut errors, &mut local, &x.block, &global, file);
+                assert!(errors.is_empty());
+                assert_eq!(local.len(), 3);
+                assert!(local.contains_key(&Identifier::new("x")));
+                assert!(local.contains_key(&Identifier::new("y")));
+                assert!(local.contains_key(&Identifier::new("var")));
+                match local.get(&Identifier::new("x")).unwrap() {
+                    LocalStatement::MutableVariable(x) => {
+                        assert_eq!(x.name, Identifier::new("x"));
+                    }
+                    _ => panic!(),
+                }
+                match local.get(&Identifier::new("y")).unwrap() {
+                    LocalStatement::ImmutableVariable(x) => {
+                        assert_eq!(x.name, Identifier::new("y"));
+                    }
+                    _ => panic!(),
+                }
+                match local.get(&Identifier::new("var")).unwrap() {
+                    LocalStatement::MutableVariable(x) => {
+                        assert_eq!(x.name, Identifier::new("var"));
+                    }
+                    _ => panic!(),
+                }
+            }
+            _ => panic!(),
+        }
+    }
+
+    #[test]
+    fn local_err_re_def_local() {
+        let src = concat!(
+            "let v = 3\n",
+            "function f () int {\n",
+            "let x int = 10 + 3 * 5 & 2\n",
+            "const y = x\n",
+            "let x = y << x >> 2 * (2 ^ z)\n",
+            "return var\n",
+            "}\n"
+        );
+
+        let verbose = DESC.verbose;
+        let pass_timer = DESC.pass_timer;
+        let file = "Test.cor";
+
+        let result = ParsePass::run(src, verbose, pass_timer, file).unwrap();
+        let result = AstPopulationPass::run(result, verbose, pass_timer, file).unwrap();
+        let mut errors = ErrorList::new();
+        let mut global = GlobalSymbolTable::new();
+        build_global(&mut errors, &mut global, &result, file);
+        assert!(errors.is_empty());
+        assert_eq!(global.len(), 2);
+        assert!(global.contains_key(&Identifier::new("v")));
+        assert!(global.contains_key(&Identifier::new("f")));
+        match global.get(&Identifier::new("v")).unwrap() {
+            GlobalStatement::MutableVariable(x) => {
+                assert_eq!(x.name, Identifier::new("v"));
+            }
+            _ => panic!(),
+        }
+        match global.get(&Identifier::new("f")).unwrap() {
+            GlobalStatement::Function(x) => {
+                assert_eq!(x.signature.name, Identifier::new("f"));
+                assert_eq!(x.block.len(), 4);
+                let mut local = LocalSymbolTable::new();
+                build_local(&mut errors, &mut local, &x.block, &global, file);
+                assert_eq!(errors.len(), 1);
+                println!("{}", errors);
+                assert_eq!(local.len(), 2);
+                assert!(local.contains_key(&Identifier::new("x")));
+                assert!(local.contains_key(&Identifier::new("y")));
+                match local.get(&Identifier::new("x")).unwrap() {
+                    LocalStatement::MutableVariable(x) => {
+                        assert_eq!(x.name, Identifier::new("x"));
+                    }
+                    _ => panic!(),
+                }
+                match local.get(&Identifier::new("y")).unwrap() {
+                    LocalStatement::ImmutableVariable(x) => {
+                        assert_eq!(x.name, Identifier::new("y"));
+                    }
+                    _ => panic!(),
+                }
+            }
+            _ => panic!(),
+        }
+    }
+
+    #[test]
+    fn local_err_re_def_global() {
+        let src = concat!(
+            "let v = 3\n",
+            "function f () int {\n",
+            "let x int = 10 + 3 * 5 & 2\n",
+            "const y = x\n",
+            "let v = y << x >> 2 * (2 ^ z)\n",
+            "return var\n",
+            "}\n"
+        );
+
+        let verbose = DESC.verbose;
+        let pass_timer = DESC.pass_timer;
+        let file = "Test.cor";
+
+        let result = ParsePass::run(src, verbose, pass_timer, file).unwrap();
+        let result = AstPopulationPass::run(result, verbose, pass_timer, file).unwrap();
+        let mut errors = ErrorList::new();
+        let mut global = GlobalSymbolTable::new();
+        build_global(&mut errors, &mut global, &result, file);
+        assert!(errors.is_empty());
+        assert_eq!(global.len(), 2);
+        assert!(global.contains_key(&Identifier::new("v")));
+        assert!(global.contains_key(&Identifier::new("f")));
+        match global.get(&Identifier::new("v")).unwrap() {
+            GlobalStatement::MutableVariable(x) => {
+                assert_eq!(x.name, Identifier::new("v"));
+            }
+            _ => panic!(),
+        }
+        match global.get(&Identifier::new("f")).unwrap() {
+            GlobalStatement::Function(x) => {
+                assert_eq!(x.signature.name, Identifier::new("f"));
+                assert_eq!(x.block.len(), 4);
+                let mut local = LocalSymbolTable::new();
+                build_local(&mut errors, &mut local, &x.block, &global, file);
+                assert_eq!(errors.len(), 1);
+                println!("{}", errors);
+                assert_eq!(local.len(), 2);
+                assert!(local.contains_key(&Identifier::new("x")));
+                assert!(local.contains_key(&Identifier::new("y")));
+                match local.get(&Identifier::new("x")).unwrap() {
+                    LocalStatement::MutableVariable(x) => {
+                        assert_eq!(x.name, Identifier::new("x"));
+                    }
+                    _ => panic!(),
+                }
+                match local.get(&Identifier::new("y")).unwrap() {
+                    LocalStatement::ImmutableVariable(x) => {
+                        assert_eq!(x.name, Identifier::new("y"));
+                    }
+                    _ => panic!(),
+                }
             }
             _ => panic!(),
         }

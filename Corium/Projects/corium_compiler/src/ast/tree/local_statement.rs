@@ -247,4 +247,9 @@ impl<'ast> Statement<'ast> for LocalStatement<'ast> {
             _ => None,
         }
     }
+
+    #[inline]
+    fn is_symbol_table_entry(&self) -> bool {
+        !matches!(self, Self::ReturnStatement(_))
+    }
 }

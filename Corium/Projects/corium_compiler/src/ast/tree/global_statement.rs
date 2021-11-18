@@ -253,4 +253,9 @@ impl<'ast> Statement<'ast> for GlobalStatement<'ast> {
         };
         Some(name)
     }
+
+    #[inline]
+    fn is_symbol_table_entry(&self) -> bool {
+        true
+    }
 }
