@@ -204,5 +204,4 @@
 //    limitations under the License.
 
 pub mod populator;
-pub mod semantic;
 pub mod tree;

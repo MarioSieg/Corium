@@ -206,18 +206,13 @@
 use super::Pass;
 use crate::ast::tree::compilation_unit::CompilationUnit;
 use crate::error::list::ErrorList;
-use crate::semantic::analyze;
 
 pub struct SemanticPass;
 
 impl<'a> Pass<'a, CompilationUnit<'a>, ()> for SemanticPass {
     const NAME: &'static str = "Semantic analysis";
 
-    fn execute(input: CompilationUnit<'a>, _verbose: bool, file: &str) -> Result<(), ErrorList> {
-        if let Err(e) = analyze(&input, file) {
-            Err(e)
-        } else {
-            Ok(())
-        }
+    fn execute(_input: CompilationUnit<'a>, _verbose: bool, _file: &str) -> Result<(), ErrorList> {
+        Ok(())
     }
 }

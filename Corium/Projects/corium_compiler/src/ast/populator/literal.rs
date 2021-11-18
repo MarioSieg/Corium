@@ -204,10 +204,10 @@
 //    limitations under the License.
 
 use crate::ast::populator::NestedAstPopulator;
+use crate::ast::tree::builtin_types::{Bool, Char, Float, Int};
 use crate::ast::tree::literal::Literal;
 use crate::ast::tree::Rule;
 use crate::parser::RulePairs;
-use crate::semantic::types::builtin_types::{Bool, Char, Float, Int};
 use std::str::FromStr;
 
 impl<'ast> NestedAstPopulator<'ast> for Literal<'ast> {

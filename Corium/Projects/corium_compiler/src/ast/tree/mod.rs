@@ -4,6 +4,7 @@ use std::hash::Hash;
 
 pub mod binary_operator;
 pub mod block;
+pub mod builtin_types;
 pub mod compilation_unit;
 pub mod expression;
 pub mod function;
