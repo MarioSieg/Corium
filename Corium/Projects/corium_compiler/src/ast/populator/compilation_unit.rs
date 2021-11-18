@@ -203,11 +203,12 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use super::populator_prelude::*;
+use crate::ast::populator::NestedAstPopulator;
 use crate::ast::tree::compilation_unit::CompilationUnit;
 use crate::ast::tree::global_statement::GlobalStatement;
 use crate::ast::tree::module::Module;
 use crate::ast::tree::Rule;
+use crate::parser::RulePairs;
 
 impl<'ast> NestedAstPopulator<'ast> for CompilationUnit<'ast> {
     fn populate(rule: RulePairs<'ast>) -> Self {

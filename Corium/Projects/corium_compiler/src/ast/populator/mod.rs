@@ -237,35 +237,3 @@ pub trait AtomicAstPopulator<'ast>: AstComponent {
 }
 
 pub trait AstPopulator<'ast>: NestedAstPopulator<'ast> + AtomicAstPopulator<'ast> {}
-
-pub mod prelude {
-    pub use super::binary_operator::*;
-    pub use super::block::*;
-    pub use super::compilation_unit::*;
-    pub use super::expression::*;
-    pub use super::function::*;
-    pub use super::function_signature::*;
-    pub use super::global_statement::*;
-    pub use super::identifier::*;
-    pub use super::immutable_variable::*;
-    pub use super::literal::*;
-    pub use super::local_statement::*;
-    pub use super::module::*;
-    pub use super::mutable_variable::*;
-    pub use super::native_function::*;
-    pub use super::parameter::*;
-    pub use super::parameter_list::*;
-    pub use super::return_statement::*;
-    pub use super::unary_operator::*;
-    pub use super::AstPopulator;
-    pub use super::AtomicAstPopulator;
-    pub use super::NestedAstPopulator;
-}
-
-mod populator_prelude {
-    pub use super::AstPopulator;
-    pub use super::AtomicAstPopulator;
-    pub use super::NestedAstPopulator;
-    pub use crate::parser::precedence::climb_expression;
-    pub use crate::parser::*;
-}

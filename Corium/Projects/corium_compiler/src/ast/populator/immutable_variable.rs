@@ -203,9 +203,10 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use super::populator_prelude::*;
+use crate::ast::populator::NestedAstPopulator;
 use crate::ast::tree::immutable_variable::ImmutableVariable;
 use crate::ast::tree::mutable_variable::MutableVariable;
+use crate::parser::RulePairs;
 
 impl<'ast> NestedAstPopulator<'ast> for ImmutableVariable<'ast> {
     fn populate(rule: RulePairs<'ast>) -> Self {

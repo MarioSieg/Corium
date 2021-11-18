@@ -203,9 +203,10 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use super::populator_prelude::*;
+use crate::ast::populator::NestedAstPopulator;
 use crate::ast::tree::literal::Literal;
 use crate::ast::tree::Rule;
+use crate::parser::RulePairs;
 use crate::semantic::types::builtin_types::{Bool, Char, Float, Int};
 use std::str::FromStr;
 

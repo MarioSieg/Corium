@@ -203,7 +203,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use super::populator_prelude::*;
+use crate::ast::populator::AtomicAstPopulator;
 use crate::ast::tree::unary_operator::UnaryOperator;
 use crate::ast::tree::Operator;
 

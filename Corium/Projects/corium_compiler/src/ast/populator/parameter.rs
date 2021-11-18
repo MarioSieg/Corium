@@ -203,10 +203,12 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use super::populator_prelude::*;
+use crate::ast::populator::NestedAstPopulator;
 use crate::ast::tree::identifier::Identifier;
 use crate::ast::tree::parameter::Parameter;
 use crate::ast::tree::Rule;
+use crate::parser::precedence::climb_expression;
+use crate::parser::RulePairs;
 
 impl<'ast> NestedAstPopulator<'ast> for Parameter<'ast> {
     fn populate(mut rule: RulePairs<'ast>) -> Self {

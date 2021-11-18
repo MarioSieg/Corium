@@ -203,8 +203,10 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use super::populator_prelude::*;
+use crate::ast::populator::NestedAstPopulator;
 use crate::ast::tree::return_statement::ReturnStatement;
+use crate::parser::precedence::climb_expression;
+use crate::parser::RulePairs;
 
 impl<'ast> NestedAstPopulator<'ast> for ReturnStatement<'ast> {
     fn populate(mut rule: RulePairs<'ast>) -> Self {
