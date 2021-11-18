@@ -205,21 +205,5 @@
 
 #pragma once
 
-#include "gtest/gtest.h"
-#include "../Include/Nominax/Nominax.hpp"
-
-using namespace Nominax::Foundation;
-using namespace Memory;
-using namespace Allocator;
-using namespace VectorLib;
-using namespace IEEE754;
-using namespace Concurrency;
-
-using namespace Nominax::Core;
-using namespace Subsystem;
-
-using namespace Nominax::JIT;
-using namespace Nominax::GC;
-using namespace Nominax::ByteCode;
-using namespace Nominax::Assembler;
-
+#include "Alloc.hpp"
+#include "New.hpp"

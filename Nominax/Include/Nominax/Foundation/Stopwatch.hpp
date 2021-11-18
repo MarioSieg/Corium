@@ -211,10 +211,10 @@
 namespace Nominax::Foundation
 {
 	/// <summary>
-		/// Thread safe local time.
-		/// </summary>
-		/// <param name="time"></param>
-		/// <returns></returns>
+	/// Thread safe local time.
+	/// </summary>
+	/// <param name="time"></param>
+	/// <returns></returns>
 	[[nodiscard]]
 	extern auto SafeLocalTime(const std::time_t& time) -> std::tm;
 
@@ -226,7 +226,50 @@ namespace Nominax::Foundation
 	template <typename Clock = std::chrono::high_resolution_clock>
 	class Stopwatch final
 	{
-		typename Clock::time_point Stamp_ { Clock::now() };
+	public:
+		using Duration = typename Clock::duration;
+		using TimePoint = typename Clock::time_point;
+
+		/// <summary>
+		/// Construct and set time stamp.
+		/// </summary>
+		Stopwatch();
+
+		/// <summary>
+		/// Copy constructor.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		Stopwatch(const Stopwatch& other) noexcept = default;
+
+		/// <summary>
+		/// Move constructor.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		Stopwatch(Stopwatch&& other) noexcept = default;
+
+		/// <summary>
+		/// Copy assignment operator.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(const Stopwatch& other) noexcept -> Stopwatch& = default;
+
+		/// <summary>
+		/// Move assignment operator.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(Stopwatch&& other) noexcept -> Stopwatch& = default;
+
+		/// <summary>
+		/// Destructor.
+		/// </summary>
+		~Stopwatch() = default;
+
+	private:
+		TimePoint Stamp_;
 
 	public:
 		/// <summary>
@@ -234,16 +277,16 @@ namespace Nominax::Foundation
 		/// </summary>
 		/// <returns>The timestamp set when created.</returns>
 		[[nodiscard]]
-		auto Stamp() const -> typename Clock::time_point;
+		auto Stamp() const -> TimePoint;
 
 		/// <summary>
 		/// Fetch elapsed time.
 		/// </summary>
 		/// <typeparam name="Dur">The duration type to use.</typeparam>
 		/// <returns>The elapsed time.</returns>
-		template <typename Dur = typename Clock::duration>
+		template <typename Dur = Duration>
 		[[nodiscard]]
-		auto Elapsed() const -> typename Clock::duration;
+		auto Elapsed() const -> Dur;
 
 		/// <summary>
 		/// Fetch elapsed time as seconds.
@@ -267,14 +310,17 @@ namespace Nominax::Foundation
 	};
 
 	template <typename Clock>
-	inline auto Stopwatch<Clock>::Stamp() const -> typename Clock::time_point
+	inline Stopwatch<Clock>::Stopwatch() : Stamp_ { Clock::now()} { }
+
+	template <typename Clock>
+	inline auto Stopwatch<Clock>::Stamp() const -> TimePoint
 	{
 		return this->Stamp_;
 	}
 
 	template <typename Clock>
 	template <typename Dur>
-	inline auto Stopwatch<Clock>::Elapsed() const -> typename Clock::duration
+	inline auto Stopwatch<Clock>::Elapsed() const -> Dur
 	{
 		return std::chrono::duration_cast<Dur>(Clock::now() - this->Stamp_);
 	}

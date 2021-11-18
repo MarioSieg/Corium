@@ -209,7 +209,7 @@
 #include <cstdint>
 #include <string_view>
 
-#include "Object.hpp"
+#include "Object/Object.hpp"
 #include "IDisplay.hpp"
 
 namespace Nominax::Foundation

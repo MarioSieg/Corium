@@ -205,12 +205,12 @@
 
 #pragma once
 
+#include <cstdint>
 #include <cstring>
 #include <span>
 
-#include <cstdint>
-#include "Platform.hpp"
-#include "Record.hpp"
+#include "../Platform.hpp"
+#include "../Record.hpp"
 
 namespace Nominax::Foundation
 {
@@ -600,7 +600,7 @@ namespace Nominax::Foundation
 		/// </summary>
 		/// <param name="region"></param>
 		/// <returns></returns>
-		auto MapToRegionUnchecked(Record* region) const -> void;
+		auto MapToRegionUnchecked(Record* region) const noexcept -> void;
 
 		/// <summary>
 		/// Maps this record into the specified memory region.
@@ -609,7 +609,7 @@ namespace Nominax::Foundation
 		/// <param name="region"></param>
 		/// <returns>true if the size of the region was correct and the mapping succeeded, else false.</returns>
 		[[nodiscard]]
-		auto MapToRegionChecked(std::span<Record> region) const -> bool;
+		auto MapToRegionChecked(std::span<Record> region) const noexcept -> bool;
 
 		/// <summary>
 		/// Maps this record from the specified memory region.
@@ -618,7 +618,7 @@ namespace Nominax::Foundation
 		/// </summary>
 		/// <param name="region"></param>
 		/// <returns></returns>
-		auto MapFromRegionUnchecked(const Record* region) -> void;
+		auto MapFromRegionUnchecked(const Record* region) noexcept -> void;
 
 		/// <summary>
 		/// Maps this record from the specified memory region.
@@ -627,7 +627,7 @@ namespace Nominax::Foundation
 		/// <param name="region"></param>
 		/// <returns>true if the size of the region was correct and the mapping succeeded, else false.</returns>
 		[[nodiscard]]
-		auto MapFromRegionChecked(std::span<const Record> region) -> bool;
+		auto MapFromRegionChecked(std::span<const Record> region) noexcept -> bool;
 
 		/// <summary>
 		/// Map an object header to the region and return the current value of the strong ref count.
@@ -635,7 +635,7 @@ namespace Nominax::Foundation
 		/// <param name="region"></param>
 		/// <returns>The current value of the strong ref count.</returns>
 		[[nodiscard]]
-		static constexpr auto ReadMapping_MetaField(const Record* region) -> MetaHeaderScalar;
+		static constexpr auto ReadMapping_MetaField(const Record* region) noexcept -> MetaHeaderScalar;
 
 		/// <summary>
 		/// Map an object header to the region and return the current value of the size.
@@ -643,7 +643,7 @@ namespace Nominax::Foundation
 		/// <param name="region"></param>
 		/// <returns>The current value of the size field.</returns>
 		[[nodiscard]]
-		static constexpr auto ReadMapping_Size(const Record* region) -> MetaHeaderScalar;
+		static constexpr auto ReadMapping_Size(const Record* region) noexcept -> MetaHeaderScalar;
 
 		/// <summary>
 		/// Map an object header to the region and return the current value of the type id.
@@ -651,7 +651,7 @@ namespace Nominax::Foundation
 		/// <param name="region"></param>
 		/// <returns>The current value of the type id.</returns>
 		[[nodiscard]]
-		static constexpr auto ReadMapping_TypeId(const Record* region) -> MetaHeaderScalar;
+		static constexpr auto ReadMapping_TypeId(const Record* region) noexcept -> MetaHeaderScalar;
 
 		/// <summary>
 		/// Map an object header to the region and return the current value of the flag vector.
@@ -659,7 +659,7 @@ namespace Nominax::Foundation
 		/// <param name="region"></param>
 		/// <returns>The current value of the flag vector.</returns>
 		[[nodiscard ]]
-		static constexpr auto ReadMapping_FlagVector(const Record* region) -> ObjectFlagVector;
+		static constexpr auto ReadMapping_FlagVector(const Record* region) noexcept -> ObjectFlagVector;
 
 		/// <summary>
 		/// Map an object header to the region and writes the value into the strong ref count field.
@@ -667,7 +667,7 @@ namespace Nominax::Foundation
 		/// <param name="region"></param>
 		/// <param name="metaField">The value to write.</param>
 		/// <returns></returns>
-		static constexpr auto WriteMapping_MetaField(Record* region, MetaHeaderScalar metaField) -> void;
+		static constexpr auto WriteMapping_MetaField(Record* region, MetaHeaderScalar metaField) noexcept -> void;
 
 		/// <summary>
 		/// Implicit map the region to an object header and increment the strong reference counter by one.
@@ -675,7 +675,7 @@ namespace Nominax::Foundation
 		/// </summary>
 		/// <param name="region"></param>
 		/// <returns></returns>
-		static constexpr auto WriteMapping_IncrementMetaField(Record* region) -> void;
+		static constexpr auto WriteMapping_IncrementMetaField(Record* region) noexcept -> void;
 
 		/// <summary>
 		/// Implicit map the region to an object header and decrement the strong reference counter by one.
@@ -683,7 +683,7 @@ namespace Nominax::Foundation
 		/// </summary>
 		/// <param name="region"></param>
 		/// <returns></returns>
-		static constexpr auto WriteMapping_DecrementMetaField(Record* region) -> void;
+		static constexpr auto WriteMapping_DecrementMetaField(Record* region) noexcept -> void;
 
 		/// <summary>
 		/// Map an object header to the region and writes the value into the size field.
@@ -691,7 +691,7 @@ namespace Nominax::Foundation
 		/// <param name="region"></param>
 		/// <param name="size">The value to write.</param>
 		/// <returns></returns>
-		static constexpr auto WriteMapping_Size(Record* region, MetaHeaderScalar size) -> void;
+		static constexpr auto WriteMapping_Size(Record* region, MetaHeaderScalar size) noexcept -> void;
 
 		/// <summary>
 		/// Map an object header to the region and writes the value into the type id field.
@@ -699,7 +699,7 @@ namespace Nominax::Foundation
 		/// <param name="region"></param>
 		/// <param name="typeId">The value to write.</param>
 		/// <returns></returns>
-		static constexpr auto WriteMapping_TypeId(Record* region, MetaHeaderScalar typeId) -> void;
+		static constexpr auto WriteMapping_TypeId(Record* region, MetaHeaderScalar typeId) noexcept -> void;
 
 		/// <summary>
 		/// Map an object header to the region and writes the value into the flag vector field.
@@ -707,7 +707,7 @@ namespace Nominax::Foundation
 		/// <param name="region"></param>
 		/// <param name="flagVector">The value to write.</param>
 		/// <returns></returns>
-		static constexpr auto WriteMapping_FlagVector(Record* region, ObjectFlagVector flagVector) -> void;
+		static constexpr auto WriteMapping_FlagVector(Record* region, ObjectFlagVector flagVector) noexcept -> void;
 
 		/// <summary>
 		/// Type-pun a region to an object header
@@ -751,52 +751,52 @@ namespace Nominax::Foundation
 	NOX_FLATTEN inline auto ObjectHeader::MapToRegionUnchecked
 	(
 		Record* const region
-	) const -> void
+	) const noexcept -> void
 	{
 		std::memcpy(region, this, sizeof(ObjectHeader));
 	}
 
-	NOX_FLATTEN inline auto ObjectHeader::MapToRegionChecked(const std::span<Record> region) const -> bool
+	NOX_FLATTEN inline auto ObjectHeader::MapToRegionChecked(const std::span<Record> region) const noexcept -> bool
 	{
 		if (std::size(region) < RECORD_BLOCKS)
 		{
 			[[unlikely]]
-				return false;
+			return false;
 		}
 		return std::memcpy(std::data(region), this, sizeof(ObjectHeader));
 	}
 
-	NOX_FLATTEN inline auto ObjectHeader::MapFromRegionUnchecked(const Record* const region) -> void
+	NOX_FLATTEN inline auto ObjectHeader::MapFromRegionUnchecked(const Record* const region) noexcept -> void
 	{
 		std::memcpy(this, region, sizeof(ObjectHeader));
 	}
 
-	NOX_FLATTEN inline auto ObjectHeader::MapFromRegionChecked(const std::span<const Record> region) -> bool
+	NOX_FLATTEN inline auto ObjectHeader::MapFromRegionChecked(const std::span<const Record> region) noexcept -> bool
 	{
 		if (std::size(region) < RECORD_BLOCKS)
 		{
 			[[unlikely]]
-				return false;
+			return false;
 		}
 		return std::memcpy(this, std::data(region), sizeof(ObjectHeader));
 	}
 
-	NOX_FLATTEN constexpr auto ObjectHeader::ReadMapping_MetaField(const Record* const region) -> MetaHeaderScalar
+	NOX_FLATTEN constexpr auto ObjectHeader::ReadMapping_MetaField(const Record* const region) noexcept -> MetaHeaderScalar
 	{
 		return (*region).AsU64;
 	}
 
-	NOX_FLATTEN constexpr auto ObjectHeader::ReadMapping_Size(const Record* const region) -> MetaHeaderScalar
+	NOX_FLATTEN constexpr auto ObjectHeader::ReadMapping_Size(const Record* const region) noexcept -> MetaHeaderScalar
 	{
 		return (*(region + 1)).AsU64;
 	}
 
-	NOX_FLATTEN constexpr auto ObjectHeader::ReadMapping_TypeId(const Record* const region) -> MetaHeaderScalar
+	NOX_FLATTEN constexpr auto ObjectHeader::ReadMapping_TypeId(const Record* const region) noexcept -> MetaHeaderScalar
 	{
 		return (*(region + 2)).AsU64;
 	}
 
-	NOX_FLATTEN constexpr auto ObjectHeader::ReadMapping_FlagVector(const Record* const region) -> ObjectFlagVector
+	NOX_FLATTEN constexpr auto ObjectHeader::ReadMapping_FlagVector(const Record* const region) noexcept -> ObjectFlagVector
 	{
 		const auto flags = ObjectFlagVector
 		{
@@ -809,7 +809,7 @@ namespace Nominax::Foundation
 	(
 		Record* const          region,
 		const MetaHeaderScalar metaField
-	) -> void
+	) noexcept -> void
 	{
 		(*region).AsU64 = metaField;
 	}
@@ -817,7 +817,7 @@ namespace Nominax::Foundation
 	NOX_FLATTEN constexpr auto ObjectHeader::WriteMapping_IncrementMetaField
 	(
 		Record* const region
-	) -> void
+	) noexcept -> void
 	{
 		++(*region).AsU64;
 	}
@@ -825,7 +825,7 @@ namespace Nominax::Foundation
 	NOX_FLATTEN constexpr auto ObjectHeader::WriteMapping_DecrementMetaField
 	(
 		Record* const region
-	) -> void
+	) noexcept -> void
 	{
 		--(*region).AsU64;
 	}
@@ -834,7 +834,7 @@ namespace Nominax::Foundation
 	(
 		Record* const          region,
 		const MetaHeaderScalar size
-	) -> void
+	) noexcept -> void
 	{
 		(*(region + 1)).AsU64 = size;
 	}
@@ -843,7 +843,7 @@ namespace Nominax::Foundation
 	(
 		Record* const          region,
 		const MetaHeaderScalar typeId
-	) -> void
+	) noexcept -> void
 	{
 		(*(region + 2)).AsU64 = typeId;
 	}
@@ -852,7 +852,7 @@ namespace Nominax::Foundation
 	(
 		Record* const          region,
 		const ObjectFlagVector flagVector
-	) -> void
+	) noexcept -> void
 	{
 		(*(region + 3)).AsU64 = flagVector.Merged;
 	}

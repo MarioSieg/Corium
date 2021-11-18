@@ -221,7 +221,8 @@
 #ifdef __cplusplus
 static_assert(sizeof(void*) == sizeof(std::int64_t), "Requires LP64!");
 
-extern "C" {
+extern "C"
+{
 #endif
 
 	/* FFI-C variant for Nominax/Include/Foundation/DataModel/Record.hpp */
@@ -317,13 +318,13 @@ extern "C" {
 	#define NOX_CALL NOX_CALLCONV
 
 	/* Load record from stack relative pointer by memory offset. */
-	#define NOX_SP_LDA(spRel, moff) ((spRel)+(moff))
+	#define NOX_SP_LDA(spRel, moff) ((spRel) + (moff))
 
 	/* Load record from stack relative pointer by memory offset and dereference. */
 	#define NOX_SP_LDA_DEREF(spRel, moff) (*NOX_SP_LDA(spRel, moff))
 
 	/* Load stack relative pointer argument into record. */
-	#define NOX_LDA(p1Name, n) (*(union NOX_Record*)NOX_SP_LDA((p1Name), (n)-1))
+	#define NOX_LDA(p1Name, n) (*(union NOX_Record*)NOX_SP_LDA((p1Name), (n) - 1))
 
 	/* Native call subroutine pointer prototype. */
 	typedef const union NOX_Record* (*NOX_CALL NOX_FFIProc)(NOX_REGISTER union NOX_Record* NOX_RESTRICT);

@@ -53,6 +53,7 @@ file(GLOB_RECURSE NOMINAX_SOURCES
     Source/Core/*.cpp
     Source/Foundation/*.cpp
     Source/JIT/*.cpp
+    Source/GC/*.cpp
 )
 
 if (${CPU_IS_X86_64})

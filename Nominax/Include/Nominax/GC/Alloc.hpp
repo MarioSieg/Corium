@@ -205,21 +205,85 @@
 
 #pragma once
 
-#include "gtest/gtest.h"
-#include "../Include/Nominax/Nominax.hpp"
+#include <cstdint>
 
-using namespace Nominax::Foundation;
-using namespace Memory;
-using namespace Allocator;
-using namespace VectorLib;
-using namespace IEEE754;
-using namespace Concurrency;
+namespace Nominax::GC
+{
+	/// <summary>
+	/// Contains general heap tree information.
+	/// </summary>
+	struct HeapInfo final
+	{
+		std::uint64_t HeapTreeLinks { };
+		void* HeapRoot { };
+		void* RecentAlloc { };
+	};
 
-using namespace Nominax::Core;
-using namespace Subsystem;
+	/// <summary>
+	/// Global memory allocation info.
+	/// </summary>
+	struct MallInfo final
+	{
+		std::uint64_t Used { };
+		std::uint64_t Reserved { };
+		std::uint64_t Available { };
+	};
 
-using namespace Nominax::JIT;
-using namespace Nominax::GC;
-using namespace Nominax::ByteCode;
-using namespace Nominax::Assembler;
+	/// <summary>
+	/// Global extended memory allocation info.
+	/// </summary>
+	struct MallInfoEX final
+	{
+		MallInfo Basic { };
+		HeapInfo Heap { };
+		std::uint64_t ThreadCount { };
+	};
 
+	/// <summary>
+	/// Allocate managed (garbage collected) memory in the global GC heap.
+	/// </summary>
+	/// <param name="size">The size in bytes to allocate.</param>
+	/// <param name="alignment">The memory alignment to align the return pointer to.</param>
+	/// <returns>The pointer to the allocated memory. Never nullptr!</returns>
+	extern auto GCHeapAlloc(std::uint64_t size, std::uint64_t alignment) noexcept -> void*;
+
+	/// <summary>
+	/// Allocate managed (garbage collected) memory in the global GC heap and trace the allocation.
+	/// </summary>
+	/// <param name="out">The output pointer. Never nullptr!</param>
+	/// <param name="size">The size in bytes to allocate.</param>
+	/// <param name="alignment">The memory alignment to align the return pointer to.</param>
+	/// <param name="info">The info structure.</param>
+	/// <returns>The time in nanoseconds required for this allocation.</returns>
+	extern auto GCHeapAllocTrace(void*& out, std::uint64_t size, std::uint64_t alignment, MallInfo& info) noexcept -> std::uint64_t;
+
+	/// <summary>
+	/// Allocate managed (garbage collected) memory in the global GC heap and trace the allocation.
+	/// </summary>
+	/// <param name="out">The output pointer. Never nullptr!</param>
+	/// <param name="size">The size in bytes to allocate.</param>
+	/// <param name="alignment">The memory alignment to align the return pointer to.</param>
+	/// <param name="info">The info structure.</param>
+	/// <returns>The time in nanoseconds required for this allocation.</returns>
+	extern auto GCHeapAllocProfile(void*& out, std::uint64_t size, std::uint64_t alignment, MallInfoEX& info) noexcept -> std::uint64_t;
+
+	/// <summary>
+	/// Force the deallocation of the specified block.
+	///	This is normally called by the GC internally when memory is no longer needed.
+	///	Use with caution!
+	/// </summary>
+	/// <param name="block">The block to deallocate.</param>
+	/// <returns></returns>
+	extern auto GCHeapForcedDealloc(void* block) noexcept -> void;
+
+	/// <summary>
+	/// Allocation helper for C++ types.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <returns></returns>
+	template <typename T>
+	inline auto GCHeapAllocNative() noexcept -> T*
+	{
+		return static_cast<T*>(GCHeapAlloc(sizeof(T), alignof(T)));
+	}
+}

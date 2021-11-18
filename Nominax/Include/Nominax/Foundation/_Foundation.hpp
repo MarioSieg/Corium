@@ -213,6 +213,7 @@
 #include "DLL/_DLL.hpp"
 #include "IEEE754/_IEEE754.hpp"
 #include "Memory/_Memory.hpp"
+#include "Object/_Object.hpp"
 #include "Panic/_Panic.hpp"
 #include "Random/_Random.hpp"
 
@@ -226,8 +227,6 @@
 #include "ISerializable.hpp"
 #include "MachineClass.hpp"
 #include "NativeTypeRegistry.hpp"
-#include "Object.hpp"
-#include "ObjectHeader.hpp"
 #include "OSInterface.hpp"
 #include "SigBus.hpp"
 #include "Platform.hpp"

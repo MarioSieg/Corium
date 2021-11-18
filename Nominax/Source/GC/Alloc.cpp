@@ -203,23 +203,49 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "../../Include/Nominax/GC/Alloc.hpp"
+#include "../../Include/Nominax/Foundation/Allocator/AllocatorProxy.hpp"
+#include "../../Include/Nominax/Foundation/CompileTimeConfig.hpp"
+#include "../../Include/Nominax/Foundation/Stopwatch.hpp"
 
-#include "gtest/gtest.h"
-#include "../Include/Nominax/Nominax.hpp"
+namespace Nominax::GC
+{
+	using Foundation::CompileTimeConfig;
+	using Foundation::Allocator::GlobalAllocatorProxy;
+	using Foundation::Stopwatch;
 
-using namespace Nominax::Foundation;
-using namespace Memory;
-using namespace Allocator;
-using namespace VectorLib;
-using namespace IEEE754;
-using namespace Concurrency;
+	auto GCHeapAlloc(const std::uint64_t size, [[maybe_unused]] const std::uint64_t alignment) noexcept -> void*
+	{
+		if constexpr (!CompileTimeConfig::BypassSystemAllocator)
+		{
+			void* result{ };
+			GlobalAllocatorProxy->Allocate(result, size);
+			return result;
+		}
+		return std::malloc(size);
+	}
 
-using namespace Nominax::Core;
-using namespace Subsystem;
+	auto GCHeapAllocTrace(void*& out, const std::uint64_t size, const std::uint64_t alignment, MallInfo& info) noexcept -> std::uint64_t
+	{
+		const Stopwatch clock { };
+		out = GCHeapAlloc(size, alignment);
+		return clock.Elapsed<std::chrono::nanoseconds>().count();
+	}
 
-using namespace Nominax::JIT;
-using namespace Nominax::GC;
-using namespace Nominax::ByteCode;
-using namespace Nominax::Assembler;
+	auto GCHeapAllocProfile(void*& out, const std::uint64_t size, const std::uint64_t alignment, MallInfoEX& info) noexcept -> std::uint64_t
+	{
+		const Stopwatch clock { };
+		out = GCHeapAlloc(size, alignment);
+		return clock.Elapsed<std::chrono::nanoseconds>().count();
+	}
 
+	auto GCHeapForcedDealloc(void* const block) noexcept -> void
+	{
+		if constexpr (!CompileTimeConfig::BypassSystemAllocator)
+		{
+			void* ref { block };
+			GlobalAllocatorProxy->Deallocate(ref);
+		}
+		std::free(block);
+	}
+}
