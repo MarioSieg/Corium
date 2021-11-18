@@ -206,6 +206,7 @@
 use super::local_statement::LocalStatement;
 use crate::ast::tree::{AstComponent, Rule};
 use std::fmt;
+use std::ops::Deref;
 
 #[derive(Clone, Debug)]
 pub struct Block<'ast>(pub Vec<LocalStatement<'ast>>);
@@ -224,7 +225,31 @@ impl<'ast> fmt::Display for Block<'ast> {
 }
 
 impl<'ast> Block<'ast> {
-    pub fn empty() -> Self {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    #[inline]
+    pub fn len(&self) -> usize {
+        self.0.len()
+    }
+
+    #[inline]
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
+}
+
+impl<'ast> Default for Block<'ast> {
+    fn default() -> Self {
         Self(Vec::new())
+    }
+}
+
+impl<'ast> Deref for Block<'ast> {
+    type Target = Vec<LocalStatement<'ast>>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }

@@ -204,8 +204,8 @@
 //    limitations under the License.
 
 use crate::error::Error;
-use std::default;
 use std::fmt;
+use std::ops::{Index, IndexMut};
 
 #[derive(Clone, Debug)]
 pub struct ErrorList(pub Vec<Error>);
@@ -280,17 +280,31 @@ impl From<ErrorList> for Result<(), ErrorList> {
     }
 }
 
+impl IndexMut<usize> for ErrorList {
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        &mut self.0[index]
+    }
+}
+
+impl Index<usize> for ErrorList {
+    type Output = Error;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.0[index]
+    }
+}
+
+impl Default for ErrorList {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl fmt::Display for ErrorList {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for error in &self.0 {
             writeln!(f, "{}", error)?
         }
         Ok(())
-    }
-}
-
-impl default::Default for ErrorList {
-    fn default() -> Self {
-        Self::new()
     }
 }

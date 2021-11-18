@@ -211,10 +211,81 @@ use crate::ast::tree::local_statement::LocalStatement;
 use crate::ast::tree::Statement;
 use crate::error::list::ErrorList;
 use crate::error::Error;
+use std::collections::hash_map::{Keys, Values};
 use std::collections::HashMap;
 
 /// Symbol table type. T should be a statement (local or global) and implement the Statement trait.
-pub type SymbolTable<'ast, T> = HashMap<&'ast Identifier<'ast>, &'ast T>;
+pub struct SymbolTable<'ast, T>(pub HashMap<&'ast Identifier<'ast>, &'ast T>);
+
+impl<'ast, T> SymbolTable<'ast, T> {
+    #[inline]
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    #[inline]
+    pub fn with_capacity(capacity: usize) -> Self {
+        Self(HashMap::with_capacity(capacity))
+    }
+
+    #[inline]
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
+
+    #[inline]
+    pub fn len(&self) -> usize {
+        self.0.len()
+    }
+
+    pub fn insert(&mut self, key: &'ast Identifier<'ast>, value: &'ast T) -> Option<&'ast T> {
+        if let Some(existing) = self.0.get(key) {
+            Some(existing)
+        } else {
+            self.0.insert(key, value)
+        }
+    }
+
+    #[inline]
+    pub fn keys(&self) -> Keys<'_, &'ast Identifier<'ast>, &'ast T> {
+        self.0.keys()
+    }
+
+    #[inline]
+    pub fn values(&self) -> Values<'_, &'ast Identifier<'ast>, &'ast T> {
+        self.0.values()
+    }
+
+    pub fn get(&self, key: &'ast Identifier<'ast>) -> Option<&T> {
+        if let Some(x) = self.0.get(key) {
+            Some(*x)
+        } else {
+            None
+        }
+    }
+
+    #[inline]
+    pub fn contains_key(&self, key: &'ast Identifier<'ast>) -> bool {
+        self.0.contains_key(key)
+    }
+
+    #[inline]
+    pub fn reserve(&mut self, additional: usize) {
+        self.0.reserve(additional)
+    }
+
+    #[inline]
+    pub fn clear(&mut self) {
+        self.0.clear();
+    }
+}
+
+impl<'ast, T> Default for SymbolTable<'ast, T> {
+    #[inline]
+    fn default() -> Self {
+        Self(HashMap::new())
+    }
+}
 
 pub type GlobalSymbolTable<'ast> = SymbolTable<'ast, GlobalStatement<'ast>>;
 pub type LocalSymbolTable<'ast> = SymbolTable<'ast, LocalStatement<'ast>>;
@@ -228,7 +299,7 @@ macro_rules! definition_error {
         let curr_type = $current.descriptive_name();
 
         let message = format!(
-            "{} {} {} already defined as {} {} before!",
+            "{} {} {} already defined as {} {} before",
             $prefix, curr_type, curr_name, prev_type, prev_name
         );
         Error::Semantic(message, $file.to_string())
@@ -237,9 +308,9 @@ macro_rules! definition_error {
 
 pub fn build_global<'ast>(
     errors: &mut ErrorList,
+    out: &mut GlobalSymbolTable<'ast>,
     unit: &'ast CompilationUnit<'ast>,
     file: &str,
-    out: &mut GlobalSymbolTable<'ast>,
 ) {
     out.clear();
     out.reserve(unit.statements.len());
@@ -253,15 +324,116 @@ pub fn build_global<'ast>(
 
 pub fn build_local<'ast>(
     errors: &mut ErrorList,
+    out: &mut LocalSymbolTable<'ast>,
     block: &'ast Block<'ast>,
     file: &str,
-    out: &mut LocalSymbolTable<'ast>,
 ) {
-    out.reserve(block.0.len());
-    for statement in &block.0 {
+    out.reserve(block.len());
+    for statement in block.iter() {
         let existing = out.insert(statement.identifier().unwrap(), statement);
         if let Some(existing) = existing {
             errors.push(definition_error!(existing, statement, file, "local"));
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::ast::tree::global_statement::GlobalStatement;
+    use crate::ast::tree::identifier::Identifier;
+    use crate::core::pass::Pass;
+    use crate::core::passes::parse::ParsePass;
+    use crate::core::passes::population::AstPopulationPass;
+    use crate::core::unit::CompileDescriptor;
+    use crate::error::list::ErrorList;
+    use crate::error::Error;
+    use crate::semantic::symbol_table::{build_global, GlobalSymbolTable};
+
+    const DESC: CompileDescriptor = CompileDescriptor {
+        dump_ast: true,
+        pass_timer: true,
+        dump_asm: true,
+        verbose: true,
+        opt_level: 0,
+    };
+
+    #[test]
+    fn global_ok() {
+        let src = concat!(
+            "let x int = 10 + 3 * 5 & 2\n",
+            "const y = x\n",
+            "let var = y << x >> 2 * (2 ^ z)\n"
+        );
+
+        let verbose = DESC.verbose;
+        let pass_timer = DESC.pass_timer;
+        let file = "Test.cor";
+
+        let result = ParsePass::run(src, verbose, pass_timer, file).unwrap();
+        let result = AstPopulationPass::run(result, verbose, pass_timer, file).unwrap();
+        let mut errors = ErrorList::new();
+        let mut out = GlobalSymbolTable::new();
+        build_global(&mut errors, &mut out, &result, file);
+        assert!(errors.is_empty());
+        assert_eq!(out.len(), 3);
+        assert!(out.contains_key(&Identifier::new("x")));
+        assert!(out.contains_key(&Identifier::new("y")));
+        assert!(out.contains_key(&Identifier::new("var")));
+        match out.get(&Identifier::new("x")).unwrap() {
+            GlobalStatement::MutableVariable(x) => {
+                assert_eq!(x.name, Identifier::new("x"));
+            }
+            _ => panic!(),
+        }
+        match out.get(&Identifier::new("y")).unwrap() {
+            GlobalStatement::ImmutableVariable(x) => {
+                assert_eq!(x.name, Identifier::new("y"));
+            }
+            _ => panic!(),
+        }
+        match out.get(&Identifier::new("var")).unwrap() {
+            GlobalStatement::MutableVariable(x) => {
+                assert_eq!(x.name, Identifier::new("var"));
+            }
+            _ => panic!(),
+        }
+    }
+
+    #[test]
+    fn global_err() {
+        let src = concat!(
+            "let x int = 10 + 3 * 5 & 2\n",
+            "const y = x\n",
+            "const x = x << x >> 2 * (2 ^ z)\n"
+        );
+
+        let verbose = DESC.verbose;
+        let pass_timer = DESC.pass_timer;
+        let file = "Test.cor";
+
+        let result = ParsePass::run(src, verbose, pass_timer, file).unwrap();
+        let result = AstPopulationPass::run(result, verbose, pass_timer, file).unwrap();
+        let mut errors = ErrorList::new();
+        let mut out = GlobalSymbolTable::new();
+        build_global(&mut errors, &mut out, &result, file);
+        assert!(!errors.is_empty());
+        assert_eq!(errors.len(), 1);
+        assert!(matches!(errors[0], Error::Semantic(_, _)));
+        println!("{}", errors);
+        assert_eq!(out.len(), 2);
+        assert!(out.contains_key(&Identifier::new("x")));
+        assert!(out.contains_key(&Identifier::new("y")));
+        match out.get(&Identifier::new("x")).unwrap() {
+            GlobalStatement::MutableVariable(x) => {
+                assert_eq!(x.name, Identifier::new("x"));
+            }
+            _ => panic!(),
+        }
+        match out.get(&Identifier::new("y")).unwrap() {
+            GlobalStatement::ImmutableVariable(x) => {
+                assert_eq!(x.name, Identifier::new("y"));
+            }
+            _ => panic!(),
         }
     }
 }
