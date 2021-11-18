@@ -226,7 +226,7 @@ impl<'a> GlobalSemanticAnalysis<'a> for GlobalStatement<'a> {
                 semantic_check!(x, x.signature.name, global_state, Record::NativeFunction(x))
             }
         };
-        make_error(self, analyze_error, existing)
+        make_error(self, analyze_error, existing, global_state)
     }
 }
 
@@ -234,6 +234,7 @@ fn make_error(
     statement: &GlobalStatement,
     analyze_error: Result<(), ErrorList>,
     existing: Option<Record>,
+    global_state: &GlobalState,
 ) -> Result<(), ErrorList> {
     // if the symbol is already defined -> error
     if existing.is_some() || analyze_error.is_err() {
