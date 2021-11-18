@@ -240,7 +240,7 @@ namespace Nominax::Core
     /// </summary>
     NOX_HOT auto SysCallIntrin(Foundation::Record* NOX_RESTRICT const sp, uint64_t gate) -> void
     {
-        static constexpr std::array<const void* NOX_RESTRICT const, Foundation::Algorithm::ToUnderlying(ByteCode::SysCall::Count_)> JUMP_TABLE
+        static constexpr std::array<const void* NOX_RESTRICT const, Foundation::Algorithm::ToUnderlying(ByteCode::Syscall::Count_)> JUMP_TABLE
         {
             &&NOX_SYSCALL_GATE_ID(cos),
             &&NOX_SYSCALL_GATE_ID(sin),

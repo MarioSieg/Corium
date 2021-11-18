@@ -207,7 +207,7 @@
 
 #include <span>
 
-#include "SysCall.hpp"
+#include "Syscall.hpp"
 
 #include "../Foundation/Algorithm/_Algorithm.hpp"
 #include "../Foundation/Record.hpp"
@@ -246,7 +246,7 @@ namespace Nominax::ByteCode
     /// <summary>
     /// Represents an unsigned stack offset.
     /// </summary>
-    enum class alignas(alignof(std::uint64_t)) MemOffset : std::uint64_t;
+    enum class alignas(alignof(std::uint64_t)) MemoryOffset : std::uint64_t;
 
 	/// <summary>
 	/// Represents a jump address which
@@ -258,7 +258,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Subroutine invocation id for custom intrinsic routine.
 	/// </summary>
-	enum class alignas(alignof(std::uint64_t)) UserIntrinsicInvocationID : std::uint64_t;
+	enum class alignas(alignof(std::uint64_t)) FFIIntrinsicInvocationID : std::uint64_t;
 
 	/// <summary>
 	/// Custom intrinsic routine function prototype.

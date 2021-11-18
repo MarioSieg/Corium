@@ -218,6 +218,7 @@
 #include "Stream.hpp"
 #include "Linker.hpp"
 #include "InstructionMetaDataRegistry.hpp"
-#include "SysCallMetaDataRegistry.hpp"
+#include "Syscall.hpp"
+#include "SyscallMetaDataRegistry.hpp"
 #include "Validator.hpp"
 #include "ValidationResult.hpp"

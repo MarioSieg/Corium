@@ -209,7 +209,7 @@
 #include <cstdint>
 #include <string_view>
 
-#include "SysCall.hpp"
+#include "Syscall.hpp"
 #include "../Foundation/Algorithm/Enum.hpp"
 
 namespace Nominax::ByteCode
@@ -253,7 +253,7 @@ namespace Nominax::ByteCode
         /// Contains all syscall mnemonics.
         /// </summary>
         [[maybe_unused]]
-        static constexpr std::array<const std::string_view, Foundation::Algorithm::ToUnderlying(SysCall::Count_)> MNEMONIC_TABLE
+        static constexpr std::array<const std::string_view, Foundation::Algorithm::ToUnderlying(Syscall::Count_)> MNEMONIC_TABLE
         {
             #include "ExportSysCallMnemonicTable.hpp"
         };
@@ -262,7 +262,7 @@ namespace Nominax::ByteCode
         /// Contains all syscall descriptions.
         /// </summary>
         [[maybe_unused]]
-        static constexpr std::array<const std::string_view, Foundation::Algorithm::ToUnderlying(SysCall::Count_)> DESCRIPTOR_TABLE
+        static constexpr std::array<const std::string_view, Foundation::Algorithm::ToUnderlying(Syscall::Count_)> DESCRIPTOR_TABLE
         {
             #include "ExportSysCallDescriptorTable.hpp"
         };
@@ -271,7 +271,7 @@ namespace Nominax::ByteCode
         /// Contains all syscall module descriptions.
         /// </summary>
         [[maybe_unused]]
-        static constexpr std::array<const std::string_view, Foundation::Algorithm::ToUnderlying(SysCall::Count_)> MODULE_TABLE
+        static constexpr std::array<const std::string_view, Foundation::Algorithm::ToUnderlying(Syscall::Count_)> MODULE_TABLE
         {
             #include "ExportSysCallModuleTable.hpp"
         };
@@ -280,7 +280,7 @@ namespace Nominax::ByteCode
         /// Contains all syscall push counts.
         /// </summary>
         [[maybe_unused]]
-        static constexpr std::array<const std::uint8_t , Foundation::Algorithm::ToUnderlying(SysCall::Count_)> PUSH_RECORD_TABLE
+        static constexpr std::array<const std::uint8_t , Foundation::Algorithm::ToUnderlying(Syscall::Count_)> PUSH_RECORD_TABLE
         {
             #include "ExportSysCallPushRecordTable.hpp"
         };
@@ -289,7 +289,7 @@ namespace Nominax::ByteCode
         /// Contains all syscall pop counts.
         /// </summary>
         [[maybe_unused]]
-        static constexpr std::array<const std::uint8_t , Foundation::Algorithm::ToUnderlying(SysCall::Count_)> POP_RECORD_TABLE
+        static constexpr std::array<const std::uint8_t , Foundation::Algorithm::ToUnderlying(Syscall::Count_)> POP_RECORD_TABLE
         {
             #include "ExportSysCallPopRecordTable.hpp"
         };
@@ -299,12 +299,12 @@ namespace Nominax::ByteCode
         /// Automatically computed from the push and pop table.
         /// </summary>
         [[maybe_unused]]
-        static constexpr std::array<std::int8_t, Foundation::Algorithm::ToUnderlying(SysCall::Count_)> STACK_DIFF_TABLE
+        static constexpr std::array<std::int8_t, Foundation::Algorithm::ToUnderlying(Syscall::Count_)> STACK_DIFF_TABLE
         {
             []
             {
-                std::array<std::int8_t, Foundation::Algorithm::ToUnderlying(SysCall::Count_)> result { };
-                for (std::uint64_t i { 0 }; i < Foundation::Algorithm::ToUnderlying(SysCall::Count_); ++i)
+                std::array<std::int8_t, Foundation::Algorithm::ToUnderlying(Syscall::Count_)> result { };
+                for (std::uint64_t i { 0 }; i < Foundation::Algorithm::ToUnderlying(Syscall::Count_); ++i)
                 {
                     result[i] = static_cast<std::int8_t>(PUSH_RECORD_TABLE[i] - POP_RECORD_TABLE[i]);
                 }

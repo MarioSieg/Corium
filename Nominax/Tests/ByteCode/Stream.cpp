@@ -217,21 +217,21 @@ TEST(BytecodeStream, Push)
 	Stream stream { };
 	ASSERT_EQ(stream.Size(), 0);
 
-	stream.Emit(static_cast<MemOffset>(0));
+	stream.Emit(static_cast<MemoryOffset>(0));
 	stream.Emit(Instruction::NOP);
 	stream.Emit(Instruction::CALL);
-	stream.Emit(SysCall::ACOS);
-	stream.Emit(UserIntrinsicInvocationID {3});
+	stream.Emit(Syscall::ACOS);
+	stream.Emit(FFIIntrinsicInvocationID {3});
 	stream.Emit(3.5);
-	stream.Emit(MemOffset(32));
+	stream.Emit(MemoryOffset(32));
 	stream.Emit(INT64_C(-10));
 
 	ASSERT_EQ(stream.Size(), 8);
 	ASSERT_TRUE(stream[0].Contains(UINT64_C(0)));
 	ASSERT_TRUE(stream[1].Contains(Instruction::NOP));
 	ASSERT_TRUE(stream[2].Contains(Instruction::CALL));
-	ASSERT_TRUE(stream[3].Contains(SysCall::ACOS));
-	ASSERT_TRUE(stream[4].Contains(UserIntrinsicInvocationID{ 3 }));
+	ASSERT_TRUE(stream[3].Contains(Syscall::ACOS));
+	ASSERT_TRUE(stream[4].Contains(FFIIntrinsicInvocationID{ 3 }));
 	ASSERT_TRUE(stream[5].Contains(3.5));
 	ASSERT_TRUE(stream[6].Contains(UINT64_C(32)));
 	ASSERT_TRUE(stream[7].Contains(INT64_C(-10)));

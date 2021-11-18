@@ -253,6 +253,11 @@ namespace Nominax::Foundation
 		void* AsPtr;
 
 		/// <summary>
+		/// Use as native char.
+		/// </summary>
+		char AsChar;
+
+		/// <summary>
 		/// Use as ASCII/UTF-8 char.
 		/// </summary>
 		char8_t AsChar8;

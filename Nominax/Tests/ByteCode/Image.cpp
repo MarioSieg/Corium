@@ -211,18 +211,18 @@ TEST(Image, Construct1)
 	Image                             image {values};
 	ASSERT_EQ(image.GetSize(), 3);
 	ASSERT_EQ(image.GetByteSize(), 24);
-	ASSERT_DOUBLE_EQ(image[0].R64.AsF64, 3.0);
-	ASSERT_DOUBLE_EQ(image[1].R64.AsF64, 1.0);
-	ASSERT_DOUBLE_EQ(image[2].R64.AsF64, -3.0);
+	ASSERT_DOUBLE_EQ(image[0].AsRecord.AsF64, 3.0);
+	ASSERT_DOUBLE_EQ(image[1].AsRecord.AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(image[2].AsRecord.AsF64, -3.0);
 }
 
 TEST(Image, Construct2)
 {
 	const std::array<const Signal, 3> values {Signal {3.0}, Signal {1.0}, Signal {-3.0}};
 	Image                             image {static_cast<const void*>(std::data(values)), std::size(values) * sizeof(Signal)};
-	ASSERT_DOUBLE_EQ(image[0].R64.AsF64, 3.0);
-	ASSERT_DOUBLE_EQ(image[1].R64.AsF64, 1.0);
-	ASSERT_DOUBLE_EQ(image[2].R64.AsF64, -3.0);
+	ASSERT_DOUBLE_EQ(image[0].AsRecord.AsF64, 3.0);
+	ASSERT_DOUBLE_EQ(image[1].AsRecord.AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(image[2].AsRecord.AsF64, -3.0);
 	ASSERT_EQ(image.GetSize(), 3);
 	ASSERT_EQ(image.GetByteSize(), 24);
 }
@@ -233,9 +233,9 @@ TEST(Image, Construct3)
 	Image       image {values, 3 * sizeof(Signal)};
 	ASSERT_EQ(image.GetSize(), 3);
 	ASSERT_EQ(image.GetByteSize(), 24);
-	ASSERT_DOUBLE_EQ(image[0].R64.AsF64, 3.0);
-	ASSERT_DOUBLE_EQ(image[1].R64.AsF64, 1.0);
-	ASSERT_DOUBLE_EQ(image[2].R64.AsF64, -3.0);
+	ASSERT_DOUBLE_EQ(image[0].AsRecord.AsF64, 3.0);
+	ASSERT_DOUBLE_EQ(image[1].AsRecord.AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(image[2].AsRecord.AsF64, -3.0);
 }
 
 TEST(Image, MoveConstruct)
@@ -244,16 +244,16 @@ TEST(Image, MoveConstruct)
 	Image                             image {values};
 	ASSERT_EQ(image.GetSize(), 3);
 	ASSERT_EQ(image.GetByteSize(), 24);
-	ASSERT_DOUBLE_EQ(image[0].R64.AsF64, 3.0);
-	ASSERT_DOUBLE_EQ(image[1].R64.AsF64, 1.0);
-	ASSERT_DOUBLE_EQ(image[2].R64.AsF64, -3.0);
+	ASSERT_DOUBLE_EQ(image[0].AsRecord.AsF64, 3.0);
+	ASSERT_DOUBLE_EQ(image[1].AsRecord.AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(image[2].AsRecord.AsF64, -3.0);
 
 	const Image image2 {std::move(image)};
 	ASSERT_EQ(image2.GetSize(), 3);
 	ASSERT_EQ(image2.GetByteSize(), 24);
-	ASSERT_DOUBLE_EQ(image2[0].R64.AsF64, 3.0);
-	ASSERT_DOUBLE_EQ(image2[1].R64.AsF64, 1.0);
-	ASSERT_DOUBLE_EQ(image2[2].R64.AsF64, -3.0);
+	ASSERT_DOUBLE_EQ(image2[0].AsRecord.AsF64, 3.0);
+	ASSERT_DOUBLE_EQ(image2[1].AsRecord.AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(image2[2].AsRecord.AsF64, -3.0);
 }
 
 TEST(Image, MoveAssign)
@@ -262,17 +262,17 @@ TEST(Image, MoveAssign)
 	Image                             image {values};
 	ASSERT_EQ(image.GetSize(), 3);
 	ASSERT_EQ(image.GetByteSize(), 24);
-	ASSERT_DOUBLE_EQ(image[0].R64.AsF64, 3.0);
-	ASSERT_DOUBLE_EQ(image[1].R64.AsF64, 1.0);
-	ASSERT_DOUBLE_EQ(image[2].R64.AsF64, -3.0);
+	ASSERT_DOUBLE_EQ(image[0].AsRecord.AsF64, 3.0);
+	ASSERT_DOUBLE_EQ(image[1].AsRecord.AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(image[2].AsRecord.AsF64, -3.0);
 
 	Image image2 { };
 	image2 = std::move(image);
 	ASSERT_EQ(image2.GetSize(), 3);
 	ASSERT_EQ(image2.GetByteSize(), 24);
-	ASSERT_DOUBLE_EQ(image2[0].R64.AsF64, 3.0);
-	ASSERT_DOUBLE_EQ(image2[1].R64.AsF64, 1.0);
-	ASSERT_DOUBLE_EQ(image2[2].R64.AsF64, -3.0);
+	ASSERT_DOUBLE_EQ(image2[0].AsRecord.AsF64, 3.0);
+	ASSERT_DOUBLE_EQ(image2[1].AsRecord.AsF64, 1.0);
+	ASSERT_DOUBLE_EQ(image2[2].AsRecord.AsF64, -3.0);
 }
 
 TEST(Image, DeathConstruct1)

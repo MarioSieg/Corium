@@ -308,7 +308,7 @@ namespace Nominax::ByteCode
 			}
 		}
 		// Else just do a push:
-		this->Attached_.Do<Instruction::PUSH>(static_cast<MemOffset>(value));
+		this->Attached_.Do<Instruction::PUSH>(static_cast<MemoryOffset>(value));
 		return *this;
 	}
 

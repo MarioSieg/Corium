@@ -238,6 +238,11 @@ impl<'ast, T> SymbolTable<'ast, T> {
         self.0.len()
     }
 
+    #[inline]
+    pub fn capacity(&self) -> usize {
+        self.0.capacity()
+    }
+
     pub fn insert(&mut self, key: &'ast Identifier<'ast>, value: &'ast T) -> Option<&'ast T> {
         if let Some(existing) = self.0.get(key) {
             Some(existing)
@@ -313,7 +318,7 @@ pub fn build_global<'ast>(
     file: &str,
 ) {
     out.clear();
-    out.reserve(unit.statements.len());
+    out.reserve(unit.statements.len().saturating_sub(out.capacity()));
     for statement in &unit.statements {
         if !statement.is_symbol_table_entry() {
             continue;
@@ -337,7 +342,7 @@ pub fn build_local<'ast>(
     file: &str,
 ) {
     out.clear();
-    out.reserve(block.len());
+    out.reserve(block.len().saturating_sub(out.capacity()));
     for statement in block.iter() {
         if !statement.is_symbol_table_entry() {
             continue;

@@ -308,47 +308,47 @@ namespace Nominax::ByteCode
 		/// <summary>
 		/// Reinterpret as Record64.
 		/// </summary>
-		Foundation::Record R64;
+		Foundation::Record AsRecord;
 
 		/// <summary>
 		/// Reinterpret as instruction.
 		/// </summary>
-		Instruction Instr;
+		Instruction AsInstruction;
 
 		/// <summary>
 		/// Reinterpret as system intrinsic call id.
 		/// </summary>
-		SysCall SysCallID;
+		Syscall AsSysCall;
 
 		/// <summary>
 		/// Reinterpret as custom intrinsic call id.
 		/// </summary>
-		UserIntrinsicInvocationID UserIntrinID;
+		FFIIntrinsicInvocationID AsFFIIntrinsic;
 
         /// <summary>
         /// Reinterpret as jump target.
         /// </summary>
-        JumpAddress JmpAddress;
+        JumpAddress AsJumpAddress;
 
         /// <summary>
         /// Reinterpret as type id.
         /// </summary>
-        TypeID Type;
+        TypeID AsTypeID;
 
         /// <summary>
         /// Reinterpret as field offset.
         /// </summary>
-        FieldOffset FOffset;
+        FieldOffset AsFieldOffset;
 
         /// <summary>
         /// Unsigned memory offset.
         /// </summary>
-        MemOffset UOffset;
+        MemoryOffset AsMemoryOffset;
 
         /// <summary>
 		/// Reinterpret as void pointer.
 		/// </summary>
-		void* Ptr;
+		void* AsPtr;
 
 		/// <summary>
 		/// Default constructor.
@@ -375,14 +375,14 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <param name="value">The initial value.</param>
 		/// <returns></returns>
-		explicit constexpr Signal(SysCall value);
+		explicit constexpr Signal(Syscall value);
 
 		/// <summary>
 			/// Construct from custom intrinsic call id.
 			/// </summary>
 			/// <param name="value">The initial value.</param>
 			/// <returns></returns>
-		explicit constexpr Signal(UserIntrinsicInvocationID value);
+		explicit constexpr Signal(FFIIntrinsicInvocationID value);
 
 		/// <summary>
 		/// Construct from void pointer.
@@ -445,22 +445,22 @@ namespace Nominax::ByteCode
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        explicit constexpr Signal(MemOffset value);
+        explicit constexpr Signal(MemoryOffset value);
 	};
 
-	constexpr Signal::Signal(const Foundation::Record value) : R64 { value } { }
-	constexpr Signal::Signal(const Instruction value) : Instr { value } { }
-	constexpr Signal::Signal(const SysCall value) : SysCallID {value } { }
-	constexpr Signal::Signal(const UserIntrinsicInvocationID value) : UserIntrinID { value } { }
-	constexpr Signal::Signal(void* const value) : Ptr { value } { }
-	constexpr Signal::Signal(const std::int64_t value) : R64 { value } { }
-	constexpr Signal::Signal(const std::uint64_t value) : R64 { value } { }
-	constexpr Signal::Signal(const double value) : R64 { value } { }
-	constexpr Signal::Signal(const char32_t value) : R64 { value } { }
-	constexpr Signal::Signal(const JumpAddress value) : JmpAddress { value } {}
-    constexpr Signal::Signal(const TypeID value) : Type { value } { }
-    constexpr Signal::Signal(const FieldOffset value) : FOffset { value } { }
-    constexpr Signal::Signal(const MemOffset value) : UOffset {value } { }
+	constexpr Signal::Signal(const Foundation::Record value) : AsRecord { value } { }
+	constexpr Signal::Signal(const Instruction value) : AsInstruction { value } { }
+	constexpr Signal::Signal(const Syscall value) : AsSysCall {value } { }
+	constexpr Signal::Signal(const FFIIntrinsicInvocationID value) : AsFFIIntrinsic { value } { }
+	constexpr Signal::Signal(void* const value) : AsPtr { value } { }
+	constexpr Signal::Signal(const std::int64_t value) : AsRecord { value } { }
+	constexpr Signal::Signal(const std::uint64_t value) : AsRecord { value } { }
+	constexpr Signal::Signal(const double value) : AsRecord { value } { }
+	constexpr Signal::Signal(const char32_t value) : AsRecord { value } { }
+	constexpr Signal::Signal(const JumpAddress value) : AsJumpAddress { value } {}
+    constexpr Signal::Signal(const TypeID value) : AsTypeID { value } { }
+    constexpr Signal::Signal(const FieldOffset value) : AsFieldOffset { value } { }
+    constexpr Signal::Signal(const MemoryOffset value) : AsMemoryOffset {value } { }
 
     /// <summary>
 	/// Raw representation of a signal as bytes.

@@ -229,7 +229,7 @@ namespace Nominax::ByteCode
 	/// <param name="id"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	extern auto ValidateSystemIntrinsicCall(SysCall id) noexcept -> bool;
+	extern auto ValidateSystemIntrinsicCall(Syscall id) noexcept -> bool;
 
 	/// <summary>
 	/// Validates a user intrinsic call id. To be valid the call id must be:
@@ -240,7 +240,7 @@ namespace Nominax::ByteCode
 	/// <param name="id"></param>
 	/// <returns></returns>
 	[[nodiscard]]
-	extern auto ValidateUserIntrinsicCall(const UserIntrinsicRoutineRegistry& routines, UserIntrinsicInvocationID id) noexcept -> bool;
+	extern auto ValidateUserIntrinsicCall(const UserIntrinsicRoutineRegistry& routines, FFIIntrinsicInvocationID id) noexcept -> bool;
 
 	/// <summary>
 	/// 

@@ -230,14 +230,14 @@ namespace Nominax::Core
 		#if !NOX_OPT_EXECUTION_ADDRESS_MAPPING
 
         // first instruction will be skipped and must be NOP:
-		if (CodeChunk->Instr != ByteCode::Instruction::NOP)
+		if (CodeChunk->AsInstruction != ByteCode::Instruction::NOP)
 		{
 			[[unlikely]]
 			return ReactorValidationResult::MissingCodePrologue;
 		}
 
 		// last instruction must be interrupt:
-		if (CodeChunkSize < 2 || (CodeChunk + CodeChunkSize - 2)->Instr != ByteCode::Instruction::INT)
+		if (CodeChunkSize < 2 || (CodeChunk + CodeChunkSize - 2)->AsInstruction != ByteCode::Instruction::INT)
 		{
 			[[unlikely]]
 			return ReactorValidationResult::MissingCodeEpilogue;

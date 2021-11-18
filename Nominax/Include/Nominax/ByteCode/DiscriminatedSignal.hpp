@@ -306,7 +306,7 @@ namespace Nominax::ByteCode
 		const bool result
 		{
 			this->Discriminator == *MapStreamType<std::remove_reference_t<T>>()
-			&& this->Value.R64.AsU64 == std::bit_cast<decltype(this->Value.R64.AsU64)>(value)
+			&& this->Value.AsRecord.AsU64 == std::bit_cast<decltype(this->Value.AsRecord.AsU64)>(value)
 		};
 		return result;
 	}
@@ -315,19 +315,19 @@ namespace Nominax::ByteCode
 	constexpr auto DiscriminatedSignal::Unwrap() const -> std::optional<std::remove_reference_t<T>>
 	{
 		return this->Contains<T>()
-			       ? std::optional<std::remove_reference_t<T>> { std::bit_cast<T>(this->Value.R64.AsU64) }
+			       ? std::optional<std::remove_reference_t<T>> { std::bit_cast<T>(this->Value.AsRecord.AsU64) }
 			       : std::optional<std::remove_reference_t<T>> { std::nullopt };
 	}
 
 	template <typename T> requires BytecodeElement<T>
 	constexpr auto DiscriminatedSignal::UnwrapUnchecked() const -> std::remove_reference_t<T>
 	{
-		return std::bit_cast<T>(this->Value.R64.AsU64);
+		return std::bit_cast<T>(this->Value.AsRecord.AsU64);
 	}
 
 	constexpr auto DiscriminatedSignal::operator==(const DiscriminatedSignal& other) const -> bool
 	{
-		return this->Value.R64.AsU64 == other.Value.R64.AsU64;
+		return this->Value.AsRecord.AsU64 == other.Value.AsRecord.AsU64;
 	}
 
 	constexpr auto DiscriminatedSignal::operator!=(const DiscriminatedSignal& other) const -> bool

@@ -291,7 +291,7 @@ auto ValidateAlgorithm1BillionEntries(State& state) -> void
 		stream.Emit(Instruction::JMP);
 		stream.Emit(JumpAddress {0});
 		stream.Emit(Instruction::STO);
-		stream.Emit(MemOffset {1});
+		stream.Emit(MemoryOffset {1});
 		stream.Emit(-0.5);
 	}
 
@@ -321,7 +321,7 @@ auto TransformAlgorithm1BillionEntries(State& state) -> void
 		stream.Emit(Instruction::JMP);
 		stream.Emit(JumpAddress {0});
 		stream.Emit(Instruction::STO);
-		stream.Emit(MemOffset {1});
+		stream.Emit(MemoryOffset {1});
 		stream.Emit(-0.5);
 	}
 
