@@ -203,7 +203,8 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use super::tree_prelude::*;
+use crate::ast::tree::{AstComponent, Operator, OperatorAssociativity, Rule};
+use std::fmt;
 
 /// Represents an unary operator having one operand. E.g. +10 or -0.5 or !x
 #[repr(u8)]

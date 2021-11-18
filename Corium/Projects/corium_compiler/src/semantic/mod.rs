@@ -212,7 +212,6 @@ pub mod table;
 
 pub mod analysis;
 pub mod global_state;
-pub mod linearizer;
 pub mod local_state;
 #[cfg(test)]
 mod tests;

@@ -203,7 +203,10 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::{populator::prelude::*, tree::prelude::*};
+use crate::ast::tree::function_signature::FunctionSignature;
+use crate::ast::tree::identifier::Identifier;
+use crate::ast::tree::parameter::Parameter;
+use crate::ast::tree::parameter_list::ParameterList;
 use crate::parser::*;
 
 #[test]
@@ -261,6 +264,8 @@ mod populators {
 
     mod identifier {
         use super::*;
+        use crate::ast::populator::NestedAstPopulator;
+        use crate::ast::tree::Rule;
 
         #[test]
         fn alphanumeric() {
@@ -331,6 +336,9 @@ mod populators {
 
     mod literal {
         use super::*;
+        use crate::ast::populator::NestedAstPopulator;
+        use crate::ast::tree::literal::Literal;
+        use crate::ast::tree::Rule;
 
         #[test]
         fn float() {
@@ -378,6 +386,10 @@ mod populators {
 
     mod expression {
         use super::*;
+        use crate::ast::populator::NestedAstPopulator;
+        use crate::ast::tree::expression::Expression;
+        use crate::ast::tree::literal::Literal;
+        use crate::ast::tree::Rule;
 
         #[test]
         fn float_literal() {
@@ -456,6 +468,7 @@ mod populators {
 
         mod chain_2_tree {
             use super::*;
+            use crate::ast::tree::binary_operator::BinaryOperator;
 
             #[test]
             fn literal_addition() {
@@ -483,6 +496,7 @@ mod populators {
 
             mod precedence {
                 use super::*;
+                use crate::ast::tree::binary_operator::BinaryOperator;
 
                 #[test]
                 fn multiply_addition_right() {
@@ -918,6 +932,9 @@ mod populators {
 
     mod binary_operator {
         use super::*;
+        use crate::ast::populator::AtomicAstPopulator;
+        use crate::ast::tree::binary_operator::BinaryOperator;
+        use crate::ast::tree::Rule;
 
         #[test]
         fn addition() {
@@ -1020,6 +1037,9 @@ mod populators {
 
     mod unary_operator {
         use super::*;
+        use crate::ast::populator::AtomicAstPopulator;
+        use crate::ast::tree::unary_operator::UnaryOperator;
+        use crate::ast::tree::Rule;
 
         #[test]
         fn plus() {
@@ -1052,6 +1072,10 @@ mod populators {
 
     mod parameter {
         use super::*;
+        use crate::ast::populator::NestedAstPopulator;
+        use crate::ast::tree::expression::Expression;
+        use crate::ast::tree::literal::Literal;
+        use crate::ast::tree::Rule;
 
         #[test]
         fn int() {
@@ -1157,6 +1181,11 @@ mod populators {
 
     mod parameter_list {
         use super::*;
+        use crate::ast::populator::NestedAstPopulator;
+        use crate::ast::tree::expression::Expression;
+        use crate::ast::tree::literal::Literal;
+        use crate::ast::tree::parameter_list::ParameterList;
+        use crate::ast::tree::Rule;
 
         #[test]
         fn one() {
@@ -1267,6 +1296,11 @@ mod populators {
 
     mod return_statement {
         use super::*;
+        use crate::ast::populator::NestedAstPopulator;
+        use crate::ast::tree::expression::Expression;
+        use crate::ast::tree::literal::Literal;
+        use crate::ast::tree::return_statement::ReturnStatement;
+        use crate::ast::tree::Rule;
 
         #[test]
         fn return_none() {
@@ -1307,6 +1341,11 @@ mod populators {
 
     mod mutable_variable {
         use super::*;
+        use crate::ast::populator::NestedAstPopulator;
+        use crate::ast::tree::expression::Expression;
+        use crate::ast::tree::literal::Literal;
+        use crate::ast::tree::mutable_variable::MutableVariable;
+        use crate::ast::tree::Rule;
 
         #[test]
         fn int() {
@@ -1426,6 +1465,11 @@ mod populators {
 
     mod immutable_variable {
         use super::*;
+        use crate::ast::populator::NestedAstPopulator;
+        use crate::ast::tree::expression::Expression;
+        use crate::ast::tree::immutable_variable::ImmutableVariable;
+        use crate::ast::tree::literal::Literal;
+        use crate::ast::tree::Rule;
 
         #[test]
         fn int() {
@@ -1550,6 +1594,9 @@ mod populators {
 
     mod module {
         use super::*;
+        use crate::ast::populator::NestedAstPopulator;
+        use crate::ast::tree::module::Module;
+        use crate::ast::tree::Rule;
 
         #[test]
         fn simple() {
@@ -1599,6 +1646,14 @@ mod populators {
 
     mod function_statement {
         use super::*;
+        use crate::ast::populator::NestedAstPopulator;
+        use crate::ast::tree::expression::Expression;
+        use crate::ast::tree::immutable_variable::ImmutableVariable;
+        use crate::ast::tree::literal::Literal;
+        use crate::ast::tree::local_statement::LocalStatement;
+        use crate::ast::tree::mutable_variable::MutableVariable;
+        use crate::ast::tree::return_statement::ReturnStatement;
+        use crate::ast::tree::Rule;
 
         #[test]
         fn mutable_variable() {
@@ -1655,6 +1710,15 @@ mod populators {
 
     mod block {
         use super::*;
+        use crate::ast::populator::NestedAstPopulator;
+        use crate::ast::tree::block::Block;
+        use crate::ast::tree::expression::Expression;
+        use crate::ast::tree::immutable_variable::ImmutableVariable;
+        use crate::ast::tree::literal::Literal;
+        use crate::ast::tree::local_statement::LocalStatement;
+        use crate::ast::tree::mutable_variable::MutableVariable;
+        use crate::ast::tree::return_statement::ReturnStatement;
+        use crate::ast::tree::Rule;
 
         #[test]
         fn variables() {
@@ -1816,6 +1880,10 @@ mod populators {
 
     mod function_signature {
         use super::*;
+        use crate::ast::populator::NestedAstPopulator;
+        use crate::ast::tree::expression::Expression;
+        use crate::ast::tree::literal::Literal;
+        use crate::ast::tree::Rule;
 
         #[test]
         fn simple() {
@@ -1929,6 +1997,11 @@ mod populators {
 
     mod native_function {
         use super::*;
+        use crate::ast::populator::NestedAstPopulator;
+        use crate::ast::tree::expression::Expression;
+        use crate::ast::tree::literal::Literal;
+        use crate::ast::tree::native_function::NativeFunction;
+        use crate::ast::tree::Rule;
 
         #[test]
         fn simple() {
@@ -2044,6 +2117,14 @@ mod populators {
 
     mod function {
         use super::*;
+        use crate::ast::populator::NestedAstPopulator;
+        use crate::ast::tree::expression::Expression;
+        use crate::ast::tree::function::Function;
+        use crate::ast::tree::literal::Literal;
+        use crate::ast::tree::local_statement::LocalStatement;
+        use crate::ast::tree::mutable_variable::MutableVariable;
+        use crate::ast::tree::return_statement::ReturnStatement;
+        use crate::ast::tree::Rule;
 
         #[test]
         fn simple() {
@@ -2220,7 +2301,21 @@ mod populators {
     }
 
     mod global_statement {
+        use crate::ast::populator::NestedAstPopulator;
+        use crate::ast::tree::binary_operator::BinaryOperator;
+        use crate::ast::tree::block::Block;
+        use crate::ast::tree::expression::Expression;
+        use crate::ast::tree::function::Function;
+        use crate::ast::tree::global_statement::GlobalStatement;
+        use crate::ast::tree::immutable_variable::ImmutableVariable;
+        use crate::ast::tree::literal::Literal;
+        use crate::ast::tree::local_statement::LocalStatement;
+        use crate::ast::tree::mutable_variable::MutableVariable;
+        use crate::ast::tree::native_function::NativeFunction;
+        use crate::ast::tree::return_statement::ReturnStatement;
+
         use super::*;
+        use crate::ast::tree::Rule;
 
         fn fun1() -> GlobalStatement<'static> {
             GlobalStatement::Function(Function {
@@ -2369,6 +2464,17 @@ mod populators {
 
     mod compilation_unit {
         use super::*;
+        use crate::ast::populator::NestedAstPopulator;
+        use crate::ast::tree::block::Block;
+        use crate::ast::tree::compilation_unit::CompilationUnit;
+        use crate::ast::tree::expression::Expression;
+        use crate::ast::tree::function::Function;
+        use crate::ast::tree::global_statement::GlobalStatement;
+        use crate::ast::tree::literal::Literal;
+        use crate::ast::tree::local_statement::LocalStatement;
+        use crate::ast::tree::mutable_variable::MutableVariable;
+        use crate::ast::tree::native_function::NativeFunction;
+        use crate::ast::tree::Rule;
 
         #[test]
         fn module() {

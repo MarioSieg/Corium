@@ -204,6 +204,11 @@
 //    limitations under the License.
 
 use super::populator_prelude::*;
+use crate::ast::tree::immutable_variable::ImmutableVariable;
+use crate::ast::tree::local_statement::LocalStatement;
+use crate::ast::tree::mutable_variable::MutableVariable;
+use crate::ast::tree::return_statement::ReturnStatement;
+use crate::ast::tree::Rule;
 
 impl<'ast> NestedAstPopulator<'ast> for LocalStatement<'ast> {
     fn populate(mut rule: RulePairs<'ast>) -> Self {

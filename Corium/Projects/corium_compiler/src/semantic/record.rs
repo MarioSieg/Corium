@@ -203,7 +203,10 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::tree::prelude::*;
+use crate::ast::tree::function::Function;
+use crate::ast::tree::immutable_variable::ImmutableVariable;
+use crate::ast::tree::mutable_variable::MutableVariable;
+use crate::ast::tree::native_function::NativeFunction;
 use std::fmt;
 
 #[derive(Debug)]
@@ -249,6 +252,11 @@ impl<'ast> fmt::Display for Record<'ast> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::ast::tree::block::Block;
+    use crate::ast::tree::expression::Expression;
+    use crate::ast::tree::function_signature::FunctionSignature;
+    use crate::ast::tree::identifier::Identifier;
+    use crate::ast::tree::literal::Literal;
 
     #[test]
     fn descriptive_name_mutable_variable() {

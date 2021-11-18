@@ -204,7 +204,8 @@
 //    limitations under the License.
 
 use super::function_signature::FunctionSignature;
-use super::tree_prelude::*;
+use crate::ast::tree::{AstComponent, Rule};
+use std::fmt;
 
 #[derive(Clone, Debug)]
 pub struct NativeFunction<'ast> {

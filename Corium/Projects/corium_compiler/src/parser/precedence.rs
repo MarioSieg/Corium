@@ -203,12 +203,12 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use super::Rule;
 use crate::algorithm::precedence_climber::operator_set::OperatorSet;
 use crate::algorithm::precedence_climber::PrecedenceClimber;
 use crate::ast::populator::{AtomicAstPopulator, NestedAstPopulator};
-use crate::ast::tree::prelude::{BinaryOperator, Expression};
-use crate::ast::tree::Operator;
+use crate::ast::tree::binary_operator::BinaryOperator;
+use crate::ast::tree::expression::Expression;
+use crate::ast::tree::{Operator, Rule};
 use lazy_static::lazy_static;
 use pest::iterators::{Pair, Pairs};
 

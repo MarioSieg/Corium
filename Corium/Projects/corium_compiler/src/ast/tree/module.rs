@@ -204,8 +204,8 @@
 //    limitations under the License.
 
 use super::identifier::Identifier;
-use super::tree_prelude::*;
-use std::default;
+use crate::ast::tree::{AstComponent, Rule};
+use std::{default, fmt};
 
 /// Represents a module definition.
 #[derive(Clone, Debug, Eq, PartialEq)]

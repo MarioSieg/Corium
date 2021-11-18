@@ -204,6 +204,8 @@
 //    limitations under the License.
 
 use super::populator_prelude::*;
+use crate::ast::tree::identifier::Identifier;
+use crate::ast::tree::module::Module;
 
 impl<'ast> NestedAstPopulator<'ast> for Module<'ast> {
     fn populate(mut rule: RulePairs<'ast>) -> Self {

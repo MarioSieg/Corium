@@ -203,7 +203,13 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::tree::prelude::*;
+use crate::ast::tree::function_signature::FunctionSignature;
+use crate::ast::tree::identifier::Identifier;
+use crate::ast::tree::immutable_variable::ImmutableVariable;
+use crate::ast::tree::local_statement::LocalStatement;
+use crate::ast::tree::mutable_variable::MutableVariable;
+use crate::ast::tree::return_statement::ReturnStatement;
+use crate::ast::tree::Statement;
 use crate::error::list::ErrorList;
 use crate::error::Error;
 use crate::semantic::record::Record;

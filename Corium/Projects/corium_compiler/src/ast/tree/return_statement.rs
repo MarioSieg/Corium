@@ -204,7 +204,8 @@
 //    limitations under the License.
 
 use super::expression::Expression;
-use super::tree_prelude::*;
+use crate::ast::tree::{AstComponent, Rule};
+use std::fmt;
 
 #[derive(Clone, Debug)]
 pub struct ReturnStatement<'ast>(pub Option<Expression<'ast>>);

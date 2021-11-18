@@ -204,7 +204,7 @@
 //    limitations under the License.
 
 use super::record::Record;
-use crate::ast::tree::prelude::*;
+use crate::ast::tree::identifier::Identifier;
 use std::collections::HashMap;
 use std::fmt;
 
@@ -280,6 +280,9 @@ impl<'ast> fmt::Display for SymbolTable<'ast> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::ast::tree::expression::Expression;
+    use crate::ast::tree::immutable_variable::ImmutableVariable;
+    use crate::ast::tree::literal::Literal;
 
     #[test]
     fn new() {

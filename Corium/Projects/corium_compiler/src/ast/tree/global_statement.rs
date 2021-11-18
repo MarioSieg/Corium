@@ -203,11 +203,12 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use super::tree_prelude::*;
 use super::{
     function::Function, identifier::Identifier, immutable_variable::ImmutableVariable,
     mutable_variable::MutableVariable, native_function::NativeFunction,
 };
+use crate::ast::tree::{AstComponent, Rule, Statement};
+use std::fmt;
 
 /// Represents a file scope statement.
 #[derive(Clone, Debug)]

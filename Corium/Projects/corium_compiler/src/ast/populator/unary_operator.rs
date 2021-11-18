@@ -204,6 +204,8 @@
 //    limitations under the License.
 
 use super::populator_prelude::*;
+use crate::ast::tree::unary_operator::UnaryOperator;
+use crate::ast::tree::Operator;
 
 impl<'ast> AtomicAstPopulator<'ast> for UnaryOperator {
     fn merge(span: &'ast str) -> Self {

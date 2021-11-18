@@ -204,6 +204,7 @@
 //    limitations under the License.
 
 use super::populator_prelude::*;
+use crate::ast::tree::identifier::Identifier;
 
 impl<'ast> NestedAstPopulator<'ast> for Identifier<'ast> {
     fn populate(rule: RulePairs<'ast>) -> Self {

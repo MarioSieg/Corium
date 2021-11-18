@@ -203,11 +203,12 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use super::tree_prelude::*;
 use super::{
     binary_operator::BinaryOperator, identifier::Identifier, literal::Literal,
     unary_operator::UnaryOperator,
 };
+use crate::ast::tree::{AstComponent, Rule};
+use std::fmt;
 
 /// Represents an expression.
 #[derive(PartialEq, Clone, Debug)]

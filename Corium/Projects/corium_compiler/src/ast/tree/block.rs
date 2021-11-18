@@ -204,7 +204,8 @@
 //    limitations under the License.
 
 use super::local_statement::LocalStatement;
-use super::tree_prelude::*;
+use crate::ast::tree::{AstComponent, Rule};
+use std::fmt;
 
 #[derive(Clone, Debug)]
 pub struct Block<'ast>(pub Vec<LocalStatement<'ast>>);

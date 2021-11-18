@@ -203,7 +203,9 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use super::tree_prelude::*;
+use crate::ast::tree::{AstComponent, Rule};
+use crate::semantic::types::builtin_types::{Bool, Char, Float, Int};
+use std::fmt;
 
 /// Represents a literal.
 #[derive(Clone, PartialEq, Debug)]

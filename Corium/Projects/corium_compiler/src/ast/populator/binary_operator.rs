@@ -204,6 +204,8 @@
 //    limitations under the License.
 
 use super::populator_prelude::*;
+use crate::ast::tree::binary_operator::BinaryOperator;
+use crate::ast::tree::Operator;
 
 impl<'ast> AtomicAstPopulator<'ast> for BinaryOperator {
     fn merge(span: &'ast str) -> Self {

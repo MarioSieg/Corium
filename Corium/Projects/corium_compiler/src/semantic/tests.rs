@@ -206,10 +206,18 @@
 #![allow(dead_code)]
 
 use super::context::Context;
-use crate::ast::tree::prelude::*;
 
 mod tables {
-    use super::*;
+    use crate::ast::tree::block::Block;
+    use crate::ast::tree::expression::Expression;
+    use crate::ast::tree::function::Function;
+    use crate::ast::tree::function_signature::FunctionSignature;
+    use crate::ast::tree::identifier::Identifier;
+    use crate::ast::tree::immutable_variable::ImmutableVariable;
+    use crate::ast::tree::literal::Literal;
+    use crate::ast::tree::mutable_variable::MutableVariable;
+    use crate::ast::tree::parameter::Parameter;
+    use crate::ast::tree::parameter_list::ParameterList;
     use crate::core::passes::prelude::*;
     use crate::semantic::analyze;
     use crate::semantic::record::Record;
@@ -296,10 +304,21 @@ mod tables {
 }
 
 mod mocks {
-    use super::*;
-
     pub mod global {
-        use super::*;
+        use crate::ast::tree::binary_operator::BinaryOperator;
+        use crate::ast::tree::block::Block;
+        use crate::ast::tree::expression::Expression;
+        use crate::ast::tree::function::Function;
+        use crate::ast::tree::function_signature::FunctionSignature;
+        use crate::ast::tree::global_statement::GlobalStatement;
+        use crate::ast::tree::identifier::Identifier;
+        use crate::ast::tree::immutable_variable::ImmutableVariable;
+        use crate::ast::tree::literal::Literal;
+        use crate::ast::tree::local_statement::LocalStatement;
+        use crate::ast::tree::mutable_variable::MutableVariable;
+        use crate::ast::tree::parameter::Parameter;
+        use crate::ast::tree::parameter_list::ParameterList;
+        use crate::ast::tree::return_statement::ReturnStatement;
 
         //  function square (x float, y float = 1.0) float {
         //      return x * y
@@ -388,7 +407,12 @@ mod mocks {
     }
 
     pub mod local {
-        use super::*;
+        use crate::ast::tree::expression::Expression;
+        use crate::ast::tree::identifier::Identifier;
+        use crate::ast::tree::immutable_variable::ImmutableVariable;
+        use crate::ast::tree::literal::Literal;
+        use crate::ast::tree::local_statement::LocalStatement;
+        use crate::ast::tree::mutable_variable::MutableVariable;
 
         // let counter int = 1
         pub fn mut_var1() -> LocalStatement<'static> {
@@ -525,6 +549,12 @@ mod invalid {
 
     mod local {
         use super::*;
+        use crate::ast::tree::block::Block;
+        use crate::ast::tree::function::Function;
+        use crate::ast::tree::function_signature::FunctionSignature;
+        use crate::ast::tree::global_statement::GlobalStatement;
+        use crate::ast::tree::identifier::Identifier;
+        use crate::ast::tree::local_statement::LocalStatement;
 
         fn local_to_global<'ast>(local: &[&LocalStatement<'ast>]) -> GlobalStatement<'ast> {
             GlobalStatement::Function(Function {

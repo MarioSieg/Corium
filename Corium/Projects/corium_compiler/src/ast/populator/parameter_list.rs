@@ -204,6 +204,9 @@
 //    limitations under the License.
 
 use super::populator_prelude::*;
+use crate::ast::tree::parameter::Parameter;
+use crate::ast::tree::parameter_list::ParameterList;
+use crate::ast::tree::Rule;
 
 impl<'ast> NestedAstPopulator<'ast> for ParameterList<'ast> {
     fn populate(rule: RulePairs<'ast>) -> Self {

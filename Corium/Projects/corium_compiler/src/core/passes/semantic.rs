@@ -204,7 +204,7 @@
 //    limitations under the License.
 
 use super::Pass;
-use crate::ast::tree::prelude::CompilationUnit;
+use crate::ast::tree::compilation_unit::CompilationUnit;
 use crate::error::list::ErrorList;
 use crate::semantic::analyze;
 

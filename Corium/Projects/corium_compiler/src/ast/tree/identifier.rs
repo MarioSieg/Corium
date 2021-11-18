@@ -203,7 +203,8 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use super::tree_prelude::*;
+use crate::ast::tree::{AstComponent, Rule};
+use std::fmt;
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Identifier<'ast> {

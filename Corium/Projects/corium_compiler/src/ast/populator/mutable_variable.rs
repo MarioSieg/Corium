@@ -204,6 +204,10 @@
 //    limitations under the License.
 
 use super::populator_prelude::*;
+use crate::ast::tree::expression::Expression;
+use crate::ast::tree::identifier::Identifier;
+use crate::ast::tree::mutable_variable::MutableVariable;
+use crate::ast::tree::Rule;
 
 impl<'ast> NestedAstPopulator<'ast> for MutableVariable<'ast> {
     fn populate(mut rule: RulePairs<'ast>) -> Self {

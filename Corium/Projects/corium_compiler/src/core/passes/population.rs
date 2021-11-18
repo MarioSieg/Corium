@@ -205,8 +205,8 @@
 
 use super::Pass;
 use crate::ast::populator::NestedAstPopulator;
+use crate::ast::tree::compilation_unit::CompilationUnit;
 use crate::ast::tree::module::Module;
-use crate::ast::tree::prelude::CompilationUnit;
 use crate::error::{list::ErrorList, Error};
 use crate::parser::RulePairs;
 use std::path::Path;

@@ -204,6 +204,9 @@
 //    limitations under the License.
 
 use super::populator_prelude::*;
+use crate::ast::tree::function_signature::FunctionSignature;
+use crate::ast::tree::native_function::NativeFunction;
+use crate::ast::tree::Rule;
 
 impl<'ast> NestedAstPopulator<'ast> for NativeFunction<'ast> {
     fn populate(mut rule: RulePairs<'ast>) -> Self {

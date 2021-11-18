@@ -204,10 +204,13 @@
 //    limitations under the License.
 
 use super::inference::*;
-use crate::ast::tree::prelude::*;
+use crate::ast::tree::expression::Expression;
+use crate::ast::tree::identifier::Identifier;
+use crate::ast::tree::literal::Literal;
 use crate::error::list::ErrorList;
 use crate::error::Error;
 use crate::semantic::record::Record;
+use crate::semantic::types::builtin_types::BuiltinType;
 
 impl<'ast> TypeOf<'ast> for Expression<'ast> {
     fn type_of(
@@ -316,6 +319,7 @@ mod tests {
 
     mod literal {
         use super::*;
+        use crate::ast::tree::literal::Literal;
 
         #[test]
         fn l_int() {
@@ -365,6 +369,8 @@ mod tests {
 
     mod identifier {
         use super::*;
+        use crate::ast::tree::literal::Literal;
+        use crate::ast::tree::mutable_variable::MutableVariable;
 
         #[test]
         fn builtin_ident_int() {

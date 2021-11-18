@@ -204,7 +204,8 @@
 //    limitations under the License.
 
 use super::parameter::Parameter;
-use super::tree_prelude::*;
+use crate::ast::tree::{AstComponent, Rule};
+use std::fmt;
 
 #[derive(Clone, Debug)]
 pub struct ParameterList<'ast>(pub Vec<Parameter<'ast>>);

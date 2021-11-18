@@ -203,8 +203,9 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use super::tree_prelude::*;
 use super::{identifier::Identifier, parameter_list::ParameterList};
+use crate::ast::tree::{AstComponent, Rule};
+use std::fmt;
 
 const PARAM_MANGLE_SEPARATOR: char = '_';
 

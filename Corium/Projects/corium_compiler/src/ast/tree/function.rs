@@ -203,8 +203,9 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use super::tree_prelude::*;
 use super::{block::Block, function_signature::FunctionSignature};
+use crate::ast::tree::{AstComponent, Rule};
+use std::fmt;
 
 /// Represents a function.
 #[derive(Clone, Debug)]

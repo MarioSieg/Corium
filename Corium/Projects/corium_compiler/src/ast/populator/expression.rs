@@ -204,6 +204,11 @@
 //    limitations under the License.
 
 use super::populator_prelude::*;
+use crate::ast::tree::binary_operator::BinaryOperator;
+use crate::ast::tree::expression::Expression;
+use crate::ast::tree::identifier::Identifier;
+use crate::ast::tree::literal::Literal;
+use crate::ast::tree::{Operator, Rule};
 
 impl<'ast> NestedAstPopulator<'ast> for Expression<'ast> {
     fn populate(mut rule: RulePairs<'ast>) -> Self {

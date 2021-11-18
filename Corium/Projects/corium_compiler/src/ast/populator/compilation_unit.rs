@@ -204,6 +204,10 @@
 //    limitations under the License.
 
 use super::populator_prelude::*;
+use crate::ast::tree::compilation_unit::CompilationUnit;
+use crate::ast::tree::global_statement::GlobalStatement;
+use crate::ast::tree::module::Module;
+use crate::ast::tree::Rule;
 
 impl<'ast> NestedAstPopulator<'ast> for CompilationUnit<'ast> {
     fn populate(rule: RulePairs<'ast>) -> Self {

@@ -204,6 +204,7 @@
 //    limitations under the License.
 
 use super::populator_prelude::*;
+use crate::ast::tree::return_statement::ReturnStatement;
 
 impl<'ast> NestedAstPopulator<'ast> for ReturnStatement<'ast> {
     fn populate(mut rule: RulePairs<'ast>) -> Self {
