@@ -205,6 +205,7 @@
 
 #include "../../Include/Nominax/GC/Alloc.hpp"
 #include "../../Include/Nominax/Foundation/Allocator/AllocatorProxy.hpp"
+#include "../../Include/Nominax/Foundation/Allocator/SystemAllocator.hpp"
 #include "../../Include/Nominax/Foundation/CompileTimeConfig.hpp"
 #include "../../Include/Nominax/Foundation/Stopwatch.hpp"
 
@@ -212,6 +213,7 @@ namespace Nominax::GC
 {
 	using Foundation::CompileTimeConfig;
 	using Foundation::Allocator::GlobalAllocatorProxy;
+	using Foundation::Allocator::SystemAllocator;
 	using Foundation::Stopwatch;
 
 	auto GCHeapAlloc(const std::uint64_t size, [[maybe_unused]] const std::uint64_t alignment) noexcept -> void*
@@ -220,9 +222,10 @@ namespace Nominax::GC
 		{
 			void* result{ };
 			GlobalAllocatorProxy->Allocate(result, size);
+			std::memset(result, 0, size);
 			return result;
 		}
-		return std::malloc(size);
+		return SystemAllocator::AllocateAndZero(size);
 	}
 
 	auto GCHeapAllocTrace(void*& out, const std::uint64_t size, const std::uint64_t alignment, MallInfo& info) noexcept -> std::uint64_t
@@ -246,6 +249,6 @@ namespace Nominax::GC
 			void* ref { block };
 			GlobalAllocatorProxy->Deallocate(ref);
 		}
-		std::free(block);
+		SystemAllocator::Deallocate(block);
 	}
 }
