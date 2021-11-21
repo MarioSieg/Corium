@@ -203,10 +203,20 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "../../Include/Nominax/GC/Stack.hpp"
 
-#include "Alloc.hpp"
-#include "FatPointer.hpp"
-#include "Hash.hpp"
-#include "New.hpp"
-#include "Stack.hpp"
+namespace Nominax::GC
+{
+	NOX_NEVER_INLINE auto StackNeedle() noexcept -> std::uintptr_t
+	{
+		volatile void* const volatile stk { };
+		return std::bit_cast<std::uintptr_t>(&stk);
+	}
+
+	auto StackBottom() noexcept -> const void*
+	{
+		NOX_SPILL_REGISTERS();
+		auto (*const volatile proc)() noexcept -> std::uintptr_t { &StackNeedle };
+		return std::bit_cast<const void*>((*proc)());
+	}
+}

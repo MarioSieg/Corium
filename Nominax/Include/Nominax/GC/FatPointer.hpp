@@ -218,7 +218,7 @@ namespace Nominax::GC
 		std::uint64_t Flags { };
 		std::uint64_t Size { };
 		std::uintptr_t Hash { };
-		auto (*Destructor)(void*) -> void { nullptr };
+		auto (*Destructor)(void*) noexcept -> void { nullptr };
 	};
 
 	static_assert(sizeof(FatPointer) % sizeof(void*) == 0);
