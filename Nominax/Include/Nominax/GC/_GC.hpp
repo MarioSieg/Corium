@@ -206,4 +206,6 @@
 #pragma once
 
 #include "Alloc.hpp"
+#include "FatPointer.hpp"
+#include "Hash.hpp"
 #include "New.hpp"

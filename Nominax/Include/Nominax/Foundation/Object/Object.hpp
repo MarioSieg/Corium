@@ -408,7 +408,7 @@ namespace Nominax::Foundation
 		/// <param name="buffer">The target buffer.</param>
 		/// <returns>True if the size was large enough, else false.</returns>
 		[[nodiscard]]
-		auto IMMUTATOR ShallowCopyObjectBlockToBuffer(std::span<BlobBlockType> buffer) const noexcept -> bool;
+		auto IMMUTATOR ShallowCopyObjectBlockToBuffer(std::span<BlobBlockType> buffer) const -> bool;
 
 		/// <summary>
 		/// Resizes the buffer to the size of the object block and copies the whole
@@ -416,7 +416,7 @@ namespace Nominax::Foundation
 		/// </summary>
 		/// <param name="buffer">The target buffer.</param>
 		/// <returns></returns>
-		auto IMMUTATOR ShallowCopyObjectBlockToBuffer(std::vector<BlobBlockType>& buffer) const noexcept -> void;
+		auto IMMUTATOR ShallowCopyObjectBlockToBuffer(std::vector<BlobBlockType>& buffer) const -> void;
 
 		/// <summary>
 		/// SLT-Compat
@@ -679,7 +679,7 @@ namespace Nominax::Foundation
 	/// <param name="b"></param>
 	/// <returns>True if the two object values are all not equal, else false.</returns>
 	template <>
-	NOX_FLATTEN inline auto Object::DeepValueCmp_NotEqual<std::uint64_t>(const Object a, const Object b) -> bool
+	NOX_FLATTEN inline auto Object::DeepValueCmp_NotEqual<std::uint64_t>(const Object a, const Object b) noexcept -> bool
 	{
 		return !DeepValueCmp_Equal<std::uint64_t>(a, b);
 	}
