@@ -219,7 +219,6 @@ namespace Nominax::GC
 	{
 		auto hash { std::bit_cast<std::uintptr_t>(ptr) };
 		hash >>= 3;
-		hash ^= 0xFEFEFEFEFEFEFEFE;
 		return hash;
 	}
 }

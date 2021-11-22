@@ -205,7 +205,9 @@
 
 #pragma once
 
-#include <cstdint>
+#include "Flags.hpp"
+
+#include "../Foundation/Object/_Object.hpp"
 
 namespace Nominax::GC
 {
@@ -214,13 +216,17 @@ namespace Nominax::GC
 	/// </summary>
 	struct alignas(alignof(void*)) FatPointer final
 	{
-		void* Indirection { nullptr };
-		std::uint64_t Flags { };
+		union
+		{
+			void* Indirection { nullptr };
+			Foundation::Object ObjRef;
+		};
+		Flags Flags { };
 		std::uint64_t Size { };
 		std::uintptr_t Hash { };
 		auto (*Destructor)(void*) noexcept -> void { nullptr };
 	};
 
 	static_assert(sizeof(FatPointer) % sizeof(void*) == 0);
-	static_assert(alignof(FatPointer) % sizeof(void*) == 0);
+	static_assert(alignof(FatPointer) == sizeof(void*));
 }

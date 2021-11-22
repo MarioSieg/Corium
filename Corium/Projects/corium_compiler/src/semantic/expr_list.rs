@@ -203,17 +203,20 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use super::Pass;
 use crate::ast::tree::compilation_unit::CompilationUnit;
-use crate::error::list::ErrorList;
-use crate::semantic::analyze;
+use crate::ast::tree::expression::Expression;
+use crate::ast::tree::global_statement::GlobalStatement;
+use crate::ast::tree::Statement;
 
-pub struct SemanticPass;
-
-impl<'a> Pass<'a, &CompilationUnit<'a>, ()> for SemanticPass {
-    const NAME: &'static str = "Semantic analysis";
-
-    fn execute(input: &CompilationUnit<'a>, _verbose: bool, file: &str) -> Result<(), ErrorList> {
-        analyze(input, file)
+pub fn built_expr_list<'ast>(unit: &'ast CompilationUnit<'ast>) -> Vec<&'ast Expression<'ast>> {
+    let mut result = Vec::new();
+    for global in &unit.statements {
+        global.drain_expressions(&mut result);
+        if let GlobalStatement::Function(function) = global {
+            for local in function.block.iter() {
+                local.drain_expressions(&mut result);
+            }
+        }
     }
+    result
 }

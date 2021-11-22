@@ -218,8 +218,8 @@ pub fn compile_source(
     let pass_timer = desc.pass_timer;
 
     let result = ParsePass::run(src, verbose, pass_timer, file)?;
-    let result = AstPopulationPass::run(result, verbose, pass_timer, file)?;
-    let result = SemanticPass::run(result, verbose, pass_timer, file)?;
+    let ast = AstPopulationPass::run(result, verbose, pass_timer, file)?;
+    SemanticPass::run(&ast, verbose, pass_timer, file)?;
 
-    Ok(result)
+    Ok(())
 }

@@ -220,12 +220,12 @@ namespace Nominax::GC
 	{
 		if constexpr (!CompileTimeConfig::BypassSystemAllocator)
 		{
-			void* result{ };
+			void* result { };
 			GlobalAllocatorProxy->Allocate(result, size);
 			std::memset(result, 0, size);
 			return result;
 		}
-		return SystemAllocator::AllocateAndZero(size);
+		return SystemAllocator::AllocateAndZeroChecked(size);
 	}
 
 	auto GCHeapAllocTrace(void*& out, const std::uint64_t size, const std::uint64_t alignment, MallInfo& info) noexcept -> std::uint64_t

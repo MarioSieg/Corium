@@ -203,4 +203,159 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+use crate::ast::tree::compilation_unit::CompilationUnit;
+use crate::error::list::ErrorList;
+
+pub mod expr_list;
 pub mod symbol_table;
+
+use crate::ast::tree::global_statement::GlobalStatement;
+use crate::semantic::symbol_table::{GlobalSymbolTable, LocalSymbolTable};
+use symbol_table::{build_global, build_local};
+
+pub fn analyze(unit: &CompilationUnit, file: &str) -> Result<(), ErrorList> {
+    let mut errors = ErrorList::new();
+    let mut global = GlobalSymbolTable::new();
+    let mut local = LocalSymbolTable::new();
+
+    build_global(&mut errors, &mut global, unit, file);
+
+    for global_statement in &unit.statements {
+        if let GlobalStatement::Function(function) = global_statement {
+            build_local(&mut errors, &mut local, &function.block, &global, file);
+        }
+    }
+
+    errors.into()
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::core::pass::Pass;
+    use crate::core::passes::parse::ParsePass;
+    use crate::core::passes::population::AstPopulationPass;
+    use crate::core::unit::CompileDescriptor;
+    use crate::semantic::analyze;
+
+    const DESC: CompileDescriptor = CompileDescriptor {
+        dump_ast: true,
+        pass_timer: true,
+        dump_asm: true,
+        verbose: true,
+        opt_level: 0,
+    };
+
+    #[test]
+    fn global_ok() {
+        let src = concat!(
+            "let x int = 10 + 3 * 5 & 2\n",
+            "const y = x\n",
+            "let var = y << x >> 2 * (2 ^ z)\n"
+        );
+
+        let verbose = DESC.verbose;
+        let pass_timer = DESC.pass_timer;
+        let file = "Test.cor";
+
+        let result = ParsePass::run(src, verbose, pass_timer, file).unwrap();
+        let result = AstPopulationPass::run(result, verbose, pass_timer, file).unwrap();
+        let result = analyze(&result, file);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn global_err() {
+        let src = concat!(
+            "let x int = 10 + 3 * 5 & 2\n",
+            "const y = x\n",
+            "const x = x << x >> 2 * (2 ^ z)\n"
+        );
+
+        let verbose = DESC.verbose;
+        let pass_timer = DESC.pass_timer;
+        let file = "Test.cor";
+
+        let result = ParsePass::run(src, verbose, pass_timer, file).unwrap();
+        let result = AstPopulationPass::run(result, verbose, pass_timer, file).unwrap();
+        let result = analyze(&result, file);
+        assert!(!result.is_ok());
+        if let Err(e) = result {
+            assert!(!e.is_empty());
+            assert_eq!(e.len(), 1);
+        }
+    }
+
+    #[test]
+    fn local_ok() {
+        let src = concat!(
+            "let v = 3\n",
+            "function f () int {\n",
+            "let x int = 10 + 3 * 5 & 2\n",
+            "const y = x\n",
+            "let var = y << x >> 2 * (2 ^ z)\n",
+            "return var\n",
+            "}\n"
+        );
+
+        let verbose = DESC.verbose;
+        let pass_timer = DESC.pass_timer;
+        let file = "Test.cor";
+
+        let result = ParsePass::run(src, verbose, pass_timer, file).unwrap();
+        let result = AstPopulationPass::run(result, verbose, pass_timer, file).unwrap();
+        let result = analyze(&result, file);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn local_err_re_def_local() {
+        let src = concat!(
+            "let v = 3\n",
+            "function f () int {\n",
+            "let x int = 10 + 3 * 5 & 2\n",
+            "const y = x\n",
+            "let x = y << x >> 2 * (2 ^ z)\n",
+            "return var\n",
+            "}\n"
+        );
+
+        let verbose = DESC.verbose;
+        let pass_timer = DESC.pass_timer;
+        let file = "Test.cor";
+
+        let result = ParsePass::run(src, verbose, pass_timer, file).unwrap();
+        let result = AstPopulationPass::run(result, verbose, pass_timer, file).unwrap();
+        let result = analyze(&result, file);
+        assert!(!result.is_ok());
+        if let Err(e) = result {
+            assert!(!e.is_empty());
+            assert_eq!(e.len(), 1);
+        }
+    }
+
+    #[test]
+    fn local_err_re_def_global() {
+        let src = concat!(
+            "let v = 3\n",
+            "function f () int {\n",
+            "let x int = 10 + 3 * 5 & 2\n",
+            "const y = x\n",
+            "let v = y << x >> 2 * (2 ^ z)\n",
+            "return var\n",
+            "}\n"
+        );
+
+        let verbose = DESC.verbose;
+        let pass_timer = DESC.pass_timer;
+        let file = "Test.cor";
+
+        let result = ParsePass::run(src, verbose, pass_timer, file).unwrap();
+        let result = AstPopulationPass::run(result, verbose, pass_timer, file).unwrap();
+        let result = analyze(&result, file);
+        assert!(!result.is_ok());
+        if let Err(e) = result {
+            assert!(!e.is_empty());
+            assert_eq!(e.len(), 1);
+        }
+    }
+}

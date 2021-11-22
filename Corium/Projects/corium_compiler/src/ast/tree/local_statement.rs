@@ -207,6 +207,7 @@ use super::{
     identifier::Identifier, immutable_variable::ImmutableVariable,
     mutable_variable::MutableVariable, return_statement::ReturnStatement,
 };
+use crate::ast::tree::expression::Expression;
 use crate::ast::tree::{AstComponent, Rule, Statement};
 use std::fmt;
 
@@ -224,9 +225,9 @@ impl<'ast> AstComponent for LocalStatement<'ast> {
 impl<'ast> fmt::Display for LocalStatement<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::MutableVariable(x) => write!(f, "{}", x),
-            Self::ImmutableVariable(x) => write!(f, "{}", x),
-            Self::ReturnStatement(x) => write!(f, "{}", x),
+            Self::MutableVariable(variable) => write!(f, "{}", variable),
+            Self::ImmutableVariable(variable) => write!(f, "{}", variable),
+            Self::ReturnStatement(variable) => write!(f, "{}", variable),
         }
     }
 }
@@ -242,8 +243,8 @@ impl<'ast> Statement<'ast> for LocalStatement<'ast> {
 
     fn identifier(&self) -> Option<&Identifier> {
         match self {
-            Self::MutableVariable(x) => Some(&x.name),
-            Self::ImmutableVariable(x) => Some(&x.name),
+            Self::MutableVariable(variable) => Some(&variable.name),
+            Self::ImmutableVariable(variable) => Some(&variable.name),
             _ => None,
         }
     }
@@ -251,5 +252,21 @@ impl<'ast> Statement<'ast> for LocalStatement<'ast> {
     #[inline]
     fn is_symbol_table_entry(&self) -> bool {
         !matches!(self, Self::ReturnStatement(_))
+    }
+
+    fn drain_expressions(&'ast self, out: &mut Vec<&'ast Expression<'ast>>) {
+        match self {
+            Self::MutableVariable(variable) => {
+                out.push(&variable.value);
+            }
+            Self::ImmutableVariable(variable) => {
+                out.push(&variable.value);
+            }
+            Self::ReturnStatement(smt) => {
+                if let Some(expr) = &smt.0 {
+                    out.push(expr);
+                }
+            }
+        }
     }
 }

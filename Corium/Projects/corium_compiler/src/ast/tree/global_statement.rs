@@ -207,6 +207,7 @@ use super::{
     function::Function, identifier::Identifier, immutable_variable::ImmutableVariable,
     mutable_variable::MutableVariable, native_function::NativeFunction,
 };
+use crate::ast::tree::expression::Expression;
 use crate::ast::tree::{AstComponent, Rule, Statement};
 use std::fmt;
 
@@ -226,10 +227,10 @@ impl<'ast> AstComponent for GlobalStatement<'ast> {
 impl<'ast> fmt::Display for GlobalStatement<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::MutableVariable(x) => write!(f, "{}", x),
-            Self::ImmutableVariable(x) => write!(f, "{}", x),
-            Self::Function(x) => write!(f, "{}", x),
-            Self::NativeFunction(x) => write!(f, "{}", x),
+            Self::MutableVariable(variable) => write!(f, "{}", variable),
+            Self::ImmutableVariable(variable) => write!(f, "{}", variable),
+            Self::Function(function) => write!(f, "{}", function),
+            Self::NativeFunction(native_function) => write!(f, "{}", native_function),
         }
     }
 }
@@ -246,10 +247,10 @@ impl<'ast> Statement<'ast> for GlobalStatement<'ast> {
 
     fn identifier(&self) -> Option<&Identifier> {
         let name = match self {
-            Self::MutableVariable(x) => &x.name,
-            Self::ImmutableVariable(x) => &x.name,
-            Self::Function(x) => &x.signature.name,
-            Self::NativeFunction(x) => &x.signature.name,
+            Self::MutableVariable(variable) => &variable.name,
+            Self::ImmutableVariable(variable) => &variable.name,
+            Self::Function(function) => &function.signature.name,
+            Self::NativeFunction(native_function) => &native_function.signature.name,
         };
         Some(name)
     }
@@ -257,5 +258,33 @@ impl<'ast> Statement<'ast> for GlobalStatement<'ast> {
     #[inline]
     fn is_symbol_table_entry(&self) -> bool {
         true
+    }
+
+    fn drain_expressions(&'ast self, out: &mut Vec<&'ast Expression<'ast>>) {
+        match self {
+            Self::MutableVariable(variable) => out.push(&variable.value),
+            Self::ImmutableVariable(variable) => out.push(&variable.value),
+            Self::Function(function) => {
+                if let Some(params) = &function.signature.parameters {
+                    for param in params.iter() {
+                        if let Some(value) = &param.value {
+                            out.push(value);
+                        }
+                    }
+                }
+                for local in function.block.iter() {
+                    local.drain_expressions(out);
+                }
+            }
+            Self::NativeFunction(function) => {
+                if let Some(params) = &function.signature.parameters {
+                    for param in params.iter() {
+                        if let Some(value) = &param.value {
+                            out.push(value);
+                        }
+                    }
+                }
+            }
+        }
     }
 }

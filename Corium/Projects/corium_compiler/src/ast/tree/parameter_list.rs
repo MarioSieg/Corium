@@ -206,6 +206,7 @@
 use super::parameter::Parameter;
 use crate::ast::tree::{AstComponent, Rule};
 use std::fmt;
+use std::ops::Deref;
 
 #[derive(Clone, Debug)]
 pub struct ParameterList<'ast>(pub Vec<Parameter<'ast>>);
@@ -225,5 +226,13 @@ impl<'ast> fmt::Display for ParameterList<'ast> {
             }
         }
         write!(f, ")")
+    }
+}
+
+impl<'ast> Deref for ParameterList<'ast> {
+    type Target = Vec<Parameter<'ast>>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }
