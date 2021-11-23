@@ -313,7 +313,9 @@ impl CompilerContext {
     }
 
     fn post_process_bytecode(&self, bundle: &Bundle) {
-        bundle.write_to_file().expect("Failed to write byte code file to disk!");
+        bundle
+            .write_to_file()
+            .expect("Failed to write byte code file to disk!");
     }
 
     fn format_compilation_status(&mut self, result: CompilationResult, file: &str) -> Vec<String> {

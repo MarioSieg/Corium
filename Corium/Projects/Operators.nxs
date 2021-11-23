@@ -1,6 +1,0 @@
-.define NOMINAX *
-.define FLDEF Operators.cor
-.define JIT_THIS 1
-.define FLBVM 1
-.define DBGEX 0
-.define SEC_LVL 3

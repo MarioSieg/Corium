@@ -206,3 +206,4 @@
 pub const COM_DIRECTIVE: char = '.';
 pub const IMMEDIATE: char = '$';
 pub const PRIMITIVE_TYPE: char = '%';
+pub const COMMENT: char = '#';

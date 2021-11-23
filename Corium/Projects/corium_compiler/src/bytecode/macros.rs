@@ -205,6 +205,7 @@
 
 pub const NOMINAX_VERSION: &str = "NOMINAX";
 pub const FILENAME_DEF: &str = "FLDEF";
+pub const FILENAME_LEN: &str = "FLLEN";
 pub const ENABLE_JIT: &str = "JIT_THIS";
 pub const FORCE_FALLBACK_VM: &str = "FLBVM";
 pub const DEBUG_MODE: &str = "DBGEX";
