@@ -219,4 +219,9 @@ namespace Nominax::GC
 
 	NOX_NEVER_INLINE extern auto StackNeedle() noexcept -> std::uintptr_t;
 	extern auto StackBottom() noexcept -> const void*;
+
+	struct StackSpan final
+	{
+		const void* Begin { nullptr }, *End { nullptr };
+	};
 }

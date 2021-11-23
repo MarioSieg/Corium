@@ -207,6 +207,7 @@
 
 #include <cstdint>
 #include <cstring>
+#include <type_traits>
 
 #include "../Platform.hpp"
 #include "../Panic/Assertions.hpp"

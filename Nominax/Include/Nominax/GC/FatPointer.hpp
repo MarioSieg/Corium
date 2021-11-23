@@ -205,6 +205,8 @@
 
 #pragma once
 
+#include <type_traits>
+
 #include "Flags.hpp"
 
 #include "../Foundation/Object/_Object.hpp"
@@ -221,12 +223,13 @@ namespace Nominax::GC
 			void* Indirection { nullptr };
 			Foundation::Object ObjRef;
 		};
-		Flags Flags { };
-		std::uint64_t Size { };
-		std::uintptr_t Hash { };
+		Flags Flags { Bits::None };
+		std::uint64_t Size { 0 };
+		std::uintptr_t Hash { 0 };
 		auto (*Destructor)(void*) noexcept -> void { nullptr };
 	};
 
 	static_assert(sizeof(FatPointer) % sizeof(void*) == 0);
 	static_assert(alignof(FatPointer) == sizeof(void*));
+	static_assert(std::is_standard_layout_v<FatPointer>);
 }

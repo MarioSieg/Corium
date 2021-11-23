@@ -207,6 +207,7 @@
 
 #include "Alloc.hpp"
 #include "FatPointer.hpp"
+#include "Flags.hpp"
 #include "Hash.hpp"
 #include "New.hpp"
 #include "Stack.hpp"

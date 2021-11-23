@@ -206,25 +206,75 @@
 #pragma once
 
 #include <cstdint>
+#include <type_traits>
 
 #include "../Foundation/Platform.hpp"
+#include "../Foundation/Algorithm/Enum.hpp"
 
 namespace Nominax::GC
 {
+	enum class alignas(alignof(std::uint64_t)) Bits : std::uint64_t
+	{
+		None = 0 << 0,
+		Mark = 1 << 0,
+		Root = 1 << 1,
+		Leaf = 1 << 2
+	};
+
+	NOX_IMPL_ENUM_BIT_FLAGS(Bits);
+
 	/// <summary>
 	/// Contains GC flags.
 	/// </summary>
 	union alignas(alignof(std::uint64_t)) Flags
 	{
-		enum alignas(alignof(std::uint64_t)) Bits : std::uint64_t
-		{
-			None = 0 << 0,
-			Mark = 1 << 0,
-			Root = 1 << 1,
-			Leaf = 1 << 2
-		};
+		/// <summary>
+		/// Construct without any flags.
+		/// </summary>
+		/// <returns></returns>
+		constexpr Flags() noexcept = default;
 
-		Bits Inner { None };
+		/// <summary>
+		/// Construct with bit flags.
+		/// </summary>
+		/// <param name="bits"></param>
+		/// <returns></returns>
+		constexpr explicit Flags(Bits bits) noexcept;
+
+		/// <summary>
+		/// Move constructor.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr Flags(Flags&& other) noexcept = default;
+
+		/// <summary>
+		/// Copy constructor.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr Flags(const Flags& other) noexcept = default;
+
+		/// <summary>
+		/// Move assignment operator.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator =(Flags&& other) noexcept -> Flags& = default;
+
+		/// <summary>
+		/// Copy assignment operator.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator =(const Flags& other) noexcept -> Flags& = default;
+
+		/// <summary>
+		/// Destructor.
+		/// </summary>
+		~Flags() = default;
+
+		Bits Inner { Bits::None };
 
 		#if NOX_DEBUG
 			struct
@@ -548,10 +598,13 @@ namespace Nominax::GC
 				///
 				/// </summary>
 				bool Flag63 : 1;
-			} Flags;
+			} DBGFields;
 		#endif
-	}
+	};
+
+	constexpr Flags::Flags(const Bits bits) noexcept : Inner { bits } { }
 
 	static_assert(sizeof(Flags) == sizeof(std::uint64_t));
 	static_assert(alignof(Flags) == sizeof(std::uint64_t));
+	static_assert(std::is_standard_layout_v<Flags>);
 }
