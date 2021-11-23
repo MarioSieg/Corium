@@ -204,8 +204,9 @@
 //    limitations under the License.
 
 use crate::bytecode::subroutine::Subroutine;
-use crate::bytecode::syntax::COMMENT;
-use crate::format_bytecode_macro;
+use crate::bytecode::syntax;
+use crate::{emit_kor, format_bytecode_macro};
+use chrono::Local;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::{fmt, fs, io};
@@ -283,12 +284,11 @@ impl Default for BundleConfig {
 
 pub struct Bundle {
     config: BundleConfig,
-    subroutines: HashMap<u64, Subroutine>,
+    subroutines: HashMap<usize, Subroutine>,
 }
 
 impl Bundle {
-    pub const MAGIC_PREFIX: &'static [u8] =
-        b"__NOMINAX_CORE_RT_665BBC22FF3E01482068CDE62E497DE3__\n";
+    pub const MAGIC_PREFIX: &'static [u8] = b"__NOMINAX_CORE_RT__\n";
     pub const MODE_TXT: &'static [u8] = b"__BYTECODE_COMPILER__\n";
     pub const MODE_BIN: &'static [u8] = b"__BYTECODE_BUCKET__\n";
     pub const EXTENSION: &'static str = "nominax";
@@ -305,6 +305,11 @@ impl Bundle {
         }
     }
 
+    pub fn push(&mut self, routine: Subroutine) {
+        let key = self.subroutines.len();
+        self.subroutines.insert(key, routine);
+    }
+
     pub fn write_to_file(&self) -> Result<(), io::Error> {
         let mut path = PathBuf::from(&self.config.file_name);
         path.set_extension(Self::EXTENSION);
@@ -315,14 +320,32 @@ impl Bundle {
 
 impl fmt::Display for Bundle {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        use crate::bytecode::com_directives::sections::*;
+
         write!(f, "{}", std::str::from_utf8(Self::MAGIC_PREFIX).unwrap())?;
         write!(f, "{}", std::str::from_utf8(Self::MODE_TXT).unwrap())?;
         writeln!(f)?;
+        writeln!(f, "{}{}", syntax::SECTION, HEADER)?;
+        writeln!(f)?;
         for comment in Self::HEADER {
-            writeln!(f, "{} {}", COMMENT, comment)?;
+            writeln!(f, "{} {}", syntax::COMMENT, comment)?;
         }
         writeln!(f)?;
         write!(f, "{}", self.config)?;
+
+        writeln!(f)?;
+        writeln!(f, "{}{}", syntax::SECTION, READ_ONLY_DATA)?;
+        writeln!(f)?;
+
+        let date = Local::now();
+
+        emit_kor!(f, "SRC", self.config.file_name)?;
+        emit_kor!(f, "STAMP", date.format("%Y-%m-%d %H:%M:%S").to_string())?;
+
+        writeln!(f)?;
+        writeln!(f, "{}{}", syntax::SECTION, EXEC)?;
+        writeln!(f)?;
+
         Ok(())
     }
 }

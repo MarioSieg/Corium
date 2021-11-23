@@ -212,6 +212,32 @@ pub const ELISE_IF_NOT_DEFINED: &str = "elifndef";
 pub const ELSE: &str = "else";
 pub const AND: &str = "&&&";
 pub const OR: &str = "|||";
+pub const IMMUTABLE_OBJECT_REFERENCE: &str = "KOR";
+
+/// Types
+pub mod types {
+    pub const INT: &str = "rti";
+    pub const FLOAT: &str = "rtf";
+    pub const CHAR: &str = "rtc";
+    pub const INSTRUCTION: &str = "instr";
+    pub const SYSCALL: &str = "sys";
+    pub const INTRINSIC: &str = "int";
+    pub const MEMORY_OFFSET: &str = "mof";
+    pub const JUMP_ADDRESS: &str = "rel";
+    pub const TYPE_ID: &str = "tyd";
+    pub const FIELD_OFFSET: &str = "fof";
+
+    pub const STR_CONSTANT_UTF8: &str = "utf8";
+    pub const STR_CONSTANT_UTF16: &str = "utf16";
+    pub const STR_CONSTANT_UTF32: &str = "utf32";
+}
+
+/// Sections
+pub mod sections {
+    pub const HEADER: &str = "HEADER";
+    pub const EXEC: &str = "EXEC";
+    pub const READ_ONLY_DATA: &str = "RODATA";
+}
 
 /// Subroutine attributes
 pub mod subroutine {

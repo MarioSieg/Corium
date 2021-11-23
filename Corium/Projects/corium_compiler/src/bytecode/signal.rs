@@ -204,6 +204,7 @@
 //    limitations under the License.
 
 use crate::ast::tree::builtin_types::{Float, Int};
+use crate::bytecode::com_directives::types;
 use crate::bytecode::instruction::{
     FieldOffset, Instruction, Intrinsic, JumpAddress, MemoryOffset, Syscall, TypeID,
 };
@@ -227,15 +228,15 @@ pub enum Signal {
 impl Signal {
     pub fn name(&self) -> &'static str {
         match self {
-            Self::Int(_) => "imm",
-            Self::Float(_) => "fmm",
-            Self::Instruction(_) => "instr",
-            Self::SysCall(_) => "sys",
-            Self::Intrinsic(_) => "int",
-            Self::MemoryOffset(_) => "mof",
-            Self::JumpAddress(_) => "rel",
-            Self::TypeID(_) => "tyd",
-            Self::FieldOffset(_) => "fof",
+            Self::Int(_) => types::INT,
+            Self::Float(_) => types::FLOAT,
+            Self::Instruction(_) => types::INSTRUCTION,
+            Self::SysCall(_) => types::SYSCALL,
+            Self::Intrinsic(_) => types::INTRINSIC,
+            Self::MemoryOffset(_) => types::MEMORY_OFFSET,
+            Self::JumpAddress(_) => types::JUMP_ADDRESS,
+            Self::TypeID(_) => types::TYPE_ID,
+            Self::FieldOffset(_) => types::FIELD_OFFSET,
         }
     }
 }
@@ -246,7 +247,7 @@ impl fmt::Display for Signal {
             Self::Int(x) => write!(
                 f,
                 "{}{} {}{:#X}",
-                syntax::PRIMITIVE_TYPE,
+                syntax::TYPE_ID,
                 self.name(),
                 syntax::IMMEDIATE,
                 *x
@@ -254,7 +255,7 @@ impl fmt::Display for Signal {
             Self::Float(x) => write!(
                 f,
                 "{}{} {}{:#X}",
-                syntax::PRIMITIVE_TYPE,
+                syntax::TYPE_ID,
                 self.name(),
                 syntax::IMMEDIATE,
                 x.to_bits()
@@ -263,7 +264,7 @@ impl fmt::Display for Signal {
             Self::SysCall(x) => write!(
                 f,
                 "{}{} {}{:#X}",
-                syntax::PRIMITIVE_TYPE,
+                syntax::TYPE_ID,
                 self.name(),
                 syntax::IMMEDIATE,
                 *x as u64
@@ -271,7 +272,7 @@ impl fmt::Display for Signal {
             Self::Intrinsic(x) => write!(
                 f,
                 "{}{} {}{:#X}",
-                syntax::PRIMITIVE_TYPE,
+                syntax::TYPE_ID,
                 self.name(),
                 syntax::IMMEDIATE,
                 *x
@@ -279,7 +280,7 @@ impl fmt::Display for Signal {
             Self::MemoryOffset(x) => write!(
                 f,
                 "{}{} {}{:#X}",
-                syntax::PRIMITIVE_TYPE,
+                syntax::TYPE_ID,
                 self.name(),
                 syntax::IMMEDIATE,
                 *x
@@ -287,7 +288,7 @@ impl fmt::Display for Signal {
             Self::JumpAddress(x) => write!(
                 f,
                 "{}{} {}{:#X}",
-                syntax::PRIMITIVE_TYPE,
+                syntax::TYPE_ID,
                 self.name(),
                 syntax::IMMEDIATE,
                 *x
@@ -295,7 +296,7 @@ impl fmt::Display for Signal {
             Self::TypeID(x) => write!(
                 f,
                 "{}{} {}{:#X}",
-                syntax::PRIMITIVE_TYPE,
+                syntax::TYPE_ID,
                 self.name(),
                 syntax::IMMEDIATE,
                 *x
@@ -303,7 +304,7 @@ impl fmt::Display for Signal {
             Self::FieldOffset(x) => write!(
                 f,
                 "{}{} {}{:#X}",
-                syntax::PRIMITIVE_TYPE,
+                syntax::TYPE_ID,
                 self.name(),
                 syntax::IMMEDIATE,
                 *x

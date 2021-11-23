@@ -205,5 +205,9 @@
 
 pub const COM_DIRECTIVE: char = '.';
 pub const IMMEDIATE: char = '$';
-pub const PRIMITIVE_TYPE: char = '%';
+pub const TYPE_ID: char = '%';
 pub const COMMENT: char = '#';
+pub const SECTION: char = '@';
+pub const SUBROUTINE: char = '&';
+pub const LABEL: char = '*';
+pub const COMMA: char = ',';

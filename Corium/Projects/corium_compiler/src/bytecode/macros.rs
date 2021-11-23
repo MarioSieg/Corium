@@ -223,3 +223,20 @@ macro_rules! format_bytecode_macro {
         )
     };
 }
+
+#[macro_export]
+macro_rules! emit_kor {
+    ($f:expr, $name:expr, $value:expr) => {
+        writeln!(
+            $f,
+            "{}{} {}{}{} __{}__ {:?}",
+            crate::bytecode::syntax::COM_DIRECTIVE,
+            crate::bytecode::com_directives::IMMUTABLE_OBJECT_REFERENCE,
+            crate::bytecode::syntax::TYPE_ID,
+            crate::bytecode::com_directives::types::STR_CONSTANT_UTF8,
+            crate::bytecode::syntax::COMMA,
+            $name,
+            $value
+        )
+    };
+}
