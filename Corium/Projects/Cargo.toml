@@ -2,7 +2,8 @@
 
 members = [
     "corium",
-    "corium_compiler"
+    "corium_compiler",
+    "corium_installer"
 ]
 
 [profile.release]

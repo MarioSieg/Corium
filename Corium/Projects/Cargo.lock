@@ -125,6 +125,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "corium_installer"
+version = "0.0.1"
+
+[[package]]
 name = "digest"
 version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
