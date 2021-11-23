@@ -205,11 +205,15 @@
 
 pub use super::pass::Pass;
 
+pub mod code_generation;
+pub mod optimization;
 pub mod parse;
 pub mod population;
 pub mod semantic;
 
 pub mod prelude {
+    pub use super::code_generation::*;
+    pub use super::optimization;
     pub use super::parse::*;
     pub use super::population::*;
     pub use super::semantic::*;

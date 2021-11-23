@@ -206,11 +206,11 @@
 pub mod compiler;
 pub mod context;
 pub mod intrinsics;
+pub mod job;
 pub mod pass;
 pub mod passes;
+pub mod source_code;
 pub mod unit;
 
-pub mod job;
-pub mod source_code;
 #[cfg(test)]
 mod tests;

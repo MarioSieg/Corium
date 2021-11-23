@@ -8,9 +8,9 @@ _Bin_/
 CMakeSettings.json
 CMakeLists.txt.user
 reactor.asm
-Nominax/ByteCodeInterface/noxbci/.idea/
-Nominax/ByteCodeInterface/noxbci/Cargo.lock
-Nominax/ByteCodeInterface/noxbci/target
+Nominax/ByteCodeInterface/NominaxByteCodeInterface/.idea/
+Nominax/ByteCodeInterface/NominaxByteCodeInterface/Cargo.lock
+Nominax/ByteCodeInterface/NominaxByteCodeInterface/target
 Corium/Projects/target/
 Corium/Projects/.idea/
 Corium/Projects/Cargo.lock

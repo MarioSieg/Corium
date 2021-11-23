@@ -203,53 +203,20 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::nominax::bci;
-use std::fmt;
+use super::Pass;
+use crate::ast::tree::compilation_unit::CompilationUnit;
+use crate::error::list::ErrorList;
 
-/// Represents a single byte code signal.
-#[derive(Copy, Clone, PartialEq, Debug)]
-pub enum Signal {
-    MemoryOffset(bci::MemoryOffset),
-    Int(bci::Int),
-    Float(bci::Float),
-    Instruction(bci::Instruction),
-    SysCall(bci::SysCall),
-    Intrinsic(bci::Intrinsic),
-    JumpAddress(bci::JumpAddress),
-    TypeID(bci::TypeID),
-    FieldOffset(bci::FieldOffset),
-}
+pub struct OptimizationPass;
 
-impl fmt::Display for Signal {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::MemoryOffset(x) => {
-                write!(f, "%mof #{:#X}", x)
-            }
-            Self::Int(x) => {
-                write!(f, "%imm #{}", x)
-            }
-            Self::Float(x) => {
-                write!(f, "%fmm #{}", x)
-            }
-            Self::Instruction(x) => {
-                write!(f, "{}", bci::meta_data::MNEMONIC_TABLE[*x as usize])
-            }
-            Self::SysCall(x) => {
-                write!(f, "%sys #{:#X}", *x as u64)
-            }
-            Self::Intrinsic(x) => {
-                write!(f, "%int #{:#X}", *x as u64)
-            }
-            Self::JumpAddress(x) => {
-                write!(f, "%jmp #{:#X}", *x as u64)
-            }
-            Self::TypeID(x) => {
-                write!(f, "%tyd #{:#X}", *x as u64)
-            }
-            Self::FieldOffset(x) => {
-                write!(f, "%fof #{:#X}", *x as u64)
-            }
-        }
+impl<'a> Pass<'a, CompilationUnit<'a>, CompilationUnit<'a>> for OptimizationPass {
+    const NAME: &'static str = "Optimization";
+
+    fn execute(
+        input: CompilationUnit<'a>,
+        _verbose: bool,
+        _file: &str,
+    ) -> Result<CompilationUnit<'a>, ErrorList> {
+        Ok(input)
     }
 }
