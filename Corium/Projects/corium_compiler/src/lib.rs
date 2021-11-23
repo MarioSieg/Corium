@@ -210,4 +210,3 @@ pub mod core;
 pub mod error;
 pub mod nominax;
 pub mod parser;
-pub mod semantic;

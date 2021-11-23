@@ -211,6 +211,12 @@ use std::ops::Deref;
 #[derive(Clone, Debug)]
 pub struct ParameterList<'ast>(pub Vec<Parameter<'ast>>);
 
+impl<'ast> ParameterList<'ast> {
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
+
 impl<'ast> AstComponent for ParameterList<'ast> {
     const CORRESPONDING_RULE: Rule = Rule::ParameterList;
 }
@@ -234,5 +240,11 @@ impl<'ast> Deref for ParameterList<'ast> {
 
     fn deref(&self) -> &Self::Target {
         &self.0
+    }
+}
+
+impl<'ast> Default for ParameterList<'ast> {
+    fn default() -> Self {
+        Self(Vec::new())
     }
 }
