@@ -203,30 +203,37 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::tree::compilation_unit::CompilationUnit;
-use crate::bytecode::bundle::Bundle;
-use crate::core::passes::optimization::OptimizationPass;
-use crate::core::passes::prelude::*;
-use crate::core::source_code::SourceCode;
-use crate::core::unit::CompileDescriptor;
-use crate::error::list::ErrorList;
-use crate::parser::RulePairs;
+#[test]
+fn empty() {
+    let stream = Stream::new();
+    assert_eq!(stream.0, Vec::new());
+    assert!(stream.is_empty());
+    assert_eq!(stream.len(), 0);
+    assert_eq!(stream.capacity(), 0);
+}
 
-pub fn compile_source(
-    src: &SourceCode,
-    file: &str,
-    desc: &CompileDescriptor,
-) -> Result<Bundle, ErrorList> {
-    let src = &src.0;
-    let verbose = desc.verbose;
-    let pass_timer = desc.pass_timer;
+#[test]
+fn capacity() {
+    let stream = Stream::with_capacity(10);
+    assert_eq!(stream.0.capacity(), 10);
+    assert_eq!(stream.capacity(), 10);
+}
 
-    let result: RulePairs = ParsePass::run(src, verbose, pass_timer, file)?;
-    let ast: CompilationUnit = AstPopulationPass::run(result, verbose, pass_timer, file)?;
-    SemanticPass::run(&ast, verbose, pass_timer, file)?;
-    let optimized_ast: CompilationUnit = OptimizationPass::run(ast, verbose, pass_timer, file)?;
-    let bytecode_stream: Bundle =
-        CodeGenerationPass::run(optimized_ast, verbose, pass_timer, file)?;
+#[test]
+fn push_back() {
+    let mut stream = Stream::new();
+    stream.push(Signal::Int(3));
+    assert_eq!(stream.len(), 1);
+    assert!(matches!(&stream.0[0], Signal::Int(3)));
+}
 
-    Ok(bytecode_stream)
+#[test]
+fn push_instr() {
+    let mut stream = Stream::new();
+    stream.push_instr(Instruction::CVTF2I);
+    assert_eq!(stream.len(), 1);
+    assert!(matches!(
+        &stream.0[0],
+        Signal::Instruction(Instruction::CVTF2I)
+    ));
 }

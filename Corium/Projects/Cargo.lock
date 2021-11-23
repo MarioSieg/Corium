@@ -119,7 +119,6 @@ name = "corium_compiler"
 version = "0.1.1"
 dependencies = [
  "lazy_static",
- "nominax_bytecode_interface",
  "pest",
  "pest_derive",
 ]
@@ -207,10 +206,6 @@ name = "maplit"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3e2e65a1a2e43cfcb47a895c4c8b10d1f4a61097f9f254f183aee60cad9c651d"
-
-[[package]]
-name = "nominax_bytecode_interface"
-version = "0.1.0"
 
 [[package]]
 name = "number_prefix"

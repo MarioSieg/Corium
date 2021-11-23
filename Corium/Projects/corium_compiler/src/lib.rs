@@ -205,6 +205,7 @@
 
 pub mod algorithm;
 pub mod ast;
+pub mod bytecode;
 pub mod codegen;
 pub mod core;
 pub mod error;

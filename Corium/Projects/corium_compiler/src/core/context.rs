@@ -203,12 +203,15 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+use crate::bytecode::bundle::Bundle;
 use crate::core::job::CompilationJob;
 use crate::core::unit::{CompilationResult, CompileDescriptor, FileCompilationUnit};
+use std::env;
 use std::path::PathBuf;
 use std::sync::mpsc::{channel, Receiver, Sender};
 
 pub struct CompilerContext {
+    output_dir: PathBuf,
     file_queue: Vec<FileCompilationUnit>,
     job_queue: Vec<CompilationJob>,
     job_status_sender: Sender<(CompilationResult, FileCompilationUnit)>,
@@ -289,11 +292,13 @@ impl CompilerContext {
                 continue 'busy_wait;
             }
             let (result, unit) = result.unwrap();
-            if result.is_err() {
-                self.failed_compilations += 1;
-            }
             if let Some(ref mut callback) = callback {
                 callback();
+            }
+            if let Ok((_, bytecode)) = &result {
+                self.post_process_bytecode(bytecode);
+            } else {
+                self.failed_compilations += 1;
             }
             errors.extend(self.format_compilation_status(result, unit.file_name()));
             received += 1;
@@ -305,6 +310,10 @@ impl CompilerContext {
         }
 
         errors
+    }
+
+    fn post_process_bytecode(&self, bundle: &Bundle) {
+        bundle.write_to_file().expect("Failed to write byte code file to disk!");
     }
 
     fn format_compilation_status(&mut self, result: CompilationResult, file: &str) -> Vec<String> {
@@ -332,6 +341,7 @@ impl Default for CompilerContext {
         let (job_status_sender, job_status_receiver) =
             channel::<(CompilationResult, FileCompilationUnit)>();
         Self {
+            output_dir: env::current_dir().unwrap().join("Output"),
             file_queue: Vec::new(),
             job_queue: Vec::new(),
             job_status_receiver,

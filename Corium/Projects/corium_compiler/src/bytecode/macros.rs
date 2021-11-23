@@ -203,30 +203,22 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::tree::compilation_unit::CompilationUnit;
-use crate::bytecode::bundle::Bundle;
-use crate::core::passes::optimization::OptimizationPass;
-use crate::core::passes::prelude::*;
-use crate::core::source_code::SourceCode;
-use crate::core::unit::CompileDescriptor;
-use crate::error::list::ErrorList;
-use crate::parser::RulePairs;
+pub const NOMINAX_VERSION: &str = "NOMINAX";
+pub const FILENAME_DEF: &str = "FLDEF";
+pub const ENABLE_JIT: &str = "JIT_THIS";
+pub const FORCE_FALLBACK_VM: &str = "FLBVM";
+pub const DEBUG_MODE: &str = "DBGEX";
+pub const SECURITY_LEVEL: &str = "SEC_LVL";
 
-pub fn compile_source(
-    src: &SourceCode,
-    file: &str,
-    desc: &CompileDescriptor,
-) -> Result<Bundle, ErrorList> {
-    let src = &src.0;
-    let verbose = desc.verbose;
-    let pass_timer = desc.pass_timer;
-
-    let result: RulePairs = ParsePass::run(src, verbose, pass_timer, file)?;
-    let ast: CompilationUnit = AstPopulationPass::run(result, verbose, pass_timer, file)?;
-    SemanticPass::run(&ast, verbose, pass_timer, file)?;
-    let optimized_ast: CompilationUnit = OptimizationPass::run(ast, verbose, pass_timer, file)?;
-    let bytecode_stream: Bundle =
-        CodeGenerationPass::run(optimized_ast, verbose, pass_timer, file)?;
-
-    Ok(bytecode_stream)
+#[macro_export]
+macro_rules! format_bytecode_macro {
+    ($name:expr, $value:expr) => {
+        format!(
+            "{}{} {} {}",
+            crate::bytecode::syntax::COM_DIRECTIVE,
+            crate::bytecode::com_directives::DEFINE,
+            $name,
+            $value
+        )
+    };
 }

@@ -203,30 +203,113 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::tree::compilation_unit::CompilationUnit;
-use crate::bytecode::bundle::Bundle;
-use crate::core::passes::optimization::OptimizationPass;
-use crate::core::passes::prelude::*;
-use crate::core::source_code::SourceCode;
-use crate::core::unit::CompileDescriptor;
-use crate::error::list::ErrorList;
-use crate::parser::RulePairs;
+use crate::bytecode::com_directives;
+use crate::bytecode::stream::Stream;
 
-pub fn compile_source(
-    src: &SourceCode,
-    file: &str,
-    desc: &CompileDescriptor,
-) -> Result<Bundle, ErrorList> {
-    let src = &src.0;
-    let verbose = desc.verbose;
-    let pass_timer = desc.pass_timer;
+pub struct Subroutine {
+    pub stream: Stream,
+    pub attribute_bits: u32,
+    pub id: u64,
+}
 
-    let result: RulePairs = ParsePass::run(src, verbose, pass_timer, file)?;
-    let ast: CompilationUnit = AstPopulationPass::run(result, verbose, pass_timer, file)?;
-    SemanticPass::run(&ast, verbose, pass_timer, file)?;
-    let optimized_ast: CompilationUnit = OptimizationPass::run(ast, verbose, pass_timer, file)?;
-    let bytecode_stream: Bundle =
-        CodeGenerationPass::run(optimized_ast, verbose, pass_timer, file)?;
+#[repr(u8)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+#[allow(non_camel_case_types)]
+pub enum SubroutineAttributes {
+    None = 0,
 
-    Ok(bytecode_stream)
+    /// <summary>
+    /// Should inline.
+    /// </summary>
+    ForceInline,
+
+    /// <summary>
+    /// Do not inline.
+    /// </summary>
+    NoInline,
+
+    /// <summary>
+    /// Pure subroutine.
+    /// </summary>
+    Pure,
+
+    /// <summary>
+    /// Recursive subroutine.
+    /// </summary>
+    Recursive,
+
+    /// <summary>
+    /// Hot subroutine.
+    /// </summary>
+    Hot,
+
+    /// <summary>
+    /// Cold subroutine.
+    /// </summary>
+    Cold,
+
+    /// <summary>
+    /// Should JIT.
+    /// </summary>
+    ForceJIT,
+
+    /// <summary>
+    /// Should not JIT.
+    /// </summary>
+    NoJIT,
+
+    /// <summary>
+    /// Subroutine does not return.
+    /// </summary>
+    NoReturn,
+
+    /// <summary>
+    /// Subroutine can be offloaded to the GPU.
+    /// </summary>
+    Compute,
+
+    /// <summary>
+    /// Subroutine has parameters.
+    /// </summary>
+    Sentinel,
+
+    /// <summary>
+    /// Subroutine is probably not used.
+    /// </summary>
+    Unused,
+
+    /// <summary>
+    /// Subroutine is obfuscated.
+    /// </summary>
+    Obfuscate,
+
+    /// <summary>
+    /// No attribute, but the total count of total attributes.
+    /// </summary>
+    /// <param name=""></param>
+    Count_,
+}
+
+impl SubroutineAttributes {
+    pub const NAMES: [&'static str; Self::Count_ as usize] = [
+        com_directives::subroutine::NONE,
+        com_directives::subroutine::FORCE_INLINE,
+        com_directives::subroutine::NO_INLINE,
+        com_directives::subroutine::PURE,
+        com_directives::subroutine::RECURSIVE,
+        com_directives::subroutine::HOT,
+        com_directives::subroutine::COLD,
+        com_directives::subroutine::FORCE_JIT,
+        com_directives::subroutine::NO_JIT,
+        com_directives::subroutine::NO_RET,
+        com_directives::subroutine::COMPUTE,
+        com_directives::subroutine::SENTINEL,
+        com_directives::subroutine::UNUSED,
+        com_directives::subroutine::OBFUSCATE,
+    ];
+
+    #[inline]
+    pub fn name(&self) -> &str {
+        Self::NAMES[*self as usize]
+    }
 }

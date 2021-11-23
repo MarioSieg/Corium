@@ -205,20 +205,24 @@
 
 use super::Pass;
 use crate::ast::tree::compilation_unit::CompilationUnit;
-use crate::codegen::bci::Stream;
+use crate::bytecode::bundle::{Bundle, BundleConfig};
 use crate::error::list::ErrorList;
 
 pub struct CodeGenerationPass;
 
-impl<'a> Pass<'a, CompilationUnit<'a>, Stream> for CodeGenerationPass {
+impl<'a> Pass<'a, CompilationUnit<'a>, Bundle> for CodeGenerationPass {
     const NAME: &'static str = "CodeGeneration";
 
     fn execute(
         _input: CompilationUnit<'a>,
         _verbose: bool,
-        _file: &str,
-    ) -> Result<Stream, ErrorList> {
-        let stream = Stream::new();
-        Ok(stream)
+        file: &str,
+    ) -> Result<Bundle, ErrorList> {
+        let config = BundleConfig {
+            file_name: file.to_string(),
+            ..Default::default()
+        };
+        let bundle = Bundle::new(config);
+        Ok(bundle)
     }
 }

@@ -204,14 +204,14 @@
 //    limitations under the License.
 
 use crate::ast::tree::builtin_types::BuiltinType;
-use crate::nominax::bci::SysCall;
+use crate::bytecode::instruction::Syscall;
 use std::fmt;
 
 pub struct Intrinsic<'a> {
     pub fn_name: &'a str,
     pub fn_param_types: &'a [BuiltinType],
     pub fn_ret: Option<BuiltinType>,
-    pub sys_call: SysCall,
+    pub sys_call: Syscall,
 }
 
 // function name, return type, syscall, params...
@@ -251,195 +251,195 @@ macro_rules! intrinsic {
 }
 
 impl<'a> Intrinsic<'a> {
-    pub const INTRINSICS: [Self; SysCall::Count_ as _] = [
-        intrinsic!("cos", BuiltinType::Float, SysCall::COS, BuiltinType::Float),
-        intrinsic!("sin", BuiltinType::Float, SysCall::SIN, BuiltinType::Float),
-        intrinsic!("tan", BuiltinType::Float, SysCall::TAN, BuiltinType::Float),
+    pub const INTRINSICS: [Self; Syscall::Count_ as _] = [
+        intrinsic!("cos", BuiltinType::Float, Syscall::COS, BuiltinType::Float),
+        intrinsic!("sin", BuiltinType::Float, Syscall::SIN, BuiltinType::Float),
+        intrinsic!("tan", BuiltinType::Float, Syscall::TAN, BuiltinType::Float),
         intrinsic!(
             "acos",
             BuiltinType::Float,
-            SysCall::ACOS,
+            Syscall::ACOS,
             BuiltinType::Float
         ),
         intrinsic!(
             "asin",
             BuiltinType::Float,
-            SysCall::ASIN,
+            Syscall::ASIN,
             BuiltinType::Float
         ),
         intrinsic!(
             "atan",
             BuiltinType::Float,
-            SysCall::ATAN,
+            Syscall::ATAN,
             BuiltinType::Float
         ),
         intrinsic!(
             "atan2",
             BuiltinType::Float,
-            SysCall::ATAN2,
+            Syscall::ATAN2,
             BuiltinType::Float,
             BuiltinType::Float
         ),
         intrinsic!(
             "cosh",
             BuiltinType::Float,
-            SysCall::COSH,
+            Syscall::COSH,
             BuiltinType::Float
         ),
         intrinsic!(
             "sinh",
             BuiltinType::Float,
-            SysCall::SINH,
+            Syscall::SINH,
             BuiltinType::Float
         ),
         intrinsic!(
             "tanh",
             BuiltinType::Float,
-            SysCall::TANH,
+            Syscall::TANH,
             BuiltinType::Float
         ),
         intrinsic!(
             "acosh",
             BuiltinType::Float,
-            SysCall::ACOSH,
+            Syscall::ACOSH,
             BuiltinType::Float
         ),
         intrinsic!(
             "asinh",
             BuiltinType::Float,
-            SysCall::ASINH,
+            Syscall::ASINH,
             BuiltinType::Float
         ),
         intrinsic!(
             "atanh",
             BuiltinType::Float,
-            SysCall::ATANH,
+            Syscall::ATANH,
             BuiltinType::Float
         ),
-        intrinsic!("exp", BuiltinType::Float, SysCall::EXP, BuiltinType::Float),
-        intrinsic!("log", BuiltinType::Float, SysCall::LOG, BuiltinType::Float),
+        intrinsic!("exp", BuiltinType::Float, Syscall::EXP, BuiltinType::Float),
+        intrinsic!("log", BuiltinType::Float, Syscall::LOG, BuiltinType::Float),
         intrinsic!(
             "log10",
             BuiltinType::Float,
-            SysCall::LOG10,
+            Syscall::LOG10,
             BuiltinType::Float
         ),
         intrinsic!(
             "exp2",
             BuiltinType::Float,
-            SysCall::EXP2,
+            Syscall::EXP2,
             BuiltinType::Float
         ),
         intrinsic!(
             "ilogb",
             BuiltinType::Float,
-            SysCall::ILOGB,
+            Syscall::ILOGB,
             BuiltinType::Float
         ),
         intrinsic!(
             "log2",
             BuiltinType::Float,
-            SysCall::LOG2,
+            Syscall::LOG2,
             BuiltinType::Float
         ),
         intrinsic!(
             "pow",
             BuiltinType::Float,
-            SysCall::POW,
+            Syscall::POW,
             BuiltinType::Float,
             BuiltinType::Float
         ),
         intrinsic!(
             "sqrt",
             BuiltinType::Float,
-            SysCall::SQRT,
+            Syscall::SQRT,
             BuiltinType::Float
         ),
         intrinsic!(
             "cbrt",
             BuiltinType::Float,
-            SysCall::CBRT,
+            Syscall::CBRT,
             BuiltinType::Float
         ),
         intrinsic!(
             "hypot",
             BuiltinType::Float,
-            SysCall::HYPOT,
+            Syscall::HYPOT,
             BuiltinType::Float,
             BuiltinType::Float
         ),
         intrinsic!(
             "ceil",
             BuiltinType::Float,
-            SysCall::CEIL,
+            Syscall::CEIL,
             BuiltinType::Float
         ),
         intrinsic!(
             "floor",
             BuiltinType::Float,
-            SysCall::FLOOR,
+            Syscall::FLOOR,
             BuiltinType::Float
         ),
         intrinsic!(
             "round",
             BuiltinType::Float,
-            SysCall::ROUND,
+            Syscall::ROUND,
             BuiltinType::Float
         ),
         intrinsic!(
             "rint",
             BuiltinType::Float,
-            SysCall::RINT,
+            Syscall::RINT,
             BuiltinType::Float
         ),
         intrinsic!(
             "imax",
             BuiltinType::Int,
-            SysCall::IMAX,
+            Syscall::IMAX,
             BuiltinType::Int,
             BuiltinType::Int
         ),
         intrinsic!(
             "imin",
             BuiltinType::Int,
-            SysCall::IMIN,
+            Syscall::IMIN,
             BuiltinType::Int,
             BuiltinType::Int
         ),
         intrinsic!(
             "fmax",
             BuiltinType::Float,
-            SysCall::FMAX,
+            Syscall::FMAX,
             BuiltinType::Float,
             BuiltinType::Float
         ),
         intrinsic!(
             "fmin",
             BuiltinType::Float,
-            SysCall::FMIN,
+            Syscall::FMIN,
             BuiltinType::Float,
             BuiltinType::Float
         ),
         intrinsic!(
             "fdim",
             BuiltinType::Float,
-            SysCall::FDIM,
+            Syscall::FDIM,
             BuiltinType::Float,
             BuiltinType::Float
         ),
-        intrinsic!("iabs", BuiltinType::Int, SysCall::IABS, BuiltinType::Int),
+        intrinsic!("iabs", BuiltinType::Int, Syscall::IABS, BuiltinType::Int),
         intrinsic!(
             "fabs",
             BuiltinType::Float,
-            SysCall::FABS,
+            Syscall::FABS,
             BuiltinType::Float
         ),
-        intrinsic!("print_int", SysCall::PRINT_INT, BuiltinType::Int),
-        intrinsic!("print_float", SysCall::PRINT_FLOAT, BuiltinType::Float),
-        intrinsic!("print_char", SysCall::PRINT_CHAR, BuiltinType::Char),
-        intrinsic!("print_bool", SysCall::PRINT_BOOL, BuiltinType::Bool),
-        intrinsic!("flush", SysCall::FLUSH),
-        intrinsic!("newline", SysCall::FLUSH),
+        intrinsic!("print_int", Syscall::PRINT_INT, BuiltinType::Int),
+        intrinsic!("print_float", Syscall::PRINT_FLOAT, BuiltinType::Float),
+        intrinsic!("print_char", Syscall::PRINT_CHAR, BuiltinType::Char),
+        intrinsic!("print_bool", Syscall::PRINT_BOOL, BuiltinType::Bool),
+        intrinsic!("flush", Syscall::FLUSH),
+        intrinsic!("newline", Syscall::FLUSH),
     ];
 
     pub fn dump_all() {

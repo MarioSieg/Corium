@@ -203,6 +203,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+use crate::bytecode::bundle::Bundle;
 use crate::core::compiler::compile_source;
 use crate::core::source_code::SourceCode;
 use crate::error::list::ErrorList;
@@ -231,7 +232,7 @@ impl default::Default for CompileDescriptor {
     }
 }
 
-pub type CompilationResult = Result<Duration, (Duration, ErrorList)>;
+pub type CompilationResult = Result<(Duration, Bundle), (Duration, ErrorList)>;
 
 /// Represents a compilation unit.
 /// Each file contains a single compilation unit.
@@ -267,10 +268,9 @@ impl FileCompilationUnit {
         }
         let result = compile_source(&self.source_code, &self.file_name, &self.descriptor);
         let time = self.compute_compile_time(clock);
-        if let Err(e) = result {
-            Err((time, e))
-        } else {
-            Ok(time)
+        match result {
+            Ok(code) => Ok((time, code)),
+            Err(errors) => Err((time, errors)),
         }
     }
 

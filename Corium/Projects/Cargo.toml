@@ -6,6 +6,10 @@ members = [
     "corium_installer"
 ]
 
+default-members = [
+    "corium"
+]
+
 [profile.release]
 lto = "fat"
 codegen-units = 1

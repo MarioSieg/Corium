@@ -203,30 +203,65 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::tree::compilation_unit::CompilationUnit;
-use crate::bytecode::bundle::Bundle;
-use crate::core::passes::optimization::OptimizationPass;
-use crate::core::passes::prelude::*;
-use crate::core::source_code::SourceCode;
-use crate::core::unit::CompileDescriptor;
-use crate::error::list::ErrorList;
-use crate::parser::RulePairs;
+use crate::bytecode::instruction::Instruction;
+use crate::bytecode::signal::Signal;
+use std::fmt;
 
-pub fn compile_source(
-    src: &SourceCode,
-    file: &str,
-    desc: &CompileDescriptor,
-) -> Result<Bundle, ErrorList> {
-    let src = &src.0;
-    let verbose = desc.verbose;
-    let pass_timer = desc.pass_timer;
+/// Represents a stream of byte code signals.
+#[derive(Clone, Debug, PartialEq)]
+pub struct Stream(Vec<Signal>);
 
-    let result: RulePairs = ParsePass::run(src, verbose, pass_timer, file)?;
-    let ast: CompilationUnit = AstPopulationPass::run(result, verbose, pass_timer, file)?;
-    SemanticPass::run(&ast, verbose, pass_timer, file)?;
-    let optimized_ast: CompilationUnit = OptimizationPass::run(ast, verbose, pass_timer, file)?;
-    let bytecode_stream: Bundle =
-        CodeGenerationPass::run(optimized_ast, verbose, pass_timer, file)?;
+impl Stream {
+    #[inline]
+    pub fn new() -> Self {
+        Self::default()
+    }
 
-    Ok(bytecode_stream)
+    #[inline]
+    pub fn len(&self) -> usize {
+        self.0.len()
+    }
+
+    #[inline]
+    pub fn capacity(&self) -> usize {
+        self.0.capacity()
+    }
+
+    #[inline]
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
+
+    #[inline]
+    pub fn push(&mut self, sig: Signal) {
+        self.0.push(sig)
+    }
+
+    #[inline]
+    pub fn push_instr(&mut self, instr: Instruction) {
+        self.push(Signal::Instruction(instr))
+    }
+
+    #[inline]
+    pub fn reserve(&mut self, additional: usize) {
+        self.0.reserve(additional);
+    }
+}
+
+impl fmt::Display for Stream {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        for signal in &self.0 {
+            if let Signal::Instruction(_) = signal {
+                writeln!(f)?;
+            }
+            write!(f, "{} ", signal)?
+        }
+        Ok(())
+    }
+}
+
+impl Default for Stream {
+    fn default() -> Self {
+        Self(Vec::new())
+    }
 }

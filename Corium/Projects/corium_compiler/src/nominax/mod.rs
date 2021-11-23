@@ -205,8 +205,6 @@
 
 use std::process::Command;
 
-pub use nominax_bytecode_interface as bci;
-
 const NOMINAX_EXE_NAME: &str = if cfg!(windows) {
     "Nominax.exe"
 } else {

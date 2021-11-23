@@ -203,30 +203,6 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::tree::compilation_unit::CompilationUnit;
-use crate::bytecode::bundle::Bundle;
-use crate::core::passes::optimization::OptimizationPass;
-use crate::core::passes::prelude::*;
-use crate::core::source_code::SourceCode;
-use crate::core::unit::CompileDescriptor;
-use crate::error::list::ErrorList;
-use crate::parser::RulePairs;
-
-pub fn compile_source(
-    src: &SourceCode,
-    file: &str,
-    desc: &CompileDescriptor,
-) -> Result<Bundle, ErrorList> {
-    let src = &src.0;
-    let verbose = desc.verbose;
-    let pass_timer = desc.pass_timer;
-
-    let result: RulePairs = ParsePass::run(src, verbose, pass_timer, file)?;
-    let ast: CompilationUnit = AstPopulationPass::run(result, verbose, pass_timer, file)?;
-    SemanticPass::run(&ast, verbose, pass_timer, file)?;
-    let optimized_ast: CompilationUnit = OptimizationPass::run(ast, verbose, pass_timer, file)?;
-    let bytecode_stream: Bundle =
-        CodeGenerationPass::run(optimized_ast, verbose, pass_timer, file)?;
-
-    Ok(bytecode_stream)
-}
+pub const COM_DIRECTIVE: char = '.';
+pub const IMMEDIATE: char = '$';
+pub const PRIMITIVE_TYPE: char = '%';

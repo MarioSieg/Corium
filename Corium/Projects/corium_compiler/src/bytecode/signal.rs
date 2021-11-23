@@ -203,30 +203,111 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::tree::compilation_unit::CompilationUnit;
-use crate::bytecode::bundle::Bundle;
-use crate::core::passes::optimization::OptimizationPass;
-use crate::core::passes::prelude::*;
-use crate::core::source_code::SourceCode;
-use crate::core::unit::CompileDescriptor;
-use crate::error::list::ErrorList;
-use crate::parser::RulePairs;
+use crate::ast::tree::builtin_types::{Float, Int};
+use crate::bytecode::instruction::{
+    FieldOffset, Instruction, Intrinsic, JumpAddress, MemoryOffset, Syscall, TypeID,
+};
+use crate::bytecode::{instruction, syntax};
+use std::fmt;
 
-pub fn compile_source(
-    src: &SourceCode,
-    file: &str,
-    desc: &CompileDescriptor,
-) -> Result<Bundle, ErrorList> {
-    let src = &src.0;
-    let verbose = desc.verbose;
-    let pass_timer = desc.pass_timer;
+/// Represents a single byte code signal.
+#[derive(Copy, Clone, PartialEq, Debug)]
+pub enum Signal {
+    Int(Int),
+    Float(Float),
+    Instruction(Instruction),
+    SysCall(Syscall),
+    Intrinsic(Intrinsic),
+    MemoryOffset(MemoryOffset),
+    JumpAddress(JumpAddress),
+    TypeID(TypeID),
+    FieldOffset(FieldOffset),
+}
 
-    let result: RulePairs = ParsePass::run(src, verbose, pass_timer, file)?;
-    let ast: CompilationUnit = AstPopulationPass::run(result, verbose, pass_timer, file)?;
-    SemanticPass::run(&ast, verbose, pass_timer, file)?;
-    let optimized_ast: CompilationUnit = OptimizationPass::run(ast, verbose, pass_timer, file)?;
-    let bytecode_stream: Bundle =
-        CodeGenerationPass::run(optimized_ast, verbose, pass_timer, file)?;
+impl Signal {
+    pub fn name(&self) -> &'static str {
+        match self {
+            Self::Int(_) => "imm",
+            Self::Float(_) => "fmm",
+            Self::Instruction(_) => "instr",
+            Self::SysCall(_) => "sys",
+            Self::Intrinsic(_) => "int",
+            Self::MemoryOffset(_) => "mof",
+            Self::JumpAddress(_) => "rel",
+            Self::TypeID(_) => "tyd",
+            Self::FieldOffset(_) => "fof",
+        }
+    }
+}
 
-    Ok(bytecode_stream)
+impl fmt::Display for Signal {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Int(x) => write!(
+                f,
+                "{}{} {}{:#X}",
+                syntax::PRIMITIVE_TYPE,
+                self.name(),
+                syntax::IMMEDIATE,
+                *x
+            ),
+            Self::Float(x) => write!(
+                f,
+                "{}{} {}{:#X}",
+                syntax::PRIMITIVE_TYPE,
+                self.name(),
+                syntax::IMMEDIATE,
+                x.to_bits()
+            ),
+            Self::Instruction(x) => write!(f, "{}", instruction::MNEMONIC_TABLE[*x as usize]),
+            Self::SysCall(x) => write!(
+                f,
+                "{}{} {}{:#X}",
+                syntax::PRIMITIVE_TYPE,
+                self.name(),
+                syntax::IMMEDIATE,
+                *x as u64
+            ),
+            Self::Intrinsic(x) => write!(
+                f,
+                "{}{} {}{:#X}",
+                syntax::PRIMITIVE_TYPE,
+                self.name(),
+                syntax::IMMEDIATE,
+                *x
+            ),
+            Self::MemoryOffset(x) => write!(
+                f,
+                "{}{} {}{:#X}",
+                syntax::PRIMITIVE_TYPE,
+                self.name(),
+                syntax::IMMEDIATE,
+                *x
+            ),
+            Self::JumpAddress(x) => write!(
+                f,
+                "{}{} {}{:#X}",
+                syntax::PRIMITIVE_TYPE,
+                self.name(),
+                syntax::IMMEDIATE,
+                *x
+            ),
+            Self::TypeID(x) => write!(
+                f,
+                "{}{} {}{:#X}",
+                syntax::PRIMITIVE_TYPE,
+                self.name(),
+                syntax::IMMEDIATE,
+                *x
+            ),
+            Self::FieldOffset(x) => write!(
+                f,
+                "{}{} {}{:#X}",
+                syntax::PRIMITIVE_TYPE,
+                self.name(),
+                syntax::IMMEDIATE,
+                *x
+            ),
+        }
+    }
 }

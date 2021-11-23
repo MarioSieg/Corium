@@ -203,30 +203,99 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::tree::compilation_unit::CompilationUnit;
-use crate::bytecode::bundle::Bundle;
-use crate::core::passes::optimization::OptimizationPass;
-use crate::core::passes::prelude::*;
-use crate::core::source_code::SourceCode;
-use crate::core::unit::CompileDescriptor;
-use crate::error::list::ErrorList;
-use crate::parser::RulePairs;
+use crate::bytecode::subroutine::Subroutine;
+use crate::format_bytecode_macro;
+use std::collections::HashMap;
+use std::path::PathBuf;
+use std::{fmt, fs, io};
 
-pub fn compile_source(
-    src: &SourceCode,
-    file: &str,
-    desc: &CompileDescriptor,
-) -> Result<Bundle, ErrorList> {
-    let src = &src.0;
-    let verbose = desc.verbose;
-    let pass_timer = desc.pass_timer;
+#[derive(Debug, Clone)]
+pub struct BundleConfig {
+    pub nominax_version: Option<(u8, u8, u8, u8)>,
+    pub file_name: String,
+    pub enable_jit: bool,
+    pub force_fallback_vm: bool,
+    pub debug_mode: bool,
+    pub security_level: u8,
+}
 
-    let result: RulePairs = ParsePass::run(src, verbose, pass_timer, file)?;
-    let ast: CompilationUnit = AstPopulationPass::run(result, verbose, pass_timer, file)?;
-    SemanticPass::run(&ast, verbose, pass_timer, file)?;
-    let optimized_ast: CompilationUnit = OptimizationPass::run(ast, verbose, pass_timer, file)?;
-    let bytecode_stream: Bundle =
-        CodeGenerationPass::run(optimized_ast, verbose, pass_timer, file)?;
+impl fmt::Display for BundleConfig {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        use crate::bytecode::macros::*;
 
-    Ok(bytecode_stream)
+        let version = if let Some(version) = self.nominax_version {
+            format!("{}.{}.{}.{}", version.0, version.1, version.2, version.3)
+        } else {
+            String::from("*")
+        };
+        writeln!(f, "{}", format_bytecode_macro!(NOMINAX_VERSION, version))?;
+        writeln!(
+            f,
+            "{}",
+            format_bytecode_macro!(FILENAME_DEF, self.file_name)
+        )?;
+        writeln!(
+            f,
+            "{}",
+            format_bytecode_macro!(ENABLE_JIT, self.enable_jit as u8)
+        )?;
+        writeln!(
+            f,
+            "{}",
+            format_bytecode_macro!(FORCE_FALLBACK_VM, self.enable_jit as u8)
+        )?;
+        writeln!(
+            f,
+            "{}",
+            format_bytecode_macro!(DEBUG_MODE, self.debug_mode as u8)
+        )?;
+        writeln!(
+            f,
+            "{}",
+            format_bytecode_macro!(SECURITY_LEVEL, self.security_level as u8)
+        )?;
+        Ok(())
+    }
+}
+
+impl Default for BundleConfig {
+    fn default() -> Self {
+        Self {
+            nominax_version: None,
+            file_name: String::new(),
+            enable_jit: true,
+            force_fallback_vm: false,
+            debug_mode: false,
+            security_level: 3,
+        }
+    }
+}
+
+pub struct Bundle {
+    config: BundleConfig,
+    subroutines: HashMap<u64, Subroutine>,
+}
+
+impl Bundle {
+    pub const TXT_EXTENSION: &'static str = "nxs";
+
+    pub fn new(config: BundleConfig) -> Self {
+        Self {
+            config,
+            subroutines: HashMap::new(),
+        }
+    }
+
+    pub fn write_to_file(&self) -> Result<(), io::Error> {
+        let mut path = PathBuf::from(&self.config.file_name);
+        path.set_extension(Self::TXT_EXTENSION);
+        let content = self.to_string();
+        fs::write(path, content)
+    }
+}
+
+impl fmt::Display for Bundle {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.config)
+    }
 }

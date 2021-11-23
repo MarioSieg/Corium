@@ -203,7 +203,5 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-pub use nominax_bytecode_interface as bci;
-
 #[cfg(test)]
 mod tests;
