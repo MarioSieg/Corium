@@ -260,7 +260,7 @@ impl<'ast> Statement<'ast> for GlobalStatement<'ast> {
         true
     }
 
-    fn drain_expressions(&'ast self, out: &mut Vec<&'ast Expression<'ast>>) {
+    fn spill_expressions(&'ast self, out: &mut Vec<&'ast Expression<'ast>>) {
         match self {
             Self::MutableVariable(variable) => out.push(&variable.value),
             Self::ImmutableVariable(variable) => out.push(&variable.value),
@@ -273,7 +273,7 @@ impl<'ast> Statement<'ast> for GlobalStatement<'ast> {
                     }
                 }
                 for local in function.block.iter() {
-                    local.drain_expressions(out);
+                    local.spill_expressions(out);
                 }
             }
             Self::NativeFunction(function) => {

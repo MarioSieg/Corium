@@ -254,7 +254,7 @@ impl<'ast> Statement<'ast> for LocalStatement<'ast> {
         !matches!(self, Self::ReturnStatement(_))
     }
 
-    fn drain_expressions(&'ast self, out: &mut Vec<&'ast Expression<'ast>>) {
+    fn spill_expressions(&'ast self, out: &mut Vec<&'ast Expression<'ast>>) {
         match self {
             Self::MutableVariable(variable) => {
                 out.push(&variable.value);

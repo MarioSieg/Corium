@@ -211,12 +211,15 @@ use crate::ast::tree::Statement;
 pub fn built_expr_list<'ast>(unit: &'ast CompilationUnit<'ast>) -> Vec<&'ast Expression<'ast>> {
     let mut result = Vec::new();
     for global in &unit.statements {
-        global.drain_expressions(&mut result);
+        global.spill_expressions(&mut result);
         if let GlobalStatement::Function(function) = global {
             for local in function.block.iter() {
-                local.drain_expressions(&mut result);
+                local.spill_expressions(&mut result);
             }
         }
     }
     result
 }
+
+#[cfg(test)]
+mod tests {}
