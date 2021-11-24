@@ -207,7 +207,6 @@ use crate::ast::tree::builtin_types::{Float, Int};
 use crate::bytecode::instruction::{
     FieldOffset, Instruction, Intrinsic, JumpAddress, MemoryOffset, Syscall, TypeID,
 };
-use crate::bytecode::{instruction, syntax};
 use std::fmt;
 
 /// Represents a single byte code signal.
@@ -243,71 +242,15 @@ impl Signal {
 impl fmt::Display for Signal {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Int(x) => write!(
-                f,
-                "{}{} {}{:#X}",
-                syntax::PRIMITIVE_TYPE,
-                self.name(),
-                syntax::IMMEDIATE,
-                *x
-            ),
-            Self::Float(x) => write!(
-                f,
-                "{}{} {}{:#X}",
-                syntax::PRIMITIVE_TYPE,
-                self.name(),
-                syntax::IMMEDIATE,
-                x.to_bits()
-            ),
-            Self::Instruction(x) => write!(f, "{}", instruction::MNEMONIC_TABLE[*x as usize]),
-            Self::SysCall(x) => write!(
-                f,
-                "{}{} {}{:#X}",
-                syntax::PRIMITIVE_TYPE,
-                self.name(),
-                syntax::IMMEDIATE,
-                *x as u64
-            ),
-            Self::Intrinsic(x) => write!(
-                f,
-                "{}{} {}{:#X}",
-                syntax::PRIMITIVE_TYPE,
-                self.name(),
-                syntax::IMMEDIATE,
-                *x
-            ),
-            Self::MemoryOffset(x) => write!(
-                f,
-                "{}{} {}{:#X}",
-                syntax::PRIMITIVE_TYPE,
-                self.name(),
-                syntax::IMMEDIATE,
-                *x
-            ),
-            Self::JumpAddress(x) => write!(
-                f,
-                "{}{} {}{:#X}",
-                syntax::PRIMITIVE_TYPE,
-                self.name(),
-                syntax::IMMEDIATE,
-                *x
-            ),
-            Self::TypeID(x) => write!(
-                f,
-                "{}{} {}{:#X}",
-                syntax::PRIMITIVE_TYPE,
-                self.name(),
-                syntax::IMMEDIATE,
-                *x
-            ),
-            Self::FieldOffset(x) => write!(
-                f,
-                "{}{} {}{:#X}",
-                syntax::PRIMITIVE_TYPE,
-                self.name(),
-                syntax::IMMEDIATE,
-                *x
-            ),
+            Self::Int(x) => write!(f, "[{}] #{}", self.name(), *x),
+            Self::Float(x) => write!(f, "[{}] #{}", self.name(), *x),
+            Self::Instruction(x) => write!(f, "{}", x.mnemonic()),
+            Self::SysCall(x) => write!(f, "[{}] #{:X}", self.name(), *x as u64),
+            Self::Intrinsic(x) => write!(f, "[{}] #{:X}", self.name(), *x),
+            Self::MemoryOffset(x) => write!(f, "[{}] #{:X}", self.name(), *x),
+            Self::JumpAddress(x) => write!(f, "[{}] #{:X}", self.name(), *x),
+            Self::TypeID(x) => write!(f, "[{}] #{:X}", self.name(), *x),
+            Self::FieldOffset(x) => write!(f, "[{}] #{:X}", self.name(), *x),
         }
     }
 }
