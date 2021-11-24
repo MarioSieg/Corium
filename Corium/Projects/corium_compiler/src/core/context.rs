@@ -312,11 +312,7 @@ impl CompilerContext {
         errors
     }
 
-    fn post_process_bytecode(&self, bundle: &Bundle) {
-        bundle
-            .write_to_file()
-            .expect("Failed to write byte code file to disk!");
-    }
+    fn post_process_bytecode(&self, _bundle: &Bundle) {}
 
     fn format_compilation_status(&mut self, result: CompilationResult, file: &str) -> Vec<String> {
         if let Err((time, errors)) = result {

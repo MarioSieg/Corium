@@ -204,11 +204,6 @@
 //    limitations under the License.
 
 pub mod bundle;
-pub mod com_directives;
 pub mod instruction;
-pub mod macros;
 pub mod signal;
 pub mod stream;
-pub mod subroutine;
-pub mod syntax;
-pub mod tests;

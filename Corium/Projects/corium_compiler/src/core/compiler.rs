@@ -225,8 +225,7 @@ pub fn compile_source(
     let ast: CompilationUnit = AstPopulationPass::run(result, verbose, pass_timer, file)?;
     SemanticPass::run(&ast, verbose, pass_timer, file)?;
     let optimized_ast: CompilationUnit = OptimizationPass::run(ast, verbose, pass_timer, file)?;
-    let bytecode_stream: Bundle =
-        CodeGenerationPass::run(optimized_ast, verbose, pass_timer, file)?;
+    let bytecode: Bundle = CodeGenerationPass::run(optimized_ast, verbose, pass_timer, file)?;
 
-    Ok(bytecode_stream)
+    Ok(bytecode)
 }
