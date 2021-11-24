@@ -442,7 +442,7 @@ namespace Nominax::Foundation
 		/// </summary>
 		/// <param name="buffer"></param>
 		/// <returns></returns>
-		auto IMMUTATOR CopyBlob(std::vector<BlobBlockType>& buffer) const noexcept -> void;
+		auto IMMUTATOR CopyBlob(std::vector<BlobBlockType>& buffer) const -> void;
 
 		/// <summary>
 		/// Lookup object block.

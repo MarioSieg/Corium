@@ -217,6 +217,8 @@
 
 namespace Nominax::Core::Subsystem
 {
+    struct HypervisorHost;
+
 	/// <summary>
 	/// Base class for all subsystems.
 	///	Designed for one subsystem per thread.
@@ -225,7 +227,7 @@ namespace Nominax::Core::Subsystem
 	/// <typeparam name="SysConfig"></typeparam>
 	struct ISubsystem : IEventHooks
 	{
-		friend class HypervisorHost;
+		friend HypervisorHost;
 
 		/// <summary>
 		/// No copying.

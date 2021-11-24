@@ -207,7 +207,7 @@
 
 #include <type_traits>
 
-#include "Flags.hpp"
+#include "FlagVector.hpp"
 
 #include "../Foundation/Object/_Object.hpp"
 
@@ -223,7 +223,7 @@ namespace Nominax::GC
 			void* Indirection { nullptr };
 			Foundation::Object ObjRef;
 		};
-		Flags Flags { Bits::None };
+		FlagVector Flags { Bits::None };
 		std::uint64_t Size { 0 };
 		std::uintptr_t Hash { 0 };
 		auto (*Destructor)(void*) noexcept -> void { nullptr };

@@ -226,53 +226,53 @@ namespace Nominax::GC
 	/// <summary>
 	/// Contains GC flags.
 	/// </summary>
-	union alignas(alignof(std::uint64_t)) Flags
+	union alignas(alignof(std::uint64_t)) FlagVector
 	{
 		/// <summary>
 		/// Construct without any flags.
 		/// </summary>
 		/// <returns></returns>
-		constexpr Flags() noexcept = default;
+		constexpr FlagVector() noexcept = default;
 
 		/// <summary>
 		/// Construct with bit flags.
 		/// </summary>
 		/// <param name="bits"></param>
 		/// <returns></returns>
-		constexpr explicit Flags(Bits bits) noexcept;
+		constexpr explicit FlagVector(Bits bits) noexcept;
 
 		/// <summary>
 		/// Move constructor.
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		constexpr Flags(Flags&& other) noexcept = default;
+		constexpr FlagVector(FlagVector&& other) noexcept = default;
 
 		/// <summary>
 		/// Copy constructor.
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		constexpr Flags(const Flags& other) noexcept = default;
+		constexpr FlagVector(const FlagVector& other) noexcept = default;
 
 		/// <summary>
 		/// Move assignment operator.
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		constexpr auto operator =(Flags&& other) noexcept -> Flags& = default;
+		constexpr auto operator =(FlagVector&& other) noexcept -> FlagVector& = default;
 
 		/// <summary>
 		/// Copy assignment operator.
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		constexpr auto operator =(const Flags& other) noexcept -> Flags& = default;
+		constexpr auto operator =(const FlagVector& other) noexcept -> FlagVector& = default;
 
 		/// <summary>
 		/// Destructor.
 		/// </summary>
-		~Flags() = default;
+		~FlagVector() = default;
 
 		Bits Inner { Bits::None };
 
@@ -602,9 +602,9 @@ namespace Nominax::GC
 		#endif
 	};
 
-	constexpr Flags::Flags(const Bits bits) noexcept : Inner { bits } { }
+	constexpr FlagVector::FlagVector(const Bits bits) noexcept : Inner { bits } { }
 
-	static_assert(sizeof(Flags) == sizeof(std::uint64_t));
-	static_assert(alignof(Flags) == sizeof(std::uint64_t));
-	static_assert(std::is_standard_layout_v<Flags>);
+	static_assert(sizeof(FlagVector) == sizeof(std::uint64_t));
+	static_assert(alignof(FlagVector) == sizeof(std::uint64_t));
+	static_assert(std::is_standard_layout_v<FlagVector>);
 }

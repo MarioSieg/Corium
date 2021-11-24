@@ -203,6 +203,8 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+#include <csetjmp>
+
 #include "../../Include/Nominax/GC/Stack.hpp"
 
 namespace Nominax::GC

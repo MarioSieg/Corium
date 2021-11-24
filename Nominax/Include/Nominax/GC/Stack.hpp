@@ -207,7 +207,6 @@
 
 #include <bit>
 #include <cstdint>
-#include <csetjmp>
 
 #include "../Foundation/Platform.hpp"
 
@@ -215,7 +214,7 @@ namespace Nominax::GC
 {
 	#define NOX_SPILL_REGISTERS()	\
 		std::jmp_buf env { };		\
-		std::setjmp(env)
+		setjmp(env)
 
 	NOX_NEVER_INLINE extern auto StackNeedle() noexcept -> std::uintptr_t;
 	extern auto StackBottom() noexcept -> const void*;

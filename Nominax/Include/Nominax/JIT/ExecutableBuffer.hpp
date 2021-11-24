@@ -229,12 +229,12 @@ namespace Nominax::JIT
 
     public:
         /// <summary>
-        /// Flags used for allocation, before copying the machine code.
+        /// FlagVector used for allocation, before copying the machine code.
         /// </summary>
         static constexpr auto ALLOCATION_FLAGS { Foundation::Allocator::MemoryPageProtectionFlags::ReadWriteExecute };
 
         /// <summary>
-        /// Flags used for security protection after copying the machine codes.
+        /// FlagVector used for security protection after copying the machine codes.
         /// </summary>
         static constexpr auto SECURITY_FLAGS { Foundation::Allocator::MemoryPageProtectionFlags::ReadExecute };
 

@@ -225,7 +225,10 @@ namespace Nominax::GC
 			std::memset(result, 0, size);
 			return result;
 		}
-		return SystemAllocator::AllocateAndZeroChecked(size);
+		else
+        {
+            return SystemAllocator::AllocateAndZeroChecked(size);
+        }
 	}
 
 	auto GCHeapAllocTrace(void*& out, const std::uint64_t size, const std::uint64_t alignment, MallInfo& info) noexcept -> std::uint64_t
@@ -249,6 +252,9 @@ namespace Nominax::GC
 			void* ref { block };
 			GlobalAllocatorProxy->Deallocate(ref);
 		}
-		SystemAllocator::Deallocate(block);
+		else
+        {
+            SystemAllocator::Deallocate(block);
+        }
 	}
 }

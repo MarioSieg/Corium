@@ -330,16 +330,16 @@ extern "C"
 	typedef const union NOX_Record* (*NOX_CALL NOX_FFIProc)(NOX_REGISTER union NOX_Record* NOX_RESTRICT);
 
 	/* For native call declaration. */
-	#define NOX_FFI_NATIVE_CALL_DECL(fName, p1Name, ...)					\
+	#define NOX_FFI_NATIVE_CALL_DECL(fName, p1Name)					        \
 		NOX_DLL_EXPORT NOX_CALL extern const union NOX_Record*				\
 		fName																\
-		(NOX_REGISTER union NOX_Record* NOX_RESTRICT p1Name, __VA_ARGS__)
+		(NOX_REGISTER union NOX_Record* NOX_RESTRICT p1Name)
 
 	/* For native call definition. */
-	#define NOX_FFI_NATIVE_CALL_IMPL(fName, p1Name, ...)					\
+	#define NOX_FFI_NATIVE_CALL_IMPL(fName, p1Name)					        \
 		NOX_DLL_EXPORT const union NOX_Record*								\
 		fName																\
-		(NOX_REGISTER union NOX_Record* NOX_RESTRICT p1Name, __VA_ARGS__)
+		(NOX_REGISTER union NOX_Record* NOX_RESTRICT p1Name)
 
 	#if defined(__cplusplus) && defined(__NOMINAX__)
 		extern "C++"
