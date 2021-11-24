@@ -209,6 +209,7 @@
 
 #include "ISubsystem.hpp"
 #include "../../Foundation/Panic/Assertions.hpp"
+#include "../../Foundation/Platform.hpp"
 
 namespace Nominax::Core::Subsystem
 {
@@ -226,7 +227,7 @@ namespace Nominax::Core::Subsystem
 	/// <returns></returns>
 	inline auto ProxyInit(IEventHooks& self, std::unique_ptr<SubsystemConfig>&& config, void* const userData) -> void
 	{
-		if (self.HasSubscribed(HookFlag::OnConstruct))
+		if (self.HasSubscribed(HookFlags::OnConstruct))
 		{
 			self.OnConstruct(std::move(config), userData);
 		}
@@ -254,7 +255,7 @@ namespace Nominax::Core::Subsystem
 		/// <param name="args"></param>
 		/// <returns></returns>
 		template <typename T, typename... Args> requires IsValidSubsystem<T, Args...>
-		[[nodiscard]] auto AllocateSubsystemInstance
+		[[nodiscard]] NOX_NEVER_INLINE auto AllocateSubsystemInstance
 		(
 			std::unique_ptr<SubsystemConfig>&& config,
 			void* const userData,

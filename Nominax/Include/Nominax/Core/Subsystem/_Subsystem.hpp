@@ -209,5 +209,6 @@
 #include "Factory.hpp"
 #include "HypervisorHost.hpp"
 #include "IEventHooks.hpp"
+#include "IHypervisorHooks.hpp"
 #include "ISubsystem.hpp"
 #include "ThreadIDHash.hpp"

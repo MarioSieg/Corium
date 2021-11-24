@@ -302,7 +302,7 @@ namespace Nominax::Core::Subsystem
 		/// 
 		/// </summary>
 		/// <returns>The unique subsystem ID.</returns>
-		auto ID() const & noexcept -> std::uint16_t;
+		auto ID() const & noexcept -> std::uint32_t;
 
 		/// <summary>
 		/// 
@@ -327,7 +327,7 @@ namespace Nominax::Core::Subsystem
 		/// 
 		/// </summary>
 		/// <returns>The atomic ID generator accumulator.</returns>
-		static auto IDAccumulator() noexcept -> std::uint16_t;
+		static auto IDAccumulator() noexcept -> std::uint32_t;
 
 		/// <summary>
 		/// 
@@ -343,9 +343,9 @@ namespace Nominax::Core::Subsystem
 		/// <summary>
 		/// Default hook flags used for initialization.
 		/// </summary>
-		static constexpr HookFlag DEFAULT_HOOK_FLAGS
+		static constexpr HookFlags DEFAULT_HOOK_FLAGS
 		{
-			HookFlag::OnConstruct | HookFlag::OnDestruct
+                HookFlags::OnConstruct | HookFlags::OnDestruct
 		};
 
 	protected:
@@ -360,11 +360,11 @@ namespace Nominax::Core::Subsystem
 		/// <returns></returns>
 		explicit ISubsystem
 		(
-			HypervisorHost& host,
-			HookFlag subscriptions,
-			std::string_view name,
-			std::string_view description = { },
-			bool isEnabled = true
+            HypervisorHost& host,
+            HookFlags subscriptions,
+            std::string_view name,
+            std::string_view description = { },
+            bool isEnabled = true
 		) noexcept;
 
 		auto BootConfig(std::unique_ptr<SubsystemConfig>&& config) & noexcept -> void;
@@ -372,12 +372,12 @@ namespace Nominax::Core::Subsystem
 		auto OnConstruct(std::unique_ptr<SubsystemConfig>&& config, void* userData) & -> void override;
 
 	private:
-		inline static constinit std::atomic_uint16_t IDAccumulator_ { };
+		inline static constinit std::atomic_uint32_t IDAccumulator_ { };
 		inline static thread_local volatile DispatchThreadID LocalDispatchThreadID_ { };
 		HypervisorHost& Host_;
 		const std::string_view Name_;
 		const std::string_view Description_;
-		const DispatchThreadID ID_;
+		const std::uint32_t ID_;
 		mutable bool IsEnabled_;
 
 	protected:
@@ -387,7 +387,7 @@ namespace Nominax::Core::Subsystem
 
 	inline auto ISubsystem::Deleter::operator() (ISubsystem* const instance) const noexcept -> void
 	{
-		if (instance->HasSubscribed(HookFlag::OnDestruct))
+		if (instance->HasSubscribed(HookFlags::OnDestruct))
 		{
 			instance->OnDestruct();
 		}
@@ -429,7 +429,7 @@ namespace Nominax::Core::Subsystem
 		return this->Description_;
 	}
 
-	inline auto ISubsystem::ID() const & noexcept -> std::uint16_t
+	inline auto ISubsystem::ID() const & noexcept -> std::uint32_t
 	{
 		return this->ID_;
 	}
@@ -439,9 +439,9 @@ namespace Nominax::Core::Subsystem
 		return this->LocalDispatchThreadID_;
 	}
 
-	inline auto ISubsystem::IDAccumulator() noexcept -> std::uint16_t
+	inline auto ISubsystem::IDAccumulator() noexcept -> std::uint32_t
 	{
-		return IDAccumulator_;
+		return IDAccumulator_.load(std::memory_order_seq_cst);
 	}
 
 	inline auto ISubsystem::ThreadID() noexcept -> DispatchThreadID

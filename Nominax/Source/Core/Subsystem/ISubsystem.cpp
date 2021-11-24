@@ -211,7 +211,7 @@ namespace Nominax::Core::Subsystem
 	ISubsystem::ISubsystem
 	(
 		HypervisorHost& host,
-		const HookFlag subscriptions,
+		const HookFlags subscriptions,
 		const std::string_view name,
 		const std::string_view description,
 		const bool isEnabled

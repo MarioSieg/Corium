@@ -205,10 +205,61 @@
 
 #pragma once
 
+#include <unordered_map>
+
+#include "Factory.hpp"
+#include "IHypervisorHooks.hpp"
+#include "ISubsystem.hpp"
+
+#include "../../Foundation/Panic/Assertions.hpp"
+
 namespace Nominax::Core::Subsystem
 {
-	struct HypervisorHost
+	struct HypervisorHost : IHypervisorHooks
 	{
-		
+    public:
+        HypervisorHost() noexcept = default;
+        HypervisorHost(HypervisorHost&& other) = default;
+        HypervisorHost(const HypervisorHost& other) noexcept = default;
+        auto operator =(const HypervisorHost& other) noexcept -> HypervisorHost& = default;
+        auto operator =(HypervisorHost&& other) -> HypervisorHost& = default;
+        virtual ~HypervisorHost() = default;
+
+        using HostToSystemKey = std::uint32_t;
+
+    protected:
+        std::unordered_map<HostToSystemKey, SubsystemHandle> Systems_ { };
+        HostToSystemKey Accumulator_ { };
+
+    public:
+        template <typename T, typename... Args> requires Factory::IsValidSubsystem<T, Args...>
+        NOX_NEVER_INLINE auto Install
+        (
+            std::unique_ptr<SubsystemConfig>&& config = std::make_unique<SubsystemConfig>(),
+            void* userDAta = nullptr,
+            Args&&... args
+        ) -> void;
 	};
+
+    template<typename T, typename... Args>
+    requires Factory::IsValidSubsystem<T, Args...>
+    NOX_NEVER_INLINE auto HypervisorHost::Install
+    (
+        std::unique_ptr<SubsystemConfig>&& config,
+        void* const userData,
+        Args&&... args
+    ) -> void
+    {
+        this->OnPreInstall(*config, userData);
+        const std::pair<std::unordered_map<HostToSystemKey, SubsystemHandle>::iterator, bool> result
+        {
+            this->Systems_.template emplace
+            (
+                ++this->Accumulator_,
+                std::move(Factory::AllocateSubsystemInstance<T, Args...>(std::move(config), userData, std::forward<Args>(args)...))
+            )
+        };
+        NOX_PAS(!result.second, "Subsystem with host key already exists!");
+        this->OnPostInstall(*((*result.first).second));
+    }
 }
