@@ -205,8 +205,9 @@
 
 import shutil
 import os
-import glob
 import os.path
+import glob
+import platform
 
 excludes = [
     "AllSemanticErrors.cor",
@@ -216,9 +217,9 @@ excludes = [
 def is_shell_tool_installed(cmd: str) -> bool:
     return shutil.which(cmd) is not None
 
-if not is_shell_tool_installed("corium"):
-    print("Could not find Corium! Please install Corium and add it to your $PATH environment variable!")
-    exit(-1)
+corium = "corium" if is_shell_tool_installed("corium") else "../Corium/Projects/target/release/corium"
+if platform.system() == "Windows":
+    corium += ".exe"
 
 src_dir = "../Corium/ValidationSource/"
 assert os.path.isdir(src_dir)
@@ -227,7 +228,7 @@ for exclude in excludes:
     for file in source_files:
         if file.endswith(exclude):
             source_files.remove(file)
-command = "corium compile -i"
+command = corium + " compile -i"
 for file in source_files:
     command += " "
     command += os.path.realpath(file)
