@@ -406,11 +406,11 @@ namespace Nominax::Foundation::Memory
         NOX_DBG_PAS_NOT_ZERO(size, "Memory mapping with zero size requested!");
         if constexpr (alignof(T) > alignof(std::max_align_t))
         {
-            this->Region_ = VMM::VirtualAllocAligned(size * sizeof(T), alignof(T), flags, lockedProtection, &this->Header_);
+            this->Region_ = Allocator::VMM::VirtualAllocAligned(size * sizeof(T), alignof(T), flags, lockedProtection, &this->Header_);
         }
         else
         {
-            this->Region_ = VMM::VirtualAlloc(size * sizeof(T), flags, lockedProtection, &this->Header_);
+            this->Region_ = Allocator::VMM::VirtualAlloc(size * sizeof(T), flags, lockedProtection, &this->Header_);
         }
         NOX_DBG_PAS_NOT_NULL(this->Region_, "Virtual memory allocation failed!");
     }

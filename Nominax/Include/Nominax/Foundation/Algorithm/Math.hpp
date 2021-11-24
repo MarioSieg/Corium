@@ -207,6 +207,7 @@
 
 #include <array>
 #include <cstdint>
+#include <climits>
 #include <type_traits>
 
 #include "../Platform.hpp"

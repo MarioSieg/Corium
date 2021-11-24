@@ -285,8 +285,8 @@ namespace Nominax::Scheduler
 	template <const std::uint8_t SizeLog2, typename T> requires std::is_trivial_v<T> && (SizeLog2 < 32)
 	auto SemiSPMCPipe<SizeLog2, T>::TryConsumeFront(T& out) noexcept -> bool
 	{
-		const std::uint32_t writeIndex { this->WriteIndex_.load(std::memory_order_relaxed };
-		const std::uint32_t frontReadIndex { writeIndex };
+		const std::uint32_t writeIndex { this->WriteIndex_.load(std::memory_order_relaxed) };
+		std::uint32_t frontReadIndex { writeIndex };
 		std::uint32_t actualReadIndex { };
 
 		for (;;)
