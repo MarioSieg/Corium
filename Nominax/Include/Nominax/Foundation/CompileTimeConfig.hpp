@@ -263,8 +263,14 @@ namespace Nominax::Foundation
 		/// </summary>
 		static constexpr bool EnableVerboseAllocator { true };
 
+		/// <summary>
+		/// Bypass the system allocator proxy.
+		/// </summary>
 		static constexpr bool BypassSystemAllocator { IsDebug };
 
+		/// <summary>
+		/// Enable cache prefetching.
+		/// </summary>
 		static constexpr bool EnablePrefetch { !IsDebug };
 	};
 }

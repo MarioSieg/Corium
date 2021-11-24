@@ -205,4 +205,9 @@
 
 #pragma once
 
+#include "Config.hpp"
+#include "Factory.hpp"
+#include "HypervisorHost.hpp"
+#include "IEventHooks.hpp"
 #include "ISubsystem.hpp"
+#include "ThreadIDHash.hpp"

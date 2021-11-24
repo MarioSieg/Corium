@@ -379,7 +379,7 @@ namespace Nominax::ByteCode
 						Signal::DISCRIMINATOR_MNEMONICS[Algorithm::ToUnderlying(dis)],
 						Compiler::RPAREN,
 						Compiler::IMMEDIATE_MARKER,
-						sig.R64.AsU64
+						sig.AsRecord.AsU64
 					);
                 continue;
 
@@ -393,7 +393,7 @@ namespace Nominax::ByteCode
 						Signal::DISCRIMINATOR_MNEMONICS[Algorithm::ToUnderlying(dis)],
 						Compiler::RPAREN,
 						Compiler::IMMEDIATE_MARKER,
-						SysCallMetaDataRegistry::MNEMONIC_TABLE[sig.R64.AsU64]
+						SysCallMetaDataRegistry::MNEMONIC_TABLE[sig.AsRecord.AsU64]
 					);
                 continue;
 
@@ -407,7 +407,7 @@ namespace Nominax::ByteCode
 						Signal::DISCRIMINATOR_MNEMONICS[Algorithm::ToUnderlying(dis)],
 						Compiler::RPAREN,
 						Compiler::IMMEDIATE_MARKER,
-						sig.R64.AsI64
+						sig.AsRecord.AsI64
 					);
                 continue;
 
@@ -421,12 +421,12 @@ namespace Nominax::ByteCode
 						Signal::DISCRIMINATOR_MNEMONICS[Algorithm::ToUnderlying(dis)],
 						Compiler::RPAREN,
 						Compiler::IMMEDIATE_MARKER,
-						sig.R64.AsF64
+						sig.AsRecord.AsF64
 					);
                 continue;
 
                 case Signal::Discriminator::Instruction:
-                    Print(stream, NOX_FMT("\n{}"), InstructionMetaDataRegistry::MNEMONIC_TABLE[sig.R64.AsU64]);
+                    Print(stream, NOX_FMT("\n{}"), InstructionMetaDataRegistry::MNEMONIC_TABLE[sig.AsRecord.AsU64]);
                 continue;
             }
         }

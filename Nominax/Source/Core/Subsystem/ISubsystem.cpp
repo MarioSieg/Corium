@@ -204,12 +204,14 @@
 //    limitations under the License.
 
 #include "../../../Include/Nominax/Core/Subsystem/ISubsystem.hpp"
+#include "../../../Include/Nominax/Core/Subsystem/HypervisorHost.hpp"
 
 namespace Nominax::Core::Subsystem
 {
 	ISubsystem::ISubsystem
 	(
 		HypervisorHost& host,
+		const HookFlag subscriptions,
 		const std::string_view name,
 		const std::string_view description,
 		const bool isEnabled
@@ -217,7 +219,9 @@ namespace Nominax::Core::Subsystem
 		Host_ { host },
 		Name_ { name },
 		Description_ { description },
-		ID_ { IDAccumulator_++ },
-		IsEnabled_ { isEnabled },
-		Mutex { std::make_unique<std::mutex>() } { }
+		ID_ { IDAccumulator_.fetch_add(1, std::memory_order_relaxed) },
+		IsEnabled_ { isEnabled }
+	{
+		this->SetSubscriptions(subscriptions);
+	}
 }

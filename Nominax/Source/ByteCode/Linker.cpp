@@ -252,11 +252,11 @@ namespace Nominax::ByteCode
                         const Signal::Discriminator discriminator { discriminators[&x - begin] };
                         if (discriminator == Signal::Discriminator::Instruction)
                         {
-                            x.Ptr = const_cast<void*>(*(jumpTable + x.R64.AsU64));
+                            x.AsPtr = const_cast<void*>(*(jumpTable + x.AsRecord.AsU64));
                         }
                         else if (discriminator == Signal::Discriminator::JumpAddress)
                         {
-                            x.Ptr = const_cast<void*>(ComputeRelativeJumpAddress(base, x.JmpAddress));
+                            x.AsPtr = const_cast<void*>(ComputeRelativeJumpAddress(base, x.AsJumpAddress));
                         }
                     }
                 };

@@ -318,13 +318,13 @@ namespace Nominax::ByteCode
                     {
                         const Signal::Discriminator* const next { SearchForNextInstruction(&iterator, bufEnd) };
                         const std::span<const Signal::Discriminator> args { ExtractInstructionArguments(&iterator, ComputeInstructionArgumentOffset(&iterator, next)) };
-                        result = ValidateInstructionArguments(signal.Instr, args); // validate args
+                        result = ValidateInstructionArguments(signal.AsInstruction, args); // validate args
                     }
 					break;
 
 					case Signal::Discriminator::JumpAddress:
 					{
-						result = ValidateJumpAddress(input, signal.JmpAddress)
+						result = ValidateJumpAddress(input, signal.AsJumpAddress)
 							? ValidationResultCode::Ok
 							: ValidationResultCode::InvalidJumpAddress;
 					}
@@ -332,7 +332,7 @@ namespace Nominax::ByteCode
 
 					case Signal::Discriminator::Intrinsic:
 					{
-						result = ValidateUserIntrinsicCall(intrinsicRegistry, signal.UserIntrinID)
+						result = ValidateUserIntrinsicCall(intrinsicRegistry, signal.AsFFIIntrinsic)
 							? ValidationResultCode::Ok
 							: ValidationResultCode::InvalidUserIntrinsicCall;
 					}
@@ -385,15 +385,15 @@ namespace Nominax::ByteCode
 		return NOX_EXPECT_VALUE(bucket[idx].Contains<Instruction>(), true);
 	}
 
-	auto ValidateSystemIntrinsicCall(const SysCall id) noexcept -> bool
+	auto ValidateSystemIntrinsicCall(const Syscall id) noexcept -> bool
 	{
-		constexpr auto max { Foundation::Algorithm::ToUnderlying(SysCall::Count_) - 1 };
+		constexpr auto max { Foundation::Algorithm::ToUnderlying(Syscall::Count_) - 1 };
 		const auto value { Foundation::Algorithm::ToUnderlying(id) };
 		static_assert(std::is_unsigned_v<decltype(value)>);
 		return NOX_EXPECT_VALUE(value <= max, true);
 	}
 
-	auto ValidateUserIntrinsicCall(const UserIntrinsicRoutineRegistry& routines, const UserIntrinsicInvocationID id) noexcept -> bool
+	auto ValidateUserIntrinsicCall(const UserIntrinsicRoutineRegistry& routines, const FFIIntrinsicInvocationID id) noexcept -> bool
 	{
 		static_assert(std::is_unsigned_v<std::underlying_type_t<decltype(id)>>);
 		return NOX_EXPECT_VALUE(Foundation::Algorithm::ToUnderlying(id) < std::size(routines), true);

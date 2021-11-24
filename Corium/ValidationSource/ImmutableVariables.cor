@@ -1,0 +1,3 @@
+const x = 10 + 3 * 5 & 2
+let y = x
+const z = y << x >> 2 * (2 ^ z)

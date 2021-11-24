@@ -129,11 +129,11 @@ namespace Nominax::ByteCode
 	                    switch (discriminator)
 	                    {
 		                    case Signal::Discriminator::MemoryOffset:
-		                        stream.Emit(MemOffset{ x });
+		                        stream.Emit(MemoryOffset{ x });
 		                    break;
 
 		                    case Signal::Discriminator::Intrinsic:
-		                        stream.Emit(UserIntrinsicInvocationID{ x });
+		                        stream.Emit(FFIIntrinsicInvocationID{ x });
 		                    break;
 
 		                    case Signal::Discriminator::JumpAddress:
@@ -155,7 +155,7 @@ namespace Nominax::ByteCode
 
 		            case Signal::Discriminator::SysCall:
 		            {
-		                SysCall call { };
+		                Syscall call { };
 		                const bool found
 		                {
 							EnumeratingSearch
@@ -166,7 +166,7 @@ namespace Nominax::ByteCode
 		                        {
 		                            if (immediate == current)
 		                            {
-		                                call = static_cast<SysCall>(iteration);
+		                                call = static_cast<Syscall>(iteration);
 		                                return true;
 		                            }
 		                            return false;

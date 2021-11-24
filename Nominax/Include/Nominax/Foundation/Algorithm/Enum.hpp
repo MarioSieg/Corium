@@ -220,4 +220,67 @@ namespace Nominax::Foundation::Algorithm
 	{
 		return static_cast<std::underlying_type_t<std::decay_t<T>>>(x);
 	}
+
+	/// <summary>
+	/// Converts the underlying type into the enum.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="x"></param>
+	/// <returns></returns>
+	template <typename T> requires std::is_enum_v<T>
+	constexpr auto FromUnderlying(const std::underlying_type_t<std::decay_t<T>> x) noexcept -> auto
+	{
+		return static_cast<T>(x);
+	}
+
+	/// <summary>
+	/// Implements all bit operators for an enum class to be used as bitflags.
+	/// </summary>
+	#define NOX_IMPL_ENUM_BIT_FLAGS(e)										\
+		constexpr auto operator & (const e a, const e b) noexcept -> e		\
+		{																	\
+			return Nominax::Foundation::Algorithm::FromUnderlying<e>		\
+			(																\
+				Nominax::Foundation::Algorithm::ToUnderlying<e>(a)			\
+				&															\
+				Nominax::Foundation::Algorithm::ToUnderlying<e>(b)			\
+			);																\
+		}																	\
+		constexpr auto operator | (const e a, const e b) noexcept -> e		\
+		{																	\
+			return Nominax::Foundation::Algorithm::FromUnderlying<e>		\
+			(																\
+				Nominax::Foundation::Algorithm::ToUnderlying<e>(a)			\
+				|															\
+				Nominax::Foundation::Algorithm::ToUnderlying<e>(b)			\
+			);																\
+		}																	\
+		constexpr auto operator ^ (const e a, const e b) noexcept -> e		\
+		{																	\
+			return Nominax::Foundation::Algorithm::FromUnderlying<e>		\
+			(																\
+				Nominax::Foundation::Algorithm::ToUnderlying<e>(a)			\
+				^															\
+				Nominax::Foundation::Algorithm::ToUnderlying<e>(b)			\
+			);																\
+		}																	\
+		constexpr auto operator &= (e& a, const e b) noexcept -> void		\
+		{																	\
+			a = a & b;														\
+		}																	\
+		constexpr auto operator |= (e& a, const e b) noexcept -> void		\
+		{																	\
+			a = a | b;														\
+		}																	\
+		constexpr auto operator ^= (e& a, const e b) noexcept -> void		\
+		{																	\
+			a = a ^ b;														\
+		}																	\
+		constexpr auto operator ~ (const e a) noexcept -> e					\
+		{																	\
+			return Nominax::Foundation::Algorithm::FromUnderlying<e>		\
+			(																\
+				~Nominax::Foundation::Algorithm::ToUnderlying<e>(a)			\
+			);																\
+		}
 }

@@ -337,7 +337,7 @@ TEST(ReactorExecution, Instruction_Pop)
 	ASSERT_EQ(output.Input->Stack[2].AsF64, -0.6666);
 	ASSERT_EQ(output.SpDiff, 0);
 
-	code[6].Instr = Instruction::NOP;
+	code[6].AsInstruction = Instruction::NOP;
 	output             = SingletonExecutionProxy(input);
 	ASSERT_EQ(output.Input->Stack[1].AsI64, 1224);
 	ASSERT_EQ(output.Input->Stack[2].AsF64, -0.6666);

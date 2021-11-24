@@ -235,7 +235,7 @@ namespace Nominax::Core
 	using Foundation::VectorLib::F64_X16_Mul_Unaligned;
 	using Foundation::VectorLib::F64_X16_Div_Unaligned;
 
-	using ByteCode::SysCall;
+	using ByteCode::Syscall;
 	using ByteCode::Instruction;
 	using ByteCode::IntrinsicRoutine;
 	using ByteCode::Signal;
@@ -257,9 +257,9 @@ namespace Nominax::Core
     #   define DISPATCH()				*((*ip).Reference)
     #   define SET_JUMP_TARGET()		ip = reinterpret_cast<const Signal*>(abs)
     #else
-    #   define PEEK_DISPATCH()			**(jumpTable+(*++ip).R64.AsU64)
-    #   define DISPATCH()				**(jumpTable+(*ip).R64.AsU64)
-    #   define SET_JUMP_TARGET()		ip = ipLo+abs-1
+    #   define PEEK_DISPATCH()			**(jumpTable + (*++ip).AsRecord.AsU64)
+    #   define DISPATCH()				**(jumpTable + (*ip).AsRecord.AsU64)
+    #   define SET_JUMP_TARGET()		ip = ipLo + abs - 1
     #endif
 
     #define LIKELY(expr)    __builtin_expect(expr, true)
@@ -268,7 +268,7 @@ namespace Nominax::Core
     /*
      * Compute vtor memory offset relative to %sp
      */
-    #define VEC_MOFFS(x) (sp-((x)+1))
+    #define VEC_MOFFS(x) (sp - ((x) + 1))
 
     /// <summary>
     /// Operator for double precision floating point modulo.
@@ -408,7 +408,7 @@ namespace Nominax::Core
 		{
 			ASM_MARKER("int");
 
-			interruptCode = static_cast<InterruptStatus>((*++ip).R64.AsI64);
+			interruptCode = static_cast<InterruptStatus>((*++ip).AsRecord.AsI64);
             (*interruptHandlerHook)(interruptCode);
             goto _terminate_;
 		}
@@ -419,7 +419,7 @@ namespace Nominax::Core
 		NOX_HOT_LABEL;
 		ASM_MARKER("syscall");
 
-		SysCallIntrin(sp, (*++ip).R64.AsU64); // syscall(sp, imm())
+		SysCallIntrin(sp, (*++ip).AsRecord.AsU64); // syscall(sp, imm())
 
 		goto
 		PEEK_DISPATCH();
@@ -429,7 +429,7 @@ namespace Nominax::Core
 		NOX_HOT_LABEL;
 		ASM_MARKER("intrin");
 
-		(**(intrinsicTable + (*++ip).R64.AsU64))(sp);
+		(**(intrinsicTable + (*++ip).AsRecord.AsU64))(sp);
 
 		goto
 		PEEK_DISPATCH();
@@ -442,7 +442,7 @@ namespace Nominax::Core
 
 			// ip + 1 is the procedure to jump to, so
 			// ip + 2 is the next instruction
-			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
+			const std::uint64_t abs { (*++ip).AsRecord.AsU64 }; // absolute address
 			bp = ip + 1;                                   // store the address to return to in the base pointer
 			ip = ipLo + abs;                               // ip = begin + offset
 		}
@@ -467,8 +467,8 @@ namespace Nominax::Core
 		{
 			ASM_MARKER("mov");
 
-			const std::uint64_t dst { (*++ip).R64.AsU64 }; // imm() -> arg 1 (reg) - dst
-			*(sp + dst) = *(sp + (*++ip).R64.AsU64);       // poke(dst) = poke(imm())
+			const std::uint64_t dst { (*++ip).AsRecord.AsU64 }; // imm() -> arg 1 (reg) - dst
+			*(sp + dst) = *(sp + (*++ip).AsRecord.AsU64);       // poke(dst) = poke(imm())
 		}
 		goto
 		PEEK_DISPATCH();
@@ -479,8 +479,8 @@ namespace Nominax::Core
 		{
 			ASM_MARKER("sto");
 
-			const std::uint64_t dst { (*++ip).R64.AsU64 }; // imm() -> arg 1 (reg) - dst
-			(*(sp + dst)).AsU64 = (*++ip).R64.AsU64;       // poke(dst) = imm()
+			const std::uint64_t dst { (*++ip).AsRecord.AsU64 }; // imm() -> arg 1 (reg) - dst
+			(*(sp + dst)).AsU64 = (*++ip).AsRecord.AsU64;       // poke(dst) = imm()
 		}
 		goto
 		PEEK_DISPATCH();
@@ -490,7 +490,7 @@ namespace Nominax::Core
 		NOX_HOT_LABEL;
 		ASM_MARKER("push");
 
-		*++sp = (*++ip).R64; // push(imm())
+		*++sp = (*++ip).AsRecord; // push(imm())
 
 		goto
 		PEEK_DISPATCH();
@@ -568,7 +568,7 @@ namespace Nominax::Core
 		{
 			ASM_MARKER("jmp");
 
-			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
+			const std::uint64_t abs { (*++ip).AsRecord.AsU64 }; // absolute address
 			#if NOX_OPT_EXECUTION_ADDRESS_MAPPING
 			ip = reinterpret_cast<const Signal*>(abs);
 			#else
@@ -584,7 +584,7 @@ namespace Nominax::Core
 		{
 			ASM_MARKER("jmprel");
 
-			const std::uint64_t rel { (*++ip).R64.AsU64 }; // relative address
+			const std::uint64_t rel { (*++ip).AsRecord.AsU64 }; // relative address
 			#if NOX_OPT_EXECUTION_ADDRESS_MAPPING
 			ip = reinterpret_cast<const Signal*>(rel);
 			#else
@@ -600,7 +600,7 @@ namespace Nominax::Core
 		{
 			ASM_MARKER("jz");
 
-			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
+			const std::uint64_t abs { (*++ip).AsRecord.AsU64 }; // absolute address
 			if ((*sp--).AsI64 == 0)
 			{
 				SET_JUMP_TARGET(); // ip = begin + offset - 1 (inc stride)
@@ -615,7 +615,7 @@ namespace Nominax::Core
 		{
 			ASM_MARKER("jnz");
 
-			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
+			const std::uint64_t abs { (*++ip).AsRecord.AsU64 }; // absolute address
 			if ((*sp--).AsI64 != 0)
 			{
 				SET_JUMP_TARGET(); // ip = begin + offset - 1 (inc stride)
@@ -630,7 +630,7 @@ namespace Nominax::Core
 		{
 			ASM_MARKER("jo_cmpi");
 
-			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
+			const std::uint64_t abs { (*++ip).AsRecord.AsU64 }; // absolute address
 			if ((*sp--).AsI64 == 1)
 			{
 				// pop()
@@ -646,7 +646,7 @@ namespace Nominax::Core
 		{
 			ASM_MARKER("jo_cmpf");
 
-			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
+			const std::uint64_t abs { (*++ip).AsRecord.AsU64 }; // absolute address
 			if (Foundation::IEEE754::IsOne((*sp--).AsF64))
 			{
 				// pop()
@@ -662,7 +662,7 @@ namespace Nominax::Core
 		{
 			ASM_MARKER("jno_cmpi");
 
-			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
+			const std::uint64_t abs { (*++ip).AsRecord.AsU64 }; // absolute address
 			if ((*sp--).AsI64 != 1)
 			{
 				// pop()
@@ -678,7 +678,7 @@ namespace Nominax::Core
 		{
 			ASM_MARKER("jno_cmpf");
 
-			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
+			const std::uint64_t abs { (*++ip).AsRecord.AsU64 }; // absolute address
 			if (!Foundation::IEEE754::IsOne((*sp--).AsF64))
 			{
 				// pop()
@@ -695,7 +695,7 @@ namespace Nominax::Core
 			ASM_MARKER("je_cmpi");
 
 			--sp;                                          // pop()
-			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
+			const std::uint64_t abs { (*++ip).AsRecord.AsU64 }; // absolute address
 			if ((*sp).AsI64 == (*(sp + 1)).AsI64)
 			{
 				SET_JUMP_TARGET(); // ip = begin + offset - 1 (inc stride)
@@ -712,7 +712,7 @@ namespace Nominax::Core
 			ASM_MARKER("je_cmpf");
 
 			--sp;                                          // pop()
-			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
+			const std::uint64_t abs { (*++ip).AsRecord.AsU64 }; // absolute address
 			if (Foundation::IEEE754::Equals((*sp).AsF64, (*(sp + 1)).AsF64))
 			{
 				SET_JUMP_TARGET(); // ip = begin + offset - 1 (inc stride)
@@ -729,7 +729,7 @@ namespace Nominax::Core
 			ASM_MARKER("jne_cmpi");
 
 			--sp;                                          // pop()
-			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
+			const std::uint64_t abs { (*++ip).AsRecord.AsU64 }; // absolute address
 			if ((*sp).AsI64 != (*(sp + 1)).AsI64)
 			{
 				SET_JUMP_TARGET(); // ip = begin + offset - 1 (inc stride)
@@ -746,7 +746,7 @@ namespace Nominax::Core
 			ASM_MARKER("jne_cmpf");
 
 			--sp;                                          // pop()
-			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
+			const std::uint64_t abs { (*++ip).AsRecord.AsU64 }; // absolute address
 			if (!Foundation::IEEE754::Equals((*sp).AsF64, (*(sp + 1)).AsF64))
 			{
 				SET_JUMP_TARGET(); // ip = begin + offset - 1 (inc stride)
@@ -763,7 +763,7 @@ namespace Nominax::Core
 			ASM_MARKER("ja_cmpi");
 
 			--sp;                                          // pop()
-			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
+			const std::uint64_t abs { (*++ip).AsRecord.AsU64 }; // absolute address
 			if ((*sp).AsI64 > (*(sp + 1)).AsI64)
 			{
 				SET_JUMP_TARGET(); // ip = begin + offset - 1 (inc stride)
@@ -780,7 +780,7 @@ namespace Nominax::Core
 			ASM_MARKER("ja_cmpf");
 
 			--sp;                                          // pop()
-			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
+			const std::uint64_t abs { (*++ip).AsRecord.AsU64 }; // absolute address
 			if ((*sp).AsF64 > (*(sp + 1)).AsF64)
 			{
 				SET_JUMP_TARGET(); // ip = begin + offset - 1 (inc stride)
@@ -797,7 +797,7 @@ namespace Nominax::Core
 			ASM_MARKER("jl_cmpi");
 
 			--sp;                                          // pop()
-			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
+			const std::uint64_t abs { (*++ip).AsRecord.AsU64 }; // absolute address
 			if ((*sp).AsI64 < (*(sp + 1)).AsI64)
 			{
 				SET_JUMP_TARGET(); // ip = begin + offset - 1 (inc stride)
@@ -814,7 +814,7 @@ namespace Nominax::Core
 			ASM_MARKER("jl_cmpf");
 
 			--sp;                                          // pop()
-			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
+			const std::uint64_t abs { (*++ip).AsRecord.AsU64 }; // absolute address
 			if ((*sp).AsF64 < (*(sp + 1)).AsF64)
 			{
 				SET_JUMP_TARGET(); // ip = begin + offset - 1 (inc stride)
@@ -831,7 +831,7 @@ namespace Nominax::Core
 			ASM_MARKER("jae_cmpi");
 
 			--sp;                                          // pop()
-			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
+			const std::uint64_t abs { (*++ip).AsRecord.AsU64 }; // absolute address
 			if ((*sp).AsI64 >= (*(sp + 1)).AsI64)
 			{
 				SET_JUMP_TARGET(); // ip = begin + offset - 1 (inc stride)
@@ -848,7 +848,7 @@ namespace Nominax::Core
 			ASM_MARKER("jae_cmpf");
 
 			--sp;                                          // pop()
-			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
+			const std::uint64_t abs { (*++ip).AsRecord.AsU64 }; // absolute address
 			if ((*sp).AsF64 >= (*(sp + 1)).AsF64)
 			{
 				SET_JUMP_TARGET(); // ip = begin + offset - 1 (inc stride)
@@ -865,7 +865,7 @@ namespace Nominax::Core
 			ASM_MARKER("jle_cmpi");
 
 			--sp;                                          // pop()
-			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
+			const std::uint64_t abs { (*++ip).AsRecord.AsU64 }; // absolute address
 			if ((*sp).AsI64 <= (*(sp + 1)).AsI64)
 			{
 				SET_JUMP_TARGET(); // ip = begin + offset - 1 (inc stride)
@@ -882,7 +882,7 @@ namespace Nominax::Core
 			ASM_MARKER("jle_cmpf");
 
 			--sp;                                          // pop()
-			const std::uint64_t abs { (*++ip).R64.AsU64 }; // absolute address
+			const std::uint64_t abs { (*++ip).AsRecord.AsU64 }; // absolute address
 			if ((*sp).AsF64 <= (*(sp + 1)).AsF64)
 			{
 				SET_JUMP_TARGET(); // ip = begin + offset - 1 (inc stride)

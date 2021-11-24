@@ -209,7 +209,7 @@
 
 #include "Signal.hpp"
 #include "InstructionMetaDataRegistry.hpp"
-#include "SysCallMetaDataRegistry.hpp"
+#include "SyscallMetaDataRegistry.hpp"
 
 namespace Nominax::ByteCode
 {
@@ -296,7 +296,7 @@ namespace Nominax::ByteCode
         /// <summary>
         /// All available syscall mnemonics.
         /// </summary>
-        static constexpr const std::array<const std::string_view, Foundation::Algorithm::ToUnderlying(SysCall::Count_)>& SYSCALL_MNEMONIC_TABLE
+        static constexpr const std::array<const std::string_view, Foundation::Algorithm::ToUnderlying(Syscall::Count_)>& SYSCALL_MNEMONIC_TABLE
         {
             SysCallMetaDataRegistry::MNEMONIC_TABLE
         };

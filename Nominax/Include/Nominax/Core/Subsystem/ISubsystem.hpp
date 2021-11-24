@@ -206,64 +206,170 @@
 #pragma once
 
 #include <atomic>
+#include <future>
 #include <memory>
-#include <mutex>
 #include <string_view>
-#include <thread>
 #include <type_traits>
 
+#include "IEventHooks.hpp"
 #include "Config.hpp"
 #include "ThreadIDHash.hpp"
 
 namespace Nominax::Core::Subsystem
 {
+    struct HypervisorHost;
+
 	/// <summary>
 	/// Base class for all subsystems.
 	///	Designed for one subsystem per thread.
 	///	Contains the dispatch worker thread and a sync mutex.
 	/// </summary>
 	/// <typeparam name="SysConfig"></typeparam>
-	struct ISubsystem
+	struct ISubsystem : IEventHooks
 	{
-		friend class HypervisorHost;
+		friend HypervisorHost;
 
+		/// <summary>
+		/// No copying.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
 		ISubsystem(const ISubsystem& other) noexcept = delete;
-		ISubsystem(ISubsystem&& other) noexcept = default;
-		auto operator =(const ISubsystem& other) -> ISubsystem & = delete;
-		auto operator =(ISubsystem&& other) -> ISubsystem & = delete;
-		virtual ~ISubsystem() = default;
 
+		/// <summary>
+		/// No moving.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		ISubsystem(ISubsystem&& other) noexcept = default;
+
+		/// <summary>
+		/// No copying.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(const ISubsystem& other) -> ISubsystem & = delete;
+
+		/// <summary>
+		/// No moving.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(ISubsystem&& other) -> ISubsystem & = delete;
+
+		/// <summary>
+		/// Destructor.
+		/// </summary>
+		virtual ~ISubsystem() override = default;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The host of this subsystem.</returns>
 		auto Host() const & noexcept -> const HypervisorHost&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The boot and runtime config.</returns>
 		auto Config() const & noexcept -> const SubsystemConfig&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>User data - if any.</returns>
 		auto UserData() const & noexcept -> const void*;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>True if the subsystem is enabled, else false.</returns>
 		auto IsEnabled() const & noexcept -> bool;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The short name.</returns>
 		auto Name() const & noexcept -> std::string_view;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The detailed description.</returns>
 		auto Description() const & noexcept -> std::string_view;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The unique subsystem ID.</returns>
 		auto ID() const & noexcept -> std::uint16_t;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The thread-id of the subsystem.</returns>
 		auto ThreadIDHash() const & noexcept -> DispatchThreadID;
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The super event hooks class.</returns>
+		auto EventHooks() const & noexcept -> const IEventHooks&;
+
+		/// <summary>
+		/// Enable/disable the subsystem.
+		/// </summary>
+		/// <param name="enabled"></param>
+		/// <returns></returns>
 		auto SetEnabled(bool enabled) const noexcept -> void;
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The atomic ID generator accumulator.</returns>
 		static auto IDAccumulator() noexcept -> std::uint16_t;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The thread local id.</returns>
 		static auto ThreadID() noexcept -> DispatchThreadID;
 
+		struct Deleter final
+		{
+			auto operator () (ISubsystem* instance) const noexcept -> void;
+		};
+
+		/// <summary>
+		/// Default hook flags used for initialization.
+		/// </summary>
+		static constexpr HookFlag DEFAULT_HOOK_FLAGS
+		{
+			HookFlag::OnConstruct | HookFlag::OnDestruct
+		};
+
 	protected:
+		/// <summary>
+		/// Construct and initialize subsystem interface.
+		/// </summary>
+		/// <param name="host"></param>
+		/// <param name="name"></param>
+		/// <param name="subscriptions"></param>
+		/// <param name="description"></param>
+		/// <param name="isEnabled"></param>
+		/// <returns></returns>
 		explicit ISubsystem
 		(
 			HypervisorHost& host,
-			std::string_view name = "Unknown",
+			HookFlag subscriptions,
+			std::string_view name,
 			std::string_view description = { },
 			bool isEnabled = true
 		) noexcept;
 
-		virtual auto OnPreBoot(std::unique_ptr<SubsystemConfig>&& config, void* userData) & -> bool = 0;
-		virtual auto OnPostBoot() & -> bool = 0;
-
-		virtual auto OnPreShutdown() & -> bool = 0;
-		virtual auto OnPostShutdown() & -> bool = 0;
-
-		auto SetBootConfig(std::unique_ptr<SubsystemConfig>&& config) & noexcept -> void;
-		auto GetBootConfig() const && noexcept -> const std::unique_ptr<SubsystemConfig>&&;
+		auto BootConfig(std::unique_ptr<SubsystemConfig>&& config) & noexcept -> void;
+		auto BootConfig() const && noexcept -> const std::unique_ptr<SubsystemConfig>&&;
+		auto OnConstruct(std::unique_ptr<SubsystemConfig>&& config, void* userData) & -> void override;
 
 	private:
 		inline static constinit std::atomic_uint16_t IDAccumulator_ { };
@@ -275,20 +381,23 @@ namespace Nominax::Core::Subsystem
 		mutable bool IsEnabled_;
 
 	protected:
-		mutable std::unique_ptr<std::mutex> Mutex;
-		std::unique_ptr<SubsystemConfig> BootConfig { nullptr };
+		std::unique_ptr<SubsystemConfig> BootConfigStorage { nullptr };
 		void* StoredUserData { nullptr };
 	};
 
-	/* SYNCED */
+	inline auto ISubsystem::Deleter::operator() (ISubsystem* const instance) const noexcept -> void
+	{
+		if (instance->HasSubscribed(HookFlag::OnDestruct))
+		{
+			instance->OnDestruct();
+		}
+		delete instance;
+	}
 
 	inline auto ISubsystem::SetEnabled(const bool enabled) const noexcept -> void
 	{
-		std::lock_guard<std::mutex> lock { *this->Mutex };
 		this->IsEnabled_ = enabled;
 	}
-
-	/* NON-SYNCED */
 
 	inline auto ISubsystem::Host() const & noexcept -> const HypervisorHost&
 	{
@@ -297,7 +406,7 @@ namespace Nominax::Core::Subsystem
 
 	inline auto ISubsystem::Config() const & noexcept -> const SubsystemConfig&
 	{
-		return *this->BootConfig;
+		return *this->BootConfigStorage;
 	}
 
 	inline auto ISubsystem::UserData() const & noexcept -> const void*
@@ -340,13 +449,24 @@ namespace Nominax::Core::Subsystem
 		return LocalDispatchThreadID_;
 	}
 
-	inline auto ISubsystem::SetBootConfig(std::unique_ptr<SubsystemConfig>&& config) & noexcept -> void
+	inline auto ISubsystem::EventHooks() const & noexcept -> const IEventHooks&
 	{
-		this->BootConfig = std::move(config);
+		return dynamic_cast<const IEventHooks&>(*this);
 	}
 
-	inline auto ISubsystem::GetBootConfig() const && noexcept -> const std::unique_ptr<SubsystemConfig>&&
+	inline auto ISubsystem::BootConfig(std::unique_ptr<SubsystemConfig>&& config) & noexcept -> void
 	{
-		return std::move(this->BootConfig);
+		this->BootConfigStorage = std::move(config);
+	}
+
+	inline auto ISubsystem::BootConfig() const && noexcept -> const std::unique_ptr<SubsystemConfig>&&
+	{
+		return std::move(this->BootConfigStorage);
+	}
+
+	inline auto ISubsystem::OnConstruct(std::unique_ptr<SubsystemConfig>&& config, void* const userData) & -> void
+	{
+		this->BootConfigStorage = std::move(config);
+		this->StoredUserData = userData;
 	}
 }

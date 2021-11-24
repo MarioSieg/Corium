@@ -210,7 +210,7 @@
 // Legacy compat:
 struct DynamicSignal final
 {
-	using DataVariant = std::variant<Instruction, SysCall, UserIntrinsicInvocationID, JumpAddress, std::uint64_t, std::int64_t, double>;
+	using DataVariant = std::variant<Instruction, Syscall, FFIIntrinsicInvocationID, JumpAddress, std::uint64_t, std::int64_t, double>;
 
 	DataVariant Data {0ULL};
 
@@ -253,7 +253,7 @@ TEST(ValidatorAlgorithms, ValidateJumpAddressValid)
 	bucket.Emit(Instruction::DUPL);
 	bucket.Emit(2.2);
 	bucket.Emit(static_cast<std::int64_t>(-2));
-	bucket.Emit(static_cast<MemOffset>(0xFF));
+	bucket.Emit(static_cast<MemoryOffset>(0xFF));
 	bucket.Emit(Instruction::FADD);
 	bucket.Emit(static_cast<std::int64_t>(3));
 
@@ -270,10 +270,10 @@ TEST(ValidatorAlgorithms, ValidateJumpAddressValid)
 
 TEST(ValidatorAlgorithms, ValidateSystemIntrinsicCall)
 {
-	ASSERT_TRUE(ValidateSystemIntrinsicCall(SysCall::ACOS));
-	ASSERT_TRUE(ValidateSystemIntrinsicCall(SysCall::ASIN));
-	ASSERT_FALSE(ValidateSystemIntrinsicCall(SysCall::Count_));
-	ASSERT_FALSE(ValidateSystemIntrinsicCall(static_cast<SysCall>(-1)));
+	ASSERT_TRUE(ValidateSystemIntrinsicCall(Syscall::ACOS));
+	ASSERT_TRUE(ValidateSystemIntrinsicCall(Syscall::ASIN));
+	ASSERT_FALSE(ValidateSystemIntrinsicCall(Syscall::Count_));
+	ASSERT_FALSE(ValidateSystemIntrinsicCall(static_cast<Syscall>(-1)));
 }
 
 TEST(ValidatorAlgorithms, ValidateCustomIntrinsicCall)
@@ -284,10 +284,10 @@ TEST(ValidatorAlgorithms, ValidateCustomIntrinsicCall)
 		nullptr
 	};
 
-	ASSERT_TRUE(ValidateUserIntrinsicCall(proc, UserIntrinsicInvocationID{ 0 }));
-	ASSERT_TRUE(ValidateUserIntrinsicCall(proc, UserIntrinsicInvocationID{ 1 }));
-	ASSERT_FALSE(ValidateUserIntrinsicCall(proc, UserIntrinsicInvocationID{ 2 }));
-	ASSERT_FALSE(ValidateUserIntrinsicCall(proc, UserIntrinsicInvocationID{ 3 }));
+	ASSERT_TRUE(ValidateUserIntrinsicCall(proc, FFIIntrinsicInvocationID{ 0 }));
+	ASSERT_TRUE(ValidateUserIntrinsicCall(proc, FFIIntrinsicInvocationID{ 1 }));
+	ASSERT_FALSE(ValidateUserIntrinsicCall(proc, FFIIntrinsicInvocationID{ 2 }));
+	ASSERT_FALSE(ValidateUserIntrinsicCall(proc, FFIIntrinsicInvocationID{ 3 }));
 }
 
 TEST(ValidatorAlgorithms, ValidateInstructionArguments_Int)
@@ -316,9 +316,9 @@ TEST(ValidatorAlgorithms, ValidateInstructionArguments_Intrin)
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::SYSCALL, {DynamicSignal{3ULL} }), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::SYSCALL, {DynamicSignal{3LL}, {} }), ValidationResultCode::TooManyArgumentsForInstruction);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::SYSCALL, std::vector<DynamicSignal>{{} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::SYSCALL, {DynamicSignal{SysCall::ASIN}, DynamicSignal{SysCall::ASIN} }),
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::SYSCALL, {DynamicSignal{Syscall::ASIN}, DynamicSignal{Syscall::ASIN} }),
 	          ValidationResultCode::TooManyArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::SYSCALL, {DynamicSignal{SysCall::ASIN} }), ValidationResultCode::Ok);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::SYSCALL, {DynamicSignal{Syscall::ASIN} }), ValidationResultCode::Ok);
 }
 
 
@@ -329,9 +329,9 @@ TEST(ValidatorAlgorithms, ValidateInstructionArguments_CIntrin)
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::INTRIN, {DynamicSignal{3ULL} }), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::INTRIN, {DynamicSignal{3LL}, {} }), ValidationResultCode::TooManyArgumentsForInstruction);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::INTRIN, std::vector<DynamicSignal>{{} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::INTRIN, {DynamicSignal{UserIntrinsicInvocationID{3}}, DynamicSignal{UserIntrinsicInvocationID{3}} }),
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::INTRIN, {DynamicSignal{FFIIntrinsicInvocationID{3}}, DynamicSignal{FFIIntrinsicInvocationID{3}} }),
 	          ValidationResultCode::TooManyArgumentsForInstruction);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::INTRIN, {DynamicSignal{UserIntrinsicInvocationID{3}} }), ValidationResultCode::Ok);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::INTRIN, {DynamicSignal{FFIIntrinsicInvocationID{3}} }), ValidationResultCode::Ok);
 }
 
 TEST(ValidatorAlgorithms, ValidateInstructionArguments_None)
@@ -351,8 +351,8 @@ TEST(ValidatorAlgorithms, ValidateInstructionArguments_Push_Combined)
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::PUSH, {DynamicSignal{3LL} }), ValidationResultCode::Ok);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::PUSH, {DynamicSignal{3ULL} }), ValidationResultCode::Ok);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::PUSH, {DynamicSignal{3.0} }), ValidationResultCode::Ok);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::PUSH, {DynamicSignal{SysCall::ASIN} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::PUSH, {DynamicSignal{UserIntrinsicInvocationID{3}} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::PUSH, {DynamicSignal{Syscall::ASIN} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::PUSH, {DynamicSignal{FFIIntrinsicInvocationID{3}} }), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::PUSH, {DynamicSignal{JumpAddress{2}} }), ValidationResultCode::ArgumentTypeMismatch);
 }
 
@@ -366,8 +366,8 @@ TEST(ValidatorAlgorithms, ValidateInstructionArguments_Sto_Combined)
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::STO, {DynamicSignal{3LL}, DynamicSignal{3LL} }), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::STO, {DynamicSignal{3.0}, DynamicSignal{3ULL} }), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::STO, {DynamicSignal{3.0}, DynamicSignal{3.0} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::STO, {DynamicSignal{3ULL}, DynamicSignal{SysCall::ASIN} }), ValidationResultCode::ArgumentTypeMismatch);
-	ASSERT_EQ(ValidateInstructionArguments(Instruction::STO, {DynamicSignal{3ULL}, DynamicSignal{UserIntrinsicInvocationID{3}} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::STO, {DynamicSignal{3ULL}, DynamicSignal{Syscall::ASIN} }), ValidationResultCode::ArgumentTypeMismatch);
+	ASSERT_EQ(ValidateInstructionArguments(Instruction::STO, {DynamicSignal{3ULL}, DynamicSignal{FFIIntrinsicInvocationID{3}} }), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(ValidateInstructionArguments(Instruction::STO, {DynamicSignal{3ULL}, DynamicSignal{JumpAddress{2}} }), ValidationResultCode::ArgumentTypeMismatch);
 }
 
@@ -399,7 +399,7 @@ TEST(ValidatorAlgorithms, ComputeInstructionArgumentOffset)
 	code.Emit(Instruction::PUSH);
 	code.Emit(static_cast<std::int64_t>(2));
 	code.Emit(Instruction::STO);
-	code.Emit(static_cast<MemOffset>(1));
+	code.Emit(static_cast<MemoryOffset>(1));
 	code.Emit(-0.5);
 	code.Emit(Instruction::IADD);
 	code.Emit(Instruction::INT);
@@ -422,7 +422,7 @@ TEST(ValidatorAlgorithms, ExtractInstructionArguments)
 	code.Emit(Instruction::PUSH);
 	code.Emit(static_cast<std::int64_t>(2));
 	code.Emit(Instruction::STO);
-	code.Emit(static_cast<MemOffset>(1));
+	code.Emit(static_cast<MemoryOffset>(1));
 	code.Emit(-0.5);
 	code.Emit(Instruction::IADD);
 	code.Emit(Instruction::INT);
@@ -477,7 +477,7 @@ TEST(ValidatorAlgorithms, ValidateValid)
 	code.Emit(Instruction::PUSH);
 	code.Emit(static_cast<std::int64_t>(2));
 	code.Emit(Instruction::STO);
-	code.Emit(static_cast<MemOffset>(1));
+	code.Emit(static_cast<MemoryOffset>(1));
 	code.Emit(-0.5);
 	code.Emit(Instruction::JMP);
 	code.Emit(JumpAddress {0});
@@ -502,7 +502,7 @@ TEST(ValidatorAlgorithms, ValidateInvalidTooManyArgs)
 	code.Emit(Instruction::PUSH);
 	code.Emit(static_cast<std::int64_t>(2));
 	code.Emit(Instruction::STO);
-	code.Emit(static_cast<MemOffset>(1));
+	code.Emit(static_cast<MemoryOffset>(1));
 	code.Emit(-0.5);
 	code.Emit(Instruction::IADD);
 	code.Emit(Instruction::INT);
@@ -521,7 +521,7 @@ TEST(ValidatorAlgorithms, ValidateInvalidNotEnoughArgs)
 	code.Emit(static_cast<std::int64_t>(2));
 	code.Emit(Instruction::PUSH);
 	code.Emit(Instruction::STO);
-	code.Emit(static_cast<MemOffset>(1));
+	code.Emit(static_cast<MemoryOffset>(1));
 	code.Emit(-0.5);
 	code.Emit(Instruction::IADD);
 	code.Emit(Instruction::INT);
@@ -578,8 +578,8 @@ TEST(ValidatorAlgorithms, ValidateLastInvalidTooManyArgs)
 	code.Prologue();
 	code.Emit(Instruction::NOP);
 	code.Emit(Instruction::INT);
-    code.Emit(MemOffset(0));
-    code.Emit(MemOffset(0));
+    code.Emit(MemoryOffset(0));
+    code.Emit(MemoryOffset(0));
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::TooManyArgumentsForInstruction);
@@ -614,8 +614,8 @@ TEST(ValidatorAlgorithms, ValidateLastPushInvalidTooManyArgs)
 	code.Prologue();
 	code.Emit(Instruction::NOP);
 	code.Emit(Instruction::PUSH);
-    code.Emit(MemOffset(0));
-    code.Emit(MemOffset(0));
+    code.Emit(MemoryOffset(0));
+    code.Emit(MemoryOffset(0));
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::TooManyArgumentsForInstruction);
@@ -627,7 +627,7 @@ TEST(ValidatorAlgorithms, ValidateValidLastPushInt)
 	code.Prologue();
     code.Emit(Instruction::NOP);
     code.Emit(Instruction::PUSH);
-    code.Emit(MemOffset(0));
+    code.Emit(MemoryOffset(0));
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::Ok);
@@ -639,7 +639,7 @@ TEST(ValidatorAlgorithms, ValidateValidLastPushUInt)
 	code.Prologue();
 	code.Emit(Instruction::NOP);
 	code.Emit(Instruction::PUSH);
-    code.Emit(static_cast<MemOffset>(0));
+    code.Emit(static_cast<MemoryOffset>(0));
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::Ok);
@@ -663,7 +663,7 @@ TEST(ValidatorAlgorithms, ValidateValidLastSto)
 	code.Prologue();
 	code.Emit(Instruction::NOP);
 	code.Emit(Instruction::STO);
-    code.Emit(static_cast<MemOffset>(0));
+    code.Emit(static_cast<MemoryOffset>(0));
     code.Emit(2.5);
 	code.Epilogue();
 
@@ -676,7 +676,7 @@ TEST(ValidatorAlgorithms, ValidateInvalidLastStoNotEnoughArgs)
 	code.Prologue();
 	code.Emit(Instruction::NOP);
 	code.Emit(Instruction::STO);
-    code.Emit(static_cast<MemOffset>(0));
+    code.Emit(static_cast<MemoryOffset>(0));
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::NotEnoughArgumentsForInstruction);
@@ -688,7 +688,7 @@ TEST(ValidatorAlgorithms, ValidateInvalidLastStoTooManyArgs)
 	code.Prologue();
 	code.Emit(Instruction::NOP);
 	code.Emit(Instruction::STO);
-    code.Emit(static_cast<MemOffset>(0));
+    code.Emit(static_cast<MemoryOffset>(0));
     code.Emit(2.5);
     code.Emit(INT64_C(3));
 	code.Epilogue();
@@ -702,7 +702,7 @@ TEST(ValidatorAlgorithms, ValidateInvalidLastMovTypeMismatch)
 	code.Prologue();
 	code.Emit(Instruction::NOP);
 	code.Emit(Instruction::MOV);
-    code.Emit(static_cast<MemOffset>(0));
+    code.Emit(static_cast<MemoryOffset>(0));
     code.Emit(2.5);
 	code.Epilogue();
 
@@ -721,7 +721,7 @@ TEST(ValidatorAlgorithms, ValidateInvalidMissingPrologue)
 	Stream code { };
 	code.Emit(Instruction::FADD);
 	code.Emit(Instruction::STO);
-    code.Emit(static_cast<MemOffset>(0));
+    code.Emit(static_cast<MemoryOffset>(0));
     code.Emit(2.5);
 	code.Epilogue();
 
@@ -734,7 +734,7 @@ TEST(ValidatorAlgorithms, ValidateInvalidMissingEpilogue)
 	code.Prologue();
 	code.Emit(Instruction::NOP);
 	code.Emit(Instruction::STO);
-    code.Emit(static_cast<MemOffset>(0));
+    code.Emit(static_cast<MemoryOffset>(0));
     code.Emit(2.5);
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::MissingEpilogueCode);
@@ -800,7 +800,7 @@ TEST(ValidatorAlgorithms, ValidateInvalidPass0JumpAddressNoInstruction)
 	code.Emit(Instruction::JMP);
 	code.Emit(JumpAddress {Stream::PrologueCode().size() + 1});
 	code.Emit(Instruction::STO);
-	code.Emit(static_cast<MemOffset>(1));
+	code.Emit(static_cast<MemoryOffset>(1));
 	code.Emit(-0.5);
 	code.Emit(Instruction::IADD);
 	code.Emit(Instruction::INT);
@@ -826,7 +826,7 @@ TEST(ValidatorAlgorithms, ValidateInvalidPass0LastJumpAddressWrongType)
 	Stream code { };
 	code.Prologue();
 	code.Emit(Instruction::JMP);
-    code.Emit(static_cast<MemOffset>(2));
+    code.Emit(static_cast<MemoryOffset>(2));
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code), ValidationResultCode::ArgumentTypeMismatch);
@@ -855,11 +855,11 @@ TEST(ValidatorAlgorithms, ValidateUserIntrinsicValid)
 	Stream code { };
 	code.Prologue();
     code.Emit(Instruction::INTRIN);
-    code.Emit(UserIntrinsicInvocationID {0});
+    code.Emit(FFIIntrinsicInvocationID {0});
     code.Emit(Instruction::INTRIN);
-    code.Emit(UserIntrinsicInvocationID {1});
+    code.Emit(FFIIntrinsicInvocationID {1});
     code.Emit(Instruction::INTRIN);
-    code.Emit(UserIntrinsicInvocationID {2});
+    code.Emit(FFIIntrinsicInvocationID {2});
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code, routines), ValidationResultCode::Ok);
@@ -877,11 +877,11 @@ TEST(ValidatorAlgorithms, ValidateUserIntrinsicInvalidNull)
 	Stream code { };
 	code.Prologue();
 	code.Emit(Instruction::INTRIN);
-    code.Emit(UserIntrinsicInvocationID {0});
+    code.Emit(FFIIntrinsicInvocationID {0});
 	code.Emit(Instruction::INTRIN);
-    code.Emit(UserIntrinsicInvocationID {1});
+    code.Emit(FFIIntrinsicInvocationID {1});
 	code.Emit(Instruction::INTRIN);
-    code.Emit(UserIntrinsicInvocationID {2});
+    code.Emit(FFIIntrinsicInvocationID {2});
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code, routines), ValidationResultCode::InvalidUserIntrinsicCall);
@@ -899,11 +899,11 @@ TEST(ValidatorAlgorithms, ValidateUserIntrinsicInvalidOutOfRange)
 	Stream code { };
 	code.Prologue();
 	code.Emit(Instruction::INTRIN);
-    code.Emit(UserIntrinsicInvocationID {0});
+    code.Emit(FFIIntrinsicInvocationID {0});
 	code.Emit(Instruction::INTRIN);
-    code.Emit(UserIntrinsicInvocationID {1});
+    code.Emit(FFIIntrinsicInvocationID {1});
 	code.Emit(Instruction::INTRIN);
-    code.Emit(UserIntrinsicInvocationID {3});
+    code.Emit(FFIIntrinsicInvocationID {3});
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code, routines), ValidationResultCode::InvalidUserIntrinsicCall);
@@ -916,11 +916,11 @@ TEST(ValidatorAlgorithms, ValidateUserIntrinsicInvalidOutOfRange2)
 	Stream code { };
 	code.Prologue();
 	code.Emit(Instruction::INTRIN);
-    code.Emit(UserIntrinsicInvocationID {0});
+    code.Emit(FFIIntrinsicInvocationID {0});
 	code.Emit(Instruction::INTRIN);
-    code.Emit(UserIntrinsicInvocationID {1});
+    code.Emit(FFIIntrinsicInvocationID {1});
 	code.Emit(Instruction::INTRIN);
-    code.Emit(UserIntrinsicInvocationID {3});
+    code.Emit(FFIIntrinsicInvocationID {3});
 	code.Epilogue();
 
 	ASSERT_EQ(ValidateFullPass(code, routines), ValidationResultCode::InvalidUserIntrinsicCall);
@@ -939,7 +939,7 @@ TEST(ValidatorAlgorithms, FullValidation1Million)
 		stream.Emit(Instruction::JMP);
 		stream.Emit(JumpAddress {0});
 		stream.Emit(Instruction::STO);
-		stream.Emit(static_cast<MemOffset>(1));
+		stream.Emit(static_cast<MemoryOffset>(1));
 		stream.Emit(-0.5);
 	}
 

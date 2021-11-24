@@ -208,10 +208,12 @@
 #include <new>
 
 #include "../../../../Nominax/Include/Nominax/Foundation/Allocator/AllocatorProxy.hpp"
+#include "../../../../Nominax/Include/Nominax/Foundation/Allocator/SystemAllocator.hpp"
 #include "../../../../Nominax/Include/Nominax/Foundation/CompileTimeConfig.hpp"
 
 using Nominax::Foundation::CompileTimeConfig;
 using Nominax::Foundation::Allocator::GlobalAllocatorProxy;
+using Nominax::Foundation::Allocator::SystemAllocator;
 
 auto operator new (const std::size_t size) -> void*
 {
@@ -223,7 +225,7 @@ auto operator new (const std::size_t size) -> void*
 	}
 	else
 	{
-		return std::malloc(size);
+		return SystemAllocator::Allocate(size);
 	}
 }
 
@@ -237,7 +239,7 @@ auto operator new[] (const std::size_t size) -> void*
 	}
 	else
 	{
-		return std::malloc(size);
+		return SystemAllocator::Allocate(size);
 	}
 }
 
@@ -251,7 +253,7 @@ auto operator new (const std::size_t size, [[maybe_unused]] const std::nothrow_t
 	}
 	else
 	{
-		return std::malloc(size);
+		return SystemAllocator::Allocate(size);
 	}
 }
 
@@ -265,7 +267,7 @@ auto operator new[] (const std::size_t size, [[maybe_unused]] const std::nothrow
 	}
 	else
 	{
-		return std::malloc(size);
+		return SystemAllocator::Allocate(size);
 	}
 }
 
@@ -277,7 +279,7 @@ auto operator delete (void* mem) noexcept(true) -> void
 	}
 	else
 	{
-		std::free(mem);
+		SystemAllocator::Deallocate(mem);
 	}
 }
 
@@ -289,7 +291,7 @@ auto operator delete (void* mem, std::size_t) noexcept(true) -> void
 	}
 	else
 	{
-		std::free(mem);
+		SystemAllocator::Deallocate(mem);
 	}
 }
 
@@ -301,7 +303,7 @@ auto operator delete[] (void* mem) noexcept(true) -> void
 	}
 	else
 	{
-		std::free(mem);
+		SystemAllocator::Deallocate(mem);
 	}
 }
 
@@ -313,6 +315,6 @@ auto operator delete[] (void* mem, std::size_t) noexcept(true) -> void
 	}
 	else
 	{
-		std::free(mem);
+		SystemAllocator::Deallocate(mem);
 	}
 }

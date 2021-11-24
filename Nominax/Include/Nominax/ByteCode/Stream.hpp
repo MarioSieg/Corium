@@ -523,7 +523,7 @@ namespace Nominax::ByteCode
         /// </summary>
         /// <param name="x">The value to emit.</param>
         /// <returns></returns>
-        auto Emit(MemOffset x) -> void;
+        auto Emit(MemoryOffset x) -> void;
 
         /// <summary>
         /// Emit signal with discriminator.
@@ -551,14 +551,14 @@ namespace Nominax::ByteCode
         /// </summary>
         /// <param name="x">The value to emit.</param>
         /// <returns></returns>
-        auto Emit(SysCall x) -> void;
+        auto Emit(Syscall x) -> void;
 
         /// <summary>
         /// Emit signal with discriminator.
         /// </summary>
         /// <param name="x">The value to emit.</param>
         /// <returns></returns>
-        auto Emit(UserIntrinsicInvocationID x) -> void;
+        auto Emit(FFIIntrinsicInvocationID x) -> void;
 
         /// <summary>
         /// Emit signal with discriminator.
@@ -589,7 +589,7 @@ namespace Nominax::ByteCode
         /// <summary>
         /// Emit a syscall instruction with correct parameter.
         /// </summary>
-        auto SysCall(SysCall sysCall) -> void;
+        auto SysCall(Syscall sysCall) -> void;
 
 		/// <summary>
 		/// Index lookup.
@@ -810,14 +810,14 @@ namespace Nominax::ByteCode
 		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::Instruction);
 	}
 
-	inline auto Stream::Emit(const enum SysCall intrin) -> void
+	inline auto Stream::Emit(const enum Syscall intrin) -> void
 	{
 		NOX_DBG_PAS(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal { intrin });
 		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::SysCall);
 	}
 
-	inline auto Stream::Emit(const UserIntrinsicInvocationID intrin) -> void
+	inline auto Stream::Emit(const FFIIntrinsicInvocationID intrin) -> void
 	{
 		NOX_DBG_PAS(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal { intrin });
@@ -831,7 +831,7 @@ namespace Nominax::ByteCode
 		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::JumpAddress);
 	}
 
-	inline auto Stream::Emit(const MemOffset value) -> void
+	inline auto Stream::Emit(const MemoryOffset value) -> void
 	{
 		NOX_DBG_PAS(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal { value });
@@ -866,7 +866,7 @@ namespace Nominax::ByteCode
         this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::FieldOffset);
     }
 
-    inline auto Stream::SysCall(const enum SysCall sysCall) -> void
+    inline auto Stream::SysCall(const enum Syscall sysCall) -> void
     {
         this->Emit(Instruction::SYSCALL);
         this->Emit(sysCall);

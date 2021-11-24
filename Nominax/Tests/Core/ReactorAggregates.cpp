@@ -227,6 +227,6 @@ TEST(ReactorAggregates, UnionReinterpretation)
 	constexpr Signal sig {
 		Instruction::MOV
 	};
-	ASSERT_EQ(sig.Instr, Instruction::MOV);
-	ASSERT_EQ(sig.R64.AsU64, static_cast<std::uint64_t>(Instruction::MOV));
+	ASSERT_EQ(sig.AsInstruction, Instruction::MOV);
+	ASSERT_EQ(sig.AsRecord.AsU64, static_cast<std::uint64_t>(Instruction::MOV));
 }

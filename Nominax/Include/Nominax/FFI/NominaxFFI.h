@@ -214,41 +214,89 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#if defined(__cplusplus) && defined(__NOMINAX__) && !defined(NOX_FFI_NO_BIT)
+#if defined(__cplusplus) && defined(__NOMINAX__)
 #	include <bit>
 #endif
 
 #ifdef __cplusplus
-extern "C" {
+static_assert(sizeof(void*) == sizeof(std::int64_t), "Requires LP64!");
+
+extern "C"
+{
 #endif
 
-	/* Simple FFI-C variant for Nominax/Include/ByteCode/DataModel/Signal.hpp */
-	union NOX_Signal
-	{
-		uint64_t AsU64;
-		int64_t AsI64;
-		uint32_t AsU32;
-		int32_t AsI32;
-		void* AsPtr;
-		double AsF64;
-		float AsF32;
-	};
-
-	/* Simple FFI-C variant for Nominax/Include/Foundation/DataModel/Record.hpp */
+	/* FFI-C variant for Nominax/Include/Foundation/DataModel/Record.hpp */
 	union NOX_Record
 	{
 		uint32_t AsU32;
 		int32_t AsI32;
 		float AsF32;
+		uint64_t AsU64;
+		int64_t AsI64;
+		double AsF64;
+		void* AsPtr;
+		char AsChar;
+		uint8_t AsChar8;
+		uint16_t AsChar16;
+		uint32_t AsChar32;
+		uint32_t AsU32S[2];
+		int32_t AsI32S[2];
+		float AsF32S[2];
 		bool AsBool;
 	};
 
 	#ifdef __cplusplus
+		static_assert(sizeof(NOX_Record) == sizeof(std::int64_t));
+		static_assert(alignof(NOX_Record) == alignof(std::int64_t));
+	#endif
+
+	typedef uint64_t
+		NOX_Instruction,
+		NOX_Syscall,
+		NOX_FFIIntrinsicInvocationID,
+		NOX_JumpAddress,
+		NOX_TypeID,
+		NOX_FieldOffset,
+		NOX_MemoryOffset;
+
+	/* FFI-C variant for Nominax/Include/ByteCode/DataModel/Signal.hpp */
+	union NOX_Signal
+	{
+		union NOX_Record AsRecord;
+		NOX_Instruction AsInstruction;
+		NOX_Syscall AsSyscall;
+		NOX_FFIIntrinsicInvocationID AsFFIIntrinsic;
+		NOX_JumpAddress AsJumpAddress;
+		NOX_TypeID AsTypeID;
+		NOX_FieldOffset AsFieldOffset;
+		NOX_MemoryOffset AsMemoryOffset;
+		void* AsPtr;
+	};
+
+	#ifdef __cplusplus
+		static_assert(sizeof(NOX_Signal) == sizeof(std::int64_t));
+		static_assert(alignof(NOX_Signal) == alignof(std::int64_t));
+	#endif
+
+	inline union NOX_Record* NOX_Swap(union NOX_Record* const x, union NOX_Signal* const y)
+	{
+		if (x->AsU64 != y->AsRecord.AsU64)
+		{
+			*(uint64_t*)x ^= *(uint64_t*)y;
+			*(uint64_t*)x ^= *(uint64_t*)y;
+			*(uint64_t*)x ^= *(uint64_t*)y;
+		}
+		return x;
+	}
+
+	#ifdef __cplusplus
 	#	define NOX_REGISTER
-	#	ifdef _MSC_VER
-	#		define NOX_RESTRICT __restrict
-	#	else
-	#		define NOX_RESTRICT __restrict__
+	#	ifndef NOX_RESTRICT
+	#		ifdef _MSC_VER
+	#			define NOX_RESTRICT __restrict
+	#		else
+	#			define NOX_RESTRICT __restrict__
+	#		endif
 	#	endif
 	#else
 	#	define NOX_REGISTER register
@@ -263,32 +311,6 @@ extern "C" {
 	#	define NOX_DYEXPORT __attribute__((visibility("default")))
 	#endif
 
-	#if defined(__cplusplus) && defined(__NOMINAX__)
-		extern "C++"
-		{
-			namespace Nominax::FFI
-			{
-				constexpr auto FFIRecordToRecord(const NOX_Record x) noexcept -> ::Nominax::Foundation::Record
-				{
-					#ifdef NOX_FFI_NO_BIT
-						return *reinterpret_cast<::Nominax::Foundation::Record*>(&x);
-					#else
-						return std::bit_cast<::Nominax::Foundation::Record>(x);
-					#endif
-				}
-
-				constexpr auto RecordToFFIRecord(const NOX_Record x) noexcept -> ::Nominax::Foundation::Record
-				{
-					#ifdef NOX_FFI_NO_BIT
-						return *reinterpret_cast<::Nominax::Foundation::Record*>(&x);
-					#else
-						return std::bit_cast<::Nominax::Foundation::Record>(x);
-					#endif
-				}
-			}
-		}
-	#endif
-
 	/* Used to export a function from a .dll. */
 	#define NOX_DLL_EXPORT NOX_DYEXPORT
 
@@ -296,28 +318,46 @@ extern "C" {
 	#define NOX_CALL NOX_CALLCONV
 
 	/* Load record from stack relative pointer by memory offset. */
-	#define NOX_SP_LDA(spRel, moff) ((spRel)+(moff))
+	#define NOX_SP_LDA(spRel, moff) ((spRel) + (moff))
 
 	/* Load record from stack relative pointer by memory offset and dereference. */
 	#define NOX_SP_LDA_DEREF(spRel, moff) (*NOX_SP_LDA(spRel, moff))
 
 	/* Load stack relative pointer argument into record. */
-	#define NOX_LDA(p1Name, n) (*(union NOX_Record*)NOX_SP_LDA((p1Name), (n)-1))
+	#define NOX_LDA(p1Name, n) (*(union NOX_Record*)NOX_SP_LDA((p1Name), (n) - 1))
 
 	/* Native call subroutine pointer prototype. */
 	typedef const union NOX_Record* (*NOX_CALL NOX_FFIProc)(NOX_REGISTER union NOX_Record* NOX_RESTRICT);
 
 	/* For native call declaration. */
-	#define NOX_FFI_NATIVE_CALL_DECL(fName, p1Name, ...)					\
+	#define NOX_FFI_NATIVE_CALL_DECL(fName, p1Name)					        \
 		NOX_DLL_EXPORT NOX_CALL extern const union NOX_Record*				\
 		fName																\
-		(NOX_REGISTER union NOX_Record* NOX_RESTRICT p1Name, __VA_ARGS__)
+		(NOX_REGISTER union NOX_Record* NOX_RESTRICT p1Name)
 
 	/* For native call definition. */
-	#define NOX_FFI_NATIVE_CALL_IMPL(fName, p1Name, ...)					\
+	#define NOX_FFI_NATIVE_CALL_IMPL(fName, p1Name)					        \
 		NOX_DLL_EXPORT const union NOX_Record*								\
 		fName																\
-		(NOX_REGISTER union NOX_Record* NOX_RESTRICT p1Name, __VA_ARGS__)
+		(NOX_REGISTER union NOX_Record* NOX_RESTRICT p1Name)
+
+	#if defined(__cplusplus) && defined(__NOMINAX__)
+		extern "C++"
+		{
+			namespace Nominax::FFI
+			{
+				constexpr auto FFIRecordToRecord(const NOX_Record x) noexcept -> ::Nominax::Foundation::Record
+				{
+					return std::bit_cast<::Nominax::Foundation::Record>(x);
+				}
+
+				constexpr auto RecordToFFIRecord(const ::Nominax::Foundation::Record x) noexcept -> NOX_Record
+				{
+					return std::bit_cast<NOX_Record>(x);
+				}
+			}
+		}
+	#endif
 
 #ifdef __cplusplus
 }
