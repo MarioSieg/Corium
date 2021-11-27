@@ -210,6 +210,7 @@
 #include "Factory.hpp"
 #include "IHypervisorHooks.hpp"
 #include "ISubsystem.hpp"
+#include "MapStorage.hpp"
 
 #include "../../Foundation/Panic/Assertions.hpp"
 
@@ -223,43 +224,68 @@ namespace Nominax::Core::Subsystem
         HypervisorHost(const HypervisorHost& other) noexcept = default;
         auto operator =(const HypervisorHost& other) noexcept -> HypervisorHost& = default;
         auto operator =(HypervisorHost&& other) -> HypervisorHost& = default;
-        virtual ~HypervisorHost() = default;
+        virtual ~HypervisorHost() override;
 
         using HostToSystemKey = std::uint32_t;
+        using SystemMap = std::unordered_map<HostToSystemKey, MapStorage>;
 
     protected:
-        std::unordered_map<HostToSystemKey, SubsystemHandle> Systems_ { };
+        SystemMap SystemMap_ { };
         HostToSystemKey Accumulator_ { };
 
     public:
-        template <typename T, typename... Args> requires Factory::IsValidSubsystem<T, Args...>
+        template <typename T, typename SpecConfig = typename T::SpecializedConfig, typename... Args> requires Factory::IsValidSubsystem<T, Args...>
         NOX_NEVER_INLINE auto Install
         (
-            std::unique_ptr<SubsystemConfig>&& config = std::make_unique<SubsystemConfig>(),
+            std::unique_ptr<SubsystemConfig>&& config = std::make_unique<SpecConfig>(),
             void* userDAta = nullptr,
             Args&&... args
-        ) -> void;
+        ) -> HostToSystemKey;
+
+        auto Lookup(HostToSystemKey systemKey) -> ISubsystem&;
+
+        auto IsInstalled(HostToSystemKey systemKey) const -> bool;
+
+        auto Uninstall(HostToSystemKey systemKey) -> void;
+
+        auto UninstallAll() noexcept -> void;
+
+        auto Pause(HostToSystemKey systemKey) -> void;
+
+        auto Resume(HostToSystemKey systemKey) -> void;
+
+        auto FullSystemMap() const noexcept -> const SystemMap&;
+
+        auto InstalledSystemCount() const noexcept -> std::size_t;
 	};
 
-    template<typename T, typename... Args>
-    requires Factory::IsValidSubsystem<T, Args...>
+    template<typename T, typename SpecConfig, typename... Args> requires Factory::IsValidSubsystem<T, Args...>
     NOX_NEVER_INLINE auto HypervisorHost::Install
     (
         std::unique_ptr<SubsystemConfig>&& config,
         void* const userData,
         Args&&... args
-    ) -> void
+    ) -> HostToSystemKey
     {
         this->OnPreInstall(*config, userData);
-        const std::pair<std::unordered_map<HostToSystemKey, SubsystemHandle>::iterator, bool> result
+        SubsystemHandle handle { Factory::AllocateSubsystemInstance<T, Args...>(std::move(config), userData, std::forward<Args>(args)...) };
+        MapStorage storage
         {
-            this->Systems_.template emplace
-            (
-                ++this->Accumulator_,
-                std::move(Factory::AllocateSubsystemInstance<T, Args...>(std::move(config), userData, std::forward<Args>(args)...))
-            )
+            std::move(handle),
+            this
         };
-        NOX_PAS(!result.second, "Subsystem with host key already exists!");
-        this->OnPostInstall(*((*result.first).second));
+        std::pair<HostToSystemKey, MapStorage> pairEX
+        {
+            std::make_pair(++this->Accumulator_, std::move(storage))
+        };
+        const std::pair<SystemMap::iterator, bool> result
+        {
+            this->SystemMap_.template emplace(std::move(pairEX))
+        };
+        NOX_PAS(result.second, "Subsystem with host key already exists!");
+        ISubsystem& system { *((*result.first).second).Handle };
+        system.OnInstall();
+        this->OnPostInstall(system);
+        return this->Accumulator_;
     }
 }

@@ -211,4 +211,5 @@
 #include "IEventHooks.hpp"
 #include "IHypervisorHooks.hpp"
 #include "ISubsystem.hpp"
+#include "MapStorage.hpp"
 #include "ThreadIDHash.hpp"

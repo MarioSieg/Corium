@@ -207,5 +207,13 @@
 
 namespace Nominax::Core::Subsystem
 {
-	struct SubsystemConfig { };
+	struct SubsystemConfig
+    {
+        SubsystemConfig() noexcept = default;
+        SubsystemConfig(const SubsystemConfig& other) noexcept = default;
+        SubsystemConfig(SubsystemConfig&& other) noexcept = default;
+        auto operator =(const SubsystemConfig& other) noexcept -> SubsystemConfig& = default;
+        auto operator =(SubsystemConfig&& other) noexcept -> SubsystemConfig& = default;
+        virtual ~SubsystemConfig() = default;
+    };
 }

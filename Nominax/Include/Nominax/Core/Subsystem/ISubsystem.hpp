@@ -219,12 +219,15 @@ namespace Nominax::Core::Subsystem
 {
     struct HypervisorHost;
 
+	using STI_Init = auto (IEventHooks::*)(std::unique_ptr<SubsystemConfig>&&, void*) & -> void;
+	using STI_Kill = auto (IEventHooks::*)() & noexcept -> void;
+    using STI_Pair = std::pair<STI_Init, STI_Kill>;
+
 	/// <summary>
 	/// Base class for all subsystems.
 	///	Designed for one subsystem per thread.
 	///	Contains the dispatch worker thread and a sync mutex.
 	/// </summary>
-	/// <typeparam name="SysConfig"></typeparam>
 	struct ISubsystem : IEventHooks
 	{
 		friend HypervisorHost;
@@ -284,7 +287,7 @@ namespace Nominax::Core::Subsystem
 		/// 
 		/// </summary>
 		/// <returns>True if the subsystem is enabled, else false.</returns>
-		auto IsEnabled() const & noexcept -> bool;
+		auto IsPaused() const & noexcept -> bool;
 
 		/// <summary>
 		/// 
@@ -319,9 +322,15 @@ namespace Nominax::Core::Subsystem
 		/// <summary>
 		/// Enable/disable the subsystem.
 		/// </summary>
-		/// <param name="enabled"></param>
+		/// <param name="pause"></param>
 		/// <returns></returns>
-		auto SetEnabled(bool enabled) const noexcept -> void;
+		auto SetPaused(bool pause) -> void;
+
+        auto Pause() -> void;
+
+        auto Resume() -> void;
+
+        static constexpr auto STIPair() noexcept -> STI_Pair;
 
 		/// <summary>
 		/// 
@@ -340,13 +349,11 @@ namespace Nominax::Core::Subsystem
 			auto operator () (ISubsystem* instance) const noexcept -> void;
 		};
 
-		/// <summary>
-		/// Default hook flags used for initialization.
-		/// </summary>
-		static constexpr HookFlags DEFAULT_HOOK_FLAGS
-		{
-                HookFlags::OnConstruct | HookFlags::OnDestruct
-		};
+        template <const HookFlags Flags, const bool IgnorePause = false, typename... Args> requires (Flags != HookFlags::None && !HookFlagsIsCtorDtorFlag(Flags))
+        auto Invoke(Args&&... args) -> void;
+
+        template <typename SpecConfig> requires std::is_base_of_v<SubsystemConfig, SpecConfig>
+        auto QuerySpecInterface() const noexcept -> SpecConfig&;
 
 	protected:
 		/// <summary>
@@ -356,7 +363,7 @@ namespace Nominax::Core::Subsystem
 		/// <param name="name"></param>
 		/// <param name="subscriptions"></param>
 		/// <param name="description"></param>
-		/// <param name="isEnabled"></param>
+		/// <param name="isPaused"></param>
 		/// <returns></returns>
 		explicit ISubsystem
 		(
@@ -364,7 +371,7 @@ namespace Nominax::Core::Subsystem
             HookFlags subscriptions,
             std::string_view name,
             std::string_view description = { },
-            bool isEnabled = true
+            bool isPaused = false
 		) noexcept;
 
 		auto BootConfig(std::unique_ptr<SubsystemConfig>&& config) & noexcept -> void;
@@ -378,7 +385,7 @@ namespace Nominax::Core::Subsystem
 		const std::string_view Name_;
 		const std::string_view Description_;
 		const std::uint32_t ID_;
-		mutable bool IsEnabled_;
+		mutable bool IsPaused_;
 
 	protected:
 		std::unique_ptr<SubsystemConfig> BootConfigStorage { nullptr };
@@ -392,11 +399,6 @@ namespace Nominax::Core::Subsystem
 			instance->OnDestruct();
 		}
 		delete instance;
-	}
-
-	inline auto ISubsystem::SetEnabled(const bool enabled) const noexcept -> void
-	{
-		this->IsEnabled_ = enabled;
 	}
 
 	inline auto ISubsystem::Host() const & noexcept -> const HypervisorHost&
@@ -414,9 +416,9 @@ namespace Nominax::Core::Subsystem
 		return this->StoredUserData;
 	}
 
-	inline auto ISubsystem::IsEnabled() const & noexcept -> bool
+	inline auto ISubsystem::IsPaused() const & noexcept -> bool
 	{
-		return this->IsEnabled_;
+		return this->IsPaused_;
 	}
 
 	inline auto ISubsystem::Name() const & noexcept -> std::string_view
@@ -451,7 +453,7 @@ namespace Nominax::Core::Subsystem
 
 	inline auto ISubsystem::EventHooks() const & noexcept -> const IEventHooks&
 	{
-		return dynamic_cast<const IEventHooks&>(*this);
+		return *dynamic_cast<const IEventHooks*>(this);
 	}
 
 	inline auto ISubsystem::BootConfig(std::unique_ptr<SubsystemConfig>&& config) & noexcept -> void
@@ -468,5 +470,83 @@ namespace Nominax::Core::Subsystem
 	{
 		this->BootConfigStorage = std::move(config);
 		this->StoredUserData = userData;
+	}
+
+    template<const HookFlags Flags, const bool IgnorePause, typename... Args> requires (Flags != HookFlags::None && !HookFlagsIsCtorDtorFlag(Flags))
+    inline auto ISubsystem::Invoke(Args&&... args) -> void
+    {
+        if constexpr (!IgnorePause)
+        {
+            if (this->IsPaused())
+            {
+                return;
+            }
+        }
+        if constexpr ((Flags & HookFlags::OnInstall) != HookFlags::None)
+        {
+            this->OnInstall(std::forward<Args>(args)...);
+        }
+        if constexpr ((Flags & HookFlags::OnUninstall) != HookFlags::None)
+        {
+            this->OnUninstall(std::forward<Args>(args)...);
+        }
+        if constexpr ((Flags & HookFlags::OnPreBoot) != HookFlags::None)
+        {
+            this->OnPreBoot(std::forward<Args>(args)...);
+        }
+        if constexpr ((Flags & HookFlags::OnPostBoot) != HookFlags::None)
+        {
+            this->OnPostBoot(std::forward<Args>(args)...);
+        }
+        if constexpr ((Flags & HookFlags::OnPreExecute) != HookFlags::None)
+        {
+            this->OnPreExecute(std::forward<Args>(args)...);
+        }
+        if constexpr ((Flags & HookFlags::OnPostExecute) != HookFlags::None)
+        {
+            this->OnPostExecute(std::forward<Args>(args)...);
+        }
+        if constexpr ((Flags & HookFlags::OnPreShutdown) != HookFlags::None)
+        {
+            this->OnPreShutdown(std::forward<Args>(args)...);
+        }
+        if constexpr ((Flags & HookFlags::OnPostShutdown) != HookFlags::None)
+        {
+            this->OnPostShutdown(std::forward<Args>(args)...);
+        }
+        if constexpr ((Flags & HookFlags::OnPause) != HookFlags::None)
+        {
+            this->OnPause(std::forward<Args>(args)...);
+        }
+        if constexpr ((Flags & HookFlags::OnResume) != HookFlags::None)
+        {
+            this->OnResume(std::forward<Args>(args)...);
+        }
+    }
+
+    inline auto ISubsystem::Pause() -> void
+    {
+        this->SetPaused(true);
+    }
+
+    inline auto ISubsystem::Resume() -> void
+    {
+        this->SetPaused(false);
+    }
+
+    constexpr auto ISubsystem::STIPair() noexcept -> STI_Pair
+    {
+        constexpr STI_Init const init { &IEventHooks::OnConstruct };
+        constexpr STI_Kill const kill { &IEventHooks::OnDestruct };
+        return { init, kill };
+    }
+
+	template<typename SpecConfig>
+	requires std::is_base_of_v<SubsystemConfig, SpecConfig>
+	inline auto ISubsystem::QuerySpecInterface() const noexcept -> SpecConfig&
+	{
+		auto* const spec { dynamic_cast<SpecConfig*>(&*this->BootConfigStorage) };
+		NOX_PAS_NOT_NULL(spec, "Invalid spec config type!");
+		return *spec;
 	}
 }

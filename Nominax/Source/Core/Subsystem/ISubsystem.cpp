@@ -214,14 +214,27 @@ namespace Nominax::Core::Subsystem
 		const HookFlags subscriptions,
 		const std::string_view name,
 		const std::string_view description,
-		const bool isEnabled
+		const bool isPaused
 	) noexcept :
-		Host_ { host },
-		Name_ { name },
-		Description_ { description },
-		ID_ { IDAccumulator_.fetch_add(1, std::memory_order_relaxed) },
-		IsEnabled_ { isEnabled }
+    Host_ { host },
+    Name_ { name },
+    Description_ { description },
+    ID_ { IDAccumulator_.fetch_add(1, std::memory_order_relaxed) },
+    IsPaused_ { isPaused }
 	{
 		this->SetSubscriptions(subscriptions);
 	}
+
+    auto ISubsystem::SetPaused(const bool pause) -> void
+    {
+        this->IsPaused_ = pause;
+        if (constexpr bool IgnorePause { true }; pause)
+        {
+            this->Invoke<HookFlags::OnPause, IgnorePause>();
+        }
+        else
+        {
+            this->Invoke<HookFlags::OnResume, IgnorePause>();
+        }
+    }
 }

@@ -211,6 +211,7 @@ namespace Nominax::Core::Subsystem
 {
     struct ISubsystem;
     struct SubsystemConfig;
+    struct MapStorage;
 
     struct IHypervisorHooks
     {
@@ -223,10 +224,15 @@ namespace Nominax::Core::Subsystem
     protected:
         constexpr IHypervisorHooks() noexcept = default;
 
-        virtual auto OnPreInstall(SubsystemConfig& config, void* userData) -> void;
-        virtual auto OnPostInstall(ISubsystem& system) -> void;
+        virtual auto OnPreInstall(SubsystemConfig& config, void* userData) & -> void;
+        virtual auto OnPostInstall(ISubsystem& system) & -> void;
 
-        virtual auto OnPreExecute(ISubsystem& system, HookFlags flags, void* hookRoutine) -> void;
-        virtual auto OnPostExecute(ISubsystem& system, HookFlags flags, void* hookRoutine) -> void;
+        virtual auto OnPause(ISubsystem& system) & -> void;
+        virtual auto OnResume(ISubsystem& system) & -> void;
+
+        virtual auto OnPreUninstall(ISubsystem& system) & -> void;
+        virtual auto OnPostUninstall(ISubsystem& system) & -> void;
+
+        friend MapStorage;
     };
 }

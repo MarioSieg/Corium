@@ -225,8 +225,6 @@ namespace Nominax
 
 namespace Nominax::Core::Subsystem
 {
-	struct ISubsystem;
-
 	/// <summary>
 	/// Base interface for subsystem event hooks.
 	/// </summary>
@@ -251,6 +249,9 @@ namespace Nominax::Core::Subsystem
 		virtual auto OnConstruct(std::unique_ptr<SubsystemConfig>&& config, void* userData) & -> void;
 		virtual auto OnDestruct() & noexcept -> void;
 
+        virtual auto OnInstall() & -> void;
+        virtual auto OnUninstall() & -> void;
+
 		virtual auto OnPreBoot() & -> void;
 		virtual auto OnPostBoot() & -> void;
 
@@ -260,10 +261,15 @@ namespace Nominax::Core::Subsystem
 		virtual auto OnPreShutdown() & -> void;
 		virtual auto OnPostShutdown() & -> void;
 
+        virtual auto OnPause() & -> void;
+        virtual auto OnResume() & -> void;
+
 	private:
 		mutable std::underlying_type_t<HookFlags> HookFlags_ { };
-		friend auto ProxyInit(IEventHooks& , std::unique_ptr<SubsystemConfig>&&, void*) -> void;
+		friend auto ProxyInit(IEventHooks&, std::unique_ptr<SubsystemConfig>&&, void*) -> void;
         friend struct HypervisorHost;
+        friend struct MapStorage;
+        friend struct ISubsystem;
 	};
 
 	inline auto IEventHooks::OnConstruct([[maybe_unused]] std::unique_ptr<SubsystemConfig>&& config, [[maybe_unused]] void* userData) & -> void

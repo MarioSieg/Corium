@@ -207,6 +207,9 @@
 
 namespace Nominax::Core::Subsystem
 {
+    auto IEventHooks::OnPause() & -> void { }
+    auto IEventHooks::OnResume() & -> void { }
+
     auto IEventHooks::OnPreBoot() & -> void { }
     auto IEventHooks::OnPostBoot() & -> void { }
 
@@ -215,4 +218,7 @@ namespace Nominax::Core::Subsystem
 
     auto IEventHooks::OnPreShutdown() & -> void { }
     auto IEventHooks::OnPostShutdown() & -> void { }
+
+    auto IEventHooks::OnInstall() & -> void { }
+    auto IEventHooks::OnUninstall() & -> void { }
 }

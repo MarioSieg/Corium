@@ -203,106 +203,63 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
-
-#include <cstdint>
-#include <limits>
-
-#include "../../Foundation/Algorithm/Enum.hpp"
+#include "../../../Include/Nominax/Core/Subsystem/HypervisorHost.hpp"
+#include "../../../Include/Nominax/Foundation/Panic/Assertions.hpp"
 
 namespace Nominax::Core::Subsystem
 {
-    /// <summary>
-    /// Each bit flag corresponds to an event hook in IEventHooks.
-    ///	Used to enable/disable hooks in a subsystem.
-    /// </summary>
-    enum class HookFlags : std::uint32_t
+    auto HypervisorHost::IsInstalled(const HostToSystemKey systemKey) const -> bool
     {
-        /// <summary>
-        /// NO hooks.
-        /// </summary>
-        None			= 0 << 0,
+        return this->SystemMap_.contains(systemKey);
+    }
 
-        /// <summary>
-        /// IEventHooks::OnConstruct()
-        /// CTOR flag - (constructor).
-        /// </summary>
-        OnConstruct		= 1 << 0,
-
-        /// <summary>
-        /// IEventHooks::OnDestruct()
-        /// DTOR flag - (destructor).
-        /// </summary>
-        OnDestruct		= 1 << 1,
-
-        /// <summary>
-        /// IEventHooks::OnInstall()
-        /// </summary>
-        OnInstall       = 1 << 2,
-
-        /// <summary>
-        /// IEventHooks::OnUninstall()
-        /// </summary>
-        OnUninstall     = 1 << 3,
-
-
-        /// <summary>
-        /// IEventHooks::OnPreBoot()
-        /// </summary>
-        OnPreBoot		= 1 << 4,
-
-        /// <summary>
-        /// IEventHooks::OnPostBoot()
-        /// </summary>
-        OnPostBoot		= 1 << 5,
-
-        /// <summary>
-        /// IEventHooks::OnPreExecute()
-        /// </summary>
-        OnPreExecute	= 1 << 6,
-
-        /// <summary>
-        /// IEventHooks::OnPostExecute()
-        /// </summary>
-        OnPostExecute	= 1 << 7,
-
-        /// <summary>
-        /// IEventHooks::OnPreShutdown()
-        /// </summary>
-        OnPreShutdown	= 1 << 8,
-
-        /// <summary>
-        /// IEventHooks::OnPostShutdown
-        /// </summary>
-        OnPostShutdown	= 1 << 9,
-
-        /// <summary>
-        /// IEventHooks::OnPause()
-        /// </summary>
-        OnPause         = 1 << 10,
-
-        /// <summary>
-        /// IEventHooks::OnResume()
-        /// </summary>
-        OnResume        = 1 << 11,
-
-        /// <summary>
-        /// Contains all event hook flags.
-        /// </summary>
-        All = std::numeric_limits<std::uint32_t>::max(),
-
-        /// <summary>
-        /// Contains the default hook flags.
-        /// </summary>
-        Default = OnConstruct | OnDestruct
-    };
-
-    NOX_IMPL_ENUM_BIT_FLAGS(HookFlags);
-
-    constexpr auto HookFlagsIsCtorDtorFlag(const HookFlags flags) noexcept -> bool
+    auto HypervisorHost::Uninstall(const HostToSystemKey systemKey) -> void
     {
-        return
-            (flags & HookFlags::OnConstruct) != HookFlags::None
-            || (flags & HookFlags::OnDestruct) != HookFlags::None;
+        if (!this->IsInstalled(systemKey))
+        {
+            [[unlikely]]
+            return;
+        }
+        this->SystemMap_.erase(systemKey);
+    }
+
+    auto HypervisorHost::Lookup(const HostToSystemKey systemKey) -> ISubsystem&
+    {
+        NOX_PAS(this->IsInstalled(systemKey), "Subsystem lookup with invalid system key!");
+        return *this->SystemMap_.at(systemKey).Handle;
+    }
+
+    auto HypervisorHost::Pause(const HostToSystemKey systemKey) -> void
+    {
+        ISubsystem& system { this->Lookup(systemKey) };
+        this->OnPause(system);
+        system.Pause();
+    }
+
+    auto HypervisorHost::Resume(const HostToSystemKey systemKey) -> void
+    {
+        ISubsystem& system { this->Lookup(systemKey) };
+        this->OnResume(system);
+        this->Lookup(systemKey).Resume();
+    }
+
+    auto HypervisorHost::UninstallAll() noexcept -> void
+    {
+        this->SystemMap_.clear();
+    }
+
+    HypervisorHost::~HypervisorHost()
+    {
+        this->UninstallAll();
+    }
+
+    auto HypervisorHost::FullSystemMap() const noexcept -> const SystemMap&
+    {
+        return this->SystemMap_;
+    }
+
+    auto HypervisorHost::InstalledSystemCount() const noexcept -> std::size_t
+    {
+        return std::size(this->SystemMap_);
     }
 }

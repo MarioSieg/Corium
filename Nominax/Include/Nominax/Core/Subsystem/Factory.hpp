@@ -243,13 +243,13 @@ namespace Nominax::Core::Subsystem
 		{
 			requires std::is_base_of_v<ISubsystem, T>;
 			requires std::is_default_constructible_v<T> || std::is_constructible_v<T, Args...>;
+            requires std::is_class_v<typename T::SpecializedConfig>;
+            requires std::is_base_of_v<SubsystemConfig, typename T::SpecializedConfig>;
 		};
 
 		/// <summary>
 		/// Allocates a new subsystem and invokes the subsystem hooks.
 		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <typeparam name="...Args"></typeparam>
 		/// <param name="config"></param>
 		/// <param name="userData"></param>
 		/// <param name="args"></param>
@@ -266,7 +266,9 @@ namespace Nominax::Core::Subsystem
 			NOX_PAS_NOT_NULL(instance, "Failed to allocate subsystem!");
 			IEventHooks* const hooks { instance };
 			ProxyInit(*hooks, std::move(config), userData);
-			return SubsystemHandle { instance };
+			auto handle { SubsystemHandle { instance } };
+            NOX_DBG_PAS_NOT_NULL(handle, "Failed to allocate subsystem!");
+            return handle;
 		}
 	}
 }

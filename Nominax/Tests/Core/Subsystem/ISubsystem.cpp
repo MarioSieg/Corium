@@ -1,3 +1,4 @@
+
 // Author: Mario Sieg
 // Project: Nominax
 //
@@ -203,106 +204,107 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "SubsystemMockWithAllEvents.hpp"
 
-#include <cstdint>
-#include <limits>
-
-#include "../../Foundation/Algorithm/Enum.hpp"
-
-namespace Nominax::Core::Subsystem
+TEST(Subsystem, AllocateConstructDestructHook)
 {
-    /// <summary>
-    /// Each bit flag corresponds to an event hook in IEventHooks.
-    ///	Used to enable/disable hooks in a subsystem.
-    /// </summary>
-    enum class HookFlags : std::uint32_t
+    MockSubsystemWithAllEvents::MockCounter = 0;
     {
-        /// <summary>
-        /// NO hooks.
-        /// </summary>
-        None			= 0 << 0,
+        const SubsystemHandle handle
+        {
+            Factory::AllocateSubsystemInstance<MockSubsystemWithAllEvents>
+            (
+                std::make_unique<SubsystemConfig>(),
+                &MockSubsystemWithAllEvents::MockHost
+            )
+        };
+        ASSERT_NE(handle, nullptr);
+        ASSERT_EQ(handle->Name(), "Noel");
+        ASSERT_EQ(handle->UserData(), &MockSubsystemWithAllEvents::MockHost);
+        ASSERT_NE(handle->ID(), 0);
+        ASSERT_EQ(&handle->Host(), &MockSubsystemWithAllEvents::MockHost);
+        ASSERT_EQ(handle->SubscribedHooks(), HookFlags::All);
+        ASSERT_EQ(MockSubsystemWithAllEvents::MockCounter, 1);
+    }
+	ASSERT_EQ(MockSubsystemWithAllEvents::MockCounter, 2);
+    MockSubsystemWithAllEvents::MockCounter = 0;
+}
 
-        /// <summary>
-        /// IEventHooks::OnConstruct()
-        /// CTOR flag - (constructor).
-        /// </summary>
-        OnConstruct		= 1 << 0,
+TEST(Subsystem, Invoke)
+{
+    MockSubsystemWithAllEvents::MockCounter = 0;
+    const SubsystemHandle handle
+    {
+        Factory::AllocateSubsystemInstance<MockSubsystemWithAllEvents>
+        (
+            std::make_unique<SubsystemConfig>(),
+            &MockSubsystemWithAllEvents::MockHost
+        )
+    };
+    MockSubsystemWithAllEvents::MockCounter = 0;
+    handle->Invoke<HookFlags::OnInstall | HookFlags::OnUninstall>();
+    ASSERT_EQ(MockSubsystemWithAllEvents::MockCounter, 2);
+    MockSubsystemWithAllEvents::MockCounter = 0;
+    handle->Invoke<HookFlags::OnPreBoot | HookFlags::OnPostBoot>();
+    ASSERT_EQ(MockSubsystemWithAllEvents::MockCounter, 2);
+    Reactor* vm { }; // OUCH -> UB :(
+    Image* image { };                                                   // ouch UB - I'll fix this in the test overhaul update
+    handle->Invoke<HookFlags::OnPreExecute | HookFlags::OnPostExecute>(*vm, *image, nullptr);
+    ASSERT_EQ(MockSubsystemWithAllEvents::MockCounter, 2);
+    MockSubsystemWithAllEvents::MockCounter = 0;
+    handle->SetPaused(true);
+    handle->SetPaused(false);
+    ASSERT_EQ(MockSubsystemWithAllEvents::MockCounter, 2);
+    MockSubsystemWithAllEvents::MockCounter = 0;
+    handle->Invoke<HookFlags::OnPreShutdown | HookFlags::OnPostShutdown>();
+    ASSERT_EQ(MockSubsystemWithAllEvents::MockCounter, 2);
+    MockSubsystemWithAllEvents::MockCounter = 0;
+}
 
-        /// <summary>
-        /// IEventHooks::OnDestruct()
-        /// DTOR flag - (destructor).
-        /// </summary>
-        OnDestruct		= 1 << 1,
-
-        /// <summary>
-        /// IEventHooks::OnInstall()
-        /// </summary>
-        OnInstall       = 1 << 2,
-
-        /// <summary>
-        /// IEventHooks::OnUninstall()
-        /// </summary>
-        OnUninstall     = 1 << 3,
-
-
-        /// <summary>
-        /// IEventHooks::OnPreBoot()
-        /// </summary>
-        OnPreBoot		= 1 << 4,
-
-        /// <summary>
-        /// IEventHooks::OnPostBoot()
-        /// </summary>
-        OnPostBoot		= 1 << 5,
-
-        /// <summary>
-        /// IEventHooks::OnPreExecute()
-        /// </summary>
-        OnPreExecute	= 1 << 6,
-
-        /// <summary>
-        /// IEventHooks::OnPostExecute()
-        /// </summary>
-        OnPostExecute	= 1 << 7,
-
-        /// <summary>
-        /// IEventHooks::OnPreShutdown()
-        /// </summary>
-        OnPreShutdown	= 1 << 8,
-
-        /// <summary>
-        /// IEventHooks::OnPostShutdown
-        /// </summary>
-        OnPostShutdown	= 1 << 9,
-
-        /// <summary>
-        /// IEventHooks::OnPause()
-        /// </summary>
-        OnPause         = 1 << 10,
-
-        /// <summary>
-        /// IEventHooks::OnResume()
-        /// </summary>
-        OnResume        = 1 << 11,
-
-        /// <summary>
-        /// Contains all event hook flags.
-        /// </summary>
-        All = std::numeric_limits<std::uint32_t>::max(),
-
-        /// <summary>
-        /// Contains the default hook flags.
-        /// </summary>
-        Default = OnConstruct | OnDestruct
+TEST(Subsystem, QuerySpecInterfaceOK)
+{
+    struct Config : SubsystemConfig
+    {
+        std::string Name { "Noel" };
     };
 
-    NOX_IMPL_ENUM_BIT_FLAGS(HookFlags);
-
-    constexpr auto HookFlagsIsCtorDtorFlag(const HookFlags flags) noexcept -> bool
+    const SubsystemHandle handle
     {
-        return
-            (flags & HookFlags::OnConstruct) != HookFlags::None
-            || (flags & HookFlags::OnDestruct) != HookFlags::None;
-    }
+        Factory::AllocateSubsystemInstance<MockSubsystemWithAllEvents>
+        (
+            std::make_unique<Config>(),
+            &MockSubsystemWithAllEvents::MockHost
+        )
+    };
+    ASSERT_EQ(handle->QuerySpecInterface<Config>().Name, "Noel");
+}
+
+TEST(Subsystem, QuerySpecInterfaceErr)
+{
+    const auto exector
+    {
+        []
+        {
+            struct ConfigA : SubsystemConfig
+            {
+                std::string YMM { "X" };
+            };
+
+            struct ConfigB : SubsystemConfig
+            {
+                std::string Name { "Noel" };
+            };
+
+            const SubsystemHandle handle
+            {
+                Factory::AllocateSubsystemInstance<MockSubsystemWithAllEvents>
+                (
+                        std::make_unique<ConfigA>(),
+                        &MockSubsystemWithAllEvents::MockHost
+                )
+            };
+            ASSERT_EQ(handle->QuerySpecInterface<ConfigB>().Name, "Noel");
+        }
+    };
+    ASSERT_DEATH(exector(), "");
 }

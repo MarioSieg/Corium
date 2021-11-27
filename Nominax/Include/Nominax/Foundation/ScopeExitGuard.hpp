@@ -205,104 +205,30 @@
 
 #pragma once
 
-#include <cstdint>
-#include <limits>
+#include <functional>
+#include <type_traits>
 
-#include "../../Foundation/Algorithm/Enum.hpp"
-
-namespace Nominax::Core::Subsystem
+namespace Nominax::Foundation
 {
-    /// <summary>
-    /// Each bit flag corresponds to an event hook in IEventHooks.
-    ///	Used to enable/disable hooks in a subsystem.
-    /// </summary>
-    enum class HookFlags : std::uint32_t
+    struct ScopeExitGuard final
     {
-        /// <summary>
-        /// NO hooks.
-        /// </summary>
-        None			= 0 << 0,
+        using Routine = std::function<auto() -> void>;
 
-        /// <summary>
-        /// IEventHooks::OnConstruct()
-        /// CTOR flag - (constructor).
-        /// </summary>
-        OnConstruct		= 1 << 0,
+        explicit ScopeExitGuard(Routine&& exitRoutine) noexcept;
+        ScopeExitGuard(const ScopeExitGuard& other) noexcept = default;
+        ScopeExitGuard(ScopeExitGuard&& other) noexcept = default;
+        auto operator =(const ScopeExitGuard& other) noexcept -> ScopeExitGuard& = default;
+        auto operator =(ScopeExitGuard&& other) noexcept -> ScopeExitGuard& = default;
+        ~ScopeExitGuard();
 
-        /// <summary>
-        /// IEventHooks::OnDestruct()
-        /// DTOR flag - (destructor).
-        /// </summary>
-        OnDestruct		= 1 << 1,
-
-        /// <summary>
-        /// IEventHooks::OnInstall()
-        /// </summary>
-        OnInstall       = 1 << 2,
-
-        /// <summary>
-        /// IEventHooks::OnUninstall()
-        /// </summary>
-        OnUninstall     = 1 << 3,
-
-
-        /// <summary>
-        /// IEventHooks::OnPreBoot()
-        /// </summary>
-        OnPreBoot		= 1 << 4,
-
-        /// <summary>
-        /// IEventHooks::OnPostBoot()
-        /// </summary>
-        OnPostBoot		= 1 << 5,
-
-        /// <summary>
-        /// IEventHooks::OnPreExecute()
-        /// </summary>
-        OnPreExecute	= 1 << 6,
-
-        /// <summary>
-        /// IEventHooks::OnPostExecute()
-        /// </summary>
-        OnPostExecute	= 1 << 7,
-
-        /// <summary>
-        /// IEventHooks::OnPreShutdown()
-        /// </summary>
-        OnPreShutdown	= 1 << 8,
-
-        /// <summary>
-        /// IEventHooks::OnPostShutdown
-        /// </summary>
-        OnPostShutdown	= 1 << 9,
-
-        /// <summary>
-        /// IEventHooks::OnPause()
-        /// </summary>
-        OnPause         = 1 << 10,
-
-        /// <summary>
-        /// IEventHooks::OnResume()
-        /// </summary>
-        OnResume        = 1 << 11,
-
-        /// <summary>
-        /// Contains all event hook flags.
-        /// </summary>
-        All = std::numeric_limits<std::uint32_t>::max(),
-
-        /// <summary>
-        /// Contains the default hook flags.
-        /// </summary>
-        Default = OnConstruct | OnDestruct
+    private:
+        Routine Routine_;
     };
 
-    NOX_IMPL_ENUM_BIT_FLAGS(HookFlags);
+    inline ScopeExitGuard::ScopeExitGuard(Routine&& exitRoutine) noexcept : Routine_ { std::move(exitRoutine) } { }
 
-    constexpr auto HookFlagsIsCtorDtorFlag(const HookFlags flags) noexcept -> bool
+    inline ScopeExitGuard::~ScopeExitGuard()
     {
-        return
-            (flags & HookFlags::OnConstruct) != HookFlags::None
-            || (flags & HookFlags::OnDestruct) != HookFlags::None;
+        std::invoke(this->Routine_);
     }
 }

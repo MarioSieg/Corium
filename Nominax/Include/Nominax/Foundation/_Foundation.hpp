@@ -232,6 +232,7 @@
 #include "Platform.hpp"
 #include "Print.hpp"
 #include "ProtocolController.hpp"
+#include "ScopeExitGuard.hpp"
 #include "Record.hpp"
 #include "SystemInfoSnapshot.hpp"
 #include "Stopwatch.hpp"
