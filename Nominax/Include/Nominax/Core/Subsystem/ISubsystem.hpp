@@ -269,54 +269,63 @@ namespace Nominax::Core::Subsystem
 		/// 
 		/// </summary>
 		/// <returns>The host of this subsystem.</returns>
+		[[nodiscard]]
 		auto Host() const & noexcept -> const HypervisorHost&;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The boot and runtime config.</returns>
+		[[nodiscard]]
 		auto Config() const & noexcept -> const SubsystemConfig&;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>User data - if any.</returns>
+		[[nodiscard]]
 		auto UserData() const & noexcept -> const void*;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>True if the subsystem is enabled, else false.</returns>
+		[[nodiscard]]
 		auto IsPaused() const & noexcept -> bool;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The short name.</returns>
+		[[nodiscard]]
 		auto Name() const & noexcept -> std::string_view;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The detailed description.</returns>
+		[[nodiscard]]
 		auto Description() const & noexcept -> std::string_view;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The unique subsystem ID.</returns>
+		[[nodiscard]]
 		auto ID() const & noexcept -> std::uint32_t;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The thread-id of the subsystem.</returns>
+		[[nodiscard]]
 		auto ThreadIDHash() const & noexcept -> DispatchThreadID;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The super event hooks class.</returns>
+		[[nodiscard]]
 		auto EventHooks() const & noexcept -> const IEventHooks&;
 
 		/// <summary>
@@ -326,34 +335,56 @@ namespace Nominax::Core::Subsystem
 		/// <returns></returns>
 		auto SetPaused(bool pause) -> void;
 
+        /// <summary>
+        /// Pauses the subsystem.
+        /// </summary>
+        /// <returns></returns>
         auto Pause() -> void;
 
+        /// <summary>
+        /// Resumes the subsystem.
+        /// </summary>
+        /// <returns></returns>
         auto Resume() -> void;
 
-        static constexpr auto STIPair() noexcept -> STI_Pair;
+        /// <summary>
+        /// Builds an STI pointer pair.
+        /// </summary>
+        /// <returns></returns>
+		[[nodiscard]]
+		static constexpr auto STIPair() noexcept -> STI_Pair;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The atomic ID generator accumulator.</returns>
+		[[nodiscard]]
 		static auto IDAccumulator() noexcept -> std::uint32_t;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The thread local id.</returns>
+		[[nodiscard]]
 		static auto ThreadID() noexcept -> DispatchThreadID;
 
-		struct Deleter final
-		{
-			auto operator () (ISubsystem* instance) const noexcept -> void;
-		};
-
-        template <const HookFlags Flags, const bool IgnorePause = false, typename... Args> requires (Flags != HookFlags::None && !HookFlagsIsCtorDtorFlag(Flags))
+        /// <summary>
+        /// Invokes all event hooks subscribed by flags.
+        /// </summary>
+        /// <typeparam name="...Args">The arguments for the event.</typeparam>
+        /// <param name="args">The arguments for the event.</param>
+        /// <returns></returns>
+        template <const HookFlags Flags, const bool IgnorePause = false, typename... Args> requires (Flags != HookFlags::None)
         auto Invoke(Args&&... args) -> void;
 
+        /// <summary>
+        /// Queries a sub class interface of the specialized subsystem configuration.
+        /// </summary>
+        /// <typeparam name="SpecConfig"></typeparam>
+        /// <returns></returns>
         template <typename SpecConfig> requires std::is_base_of_v<SubsystemConfig, SpecConfig>
-        auto QuerySpecInterface() const noexcept -> SpecConfig&;
+		[[nodiscard]]
+		auto QuerySpecInterface() const noexcept -> SpecConfig&;
 
 	protected:
 		/// <summary>
@@ -374,8 +405,26 @@ namespace Nominax::Core::Subsystem
             bool isPaused = false
 		) noexcept;
 
+		/// <summary>
+		/// Sets a new boot config for the system.
+		/// </summary>
+		/// <param name="config"></param>
+		/// <returns></returns>
 		auto BootConfig(std::unique_ptr<SubsystemConfig>&& config) & noexcept -> void;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The current boot config of the system.</returns>
 		auto BootConfig() const && noexcept -> const std::unique_ptr<SubsystemConfig>&&;
+
+		/// <summary>
+		/// Event implementation which should be called in the OnConstruct() implementation of the child class.
+		///	Set's the config and userData values to this class instance.
+		/// </summary>
+		/// <param name="config"></param>
+		/// <param name="userData"></param>
+		/// <returns></returns>
 		auto OnConstruct(std::unique_ptr<SubsystemConfig>&& config, void* userData) & -> void override;
 
 	private:
@@ -391,15 +440,6 @@ namespace Nominax::Core::Subsystem
 		std::unique_ptr<SubsystemConfig> BootConfigStorage { nullptr };
 		void* StoredUserData { nullptr };
 	};
-
-	inline auto ISubsystem::Deleter::operator() (ISubsystem* const instance) const noexcept -> void
-	{
-		if (instance->HasSubscribed(HookFlags::OnDestruct))
-		{
-			instance->OnDestruct();
-		}
-		delete instance;
-	}
 
 	inline auto ISubsystem::Host() const & noexcept -> const HypervisorHost&
 	{
@@ -472,7 +512,7 @@ namespace Nominax::Core::Subsystem
 		this->StoredUserData = userData;
 	}
 
-    template<const HookFlags Flags, const bool IgnorePause, typename... Args> requires (Flags != HookFlags::None && !HookFlagsIsCtorDtorFlag(Flags))
+    template<const HookFlags Flags, const bool IgnorePause, typename... Args> requires (Flags != HookFlags::None)
     inline auto ISubsystem::Invoke(Args&&... args) -> void
     {
         if constexpr (!IgnorePause)
@@ -482,6 +522,14 @@ namespace Nominax::Core::Subsystem
                 return;
             }
         }
+		if constexpr ((Flags & HookFlags::OnConstruct) != HookFlags::None)
+		{
+			this->OnConstruct(std::forward<Args>(args)...);
+		}
+		if constexpr ((Flags & HookFlags::OnDestruct) != HookFlags::None)
+		{
+			this->OnDestruct(std::forward<Args>(args)...);
+		}
         if constexpr ((Flags & HookFlags::OnInstall) != HookFlags::None)
         {
             this->OnInstall(std::forward<Args>(args)...);
@@ -549,4 +597,16 @@ namespace Nominax::Core::Subsystem
 		NOX_PAS_NOT_NULL(spec, "Invalid spec config type!");
 		return *spec;
 	}
+
+	/// <summary>
+	/// Restrict T to constructable subsystem.
+	/// </summary>
+	template <typename T, typename... Args>
+	concept IsValidSubsystem = requires
+	{
+		requires std::is_base_of_v<ISubsystem, T>;
+		requires std::is_default_constructible_v<T> || std::is_constructible_v<T, Args...>;
+		requires std::is_class_v<typename T::SpecializedConfig>;
+		requires std::is_base_of_v<SubsystemConfig, typename T::SpecializedConfig>;
+	};
 }

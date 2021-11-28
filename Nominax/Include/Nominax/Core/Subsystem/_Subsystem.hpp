@@ -205,11 +205,11 @@
 
 #pragma once
 
+#include "Allocator.hpp"
 #include "Config.hpp"
 #include "Factory.hpp"
 #include "HypervisorHost.hpp"
 #include "IEventHooks.hpp"
 #include "IHypervisorHooks.hpp"
 #include "ISubsystem.hpp"
-#include "MapStorage.hpp"
 #include "ThreadIDHash.hpp"

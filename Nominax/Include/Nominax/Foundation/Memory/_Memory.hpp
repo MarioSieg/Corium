@@ -207,7 +207,7 @@
 
 #include "AlignedMalloc.hpp"
 #include "Alignment.hpp"
-#include "Fence.hpp"
+#include "Barrier.hpp"
 #include "MappedMemory.hpp"
 #include "MappedMemoryWrapper.hpp"
 #include "MemoryUnits.hpp"

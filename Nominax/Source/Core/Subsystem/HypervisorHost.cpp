@@ -220,13 +220,21 @@ namespace Nominax::Core::Subsystem
             [[unlikely]]
             return;
         }
+        ISubsystem& system { this->Lookup(systemKey) };
+
+        this->OnPreUninstall(system);
+        system.Invoke<HookFlags::OnUninstall>();
+        this->OnPostUninstall();
+
         this->SystemMap_.erase(systemKey);
     }
 
     auto HypervisorHost::Lookup(const HostToSystemKey systemKey) -> ISubsystem&
     {
         NOX_PAS(this->IsInstalled(systemKey), "Subsystem lookup with invalid system key!");
-        return *this->SystemMap_.at(systemKey).Handle;
+        Proxy& proxy { this->SystemMap_.at(systemKey) };
+        ISubsystem& underlying { *proxy };
+        return underlying;
     }
 
     auto HypervisorHost::Pause(const HostToSystemKey systemKey) -> void
@@ -245,6 +253,12 @@ namespace Nominax::Core::Subsystem
 
     auto HypervisorHost::UninstallAll() noexcept -> void
     {
+        for (auto& [_, system] : this->SystemMap_)
+        {
+            this->OnPreUninstall(*system);
+            system->Invoke<HookFlags::OnUninstall>();
+            this->OnPostUninstall();
+        }
         this->SystemMap_.clear();
     }
 
@@ -261,5 +275,48 @@ namespace Nominax::Core::Subsystem
     auto HypervisorHost::InstalledSystemCount() const noexcept -> std::size_t
     {
         return std::size(this->SystemMap_);
+    }
+
+    auto HypervisorHost::BootAll() -> void
+    {
+        this->OnPreBoot();
+
+        // invoke OnPreBoot on all systems
+        InvokeOnAll<HookFlags::OnPreBoot, false>();
+
+        // invoke OnPostBoot on all systems, but in reversed oder
+        InvokeOnAll<HookFlags::OnPostBoot, true>();
+
+        this->OnPostBoot();
+    }
+
+    auto HypervisorHost::ShutdownAll() -> void
+    {
+        this->OnPreShutdown();
+
+        // invoke OnPreBoot on all systems
+        InvokeOnAll<HookFlags::OnPreShutdown, false>();
+
+        // invoke OnPostBoot on all systems, but in reversed oder
+        InvokeOnAll<HookFlags::OnPostShutdown, true>();
+
+        this->OnPostShutdown();
+    }
+
+    auto HypervisorHost::BeginPreExecution(Reactor& vm, ByteCode::Image& code, void* userData) -> void
+    {
+        this->OnPreExecute(vm, code, userData);
+        InvokeOnAll<HookFlags::OnPreExecute, false>(vm, code, userData);
+    }
+
+    auto HypervisorHost::BeginPostExecution(Reactor& vm, ByteCode::Image& code, void* userData) -> void
+    {
+        this->OnPostExecute(vm, code, userData);
+        InvokeOnAll<HookFlags::OnPostExecute, true>(vm, code, userData);
+    }
+
+    auto HypervisorHost::GenerateHostToSystemKey() const noexcept -> HostToSystemKey
+    {
+        return ++this->Accumulator_;
     }
 }

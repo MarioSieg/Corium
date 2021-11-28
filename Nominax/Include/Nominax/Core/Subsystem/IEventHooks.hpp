@@ -230,45 +230,185 @@ namespace Nominax::Core::Subsystem
 	/// </summary>
 	struct IEventHooks
 	{
+		/// <summary>
+		/// Constructor.
+		/// </summary>
+		/// <returns></returns>
 		constexpr IEventHooks() noexcept = default;
+
+		/// <summary>
+		/// Move constructor.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
 		constexpr IEventHooks(IEventHooks&& other) noexcept = default;
+
+		/// <summary>
+		/// Copy constructor.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
 		constexpr IEventHooks(const IEventHooks& other) noexcept = default;
+
+		/// <summary>
+		/// Copy assignment operator.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
 		constexpr auto operator =(const IEventHooks& other) noexcept -> IEventHooks& = default;
+
+		/// <summary>
+		/// Move assignment operator.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
 		constexpr auto operator =(IEventHooks&& other) noexcept -> IEventHooks& = default;
+
+		/// <summary>
+		/// Destructor.
+		/// </summary>
 		virtual ~IEventHooks() = default;
 
+		/// <summary>
+		/// Add hook to subscriptions.
+		/// </summary>
+		/// <param name="hook">The hook flag to add.</param>
+		/// <returns></returns>
 		constexpr auto Subscribe(HookFlags hook) const & noexcept -> void;
+
+		/// <summary>
+		/// Remove hook from subscriptions-
+		/// </summary>
+		/// <param name="hook">The hook flag to removes.</param>
+		/// <returns></returns>
 		constexpr auto Unsubscribe(HookFlags hook) const & noexcept -> void;
+
+		/// <summary>
+		/// Toggle hook from subscriptions meaning - adding it if not present and removing it if present.
+		/// </summary>
+		/// <param name="hook"></param>
+		/// <returns></returns>
 		constexpr auto ToggleSubscription(HookFlags hook) const & noexcept -> void;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>All subscribed hook flags.</returns>
+		[[nodiscard]]
 		constexpr auto SubscribedHooks() const & noexcept -> HookFlags;
+
+		/// <summary>
+		/// Removes all subscriptions.
+		/// </summary>
+		/// <returns></returns>
 		constexpr auto ClearSubscriptions() const & noexcept -> void;
+
+		/// <summary>
+		/// Set the subscriptions directly.
+		/// </summary>
+		/// <param name="collection"></param>
+		/// <returns>The previous subscription flags, now overridden.</returns>
 		constexpr auto SetSubscriptions(HookFlags collection) const & noexcept -> HookFlags;
-		constexpr auto HasSubscribed(HookFlags flag) const & noexcept -> bool;
+
+		/// <summary>
+		/// Set the subscriptions directly and copy bits using a mask.
+		/// </summary>
+		/// <param name="collection"></param>
+		/// <returns>The previous subscription flags, now overridden.</returns>
+		constexpr auto SetSubscriptions(HookFlags collection, std::underlying_type_t<HookFlags> mask) const & noexcept -> HookFlags;
+
+		/// <summary>
+		/// Checks if the specified hook is subscribed.
+		/// </summary>
+		/// <param name="hook">The hook to check for.</param>
+		/// <returns>True if the hook is subscribed, else false.</returns>
+		constexpr auto HasSubscribed(HookFlags hook) const & noexcept -> bool;
 
 	protected:
+		/// <summary>
+		/// Invoked when the subsystem instance is constructed, after constructor.
+		///	Important - when implementing - call ISubsystem::OnConstruct(...) for setting the fields accordingly.
+		/// </summary>
+		/// <param name="config">The subsystem configuration instance.</param>
+		/// <param name="userData">Some user data.</param>
+		/// <returns></returns>
 		virtual auto OnConstruct(std::unique_ptr<SubsystemConfig>&& config, void* userData) & -> void;
+
+		/// <summary>
+		/// Invoked when the subsystem instance is destructed, before destructor.
+		/// </summary>
+		/// <returns></returns>
 		virtual auto OnDestruct() & noexcept -> void;
 
+        /// <summary>
+        /// Invoked when the subsystem is installed to a host.
+        /// </summary>
+        /// <returns></returns>
         virtual auto OnInstall() & -> void;
+
+        /// <summary>
+        /// Invoked when the subsystem is uninstalled from a host.
+        /// </summary>
+        /// <returns></returns>
         virtual auto OnUninstall() & -> void;
 
+		/// <summary>
+		/// Invoked when the host pre boots the subsystems.
+		/// </summary>
+		/// <returns></returns>
 		virtual auto OnPreBoot() & -> void;
+
+		/// <summary>
+		/// Invoked when the host post boots the subsystems.
+		/// </summary>
+		/// <returns></returns>
 		virtual auto OnPostBoot() & -> void;
 
+		/// <summary>
+		/// Invoked before an image is executed from the queue.
+		/// </summary>
+		/// <param name="vm">The reactor vm used for execution.</param>
+		/// <param name="code">The code image which will be execution.</param>
+		/// <param name="userData">Some user data.</param>
+		/// <returns></returns>
 		virtual auto OnPreExecute(Reactor& vm, ByteCode::Image& code, void* userData) & -> void;
+
+		/// <summary>
+		/// Invoked after an image is executed from the queue.
+		/// </summary>
+		/// <param name="vm">The reactor vm used for execution.</param>
+		/// <param name="code">The code image which will be execution.</param>
+		/// <param name="userData">Some user data.</param>
+		/// <returns></returns>
 		virtual auto OnPostExecute(Reactor& vm, ByteCode::Image& code, void* userData) & -> void;
 
+		/// <summary>
+		/// Invoked when the host pre shut down the subsystems.
+		/// </summary>
+		/// <returns></returns>
 		virtual auto OnPreShutdown() & -> void;
+
+		/// <summary>
+		/// Invoked when the host post shut down the subsystems.
+		/// </summary>
+		/// <returns></returns>
 		virtual auto OnPostShutdown() & -> void;
 
+        /// <summary>
+        /// Invoked when the subsystem enters the paused state.
+        /// </summary>
+        /// <returns></returns>
         virtual auto OnPause() & -> void;
+
+        /// <summary>
+        /// Invokes when the subsystem leaves the paused state.
+        /// </summary>
+        /// <returns></returns>
         virtual auto OnResume() & -> void;
 
 	private:
 		mutable std::underlying_type_t<HookFlags> HookFlags_ { };
-		friend auto ProxyInit(IEventHooks&, std::unique_ptr<SubsystemConfig>&&, void*) -> void;
         friend struct HypervisorHost;
-        friend struct MapStorage;
         friend struct ISubsystem;
 	};
 
@@ -314,8 +454,19 @@ namespace Nominax::Core::Subsystem
 		return Foundation::Algorithm::FromUnderlying<HookFlags>(backup);
 	}
 
-	constexpr auto IEventHooks::HasSubscribed(const HookFlags flag) const & noexcept -> bool
+	constexpr auto IEventHooks::SetSubscriptions(const HookFlags collection, const std::underlying_type_t<HookFlags> mask) const & noexcept -> HookFlags
 	{
-		return this->HookFlags_ & Foundation::Algorithm::ToUnderlying(flag);
+		const auto backup { this->HookFlags_ };
+
+		std::underlying_type_t<HookFlags> a { Foundation::Algorithm::ToUnderlying(collection) };
+		std::underlying_type_t<HookFlags> b { this->HookFlags_ };
+		this->HookFlags_ = (b & mask) | (a & ~mask);
+
+		return Foundation::Algorithm::FromUnderlying<HookFlags>(backup);
+	}
+
+	constexpr auto IEventHooks::HasSubscribed(const HookFlags hook) const & noexcept -> bool
+	{
+		return this->HookFlags_ & Foundation::Algorithm::ToUnderlying(hook);
 	}
 }

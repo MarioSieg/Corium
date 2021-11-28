@@ -207,6 +207,10 @@
 
 namespace Nominax::Core::Subsystem
 {
+	/// <summary>
+	/// Base for all subsystem configurations.
+	/// Custom system configurations must derive from this struct.
+	/// </summary>
 	struct SubsystemConfig
     {
         SubsystemConfig() noexcept = default;

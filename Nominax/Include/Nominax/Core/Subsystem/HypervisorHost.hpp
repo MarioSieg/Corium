@@ -205,61 +205,200 @@
 
 #pragma once
 
-#include <unordered_map>
+#include <map>
 
 #include "Factory.hpp"
 #include "IHypervisorHooks.hpp"
 #include "ISubsystem.hpp"
-#include "MapStorage.hpp"
 
 #include "../../Foundation/Panic/Assertions.hpp"
 
 namespace Nominax::Core::Subsystem
 {
+	/// <summary>
+	/// The hypervisor hosts all subsystems.
+	/// </summary>
 	struct HypervisorHost : IHypervisorHooks
 	{
-    public:
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <returns></returns>
         HypervisorHost() noexcept = default;
-        HypervisorHost(HypervisorHost&& other) = default;
-        HypervisorHost(const HypervisorHost& other) noexcept = default;
-        auto operator =(const HypervisorHost& other) noexcept -> HypervisorHost& = default;
-        auto operator =(HypervisorHost&& other) -> HypervisorHost& = default;
+
+        /// <summary>
+        /// Move constructor.
+        /// </summary>
+        /// <param name="other"></param>
+        HypervisorHost(HypervisorHost&& other) noexcept = default;
+
+        /// <summary>
+        /// No copying.
+        /// </summary>
+        /// <param name="other"></param>
+        HypervisorHost(const HypervisorHost& other) = delete;
+
+        /// <summary>
+        /// Move assignment operator.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        auto operator =(HypervisorHost&& other) noexcept -> HypervisorHost& = default;
+
+        /// <summary>
+        /// No copying.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        auto operator =(const HypervisorHost& other) -> HypervisorHost& = delete;
+
+        /// <summary>
+        /// Destructor.
+        /// </summary>
         virtual ~HypervisorHost() override;
 
+        /// <summary>
+        /// Key type used to identify subsystems.
+        /// </summary>
         using HostToSystemKey = std::uint32_t;
-        using SystemMap = std::unordered_map<HostToSystemKey, MapStorage>;
+
+        /// <summary>
+        /// Hash map storing the subsystems (cannot use unordered map because we need reverse iteration and ordering)
+        /// </summary>
+        using SystemMap = std::map<HostToSystemKey, Proxy>;
 
     protected:
+        /// <summary>
+        /// All currently installed subsystems.
+        /// </summary>
         SystemMap SystemMap_ { };
-        HostToSystemKey Accumulator_ { };
+
+        /// <summary>
+        /// Symbol key generator.
+        /// </summary>
+        mutable HostToSystemKey Accumulator_ { };
 
     public:
-        template <typename T, typename SpecConfig = typename T::SpecializedConfig, typename... Args> requires Factory::IsValidSubsystem<T, Args...>
-        NOX_NEVER_INLINE auto Install
+        /// <summary>
+        /// Allocates and installs a new subsystem instance.
+        /// </summary>
+        /// <typeparam name="T">The subsystem type. Must be a valid subsystem class.</typeparam>
+        /// <typeparam name="SpecConfig">The config type of the subsystem. Must be a child of SubsystemConfig.</typeparam>
+        /// <typeparam name="...Args">Generic constructor arguments.</typeparam>
+        /// <param name="config">The allocated config.</param>
+        /// <param name="userData">Some user data.</param>
+        /// <param name="args">Generic constructor arguments.</param>
+        /// <returns>The key of the new installed subsystem.</returns>
+        template <typename T, typename SpecConfig = typename T::SpecializedConfig, typename... Args> requires IsValidSubsystem<T, Args...>
+		auto Install
         (
             std::unique_ptr<SubsystemConfig>&& config = std::make_unique<SpecConfig>(),
-            void* userDAta = nullptr,
+            void* userData = nullptr,
             Args&&... args
         ) -> HostToSystemKey;
 
+        /// <summary>
+        /// Lookups a subsystem interface by key.
+        /// Panics if the subsystem is not installed.
+        /// </summary>
+        /// <param name="systemKey">The key to look for.</param>
+        /// <returns>A reference to the subsystem.</returns>
         auto Lookup(HostToSystemKey systemKey) -> ISubsystem&;
 
-        auto IsInstalled(HostToSystemKey systemKey) const -> bool;
+        /// <summary>
+        /// Checks if a subsystem with given key is installed.
+        /// </summary>
+        /// <param name="systemKey">The key to look for.</param>
+        /// <returns>True if the subsystem is installed, else false.</returns>
+        [[nodiscard]]
+		auto IsInstalled(HostToSystemKey systemKey) const -> bool;
 
+        /// <summary>
+        /// Uninstalls a subsystem.
+        /// If the subsystem is not installed, nothing is done.
+        /// </summary>
+        /// <param name="systemKey">The key to look for.</param>
+        /// <returns></returns>
         auto Uninstall(HostToSystemKey systemKey) -> void;
 
+        /// <summary>
+        /// Uninstalls all installed subsystems from the host.
+        /// </summary>
+        /// <returns></returns>
         auto UninstallAll() noexcept -> void;
 
+        /// <summary>
+        /// Pauses the subsystem execution and event invocation.
+        /// Panics if no subsystem with the given key is installed.
+        /// </summary>
+        /// <param name="systemKey">The key to look for.</param>
+        /// <returns></returns>
         auto Pause(HostToSystemKey systemKey) -> void;
 
+        /// <summary>
+        /// Resumes the subsystem execution and event invocation.
+        /// Panics if no subsystem with the given key is installed.
+        /// </summary>
+        /// <param name="systemKey">The key to look for.</param>
+        /// <returns></returns>
         auto Resume(HostToSystemKey systemKey) -> void;
 
-        auto FullSystemMap() const noexcept -> const SystemMap&;
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns>The hash map of all installed subsystems.</returns>
+        [[nodiscard]]
+		auto FullSystemMap() const noexcept -> const SystemMap&;
 
-        auto InstalledSystemCount() const noexcept -> std::size_t;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns>The count of installed subsystems.</returns>
+        [[nodiscard]]
+		auto InstalledSystemCount() const noexcept -> std::size_t;
+
+        /// <summary>
+        /// Boot all subsystems by invoking pre and post boot events.
+        /// </summary>
+        /// <returns></returns>
+        auto BootAll() -> void;
+
+        /// <summary>
+        /// Shutdown all subsystems.
+        /// </summary>
+        /// <returns></returns>
+        auto ShutdownAll() -> void;
+
+        /// <summary>
+        /// Invokes the PreExecution event on all subsystems.
+        /// </summary>
+        /// <param name="vm"></param>
+        /// <param name="code"></param>
+        /// <param name="userData"></param>
+        /// <returns></returns>
+        auto BeginPreExecution(Reactor& vm, ByteCode::Image& code, void* userData) -> void;
+
+        /// <summary>
+        /// Invokes the PostExecution event on all subsystems.
+        /// </summary>
+        /// <param name="vm"></param>
+        /// <param name="code"></param>
+        /// <param name="userData"></param>
+        /// <returns></returns>
+        auto BeginPostExecution(Reactor& vm, ByteCode::Image& code, void* userData) -> void;
+
+	private:
+        template <const HookFlags Flags, const bool Reversed, const bool IgnorePause = false, typename... Args>
+        auto InvokeOnAll(Args&&... args) -> void;
+
+        /// <summary>
+        /// Generates a new host to system key.
+        /// </summary>
+        /// <returns></returns>
+        auto GenerateHostToSystemKey() const noexcept -> HostToSystemKey;
 	};
 
-    template<typename T, typename SpecConfig, typename... Args> requires Factory::IsValidSubsystem<T, Args...>
+    template<typename T, typename SpecConfig, typename... Args> requires IsValidSubsystem<T, Args...>
     NOX_NEVER_INLINE auto HypervisorHost::Install
     (
         std::unique_ptr<SubsystemConfig>&& config,
@@ -267,25 +406,68 @@ namespace Nominax::Core::Subsystem
         Args&&... args
     ) -> HostToSystemKey
     {
+        // Invoke pre installation hook
         this->OnPreInstall(*config, userData);
-        SubsystemHandle handle { Factory::AllocateSubsystemInstance<T, Args...>(std::move(config), userData, std::forward<Args>(args)...) };
-        MapStorage storage
+
+        // Allocate subsystem in proxy:
+        Proxy handle { Factory::AllocateSubsystemInstance<T, Args...>(std::move(config), userData, std::forward<Args>(args)...) };
+        std::pair<HostToSystemKey, Proxy> pairEX
         {
-            std::move(handle),
-            this
+            std::make_pair(this->GenerateHostToSystemKey(), std::move(handle))
         };
-        std::pair<HostToSystemKey, MapStorage> pairEX
-        {
-            std::make_pair(++this->Accumulator_, std::move(storage))
-        };
+
+        // emplace KV-pair into the subsystem map
         const std::pair<SystemMap::iterator, bool> result
         {
-            this->SystemMap_.template emplace(std::move(pairEX))
+            this->SystemMap_.emplace(std::move(pairEX))
         };
+
+        // check if there already was a subsystem with the same key (should never happen - accumulator is incremented)
         NOX_PAS(result.second, "Subsystem with host key already exists!");
-        ISubsystem& system { *((*result.first).second).Handle };
-        system.OnInstall();
+
+        // Query instance and invoke hooks
+        ISubsystem& system { *(*result.first).second };
+        system.Invoke<HookFlags::OnInstall>();
+
+        // Invoke post installation hook
         this->OnPostInstall(system);
         return this->Accumulator_;
+    }
+
+    template <const HookFlags Flags, const bool Reversed, const bool IgnorePause, typename... Args>
+    NOX_NEVER_INLINE auto HypervisorHost::InvokeOnAll(Args&&... args) -> void
+    {
+        auto i
+        {
+			[this]
+			{
+				if constexpr (Reversed)
+				{
+                    return std::rbegin(this->SystemMap_);
+				}
+				else
+				{
+                    return std::begin(this->SystemMap_);
+				}
+			}()
+        };
+        const auto end
+        {
+            [this]
+            {
+                if constexpr (Reversed)
+                {
+                    return std::rend(this->SystemMap_);
+                }
+                else
+                {
+                    return std::end(this->SystemMap_);
+                }
+            }()
+        };
+        for (; i != end; std::advance(i, 1))
+        {
+            i->second->template Invoke<Flags, IgnorePause>(std::forward<Args>(args)...);
+        }
     }
 }

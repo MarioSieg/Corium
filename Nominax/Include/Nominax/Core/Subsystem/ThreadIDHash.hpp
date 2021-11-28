@@ -215,6 +215,11 @@ namespace Nominax::Core::Subsystem
 	/// </summary>
 	using DispatchThreadID = std::uint64_t;
 
+	/// <summary>
+	/// Retrieves the thread id from the current thread.
+	/// </summary>
+	/// <param name="id"></param>
+	/// <returns></returns>
 	inline auto ComputeDispatchThreadIDHash(const std::thread::id id = std::this_thread::get_id()) noexcept -> DispatchThreadID
 	{
 		constexpr std::hash<std::thread::id> hasher { };

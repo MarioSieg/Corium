@@ -205,48 +205,17 @@
 
 #pragma once
 
-#include <type_traits>
-
 #include "ISubsystem.hpp"
+#include "Proxy.hpp"
+#include "Allocator.hpp"
+
 #include "../../Foundation/Panic/Assertions.hpp"
 #include "../../Foundation/Platform.hpp"
 
 namespace Nominax::Core::Subsystem
 {
-	/// <summary>
-	/// Subsystem owning wrapper.
-	/// </summary>
-	using SubsystemHandle = std::unique_ptr<ISubsystem, ISubsystem::Deleter>;
-
-	/// <summary>
-	/// Friended proxy initializer invocation.
-	/// </summary>
-	/// <param name="self"></param>
-	/// <param name="config"></param>
-	/// <param name="userData"></param>
-	/// <returns></returns>
-	inline auto ProxyInit(IEventHooks& self, std::unique_ptr<SubsystemConfig>&& config, void* const userData) -> void
-	{
-		if (self.HasSubscribed(HookFlags::OnConstruct))
-		{
-			self.OnConstruct(std::move(config), userData);
-		}
-	}
-
 	namespace Factory
 	{
-		/// <summary>
-		/// Restrict T to constructable subsystem.
-		/// </summary>
-		template <typename T, typename... Args>
-		concept IsValidSubsystem = requires
-		{
-			requires std::is_base_of_v<ISubsystem, T>;
-			requires std::is_default_constructible_v<T> || std::is_constructible_v<T, Args...>;
-            requires std::is_class_v<typename T::SpecializedConfig>;
-            requires std::is_base_of_v<SubsystemConfig, typename T::SpecializedConfig>;
-		};
-
 		/// <summary>
 		/// Allocates a new subsystem and invokes the subsystem hooks.
 		/// </summary>
@@ -260,15 +229,12 @@ namespace Nominax::Core::Subsystem
 			std::unique_ptr<SubsystemConfig>&& config,
 			void* const userData,
 			Args&&... args
-		) -> SubsystemHandle
+		) -> Proxy
 		{
-			ISubsystem* const instance = new(std::nothrow) T(std::forward<Args>(args)...);
+			ISubsystem* instance { nullptr };
+			AllocateSubsystem<T, Args...>(instance, std::forward<Args>()...);
 			NOX_PAS_NOT_NULL(instance, "Failed to allocate subsystem!");
-			IEventHooks* const hooks { instance };
-			ProxyInit(*hooks, std::move(config), userData);
-			auto handle { SubsystemHandle { instance } };
-            NOX_DBG_PAS_NOT_NULL(handle, "Failed to allocate subsystem!");
-            return handle;
+			return Proxy { instance, std::move(config), userData };
 		}
 	}
 }

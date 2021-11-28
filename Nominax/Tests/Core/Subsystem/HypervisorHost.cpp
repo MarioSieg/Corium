@@ -45,3 +45,18 @@ TEST(HypervisorHost, PauseResume)
 
     MockSubsystemWithAllEvents::MockCounter = 0;
 }
+
+TEST(HypervisorHost, UninstallAll)
+{
+    MockSubsystemWithAllEvents::MockCounter = 0;
+
+    HypervisorHost host { };
+    const auto key { host.Install<MockSubsystemWithAllEvents>() };
+    ASSERT_TRUE(host.IsInstalled(key));
+    host.UninstallAll();
+    ASSERT_FALSE(host.IsInstalled(key));
+    ASSERT_EQ(host.InstalledSystemCount(), 0);
+    ASSERT_EQ(MockSubsystemWithAllEvents::MockCounter, 4);
+
+    MockSubsystemWithAllEvents::MockCounter = 0;
+}

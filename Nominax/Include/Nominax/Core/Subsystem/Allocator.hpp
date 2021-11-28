@@ -205,34 +205,32 @@
 
 #pragma once
 
-#include "../Platform.hpp"
+#include "ISubsystem.hpp"
 
-namespace Nominax::Foundation::Memory
+namespace Nominax::Core::Subsystem
 {
 	/// <summary>
-	/// Insert memory read fence barrier.
-	/// Force the compiler to flush queued writes to global memory.
+	/// Allocate subsystem.
 	/// </summary>
-	NOX_INTRINSIC_PROXY inline auto ReadFence() noexcept -> void
+	/// <typeparam name="T"></typeparam>
+	/// <typeparam name="...Args"></typeparam>
+	/// <param name="out"></param>
+	/// <param name="args"></param>
+	/// <returns></returns>
+	template <typename T, typename... Args> requires IsValidSubsystem<T>
+	inline auto AllocateSubsystem(ISubsystem*& out, Args&&... args) -> void
 	{
-		asm volatile("" : : : "memory");
+		out = new(std::nothrow) T(std::forward<Args>(args)...);
 	}
 
 	/// <summary>
-	/// Insert memory write fence barrier.
-	/// Force the compiler to flush queued writes to global memory.
+	/// Deallocate subsystem.
 	/// </summary>
-	NOX_INTRINSIC_PROXY inline auto WriteFence() noexcept -> void
+	/// <param name="in"></param>
+	/// <returns></returns>
+	inline auto DeallocateSubsystem(ISubsystem*& in) noexcept -> void
 	{
-		asm volatile("" : : : "memory");
-	}
-
-	/// <summary>
-	/// Insert memory read-write fence barrier.
-	/// Force the compiler to flush queued writes to global memory.
-	/// </summary>
-	NOX_INTRINSIC_PROXY inline auto ReadWriteFence() noexcept -> void
-	{
-		asm volatile("" : : : "memory");
+		delete in;
+		in = nullptr;
 	}
 }

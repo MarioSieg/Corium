@@ -209,4 +209,4 @@
 #include "ISAExtension.hpp"
 #include "ISAExtensionDetector.hpp"
 #include "Trap.hpp"
-#include "VolatileVar.hpp"
+#include "VolatileDisopt.hpp"

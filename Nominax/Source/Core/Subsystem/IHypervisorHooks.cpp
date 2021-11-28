@@ -212,7 +212,17 @@ namespace Nominax::Core::Subsystem
     auto IHypervisorHooks::OnPostInstall([[maybe_unused]] ISubsystem& system) & -> void { }
 
     auto IHypervisorHooks::OnPreUninstall([[maybe_unused]] ISubsystem& system) & -> void { }
-    auto IHypervisorHooks::OnPostUninstall([[maybe_unused]] ISubsystem& system) & -> void { }
+    auto IHypervisorHooks::OnPostUninstall() & -> void { }
+
+    auto IHypervisorHooks::OnPreBoot() & -> void { }
+    auto IHypervisorHooks::OnPostBoot() & -> void { }
+
+    auto IHypervisorHooks::OnPreExecute([[maybe_unused]] Reactor& vm, [[maybe_unused]] ByteCode::Image& code, [[maybe_unused]] void* const userData) & -> void { }
+
+    auto IHypervisorHooks::OnPostExecute([[maybe_unused]] Reactor& vm, [[maybe_unused]] ByteCode::Image& code, [[maybe_unused]] void* const userData) & -> void { }
+
+    auto IHypervisorHooks::OnPreShutdown() & -> void { }
+    auto IHypervisorHooks::OnPostShutdown() & -> void { }
 
     auto IHypervisorHooks::OnPause([[maybe_unused]] ISubsystem& system) & -> void { }
     auto IHypervisorHooks::OnResume([[maybe_unused]] ISubsystem& system) & -> void { }

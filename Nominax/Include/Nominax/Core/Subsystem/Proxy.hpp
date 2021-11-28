@@ -205,26 +205,287 @@
 
 #pragma once
 
-#include <functional>
+#include <memory>
 
-#include "ISubsystem.hpp"
-#include "Factory.hpp"
-#include "IHypervisorHooks.hpp"
-
-#include "../../Foundation/ScopeExitGuard.hpp"
+#include "Allocator.hpp"
 
 namespace Nominax::Core::Subsystem
 {
-    struct MapStorage final
-    {
-        MapStorage(SubsystemHandle&& handle, IHypervisorHooks* hooks);
-        MapStorage(const MapStorage& other) = delete;
-        MapStorage(MapStorage&& other) noexcept;
-        auto operator =(const MapStorage& other) -> MapStorage& = delete;
-        auto operator =(MapStorage&& other) noexcept -> MapStorage&;
-        ~MapStorage();
+	struct ISubsystem;
+	struct SubsystemConfig;
 
-        SubsystemHandle Handle { nullptr };
-        IHypervisorHooks* Hooks { nullptr };
-    };
+	/// <summary>
+	/// Subsystem deleter proxy.
+	/// </summary>
+	struct HandleDeleterProxy final
+	{
+		auto operator ()(ISubsystem*& instance) const noexcept -> void;
+	};
+
+	inline auto HandleDeleterProxy::operator()(ISubsystem*& instance) const noexcept -> void
+	{
+		DeallocateSubsystem(instance);
+	}
+
+	/// <summary>
+	/// Owning (unique) subsystem instance pointer.
+	/// </summary>
+	using SubsystemHandle = std::unique_ptr<ISubsystem, HandleDeleterProxy>;
+
+	/// <summary>
+	/// RAII subsystem handle proxy
+	///	which automatically invokes OnConstruct() and OnDestruct() events.
+	/// </summary>
+	struct Proxy final
+	{
+		/// <summary>
+		/// Construct with instance, config and user data.
+		///	! The proxy will own the instance afterwards !
+		///	Panics if instance is nullptr!
+		/// </summary>
+		/// <param name="instance">The subsystem instance. Owned by this proxy. Must be allocated by the subsystem allocator.</param>
+		/// <param name="config">The subsystem config.</param>
+		/// <param name="userData">The user data.</param>
+		Proxy(ISubsystem* instance, std::unique_ptr<SubsystemConfig>&& config, void* userData);
+
+		/// <summary>
+		/// Construct null proxy.
+		/// </summary>
+		/// <returns></returns>
+		explicit Proxy(std::nullptr_t) noexcept;
+
+		/// <summary>
+		/// Move constructor.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		Proxy(Proxy&& other) noexcept;
+
+		/// <summary>
+		/// No copying.
+		/// </summary>
+		/// <param name="other"></param>
+		Proxy(const Proxy& other) = delete;
+
+		/// <summary>
+		/// Move assignment operator.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(Proxy&& other) noexcept -> Proxy&;
+
+		/// <summary>
+		/// Copy assignment operator.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(const Proxy& other) = delete;
+
+		/// <summary>
+		/// nullptr assignment operator - releases stored handle.
+		/// </summary>
+		/// <param name=""></param>
+		/// <returns></returns>
+		auto operator =(std::nullptr_t) noexcept -> Proxy&;
+
+		/// <summary>
+		/// Destructor - releases stored handle if still present.
+		/// </summary>
+		~Proxy();
+
+		/// <summary>
+		/// Unwrap the instance.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto Unwrap() & noexcept -> ISubsystem&;
+
+		/// <summary>
+		/// Unwrap the instance.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto Unwrap() const& noexcept -> const ISubsystem&;
+
+		/// <summary>
+		/// Unwrap the instance.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto Unwrap() && noexcept -> SubsystemHandle&&;
+
+		/// <summary>
+		/// Unwrap the instance.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto Unwrap() const&& noexcept -> const SubsystemHandle&&;
+
+		/// <summary>
+		/// Releases the handle and set it to nullptr.
+		/// </summary>
+		/// <returns></returns>
+		auto Release() noexcept -> void;
+
+		/// <summary>
+		/// Unwrap the instance.
+		/// </summary>
+		/// <returns></returns>
+		auto operator ->() noexcept -> ISubsystem*;
+
+		/// <summary>
+		/// Unwrap the instance.
+		/// </summary>
+		/// <returns></returns>
+		auto operator ->() const noexcept -> const ISubsystem*;
+
+		/// <summary>
+		/// Unwrap the instance.
+		/// </summary>
+		/// <returns></returns>
+		auto operator *() & noexcept -> ISubsystem&;
+
+		/// <summary>
+		/// Unwrap the instance.
+		/// </summary>
+		/// <returns></returns>
+		auto operator *() const& noexcept -> const ISubsystem&;
+
+		/// <summary>
+		/// Unwrap the instance.
+		/// </summary>
+		/// <returns></returns>
+		auto operator *() && noexcept -> SubsystemHandle&&;
+
+		/// <summary>
+		/// Unwrap the instance.
+		/// </summary>
+		/// <returns></returns>
+		auto operator *() const&& noexcept -> const SubsystemHandle&&;
+
+		/// <summary>
+		/// Equals
+		/// </summary>
+		/// <param name="rhs"></param>
+		/// <returns></returns>
+		auto operator ==(const Proxy& rhs) const noexcept -> bool;
+
+		/// <summary>
+		/// Not equals
+		/// </summary>
+		/// <param name="rhs"></param>
+		/// <returns></returns>
+		auto operator !=(const Proxy& rhs) const noexcept -> bool;
+
+		/// <summary>
+		/// Equals
+		/// </summary>
+		/// <param name=""></param>
+		/// <returns></returns>
+		auto operator ==(std::nullptr_t) const noexcept -> bool;
+
+		/// <summary>
+		/// Not equals
+		/// </summary>
+		/// <param name=""></param>
+		/// <returns></returns>
+		auto operator !=(std::nullptr_t) const noexcept -> bool;
+
+		/// <summary>
+		/// Convert to bool.
+		/// </summary>
+		/// <returns>True if not nullptr, else false.</returns>
+		operator bool() const noexcept;
+
+	private:
+		SubsystemHandle Handle_{ nullptr };
+	};
+
+	inline auto Proxy::Unwrap() & noexcept -> ISubsystem&
+	{
+		return **this;
+	}
+
+	inline auto Proxy::Unwrap() const& noexcept -> const ISubsystem&
+	{
+		return **this;
+	}
+
+	inline auto Proxy::Unwrap() && noexcept -> SubsystemHandle&&
+	{
+		return std::move(this->Handle_);
+	}
+
+	inline auto Proxy::Unwrap() const&& noexcept -> const SubsystemHandle&&
+	{
+		return std::move(this->Handle_);
+	}
+
+	inline auto Proxy::Release() noexcept -> void
+	{
+		this->Handle_.reset();
+	}
+
+	inline auto Proxy::operator ->() noexcept -> ISubsystem*
+	{
+		return &*this->Handle_;
+	}
+
+	inline auto Proxy::operator ->() const noexcept -> const ISubsystem*
+	{
+		return &*this->Handle_;
+	}
+
+	inline auto Proxy::operator *() & noexcept -> ISubsystem&
+	{
+		return *this->Handle_;
+	}
+
+	inline auto Proxy::operator *() const& noexcept -> const ISubsystem&
+	{
+		return *this->Handle_;
+	}
+
+	inline auto Proxy::operator *() && noexcept -> SubsystemHandle&&
+	{
+		return std::move(this->Handle_);
+	}
+
+	inline auto Proxy::operator *() const&& noexcept -> const SubsystemHandle&&
+	{
+		return std::move(this->Handle_);
+	}
+
+	inline Proxy::operator bool() const noexcept
+	{
+		return this->Handle_ != nullptr;
+	}
+
+	inline Proxy::Proxy(std::nullptr_t) noexcept : Handle_{ nullptr } { }
+
+	inline auto Proxy::operator =(std::nullptr_t) noexcept -> Proxy&
+	{
+		this->Handle_.reset(nullptr);
+		return *this;
+	}
+
+	inline auto Proxy::operator ==(const Proxy& rhs) const noexcept -> bool
+	{
+		return this->Handle_ == rhs.Handle_;
+	}
+
+	inline auto Proxy::operator !=(const Proxy& rhs) const noexcept -> bool
+	{
+		return !(*this == rhs);
+	}
+
+	inline auto Proxy::operator ==(std::nullptr_t) const noexcept -> bool
+	{
+		return this->Handle_ == nullptr;
+	}
+
+	inline auto Proxy::operator !=(std::nullptr_t) const noexcept -> bool
+	{
+		return !(*this == nullptr);
+	}
 }

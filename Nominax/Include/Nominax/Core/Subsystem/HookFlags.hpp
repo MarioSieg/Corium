@@ -299,6 +299,11 @@ namespace Nominax::Core::Subsystem
 
     NOX_IMPL_ENUM_BIT_FLAGS(HookFlags);
 
+    /// <summary>
+    /// Returns true if the specified flags are construct or destruct event flags.
+    /// </summary>
+    /// <param name="flags"></param>
+    /// <returns></returns>
     constexpr auto HookFlagsIsCtorDtorFlag(const HookFlags flags) noexcept -> bool
     {
         return
