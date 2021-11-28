@@ -219,10 +219,10 @@ namespace Nominax::Core::Subsystem
 	/// </summary>
 	struct HandleDeleterProxy final
 	{
-		auto operator ()(ISubsystem*& instance) const noexcept -> void;
+		auto operator ()(ISubsystem* instance) const noexcept -> void;
 	};
 
-	inline auto HandleDeleterProxy::operator()(ISubsystem*& instance) const noexcept -> void
+	inline auto HandleDeleterProxy::operator()(ISubsystem* instance) const noexcept -> void
 	{
 		DeallocateSubsystem(instance);
 	}
