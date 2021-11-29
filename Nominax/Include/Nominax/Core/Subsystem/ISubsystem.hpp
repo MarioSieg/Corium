@@ -512,6 +512,15 @@ namespace Nominax::Core::Subsystem
 		this->StoredUserData = userData;
 	}
 
+#define DETECT_AND_DISPATCH(event)                                          \
+    if constexpr ((Flags & HookFlags::event) != HookFlags::None)            \
+    {                                                                       \
+        if (this->HasSubscribed(HookFlags::event))                          \
+        {                                                                   \
+            this->event(std::forward<Args>(args)...);                       \
+        }                                                                   \
+    }
+
     template<const HookFlags Flags, const bool IgnorePause, typename... Args> requires (Flags != HookFlags::None)
     inline auto ISubsystem::Invoke(Args&&... args) -> void
     {
@@ -522,55 +531,21 @@ namespace Nominax::Core::Subsystem
                 return;
             }
         }
-		if constexpr ((Flags & HookFlags::OnConstruct) != HookFlags::None)
-		{
-			this->OnConstruct(std::forward<Args>(args)...);
-		}
-		if constexpr ((Flags & HookFlags::OnDestruct) != HookFlags::None)
-		{
-			this->OnDestruct(std::forward<Args>(args)...);
-		}
-        if constexpr ((Flags & HookFlags::OnInstall) != HookFlags::None)
-        {
-            this->OnInstall(std::forward<Args>(args)...);
-        }
-        if constexpr ((Flags & HookFlags::OnUninstall) != HookFlags::None)
-        {
-            this->OnUninstall(std::forward<Args>(args)...);
-        }
-        if constexpr ((Flags & HookFlags::OnPreBoot) != HookFlags::None)
-        {
-            this->OnPreBoot(std::forward<Args>(args)...);
-        }
-        if constexpr ((Flags & HookFlags::OnPostBoot) != HookFlags::None)
-        {
-            this->OnPostBoot(std::forward<Args>(args)...);
-        }
-        if constexpr ((Flags & HookFlags::OnPreExecute) != HookFlags::None)
-        {
-            this->OnPreExecute(std::forward<Args>(args)...);
-        }
-        if constexpr ((Flags & HookFlags::OnPostExecute) != HookFlags::None)
-        {
-            this->OnPostExecute(std::forward<Args>(args)...);
-        }
-        if constexpr ((Flags & HookFlags::OnPreShutdown) != HookFlags::None)
-        {
-            this->OnPreShutdown(std::forward<Args>(args)...);
-        }
-        if constexpr ((Flags & HookFlags::OnPostShutdown) != HookFlags::None)
-        {
-            this->OnPostShutdown(std::forward<Args>(args)...);
-        }
-        if constexpr ((Flags & HookFlags::OnPause) != HookFlags::None)
-        {
-            this->OnPause(std::forward<Args>(args)...);
-        }
-        if constexpr ((Flags & HookFlags::OnResume) != HookFlags::None)
-        {
-            this->OnResume(std::forward<Args>(args)...);
-        }
+        DETECT_AND_DISPATCH(OnConstruct);
+        DETECT_AND_DISPATCH(OnDestruct);
+        DETECT_AND_DISPATCH(OnInstall);
+        DETECT_AND_DISPATCH(OnUninstall);
+        DETECT_AND_DISPATCH(OnPreBoot);
+        DETECT_AND_DISPATCH(OnPostBoot);
+        DETECT_AND_DISPATCH(OnPreExecute);
+        DETECT_AND_DISPATCH(OnPostExecute);
+        DETECT_AND_DISPATCH(OnPreShutdown);
+        DETECT_AND_DISPATCH(OnPostShutdown);
+        DETECT_AND_DISPATCH(OnPause);
+        DETECT_AND_DISPATCH(OnResume);
     }
+
+#undef DETECT_AND_DISPATCH
 
     inline auto ISubsystem::Pause() -> void
     {
