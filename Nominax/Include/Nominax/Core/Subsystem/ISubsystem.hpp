@@ -215,6 +215,8 @@
 #include "Config.hpp"
 #include "ThreadIDHash.hpp"
 
+#include "../../../Include/Nominax/Foundation/Platform.hpp"
+
 namespace Nominax::Core::Subsystem
 {
     struct HypervisorHost;
@@ -426,6 +428,13 @@ namespace Nominax::Core::Subsystem
 		/// <param name="userData"></param>
 		/// <returns></returns>
 		auto OnConstruct(std::unique_ptr<SubsystemConfig>&& config, void* userData) & -> void override;
+
+		/// <summary>
+		/// Invokes the Panic() function with addition subsystem information and the message.,
+		/// </summary>
+		/// <param name="message"></param>
+		/// <returns></returns>
+		[[noreturn]] NOX_COLD auto Panic(std::string_view message) const -> void;
 
 	private:
 		inline static constinit std::atomic_uint32_t IDAccumulator_ { };

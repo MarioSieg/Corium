@@ -1,4 +1,3 @@
-
 // Author: Mario Sieg
 // Project: Nominax
 //

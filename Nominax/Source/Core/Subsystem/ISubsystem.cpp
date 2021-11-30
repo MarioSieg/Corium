@@ -205,6 +205,7 @@
 
 #include "../../../Include/Nominax/Core/Subsystem/ISubsystem.hpp"
 #include "../../../Include/Nominax/Core/Subsystem/HypervisorHost.hpp"
+#include "../../../Include/Nominax/Foundation/Panic/_Panic.hpp"
 
 namespace Nominax::Core::Subsystem
 {
@@ -225,7 +226,12 @@ namespace Nominax::Core::Subsystem
 		this->SetSubscriptions(subscriptions);
 	}
 
-    auto ISubsystem::SetPaused(const bool pause) -> void
+	auto ISubsystem::Panic(const std::string_view message) const -> void
+	{
+        ::Nominax::Foundation::Panic::Panic({}, "System panic in subsystem {}:{}! {}", this->Name(), this->ID(), message);
+	}
+
+	auto ISubsystem::SetPaused(const bool pause) -> void
     {
         this->IsPaused_ = pause;
         if (constexpr bool IgnorePause { true }; pause)

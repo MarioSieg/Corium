@@ -205,151 +205,69 @@
 
 #pragma once
 
-namespace Nominax
+#include "../../TestBase.hpp"
+
+struct MockHypervisorHostWithAllEvents : HypervisorHost
 {
-	namespace ByteCode
+	inline static std::uint32_t MockCounter { };
+
+	auto OnPreInstall(SubsystemConfig& config, void* userData) & -> void override
 	{
-		class Image;
+		++MockCounter;
 	}
 
-    namespace Core
-    {
-        class Reactor;
-    }
-}
+	auto OnPostInstall(ISubsystem& system) & -> void override
+	{
+		++MockCounter;
+	}
 
-namespace Nominax::Core::Subsystem
-{
-    struct ISubsystem;
-    struct SubsystemConfig;
+	auto OnPause(ISubsystem& system) & -> void override
+	{
+		++MockCounter;
+	}
 
-    /// <summary>
-    /// Base event interface for a hypervisor host implementation.
-    /// </summary>
-    struct IHypervisorHooks
-    {
-        /// <summary>
-        /// Move constructor.
-        /// </summary>
-        /// <param name="other"></param>
-        /// <returns></returns>
-        constexpr IHypervisorHooks(IHypervisorHooks&& other) noexcept = default;
+	auto OnResume(ISubsystem& system) & -> void override
+	{
+		++MockCounter;
+	}
 
-        /// <summary>
-        /// Copy constructor.
-        /// </summary>
-        /// <param name="other"></param>
-        /// <returns></returns>
-        constexpr IHypervisorHooks(const IHypervisorHooks& other) noexcept = default;
+	auto OnPreUninstall(ISubsystem& system) & -> void
+	{
+		++MockCounter;
+	}
 
-        /// <summary>
-        /// Copy assignment operator.
-        /// </summary>
-        /// <param name="other"></param>
-        /// <returns></returns>
-        constexpr auto operator =(const IHypervisorHooks& other) noexcept -> IHypervisorHooks& = default;
+	auto OnPostUninstall() & -> void
+	{
+		++MockCounter;
+	}
 
-        /// <summary>
-        /// Move assignment operator.
-        /// </summary>
-        /// <param name="other"></param>
-        /// <returns></returns>
-        constexpr auto operator =(IHypervisorHooks&& other) noexcept -> IHypervisorHooks& = default;
+	auto OnPreBoot() & -> void
+	{
+		++MockCounter;
+	}
 
-        /// <summary>
-        /// Destructor.
-        /// </summary>
-        virtual ~IHypervisorHooks() = default;
+	auto OnPostBoot() & -> void
+	{
+		++MockCounter;
+	}
 
-    protected:
-        /// <summary>
-        /// Constructor.
-        /// </summary>
-        /// <returns></returns>
-        constexpr IHypervisorHooks() noexcept = default;
+	auto OnPreExecute(Reactor& vm, Image& code, void* userData) & -> void
+	{
+		++MockCounter;
+	}
 
-        /// <summary>
-        /// Invoked before a new subsystem is installed.
-        /// </summary>
-        /// <param name="config">Subsystem configuration instance.</param>
-        /// <param name="userData">Some user data.</param>
-        /// <returns></returns>
-        virtual auto OnPreInstall(SubsystemConfig& config, void* userData) & -> void;
+	auto OnPostExecute(Reactor& vm, Image& code, void* userData) & -> void
+	{
+		++MockCounter;
+	}
 
-        /// <summary>
-        /// Invoked after the new subsystem is installed.
-        /// </summary>
-        /// <param name="system">The system instance used in the hook event.</param>
-        /// <returns></returns>
-        virtual auto OnPostInstall(ISubsystem& system) & -> void;
+	auto OnPreShutdown() & -> void
+	{
+		++MockCounter;
+	}
 
-        /// <summary>
-        /// Invoked when the subsystem enters the paused state.
-        /// </summary>
-        /// <param name="system">The system instance used in the hook event.</param>
-        /// <returns></returns>
-        virtual auto OnPause(ISubsystem& system) & -> void;
-
-        /// <summary>
-        /// Invoked when the subsystem leaves the paused state.
-        /// </summary>
-        /// <param name="system">The system instance used in the hook event.</param>
-        /// <returns></returns>
-        virtual auto OnResume(ISubsystem& system) & -> void;
-
-        /// <summary>
-        /// Invoked before the subsystem is uninstalled.
-        /// </summary>
-        /// <param name="system">The system instance used in the hook event.</param>
-        /// <returns></returns>
-        virtual auto OnPreUninstall(ISubsystem& system) & -> void;
-
-        /// <summary>
-		/// Invoked after the subsystem has been uninstalled.
-		/// </summary>
-		/// <returns></returns>
-        virtual auto OnPostUninstall() & -> void;
-
-        /// <summary>
-        /// Invokes before when all subsystems are booted.
-        /// </summary>
-        /// <returns></returns>
-        virtual auto OnPreBoot() & -> void;
-
-        /// <summary>
-        /// Invoked after all subsystems are booted
-        /// </summary>
-        /// <returns></returns>
-        virtual auto OnPostBoot() & -> void;
-
-        /// <summary>
-        /// Invoked before all subsystems are notified for OnPreExecute.
-        /// </summary>
-        /// <param name="vm"></param>
-        /// <param name="code"></param>
-        /// <param name="userData"></param>
-        /// <returns></returns>
-        virtual auto OnPreExecute(Reactor& vm, ByteCode::Image& code, void* userData) & -> void;
-
-        /// <summary>
-		/// Invoked before all subsystems are notified for OnPostExecute.
-		/// </summary>
-		/// <param name="vm"></param>
-		/// <param name="code"></param>
-		/// <param name="userData"></param>
-		/// <returns></returns>
-        virtual auto OnPostExecute(Reactor& vm, ByteCode::Image& code, void* userData) & -> void;
-
-        /// <summary>
-        /// Invoked before all subsystems are shut down.
-        /// </summary>
-        /// <returns></returns>
-        virtual auto OnPreShutdown() & -> void;
-
-        /// <summary>
-        /// Invoked after all subsystems are shut down.
-        /// </summary>
-        /// <returns></returns>
-        virtual auto OnPostShutdown() & -> void;
-    };
-}
+	auto OnPostShutdown() & -> void
+	{
+		++MockCounter;
+	}
+};

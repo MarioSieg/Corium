@@ -10,7 +10,7 @@ namespace Nominax::ByteCode
 {
     using Foundation::Algorithm::EnumeratingSearch;
     using Foundation::Panic::Panic;
-    using Foundation::Panic::PanicF;
+    using Foundation::Panic::Panic;
     using Foundation::Format;
 	using Foundation::IOStream;
 
@@ -21,13 +21,13 @@ namespace Nominax::ByteCode
 		const std::optional<IOStream> fStream { IOStream::TryOpen(path, Foundation::FileAccessMode::Read, Foundation::FileContentMode::Binary) };
 		if (!fStream) [[unlikely]]
 		{
-			PanicF({}, NOX_FMT("Failed to open file: {}"), path);
+			Panic({}, NOX_FMT("Failed to open file: {}"), path);
 		}
 		const IOStream& file { *fStream };
 		std::vector<std::uint8_t> contents{ };
 		if(!file.ReadAll(contents)) [[unlikely]]
 		{
-			PanicF({}, NOX_FMT("Failed to read file: {}"), path);
+			Panic({}, NOX_FMT("Failed to read file: {}"), path);
 		}
 		std::array<char, 64> tokenBuf { };
 		for (std::uint64_t needle { }; const std::uint8_t u8 : contents)
@@ -70,7 +70,7 @@ namespace Nominax::ByteCode
 	            auto i { std::cbegin(token) + 1 };
 	            if (*i++ != LPAREN) [[unlikely]]
 	            {
-	                PanicF({}, NOX_FMT("Missing type parenthesis: {}! {}"), token, CODE_FORMAT);
+	                Panic({}, NOX_FMT("Missing type parenthesis: {}! {}"), token, CODE_FORMAT);
 	            }
 	            const std::array<const char, 3> typeID { *i++, *i++, *i++ };
 	            const std::string_view typeView { std::cbegin(typeID), std::cend(typeID) };
@@ -106,11 +106,11 @@ namespace Nominax::ByteCode
 	            }
 	            if (*i++ != RPAREN) [[unlikely]]
 	            {
-	                PanicF({}, NOX_FMT("Missing type parenthesis: {}! {}"), token, CODE_FORMAT);
+	                Panic({}, NOX_FMT("Missing type parenthesis: {}! {}"), token, CODE_FORMAT);
 	            }
 	            if (*i++ != IMMEDIATE_MARKER) [[unlikely]]
 	            {
-	               PanicF({}, NOX_FMT("Missing immediate marker: {}! {}"), token, CODE_FORMAT);
+	               Panic({}, NOX_FMT("Missing immediate marker: {}! {}"), token, CODE_FORMAT);
 	            }
 	            const std::string_view immediate { i, std::cend(token) };
 	            switch (discriminator)
@@ -124,7 +124,7 @@ namespace Nominax::ByteCode
 		                std::uint64_t x;
 		                if (const auto [_, err] { std::from_chars(&*std::cbegin(immediate), &*std::cend(immediate), x) }; err != std::errc()) [[unlikely]]
 		                {
-		                   PanicF({}, NOX_FMT( "Invalid immediate: {}! {}"), immediate, CODE_FORMAT);
+		                   Panic({}, NOX_FMT( "Invalid immediate: {}! {}"), immediate, CODE_FORMAT);
 		                }
 	                    switch (discriminator)
 	                    {
@@ -175,7 +175,7 @@ namespace Nominax::ByteCode
 		                };
 		                if (!found) [[unlikely]]
 		                {
-		                    PanicF({}, NOX_FMT("Invalid syscall: \"{}\"!"), SYSCALL_MNEMONIC_TABLE[Foundation::Algorithm::ToUnderlying(call)]);
+		                    Panic({}, NOX_FMT("Invalid syscall: \"{}\"!"), SYSCALL_MNEMONIC_TABLE[Foundation::Algorithm::ToUnderlying(call)]);
 		                }
 		                stream.Emit(call);
 		            }
@@ -186,7 +186,7 @@ namespace Nominax::ByteCode
 		                std::int64_t x;
 		                if (const auto [_, err] { std::from_chars(&*std::cbegin(immediate), &*std::cend(immediate), x) }; err != std::errc()) [[unlikely]]
 		                {
-		                    PanicF({}, NOX_FMT("Invalid immediate: {}! {}"), immediate, CODE_FORMAT);
+		                    Panic({}, NOX_FMT("Invalid immediate: {}! {}"), immediate, CODE_FORMAT);
 		                }
 		                stream.Emit(x);
 		            }
@@ -197,7 +197,7 @@ namespace Nominax::ByteCode
 		                double x;
 		                if (const auto [_, err] { std::from_chars(&*std::cbegin(immediate), &*std::cend(immediate), x) }; err != std::errc()) [[unlikely]]
 		                {
-		                    PanicF({}, NOX_FMT("Invalid immediate: {}! {}"), immediate, CODE_FORMAT);
+		                    Panic({}, NOX_FMT("Invalid immediate: {}! {}"), immediate, CODE_FORMAT);
 		                }
 		                stream.Emit(x);
 		            }
@@ -229,7 +229,7 @@ namespace Nominax::ByteCode
 	            };
 	            if (!found) [[unlikely]]
 	            {
-	                PanicF({}, NOX_FMT("Unknown instruction: `{}`! {}"), token, CODE_FORMAT);
+	                Panic({}, NOX_FMT("Unknown instruction: `{}`! {}"), token, CODE_FORMAT);
 	            }
 	        }
 	        break;
