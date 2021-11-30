@@ -221,7 +221,7 @@ namespace Nominax
 namespace Nominax::Core::Subsystem
 {
     struct ISubsystem;
-    struct SubsystemConfig;
+    struct SubsystemDescriptor;
 
     /// <summary>
     /// Base event interface for a hypervisor host implementation.
@@ -274,7 +274,7 @@ namespace Nominax::Core::Subsystem
         /// <param name="config">Subsystem configuration instance.</param>
         /// <param name="userData">Some user data.</param>
         /// <returns></returns>
-        virtual auto OnPreInstall(SubsystemConfig& config, void* userData) & -> void;
+        virtual auto OnPreInstall(SubsystemDescriptor& config, void* userData) & -> void;
 
         /// <summary>
         /// Invoked after the new subsystem is installed.

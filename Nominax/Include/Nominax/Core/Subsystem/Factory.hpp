@@ -226,7 +226,7 @@ namespace Nominax::Core::Subsystem
 		template <typename T, typename... Args> requires IsValidSubsystem<T, Args...>
 		[[nodiscard]] NOX_NEVER_INLINE auto AllocateSubsystemInstance
 		(
-			std::unique_ptr<SubsystemConfig>&& config,
+			std::unique_ptr<SubsystemDescriptor>&& config,
 			void* const userData,
 			Args&&... args
 		) -> Proxy

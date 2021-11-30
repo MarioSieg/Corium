@@ -212,7 +212,7 @@
 #include <type_traits>
 
 #include "IEventHooks.hpp"
-#include "Config.hpp"
+#include "Descriptor.hpp"
 #include "ThreadIDHash.hpp"
 
 #include "../../../Include/Nominax/Foundation/Platform.hpp"
@@ -221,7 +221,7 @@ namespace Nominax::Core::Subsystem
 {
     struct HypervisorHost;
 
-	using STI_Init = auto (IEventHooks::*)(std::unique_ptr<SubsystemConfig>&&, void*) & -> void;
+	using STI_Init = auto (IEventHooks::*)(std::unique_ptr<SubsystemDescriptor>&&, void*) & -> void;
 	using STI_Kill = auto (IEventHooks::*)() & noexcept -> void;
     using STI_Pair = std::pair<STI_Init, STI_Kill>;
 
@@ -279,7 +279,7 @@ namespace Nominax::Core::Subsystem
 		/// </summary>
 		/// <returns>The boot and runtime config.</returns>
 		[[nodiscard]]
-		auto Config() const & noexcept -> const SubsystemConfig&;
+		auto Config() const & noexcept -> const SubsystemDescriptor&;
 
 		/// <summary>
 		/// 
@@ -384,7 +384,7 @@ namespace Nominax::Core::Subsystem
         /// </summary>
         /// <typeparam name="SpecConfig"></typeparam>
         /// <returns></returns>
-        template <typename SpecConfig> requires std::is_base_of_v<SubsystemConfig, SpecConfig>
+        template <typename SpecConfig> requires std::is_base_of_v<SubsystemDescriptor, SpecConfig>
 		[[nodiscard]]
 		auto QuerySpecInterface() const noexcept -> SpecConfig&;
 
@@ -412,13 +412,13 @@ namespace Nominax::Core::Subsystem
 		/// </summary>
 		/// <param name="config"></param>
 		/// <returns></returns>
-		auto BootConfig(std::unique_ptr<SubsystemConfig>&& config) & noexcept -> void;
+		auto BootConfig(std::unique_ptr<SubsystemDescriptor>&& config) & noexcept -> void;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <returns>The current boot config of the system.</returns>
-		auto BootConfig() const && noexcept -> const std::unique_ptr<SubsystemConfig>&&;
+		auto BootConfig() const && noexcept -> const std::unique_ptr<SubsystemDescriptor>&&;
 
 		/// <summary>
 		/// Event implementation which should be called in the OnConstruct() implementation of the child class.
@@ -427,7 +427,7 @@ namespace Nominax::Core::Subsystem
 		/// <param name="config"></param>
 		/// <param name="userData"></param>
 		/// <returns></returns>
-		auto OnConstruct(std::unique_ptr<SubsystemConfig>&& config, void* userData) & -> void override;
+		auto OnConstruct(std::unique_ptr<SubsystemDescriptor>&& config, void* userData) & -> void override;
 
 		/// <summary>
 		/// Invokes the Panic() function with addition subsystem information and the message.,
@@ -446,7 +446,7 @@ namespace Nominax::Core::Subsystem
 		mutable bool IsPaused_;
 
 	protected:
-		std::unique_ptr<SubsystemConfig> BootConfigStorage { nullptr };
+		std::unique_ptr<SubsystemDescriptor> BootConfigStorage { nullptr };
 		void* StoredUserData { nullptr };
 	};
 
@@ -455,7 +455,7 @@ namespace Nominax::Core::Subsystem
 		return this->Host_;
 	}
 
-	inline auto ISubsystem::Config() const & noexcept -> const SubsystemConfig&
+	inline auto ISubsystem::Config() const & noexcept -> const SubsystemDescriptor&
 	{
 		return *this->BootConfigStorage;
 	}
@@ -505,17 +505,17 @@ namespace Nominax::Core::Subsystem
 		return *dynamic_cast<const IEventHooks*>(this);
 	}
 
-	inline auto ISubsystem::BootConfig(std::unique_ptr<SubsystemConfig>&& config) & noexcept -> void
+	inline auto ISubsystem::BootConfig(std::unique_ptr<SubsystemDescriptor>&& config) & noexcept -> void
 	{
 		this->BootConfigStorage = std::move(config);
 	}
 
-	inline auto ISubsystem::BootConfig() const && noexcept -> const std::unique_ptr<SubsystemConfig>&&
+	inline auto ISubsystem::BootConfig() const && noexcept -> const std::unique_ptr<SubsystemDescriptor>&&
 	{
 		return std::move(this->BootConfigStorage);
 	}
 
-	inline auto ISubsystem::OnConstruct(std::unique_ptr<SubsystemConfig>&& config, void* const userData) & -> void
+	inline auto ISubsystem::OnConstruct(std::unique_ptr<SubsystemDescriptor>&& config, void* const userData) & -> void
 	{
 		this->BootConfigStorage = std::move(config);
 		this->StoredUserData = userData;
@@ -574,7 +574,7 @@ namespace Nominax::Core::Subsystem
     }
 
 	template<typename SpecConfig>
-	requires std::is_base_of_v<SubsystemConfig, SpecConfig>
+	requires std::is_base_of_v<SubsystemDescriptor, SpecConfig>
 	inline auto ISubsystem::QuerySpecInterface() const noexcept -> SpecConfig&
 	{
 		auto* const spec { dynamic_cast<SpecConfig*>(&*this->BootConfigStorage) };
@@ -591,6 +591,6 @@ namespace Nominax::Core::Subsystem
 		requires std::is_base_of_v<ISubsystem, T>;
 		requires std::is_default_constructible_v<T> || std::is_constructible_v<T, Args...>;
 		requires std::is_class_v<typename T::SpecializedConfig>;
-		requires std::is_base_of_v<SubsystemConfig, typename T::SpecializedConfig>;
+		requires std::is_base_of_v<SubsystemDescriptor, typename T::SpecializedConfig>;
 	};
 }

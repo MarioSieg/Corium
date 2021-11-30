@@ -214,11 +214,11 @@ struct MockSubsystemWithAllEvents : ISubsystem
     inline static std::string_view MockMessage { };
     inline static std::vector<std::string_view> Messages { };
 
-    using SpecializedConfig = SubsystemConfig;
+    using SpecializedConfig = SubsystemDescriptor;
 
     MockSubsystemWithAllEvents() : ISubsystem {MockHost, HookFlags::All, "Noel" } { }
 
-    auto OnConstruct(std::unique_ptr<SubsystemConfig>&& config, void* userData) & -> void override
+    auto OnConstruct(std::unique_ptr<SubsystemDescriptor>&& config, void* userData) & -> void override
     {
         ISubsystem::OnConstruct(std::move(config), userData);
         ++MockCounter;

@@ -213,7 +213,7 @@ TEST(Subsystem, AllocateConstructDestructHook)
         {
             Factory::AllocateSubsystemInstance<MockSubsystemWithAllEvents>
             (
-                std::make_unique<SubsystemConfig>(),
+                std::make_unique<SubsystemDescriptor>(),
                 &MockSubsystemWithAllEvents::MockHost
             )
         };
@@ -236,7 +236,7 @@ TEST(Subsystem, Invoke)
     {
         Factory::AllocateSubsystemInstance<MockSubsystemWithAllEvents>
         (
-            std::make_unique<SubsystemConfig>(),
+            std::make_unique<SubsystemDescriptor>(),
             &MockSubsystemWithAllEvents::MockHost
         )
     };
@@ -263,7 +263,7 @@ TEST(Subsystem, Invoke)
 
 TEST(Subsystem, QuerySpecInterfaceOK)
 {
-    struct Config : SubsystemConfig
+    struct Config : SubsystemDescriptor
     {
         std::string Name { "Noel" };
     };
@@ -285,12 +285,12 @@ TEST(Subsystem, QuerySpecInterfaceErr)
     {
         []
         {
-            struct ConfigA : SubsystemConfig
+            struct ConfigA : SubsystemDescriptor
             {
                 std::string YMM { "X" };
             };
 
-            struct ConfigB : SubsystemConfig
+            struct ConfigB : SubsystemDescriptor
             {
                 std::string Name { "Noel" };
             };

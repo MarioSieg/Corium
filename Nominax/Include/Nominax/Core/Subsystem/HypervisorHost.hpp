@@ -292,7 +292,7 @@ namespace Nominax::Core::Subsystem
         template <typename T, typename SpecConfig = typename T::SpecializedConfig, typename... Args> requires IsValidSubsystem<T, Args...>
 		auto Install
         (
-            std::unique_ptr<SubsystemConfig>&& config = std::make_unique<SpecConfig>(),
+            std::unique_ptr<SubsystemDescriptor>&& config = std::make_unique<SpecConfig>(),
             void* userData = nullptr,
             Args&&... args
         ) -> HostToSystemKey;
@@ -407,7 +407,7 @@ namespace Nominax::Core::Subsystem
     template<typename T, typename SpecConfig, typename... Args> requires IsValidSubsystem<T, Args...>
     [[nodiscard]] NOX_NEVER_INLINE auto HypervisorHost::Install
     (
-        std::unique_ptr<SubsystemConfig>&& config,
+        std::unique_ptr<SubsystemDescriptor>&& config,
         void* const userData,
         Args&&... args
     ) -> HostToSystemKey

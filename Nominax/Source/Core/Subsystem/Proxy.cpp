@@ -209,7 +209,7 @@
 
 namespace Nominax::Core::Subsystem
 {
-	Proxy::Proxy(ISubsystem* const instance, std::unique_ptr<SubsystemConfig>&& config, void* const userData) : Handle_ { instance }
+	Proxy::Proxy(ISubsystem* const instance, std::unique_ptr<SubsystemDescriptor>&& config, void* const userData) : Handle_ { instance }
 	{
 		NOX_DBG_PAS_NOT_NULL(instance, "Proxy creation failed because instance was nullptr!");
 		if (this->Handle_->HasSubscribed(HookFlags::OnConstruct))

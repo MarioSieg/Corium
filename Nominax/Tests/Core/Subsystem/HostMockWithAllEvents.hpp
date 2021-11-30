@@ -211,7 +211,7 @@ struct MockHypervisorHostWithAllEvents : HypervisorHost
 {
 	inline static std::uint32_t MockCounter { };
 
-	auto OnPreInstall(SubsystemConfig& config, void* userData) & -> void override
+	auto OnPreInstall(SubsystemDescriptor& config, void* userData) & -> void override
 	{
 		++MockCounter;
 	}

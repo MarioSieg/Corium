@@ -205,19 +205,33 @@
 
 #pragma once
 
-namespace Nominax::Core::Subsystem
+#include <cstdint>
+
+namespace Nominax::Core::Kernel
 {
 	/// <summary>
-	/// Base for all subsystem configurations.
-	/// Custom system configurations must derive from this struct.
+	/// Configuration for the GPU compute runtime.
 	/// </summary>
-	struct SubsystemConfig
-    {
-        SubsystemConfig() noexcept = default;
-        SubsystemConfig(const SubsystemConfig& other) noexcept = default;
-        SubsystemConfig(SubsystemConfig&& other) noexcept = default;
-        auto operator =(const SubsystemConfig& other) noexcept -> SubsystemConfig& = default;
-        auto operator =(SubsystemConfig&& other) noexcept -> SubsystemConfig& = default;
-        virtual ~SubsystemConfig() = default;
-    };
+	struct ComputeDescriptor final
+	{
+		/// <summary>
+		/// Enables/disables the optimization of compute kernel code.
+		/// </summary>
+		bool OptimizeComputeKernels { true };
+
+		/// <summary>
+		/// Enables/disables the usage of multiple GPUs.
+		/// </summary>
+		bool EnableMultiGPUSupport { true };
+
+		/// <summary>
+		/// Specified the GPU to use by index if multiple GPUs are disabled.
+		/// </summary>
+		std::uint32_t DeviceIndex { 0 };
+
+		/// <summary>
+		/// Enables/disables GPU compute extensions.
+		/// </summary>
+		bool EnableExtensions { true };
+	};
 }

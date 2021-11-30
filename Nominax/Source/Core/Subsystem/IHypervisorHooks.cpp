@@ -208,7 +208,7 @@
 
 namespace Nominax::Core::Subsystem
 {
-    auto IHypervisorHooks::OnPreInstall([[maybe_unused]] SubsystemConfig& config, [[maybe_unused]] void* const userData) & -> void { }
+    auto IHypervisorHooks::OnPreInstall([[maybe_unused]] SubsystemDescriptor& config, [[maybe_unused]] void* const userData) & -> void { }
     auto IHypervisorHooks::OnPostInstall([[maybe_unused]] ISubsystem& system) & -> void { }
 
     auto IHypervisorHooks::OnPreUninstall([[maybe_unused]] ISubsystem& system) & -> void { }

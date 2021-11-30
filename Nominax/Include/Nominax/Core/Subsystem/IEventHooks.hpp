@@ -207,7 +207,7 @@
 
 #include <memory>
 
-#include "Config.hpp"
+#include "Descriptor.hpp"
 #include "HookFlags.hpp"
 
 namespace Nominax
@@ -332,7 +332,7 @@ namespace Nominax::Core::Subsystem
 		/// <param name="config">The subsystem configuration instance.</param>
 		/// <param name="userData">Some user data.</param>
 		/// <returns></returns>
-		virtual auto OnConstruct(std::unique_ptr<SubsystemConfig>&& config, void* userData) & -> void;
+		virtual auto OnConstruct(std::unique_ptr<SubsystemDescriptor>&& config, void* userData) & -> void;
 
 		/// <summary>
 		/// Invoked when the subsystem instance is destructed, before destructor.
@@ -412,7 +412,7 @@ namespace Nominax::Core::Subsystem
         friend struct ISubsystem;
 	};
 
-	inline auto IEventHooks::OnConstruct([[maybe_unused]] std::unique_ptr<SubsystemConfig>&& config, [[maybe_unused]] void* userData) & -> void
+	inline auto IEventHooks::OnConstruct([[maybe_unused]] std::unique_ptr<SubsystemDescriptor>&& config, [[maybe_unused]] void* userData) & -> void
 	{
 
 	}

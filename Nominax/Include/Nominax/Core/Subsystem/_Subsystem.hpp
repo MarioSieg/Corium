@@ -206,7 +206,7 @@
 #pragma once
 
 #include "Allocator.hpp"
-#include "Config.hpp"
+#include "Descriptor.hpp"
 #include "Factory.hpp"
 #include "HookFlags.hpp"
 #include "HypervisorHost.hpp"
