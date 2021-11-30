@@ -282,10 +282,10 @@ namespace Nominax::Core::Subsystem
         this->OnPreBoot();
 
         // invoke OnPreBoot on all systems
-        InvokeOnAll<HookFlags::OnPreBoot, false>();
+        InvokeGroup<HookFlags::OnPreBoot, false>();
 
         // invoke OnPostBoot on all systems, but in reversed oder
-        InvokeOnAll<HookFlags::OnPostBoot, true>();
+        InvokeGroup<HookFlags::OnPostBoot, true>();
 
         this->OnPostBoot();
     }
@@ -295,10 +295,10 @@ namespace Nominax::Core::Subsystem
         this->OnPreShutdown();
 
         // invoke OnPreBoot on all systems
-        InvokeOnAll<HookFlags::OnPreShutdown, false>();
+        InvokeGroup<HookFlags::OnPreShutdown, false>();
 
         // invoke OnPostBoot on all systems, but in reversed oder
-        InvokeOnAll<HookFlags::OnPostShutdown, true>();
+        InvokeGroup<HookFlags::OnPostShutdown, true>();
 
         this->OnPostShutdown();
     }
@@ -306,13 +306,13 @@ namespace Nominax::Core::Subsystem
     auto HypervisorHost::BeginPreExecution(Reactor& vm, ByteCode::Image& code, void* userData) -> void
     {
         this->OnPreExecute(vm, code, userData);
-        InvokeOnAll<HookFlags::OnPreExecute, false>(vm, code, userData);
+        InvokeGroup<HookFlags::OnPreExecute, false>(vm, code, userData);
     }
 
     auto HypervisorHost::BeginPostExecution(Reactor& vm, ByteCode::Image& code, void* userData) -> void
     {
         this->OnPostExecute(vm, code, userData);
-        InvokeOnAll<HookFlags::OnPostExecute, true>(vm, code, userData);
+        InvokeGroup<HookFlags::OnPostExecute, true>(vm, code, userData);
     }
 
     auto HypervisorHost::GenerateHostToSystemKey() const noexcept -> HostToSystemKey

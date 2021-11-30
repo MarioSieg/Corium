@@ -211,6 +211,8 @@ struct MockSubsystemWithAllEvents : ISubsystem
 {
     inline static std::uint32_t MockCounter { };
     inline static HypervisorHost MockHost { };
+    inline static std::string_view MockMessage { };
+    inline static std::vector<std::string_view> Messages { };
 
     using SpecializedConfig = SubsystemConfig;
 
@@ -251,19 +253,37 @@ struct MockSubsystemWithAllEvents : ISubsystem
     auto OnPreBoot() & -> void override
     {
         ++MockCounter;
+        MockMessage = "Pre";
+        Messages.emplace_back(MockMessage);
     }
 
     auto OnPostBoot() & -> void override
     {
         ++MockCounter;
+        MockMessage = "Post";
+        Messages.emplace_back(MockMessage);
     }
 
     auto OnPreShutdown() & -> void override
     {
         ++MockCounter;
+        MockMessage = "Pre";
+        Messages.emplace_back(MockMessage);
     }
 
     auto OnPostShutdown() & -> void override
+    {
+        ++MockCounter;
+        MockMessage = "Post";
+        Messages.emplace_back(MockMessage);
+    }
+
+    auto OnPreExecute(Reactor& vm, Image& code, void* userData) & -> void override
+    {
+        ++MockCounter;
+    }
+
+    auto OnPostExecute(Reactor& vm, Image& code, void* userData) & -> void override
     {
         ++MockCounter;
     }

@@ -387,10 +387,16 @@ namespace Nominax::Core::Subsystem
         /// <returns></returns>
         auto BeginPostExecution(Reactor& vm, ByteCode::Image& code, void* userData) -> void;
 
-	private:
+        /// <summary>
+        /// Invokes the specified event flags on all subsystems.
+        /// </summary>
+        /// <typeparam name="...Args"></typeparam>
+        /// <param name="args"></param>
+        /// <returns></returns>
         template <const HookFlags Flags, const bool Reversed, const bool IgnorePause = false, typename... Args>
-        auto InvokeOnAll(Args&&... args) -> void;
+        auto InvokeGroup(Args&&... args) -> void;
 
+	private:
         /// <summary>
         /// Generates a new host to system key.
         /// </summary>
@@ -399,7 +405,7 @@ namespace Nominax::Core::Subsystem
 	};
 
     template<typename T, typename SpecConfig, typename... Args> requires IsValidSubsystem<T, Args...>
-    NOX_NEVER_INLINE auto HypervisorHost::Install
+    [[nodiscard]] NOX_NEVER_INLINE auto HypervisorHost::Install
     (
         std::unique_ptr<SubsystemConfig>&& config,
         void* const userData,
@@ -435,11 +441,11 @@ namespace Nominax::Core::Subsystem
     }
 
     template <const HookFlags Flags, const bool Reversed, const bool IgnorePause, typename... Args>
-    NOX_NEVER_INLINE auto HypervisorHost::InvokeOnAll(Args&&... args) -> void
+    NOX_NEVER_INLINE auto HypervisorHost::InvokeGroup(Args&&... args) -> void
     {
         auto i
         {
-			[this]
+			[this] () noexcept
 			{
 				if constexpr (Reversed)
 				{
@@ -453,7 +459,7 @@ namespace Nominax::Core::Subsystem
         };
         const auto end
         {
-            [this]
+            [this] () noexcept
             {
                 if constexpr (Reversed)
                 {

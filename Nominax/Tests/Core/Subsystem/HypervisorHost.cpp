@@ -60,3 +60,65 @@ TEST(HypervisorHost, UninstallAll)
 
     MockSubsystemWithAllEvents::MockCounter = 0;
 }
+
+TEST(HypervisorHost, BootAll)
+{
+    MockSubsystemWithAllEvents::MockCounter = 0;
+    MockSubsystemWithAllEvents::MockMessage = "";
+    MockSubsystemWithAllEvents::Messages.clear();
+
+    HypervisorHost host { };
+    host.Install<MockSubsystemWithAllEvents>();
+    host.Install<MockSubsystemWithAllEvents>();
+    MockSubsystemWithAllEvents::MockCounter = 0;
+    host.BootAll();
+    ASSERT_EQ(MockSubsystemWithAllEvents::MockCounter, 4);
+    ASSERT_EQ(MockSubsystemWithAllEvents::MockMessage, "Post");
+    ASSERT_EQ(MockSubsystemWithAllEvents::Messages.size(), 4);
+    ASSERT_EQ(MockSubsystemWithAllEvents::Messages[0], "Pre");
+    ASSERT_EQ(MockSubsystemWithAllEvents::Messages[1], "Pre");
+    ASSERT_EQ(MockSubsystemWithAllEvents::Messages[2], "Post");
+    ASSERT_EQ(MockSubsystemWithAllEvents::Messages[3], "Post");
+
+    MockSubsystemWithAllEvents::MockCounter = 0;
+    MockSubsystemWithAllEvents::MockMessage = "";
+    MockSubsystemWithAllEvents::Messages.clear();
+}
+
+TEST(HypervisorHost, ShutdownAll)
+{
+    MockSubsystemWithAllEvents::MockCounter = 0;
+
+    HypervisorHost host { };
+    host.Install<MockSubsystemWithAllEvents>();
+    MockSubsystemWithAllEvents::MockCounter = 0;
+
+    host.ShutdownAll();
+    ASSERT_EQ(MockSubsystemWithAllEvents::MockCounter, 2);
+
+    MockSubsystemWithAllEvents::MockCounter = 0;
+}
+
+TEST(HypervisorHost, InvokeGroup)
+{
+    MockSubsystemWithAllEvents::MockCounter = 0;
+    MockSubsystemWithAllEvents::MockMessage = "";
+    MockSubsystemWithAllEvents::Messages.clear();
+
+    HypervisorHost host { };
+    host.Install<MockSubsystemWithAllEvents>();
+    host.Install<MockSubsystemWithAllEvents>();
+    MockSubsystemWithAllEvents::MockCounter = 0;
+
+    host.InvokeGroup<HookFlags::OnPreBoot, false>();
+    ASSERT_EQ(MockSubsystemWithAllEvents::MockCounter, 2);
+    ASSERT_EQ(MockSubsystemWithAllEvents::MockMessage, "Pre");
+
+    host.InvokeGroup<HookFlags::OnPostBoot, true>();
+    ASSERT_EQ(MockSubsystemWithAllEvents::MockCounter, 4);
+    ASSERT_EQ(MockSubsystemWithAllEvents::MockMessage, "Post");
+
+    MockSubsystemWithAllEvents::MockMessage = "";
+    MockSubsystemWithAllEvents::MockCounter = 0;
+    MockSubsystemWithAllEvents::Messages.clear();
+}

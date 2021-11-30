@@ -247,9 +247,10 @@ TEST(Subsystem, Invoke)
     MockSubsystemWithAllEvents::MockCounter = 0;
     handle->Invoke<HookFlags::OnPreBoot | HookFlags::OnPostBoot>();
     ASSERT_EQ(MockSubsystemWithAllEvents::MockCounter, 2);
-    Reactor* vm { }; // OUCH -> UB :(
-    Image* image { };                                                   // ouch UB - I'll fix this in the test overhaul update
-    handle->Invoke<HookFlags::OnPreExecute | HookFlags::OnPostExecute>(*vm, *image, nullptr);
+    MockSubsystemWithAllEvents::MockCounter = 0;
+    std::array<std::uint8_t, sizeof(Reactor)> vm { };
+    std::array<std::uint8_t, sizeof(Image)> image { };
+    handle->Invoke<HookFlags::OnPreExecute | HookFlags::OnPostExecute>(*reinterpret_cast<Reactor*>(std::data(vm)), *reinterpret_cast<Image*>(std::data(image)), nullptr);
     ASSERT_EQ(MockSubsystemWithAllEvents::MockCounter, 2);
     MockSubsystemWithAllEvents::MockCounter = 0;
     handle->SetPaused(true);
