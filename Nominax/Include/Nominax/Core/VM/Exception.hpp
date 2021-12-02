@@ -203,197 +203,84 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "ReactorTestHelper.hpp"
+#pragma once
 
-#if !NOX_OPT_EXECUTION_ADDRESS_MAPPING
+#include <cstdint>
+#include <string_view>
 
-TEST(ReactorInputValidation, ValidInput)
+namespace Nominax::Core::VM
 {
-    std::fill(std::begin(MockStack), std::end(MockStack), Record::Padding());
-	const auto input = VerboseReactorDescriptor {
+	/// <summary>
+	/// Defines the type of the exception.
+	/// </summary>
+	enum class ExceptionClass : std::uint8_t
+	{
+		/// <summary>
+		///	Thrown before a null pointer is dereferenced.
+		/// Attempt to access a field or method on a null reference.
+		///	Attempt to unbox a null Integer, Boolean etc.
+		/// </summary>
+		Builtin_NullPointer,
 
-		.CodeChunk = MockCode.data(),
-		.CodeChunkSize = MockCode.size(),
-		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
-		.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),
-		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
-		.Stack = MockStack.data(),
-		.StackSize = MockStack.size(),
+		/// <summary>
+		/// Thrown by an arithmetic operation that is not permitted,
+		/// generally an integer division by zero.
+		/// </summary>
+		Builtin_Arithmetic,
 
-	};
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
-}
-
-#endif
-
-TEST(ReactorInputValidation, NullPointers)
-{
-    std::fill(std::begin(MockStack), std::end(MockStack), Record::Padding());
-	const auto input = VerboseReactorDescriptor {
-
-		.CodeChunk = nullptr,
-		.CodeChunkSize = 0,
-		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
-		.IntrinsicTableSize = 0,
-		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
-		.Stack = MockStack.data(),
-		.StackSize = MockStack.size(),
-
-	};
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::NullPtr);
-}
-
-TEST(ReactorInputValidation, ZeroMemorySizes)
-{
-    std::fill(std::begin(MockStack), std::end(MockStack), Record::Padding());
-	const auto input = VerboseReactorDescriptor {
-
-		.CodeChunk = MockCode.data(),
-		.CodeChunkSize = 0,
-		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
-		.IntrinsicTableSize = 0,
-		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
-		.Stack = MockStack.data(),
-		.StackSize = MockStack.size(),
-
-	};
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::ZeroSize);
-}
-
-TEST(ReactorInputValidation, NullPointerIntrinsicRoutines)
-{
-    std::fill(std::begin(MockStack), std::end(MockStack), Record::Padding());
-	std::array<IntrinsicRoutine*, 1> intrinsicRoutines {
-		nullptr
-	};
-	const auto input = VerboseReactorDescriptor {
-
-		.CodeChunk = MockCode.data(),
-		.CodeChunkSize = MockCode.size(),
-		.IntrinsicTable = intrinsicRoutines.data(),
-		.IntrinsicTableSize = intrinsicRoutines.size(),
-		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
-		.Stack = MockStack.data(),
-		.StackSize = MockStack.size(),
-
-	};
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::NullIntrinsicRoutine);
-}
-
-#if !NOX_OPT_EXECUTION_ADDRESS_MAPPING
-
-TEST(ReactorInputValidation, ValidIntrinsicRoutines)
-{
-    std::fill(std::begin(MockStack), std::end(MockStack), Record::Padding());
-	const auto input = VerboseReactorDescriptor {
-
-		.CodeChunk = MockCode.data(),
-		.CodeChunkSize = MockCode.size(),
-		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
-		.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),
-		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
-		.Stack = MockStack.data(),
-		.StackSize = MockStack.size(),
-
-	};
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
-}
-
-#endif
-
-TEST(ReactorInputValidation, MissingCodePrologue)
-{
-	const auto input = VerboseReactorDescriptor {
-
-		.CodeChunk = MockCode.data() + 1,
-		.CodeChunkSize = MockCode.size() - 1,
-		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
-		.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),
-		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
-		.Stack = MockStack.data(),
-		.StackSize = MockStack.size(),
-
-	};
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::MissingCodePrologue);
-}
-
-TEST(ReactorInputValidation, InvalidMissingCodePrologue1)
-{
-	std::array code = {
-		Signal {Instruction::NOP},
-		Signal {Instruction::INT},
-		Signal {INT64_C(5)},
+		/// <summary>
+		/// The exception class ist custom and unknown.
+		/// </summary>
+		Custom
 	};
 
-	const auto input = VerboseReactorDescriptor {
+	struct Exception final
+	{
+		/// <summary>
+		/// The type of the exception.
+		/// </summary>
+		ExceptionClass Class { ExceptionClass::Custom };
 
-		.CodeChunk = code.data(),
-		.CodeChunkSize = code.size(),
-		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
-		.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),
-		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
-		.Stack = MockStack.data(),
-		.StackSize = MockStack.size(),
+		/// <summary>
+		/// The short message or exception name.
+		/// </summary>
+		std::u32string_view Message { U"UnknownException" };
 
+		/// <summary>
+		/// A detailed exception description or stack trace.
+		/// </summary>
+		std::u32string_view Description { U"UnknownException" };
+
+		static inline auto Get_NullPointerException() noexcept -> const Exception&;
+		static inline auto Get_ArithmeticException() noexcept -> const Exception&;
 	};
 
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::Ok);
-}
+	inline auto Exception::Get_NullPointerException() noexcept -> const Exception&
+	{
+		static constexpr Exception INSTANCE
+		{
+			ExceptionClass::Builtin_NullPointer,
+			U"NullPointerException",
+			UR"(
+				Thrown before a null pointer is dereferenced.
+				Attempt to access a field or method on a null reference.
+				Attempt to unbox a null Integer, Boolean etc.
+			)"
+		};
+		return INSTANCE;
+	}
 
-TEST(ReactorInputValidation, InvalidMissingCodePrologue2)
-{
-	std::array code = {
-		Signal {Instruction::NOP},
-	};
-
-	const auto input = VerboseReactorDescriptor {
-
-		.CodeChunk = code.data(),
-		.CodeChunkSize = code.size(),
-		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
-		.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),
-		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
-		.Stack = MockStack.data(),
-		.StackSize = MockStack.size(),
-
-	};
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::MissingCodeEpilogue);
-}
-
-TEST(ReactorInputValidation, InvalidMissingCodePrologue3)
-{
-	std::array code = {
-		Signal {Instruction::NOP},
-		Signal {INT64_C(5)},
-	};
-
-	const auto input = VerboseReactorDescriptor {
-
-		.CodeChunk = code.data(),
-		.CodeChunkSize = code.size(),
-		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
-		.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),
-		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
-		.Stack = MockStack.data(),
-		.StackSize = MockStack.size(),
-
-	};
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::MissingCodeEpilogue);
-}
-
-TEST(ReactorInputValidation, MissingStackPrologue)
-{
-    std::fill(std::begin(MockStack), std::end(MockStack), Record { });
-	const auto input = VerboseReactorDescriptor
-    {
-		.CodeChunk = MockCode.data(),
-		.CodeChunkSize = MockCode.size(),
-		.IntrinsicTable = MOCK_INTRINSIC_ROUTINE_TABLE.data(),
-		.IntrinsicTableSize = MOCK_INTRINSIC_ROUTINE_TABLE.size(),
-		.InterruptHandler = MOCK_INTERRUPT_HANDLER,
-		.Stack = MockStack.data(),
-		.StackSize = MockStack.size(),
-
-	};
-	ASSERT_EQ(input.Validate(), ReactorValidationResult::MissingStackPrologue);
+	inline auto Exception::Get_ArithmeticException() noexcept -> const Exception&
+	{
+		static constexpr Exception INSTANCE
+		{
+			ExceptionClass::Builtin_Arithmetic,
+			U"ArithmeticException",
+			UR"(
+				Thrown by an arithmetic operation that is not permitted,
+				generally an integer division by zero.
+			)"
+		};
+		return INSTANCE;
+	}
 }

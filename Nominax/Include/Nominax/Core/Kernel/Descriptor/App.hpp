@@ -205,6 +205,8 @@
 
 #pragma once
 
+#include <string>
+
 namespace Nominax::Core::Kernel
 {
 	/// <summary>

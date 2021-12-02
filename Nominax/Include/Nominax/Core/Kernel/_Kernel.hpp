@@ -206,3 +206,6 @@
 #pragma once
 
 #include "Descriptor.hpp"
+#include "EnvironmentContext.hpp"
+#include "Kernel.hpp"
+#include "Pipes.hpp"

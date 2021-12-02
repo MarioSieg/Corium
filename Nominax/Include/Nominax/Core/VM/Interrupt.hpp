@@ -205,293 +205,38 @@
 
 #pragma once
 
-#include <array>
-#include <cstdint>
-#include <type_traits>
+#include "Exception.hpp"
+#include "Breakpoint.hpp"
+#include "Error.hpp"
 
-namespace Nominax::Foundation
+namespace Nominax::Core::VM
 {
-	/// <summary>
-    /// 64-bit memory record.
-    /// Contains either: Record32, void*, std::uint64_t, std::int64_t, double
-    /// </summary>
-	union alignas(alignof(std::int64_t)) Record
+	enum class InterruptClass : std::uint8_t
 	{
-		/// <summary>
-		/// Use as std::uint32_t.
-		/// </summary>
-		std::uint32_t AsU32;
-
-		/// <summary>
-		/// Use as std::int32_t.
-		/// </summary>
-		std::int32_t AsI32;
-
-		/// <summary>
-		/// Use as float.
-		/// </summary>
-		float AsF32;
-
-		/// <summary>
-		/// Use as std::uint64_t.
-		/// </summary>
-		std::uint64_t AsU64;
-
-		/// <summary>
-		/// Use as std::int64_t.
-		/// </summary>
-		std::int64_t AsI64;
-
-		/// <summary>
-		/// Use as double.
-		/// </summary>
-		double AsF64;
-
-		/// <summary>
-		/// Use as PTR 64.
-		/// </summary>
-		void* AsPtr;
-
-		/// <summary>
-		/// Use as native char.
-		/// </summary>
-		char AsChar;
-
-		/// <summary>
-		/// Use as ASCII/UTF-8 char.
-		/// </summary>
-		char8_t AsChar8;
-
-		/// <summary>
-		/// Use as UTF-16 char.
-		/// </summary>
-		char16_t AsChar16;
-
-		/// <summary>
-		/// Use as UTF-32 char.
-		/// </summary>
-		char32_t AsChar32;
-
-		/// <summary>
-		/// Use as std::uint32_t's array.
-		/// </summary>
-		std::array<std::uint32_t, 2> AsU32S;
-
-		/// <summary>
-		/// Use as std::int32_t's array.
-		/// </summary>
-		std::array<std::int32_t, 2> AsI32S;
-
-		/// <summary>
-		/// Use as float's array.
-		/// </summary>
-		std::array<float, 2> AsF32S;
-
-        /// <summary>
-        /// Use as boolean.
-        /// </summary>
-        bool AsBool;
-
-		/// <summary>
-		/// Default construct.
-		/// </summary>
-		/// <returns></returns>
-		Record() = default;
-
-		/// <summary>
-		/// Construct from std::uint32_t and zero upper 32 bits.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(std::uint32_t value);
-
-		/// <summary>
-		/// Construct from std::int32_t and zero upper 32 bits.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(std::int32_t value);
-
-		/// <summary>
-		/// Construct from float and zero upper 32 bits.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(float value);
-
-		/// <summary>
-		/// Construct from std::uint64_t.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(std::uint64_t value);
-
-		/// <summary>
-		/// Construct from std::int64_t.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(std::int64_t value);
-
-		/// <summary>
-		/// Construct from double.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(double value);
-
-		/// <summary>
-		/// Construct from PTR 64.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(void* value);
-
-		/// <summary>
-		/// Construct from ASCII/UTF-8 char.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(char8_t value);
-
-		/// <summary>
-		/// Construct from UTF-16 char.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(char16_t value);
-
-		/// <summary>
-		/// Construct from UTF-32 char.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(char32_t value);
-
-		/// <summary>
-		/// Construct from std::uint32_t array.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(std::array<std::uint32_t, 2> value);
-
-		/// <summary>
-		/// Construct from std::int32_t array.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(std::array<std::int32_t, 2> value);
-
-		/// <summary>
-		/// Construct from float array.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(std::array<float, 2> value);
-
-		/// <summary>
-		/// Returns true if value contains non zero, else false.
-		/// </summary>
-		/// <returns></returns>
-		explicit constexpr operator bool() const;
-
-		/// <summary>
-		/// Equal.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		constexpr auto operator ==(Record other) const -> bool;
-
-		/// <summary>
-		/// Not equal.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		constexpr auto operator !=(Record other) const -> bool;
-
-		/// <summary>
-		/// Less.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		constexpr auto operator <(Record other) const -> bool;
-
-		/// <summary>
-		/// Above.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		constexpr auto operator >(Record other) const -> bool;
-
-		/// <summary>
-		/// Less equal.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		constexpr auto operator <=(Record other) const -> bool;
-
-		/// <summary>
-		/// Above equal.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		constexpr auto operator >=(Record other) const -> bool;
+		Error,
+		Exception,
+		Breakpoint
 	};
 
-	constexpr Record::Record(const std::uint32_t value) : AsU32 { value } {}
-	constexpr Record::Record(const std::int32_t value) : AsI32 { value } {}
-	constexpr Record::Record(const float value) : AsF32 { value } {}
-	constexpr Record::Record(const std::uint64_t value) : AsU64 { value } {}
-	constexpr Record::Record(const std::int64_t value) : AsI64 { value } {}
-	constexpr Record::Record(const double value) : AsF64 { value } {}
-	constexpr Record::Record(void* const value) : AsPtr { value } {}
-	constexpr Record::Record(const char8_t value) : AsChar8 { value } {}
-	constexpr Record::Record(const char16_t value) : AsChar16 { value } {}
-	constexpr Record::Record(const char32_t value) : AsChar32 { value } {}
-	constexpr Record::Record(const std::array<std::uint32_t, 2> value) : AsU32S { value } {}
-	constexpr Record::Record(const std::array<std::int32_t, 2> value) : AsI32S { value } {}
-	constexpr Record::Record(const std::array<float, 2> value) : AsF32S { value } {}
-
-	constexpr Record::operator bool() const
+	enum class InterruptRecoverMode : std::uint8_t
 	{
-		return this->AsU64;
-	}
+		ResumeExecution,
+		Throw,
+		Panic
+	};
 
-	constexpr auto Record::operator ==(const Record other) const -> bool
+	struct Interrupt final
 	{
-		return this->AsU64 == other.AsU64;
-	}
+		const InterruptClass Class { InterruptClass::Error };
 
-	constexpr auto Record::operator !=(const Record other) const -> bool
-	{
-		return !(*this == other);
-	}
+	private:
+		union
+		{
+			Error ErrorData;
+			Exception ExceptionData;
+			Breakpoint BreakpointData;
+		} Data_ { .ErrorData = Error::Get_UnknownPanicError() };
+	};
 
-	constexpr auto Record::operator <(const Record other) const -> bool
-	{
-		return this->AsU64 < other.AsU64;
-	}
-
-	constexpr auto Record::operator >(const Record other) const -> bool
-	{
-		return this->AsU64 > other.AsU64;
-	}
-
-	constexpr auto Record::operator <=(const Record other) const -> bool
-	{
-		return this->AsU64 <= other.AsU64;
-	}
-
-	constexpr auto Record::operator >=(const Record other) const -> bool
-	{
-		return this->AsU64 >= other.AsU64;
-	}
-
-	static_assert(sizeof(float) == sizeof(std::int32_t));
-	static_assert(sizeof(double) == sizeof(std::int64_t));
-	static_assert(sizeof(Record) == sizeof(std::int64_t));
-	static_assert(alignof(Record) == alignof(std::int64_t));
-	static_assert(std::is_standard_layout_v<Record>);
-	static_assert(std::is_trivial_v<Record>);
-	static_assert(std::is_default_constructible_v<Record>);
+	using InterruptRoutine = auto(const Interrupt& interrupt, std::uint64_t count) -> InterruptRecoverMode;
 }

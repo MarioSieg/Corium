@@ -205,293 +205,220 @@
 
 #pragma once
 
-#include <array>
-#include <cstdint>
-#include <type_traits>
+#include "../../Foundation/Record.hpp"
+#include "../../Foundation/Memory/MemoryUnits.hpp"
 
-namespace Nominax::Foundation
+namespace Nominax::Core::VM
 {
 	/// <summary>
-    /// 64-bit memory record.
-    /// Contains either: Record32, void*, std::uint64_t, std::int64_t, double
-    /// </summary>
-	union alignas(alignof(std::int64_t)) Record
+	/// Represents the stack memory for the execution engine.
+	/// </summary>
+	struct [[nodiscard]] Stack final
 	{
 		/// <summary>
-		/// Use as std::uint32_t.
+		/// A small stack.
+		///	Can hold 125k records before stack overflow.
 		/// </summary>
-		std::uint32_t AsU32;
+		static constexpr std::uint64_t SMALL_SIZE { 1_MB / sizeof(Foundation::Record) };
 
 		/// <summary>
-		/// Use as std::int32_t.
+		/// A medium stack.
+		///	Can hold 512k records before stack overflow.
 		/// </summary>
-		std::int32_t AsI32;
+		static constexpr std::uint64_t MEDIUM_SIZE { 4_MB / sizeof(Foundation::Record) };
 
 		/// <summary>
-		/// Use as float.
+		/// A large stack.
+		///	Can hold 1m records before stack overflow.
+		///	This is used by default.
 		/// </summary>
-		float AsF32;
+		static constexpr std::uint64_t LARGE_SIZE { 8_MB / sizeof(Foundation::Record) };
 
 		/// <summary>
-		/// Use as std::uint64_t.
+		/// Magic padding value for the stack front.
 		/// </summary>
-		std::uint64_t AsU64;
+		static constexpr Foundation::Record MAGIC_PADDING { UINT64_C(0xBABE'BEBA'BABE'6666) };
 
 		/// <summary>
-		/// Use as std::int64_t.
+		/// Allocates a new VM stack with given size.
 		/// </summary>
-		std::int64_t AsI64;
+		/// <param name="size">The stack size in records (amount of records)! Not the byte size!</param>
+		///	<param name="alignment">The stack memory alignment in bytes. By default alignof(Record).</param>
+		explicit Stack(std::uint64_t size, std::uint64_t alignment = alignof(Foundation::Record));
 
 		/// <summary>
-		/// Use as double.
+		/// No copy.
 		/// </summary>
-		double AsF64;
+		///	<param name="other"></param>
+		/// <returns></returns>
+		Stack(const Stack& other) = delete;
 
 		/// <summary>
-		/// Use as PTR 64.
+		/// Move constructor.
 		/// </summary>
-		void* AsPtr;
+		///	<param name="other"></param>
+		/// <returns></returns>
+		Stack(Stack&& other) noexcept;
 
 		/// <summary>
-		/// Use as native char.
+		/// No copy.
 		/// </summary>
-		char AsChar;
+		///	<param name="other"></param>
+		auto operator =(const Stack& other) -> Stack& = delete;
 
 		/// <summary>
-		/// Use as ASCII/UTF-8 char.
+		/// Move assignment operator.
 		/// </summary>
-		char8_t AsChar8;
+		///	<param name="other"></param>
+		auto operator =(Stack&& other) noexcept -> Stack&;
 
 		/// <summary>
-		/// Use as UTF-16 char.
+		/// Destructor.
 		/// </summary>
-		char16_t AsChar16;
+		~Stack();
 
 		/// <summary>
-		/// Use as UTF-32 char.
-		/// </summary>
-		char32_t AsChar32;
-
-		/// <summary>
-		/// Use as std::uint32_t's array.
-		/// </summary>
-		std::array<std::uint32_t, 2> AsU32S;
-
-		/// <summary>
-		/// Use as std::int32_t's array.
-		/// </summary>
-		std::array<std::int32_t, 2> AsI32S;
-
-		/// <summary>
-		/// Use as float's array.
-		/// </summary>
-		std::array<float, 2> AsF32S;
-
-        /// <summary>
-        /// Use as boolean.
-        /// </summary>
-        bool AsBool;
-
-		/// <summary>
-		/// Default construct.
+		/// 
 		/// </summary>
 		/// <returns></returns>
-		Record() = default;
+		[[nodiscard]]
+		auto Begin() noexcept -> Foundation::Record*;
 
 		/// <summary>
-		/// Construct from std::uint32_t and zero upper 32 bits.
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto Begin() const noexcept -> const Foundation::Record*;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		[[nodiscard]]
+		auto End() noexcept -> Foundation::Record*;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto End() const noexcept -> const Foundation::Record*;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		[[nodiscard]]
+		auto Front() noexcept -> Foundation::Record&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto Front() const noexcept -> Foundation::Record;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		[[nodiscard]]
+		auto Back() noexcept -> Foundation::Record&;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		[[nodiscard]]
+		auto Back() const noexcept -> Foundation::Record;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto Size() const noexcept -> std::uint64_t;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto ByteSize() const noexcept -> std::uint64_t;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		[[nodiscard]]
+		auto Alignment() const noexcept -> std::uint64_t;
+
+		/// <summary>
+		/// 
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		explicit constexpr Record(std::uint32_t value);
+		auto MemSet(std::uint8_t value) const noexcept -> void;
 
 		/// <summary>
-		/// Construct from std::int32_t and zero upper 32 bits.
+		/// 
 		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(std::int32_t value);
+		auto ZeroOut() const noexcept -> void;
 
-		/// <summary>
-		/// Construct from float and zero upper 32 bits.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(float value);
-
-		/// <summary>
-		/// Construct from std::uint64_t.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(std::uint64_t value);
-
-		/// <summary>
-		/// Construct from std::int64_t.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(std::int64_t value);
-
-		/// <summary>
-		/// Construct from double.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(double value);
-
-		/// <summary>
-		/// Construct from PTR 64.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(void* value);
-
-		/// <summary>
-		/// Construct from ASCII/UTF-8 char.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(char8_t value);
-
-		/// <summary>
-		/// Construct from UTF-16 char.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(char16_t value);
-
-		/// <summary>
-		/// Construct from UTF-32 char.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(char32_t value);
-
-		/// <summary>
-		/// Construct from std::uint32_t array.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(std::array<std::uint32_t, 2> value);
-
-		/// <summary>
-		/// Construct from std::int32_t array.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(std::array<std::int32_t, 2> value);
-
-		/// <summary>
-		/// Construct from float array.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(std::array<float, 2> value);
-
-		/// <summary>
-		/// Returns true if value contains non zero, else false.
-		/// </summary>
-		/// <returns></returns>
-		explicit constexpr operator bool() const;
-
-		/// <summary>
-		/// Equal.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		constexpr auto operator ==(Record other) const -> bool;
-
-		/// <summary>
-		/// Not equal.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		constexpr auto operator !=(Record other) const -> bool;
-
-		/// <summary>
-		/// Less.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		constexpr auto operator <(Record other) const -> bool;
-
-		/// <summary>
-		/// Above.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		constexpr auto operator >(Record other) const -> bool;
-
-		/// <summary>
-		/// Less equal.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		constexpr auto operator <=(Record other) const -> bool;
-
-		/// <summary>
-		/// Above equal.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		constexpr auto operator >=(Record other) const -> bool;
+	private:
+		Foundation::Record* Buffer_ { };
+		std::uint64_t Size_ { };
+		std::uint64_t Alignment_ { };
 	};
 
-	constexpr Record::Record(const std::uint32_t value) : AsU32 { value } {}
-	constexpr Record::Record(const std::int32_t value) : AsI32 { value } {}
-	constexpr Record::Record(const float value) : AsF32 { value } {}
-	constexpr Record::Record(const std::uint64_t value) : AsU64 { value } {}
-	constexpr Record::Record(const std::int64_t value) : AsI64 { value } {}
-	constexpr Record::Record(const double value) : AsF64 { value } {}
-	constexpr Record::Record(void* const value) : AsPtr { value } {}
-	constexpr Record::Record(const char8_t value) : AsChar8 { value } {}
-	constexpr Record::Record(const char16_t value) : AsChar16 { value } {}
-	constexpr Record::Record(const char32_t value) : AsChar32 { value } {}
-	constexpr Record::Record(const std::array<std::uint32_t, 2> value) : AsU32S { value } {}
-	constexpr Record::Record(const std::array<std::int32_t, 2> value) : AsI32S { value } {}
-	constexpr Record::Record(const std::array<float, 2> value) : AsF32S { value } {}
-
-	constexpr Record::operator bool() const
+	inline auto Stack::Begin() noexcept -> Foundation::Record*
 	{
-		return this->AsU64;
+		return this->Buffer_;
 	}
 
-	constexpr auto Record::operator ==(const Record other) const -> bool
+	inline auto Stack::Begin() const noexcept -> const Foundation::Record*
 	{
-		return this->AsU64 == other.AsU64;
+		return this->Buffer_;
 	}
 
-	constexpr auto Record::operator !=(const Record other) const -> bool
+	inline auto Stack::End() noexcept -> Foundation::Record*
 	{
-		return !(*this == other);
+		return this->Buffer_ + this->Size_;
 	}
 
-	constexpr auto Record::operator <(const Record other) const -> bool
+	inline auto Stack::End() const noexcept -> const Foundation::Record*
 	{
-		return this->AsU64 < other.AsU64;
+		return this->Buffer_ + this->Size_;
 	}
 
-	constexpr auto Record::operator >(const Record other) const -> bool
+	inline auto Stack::Front() noexcept -> Foundation::Record&
 	{
-		return this->AsU64 > other.AsU64;
+		return *this->Buffer_;
 	}
 
-	constexpr auto Record::operator <=(const Record other) const -> bool
+	inline auto Stack::Front() const noexcept -> Foundation::Record
 	{
-		return this->AsU64 <= other.AsU64;
+		return *this->Buffer_;
 	}
 
-	constexpr auto Record::operator >=(const Record other) const -> bool
+	inline auto Stack::Back() noexcept -> Foundation::Record&
 	{
-		return this->AsU64 >= other.AsU64;
+		return *(this->Buffer_ + this->Size_ - 1);
 	}
 
-	static_assert(sizeof(float) == sizeof(std::int32_t));
-	static_assert(sizeof(double) == sizeof(std::int64_t));
-	static_assert(sizeof(Record) == sizeof(std::int64_t));
-	static_assert(alignof(Record) == alignof(std::int64_t));
-	static_assert(std::is_standard_layout_v<Record>);
-	static_assert(std::is_trivial_v<Record>);
-	static_assert(std::is_default_constructible_v<Record>);
+	inline auto Stack::Back() const noexcept -> Foundation::Record
+	{
+		return *(this->Buffer_ + this->Size_ - 1);
+	}
+
+	inline auto Stack::Size() const noexcept -> std::uint64_t
+	{
+		return this->Size_;
+	}
+
+	inline auto Stack::ByteSize() const noexcept -> std::uint64_t
+	{
+		return this->Size_ * sizeof(Foundation::Record);
+	}
+
+	inline auto Stack::Alignment() const noexcept -> std::uint64_t
+	{
+		return this->Alignment_;
+	}
 }

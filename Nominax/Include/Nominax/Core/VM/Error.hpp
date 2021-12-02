@@ -205,293 +205,190 @@
 
 #pragma once
 
-#include <array>
 #include <cstdint>
-#include <type_traits>
+#include <string_view>
 
-namespace Nominax::Foundation
+namespace Nominax::Core::VM
 {
 	/// <summary>
-    /// 64-bit memory record.
-    /// Contains either: Record32, void*, std::uint64_t, std::int64_t, double
-    /// </summary>
-	union alignas(alignof(std::int64_t)) Record
+	/// Defines the type of the error.
+	/// </summary>
+	enum class ErrorClass : std::uint8_t
 	{
 		/// <summary>
-		/// Use as std::uint32_t.
+		/// A chain of too many methods or constructors calling into one another: usually caused by a method or constructor
+		/// that recursively calls itself without returning.
+		/// This eventually causes the special area of memory known as the stack to run out.
+		/// Occasionally, a correctly functioning program that performs deep levels of recursion may still get this error,
+		/// in which case it may be solved by increasing the thread's stack size.
+		/// You can do this application-wide by in the Nominax.xml config file.
 		/// </summary>
-		std::uint32_t AsU32;
+		StackOverflow,
 
 		/// <summary>
-		/// Use as std::int32_t.
+		/// Thrown when Nominax cannot allocate memory for a given object.
+		/// In principle, this means that there is not a big enough area of heap space available,
+		/// even after garbage collection and defragmentation (i.e. removing objects no longer referenced and rearranging objects in
+		/// memory to make a large enough space available).
 		/// </summary>
-		std::int32_t AsI32;
+		OutOfMemory,
 
 		/// <summary>
-		/// Use as float.
+		/// Occurs if you have a static field or static constructor in your class which itself throws an exception,
+		/// preventing your class from being initialized.
+		/// This in turn means the class cannot be initialized, and so the first time it needs to be loaded,
+		/// an ExceptionInInitializerError will be thrown.
 		/// </summary>
-		float AsF32;
+		ExceptionInInitializer,
 
 		/// <summary>
-		/// Use as std::uint64_t.
+		/// In principle, this error is thrown if Nominax cannot find a class that it needs to load "in the normal course of execution",
+		/// for example, because your code is attempting to create an object of the relevant class or is calling a static method on it,
+		/// or refers to it in an typeof etc.
 		/// </summary>
-		std::uint64_t AsU64;
+		UnresolvedClassError,
 
 		/// <summary>
-		/// Use as std::int64_t.
+		/// Occurs if the FFI is used and the dynamically requested function
+		///	cannot be found at startup linking.
+		///	This usually means that either the dynamic library is not loaded correctly
+		///	or the function does not exist or it is not exported from the dynamic library correctly.
+		///	Double check the location of the dynamic library and the function signature.
+		///	Make sure to use the correct calling conventions and attributes from FFI/NominaxFFI.h
 		/// </summary>
-		std::int64_t AsI64;
+		DynamicLinkError,
 
 		/// <summary>
-		/// Use as double.
+		/// Occurs if a panic is triggered in the runtime system.
+		///	A panic is invoked if a fatal error is detect and the execution cannot proceed.
+		///	Nominax is aborted afterwards.
 		/// </summary>
-		double AsF64;
-
-		/// <summary>
-		/// Use as PTR 64.
-		/// </summary>
-		void* AsPtr;
-
-		/// <summary>
-		/// Use as native char.
-		/// </summary>
-		char AsChar;
-
-		/// <summary>
-		/// Use as ASCII/UTF-8 char.
-		/// </summary>
-		char8_t AsChar8;
-
-		/// <summary>
-		/// Use as UTF-16 char.
-		/// </summary>
-		char16_t AsChar16;
-
-		/// <summary>
-		/// Use as UTF-32 char.
-		/// </summary>
-		char32_t AsChar32;
-
-		/// <summary>
-		/// Use as std::uint32_t's array.
-		/// </summary>
-		std::array<std::uint32_t, 2> AsU32S;
-
-		/// <summary>
-		/// Use as std::int32_t's array.
-		/// </summary>
-		std::array<std::int32_t, 2> AsI32S;
-
-		/// <summary>
-		/// Use as float's array.
-		/// </summary>
-		std::array<float, 2> AsF32S;
-
-        /// <summary>
-        /// Use as boolean.
-        /// </summary>
-        bool AsBool;
-
-		/// <summary>
-		/// Default construct.
-		/// </summary>
-		/// <returns></returns>
-		Record() = default;
-
-		/// <summary>
-		/// Construct from std::uint32_t and zero upper 32 bits.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(std::uint32_t value);
-
-		/// <summary>
-		/// Construct from std::int32_t and zero upper 32 bits.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(std::int32_t value);
-
-		/// <summary>
-		/// Construct from float and zero upper 32 bits.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(float value);
-
-		/// <summary>
-		/// Construct from std::uint64_t.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(std::uint64_t value);
-
-		/// <summary>
-		/// Construct from std::int64_t.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(std::int64_t value);
-
-		/// <summary>
-		/// Construct from double.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(double value);
-
-		/// <summary>
-		/// Construct from PTR 64.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(void* value);
-
-		/// <summary>
-		/// Construct from ASCII/UTF-8 char.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(char8_t value);
-
-		/// <summary>
-		/// Construct from UTF-16 char.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(char16_t value);
-
-		/// <summary>
-		/// Construct from UTF-32 char.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(char32_t value);
-
-		/// <summary>
-		/// Construct from std::uint32_t array.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(std::array<std::uint32_t, 2> value);
-
-		/// <summary>
-		/// Construct from std::int32_t array.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(std::array<std::int32_t, 2> value);
-
-		/// <summary>
-		/// Construct from float array.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(std::array<float, 2> value);
-
-		/// <summary>
-		/// Returns true if value contains non zero, else false.
-		/// </summary>
-		/// <returns></returns>
-		explicit constexpr operator bool() const;
-
-		/// <summary>
-		/// Equal.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		constexpr auto operator ==(Record other) const -> bool;
-
-		/// <summary>
-		/// Not equal.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		constexpr auto operator !=(Record other) const -> bool;
-
-		/// <summary>
-		/// Less.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		constexpr auto operator <(Record other) const -> bool;
-
-		/// <summary>
-		/// Above.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		constexpr auto operator >(Record other) const -> bool;
-
-		/// <summary>
-		/// Less equal.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		constexpr auto operator <=(Record other) const -> bool;
-
-		/// <summary>
-		/// Above equal.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		constexpr auto operator >=(Record other) const -> bool;
+		UnknownPanicError
 	};
 
-	constexpr Record::Record(const std::uint32_t value) : AsU32 { value } {}
-	constexpr Record::Record(const std::int32_t value) : AsI32 { value } {}
-	constexpr Record::Record(const float value) : AsF32 { value } {}
-	constexpr Record::Record(const std::uint64_t value) : AsU64 { value } {}
-	constexpr Record::Record(const std::int64_t value) : AsI64 { value } {}
-	constexpr Record::Record(const double value) : AsF64 { value } {}
-	constexpr Record::Record(void* const value) : AsPtr { value } {}
-	constexpr Record::Record(const char8_t value) : AsChar8 { value } {}
-	constexpr Record::Record(const char16_t value) : AsChar16 { value } {}
-	constexpr Record::Record(const char32_t value) : AsChar32 { value } {}
-	constexpr Record::Record(const std::array<std::uint32_t, 2> value) : AsU32S { value } {}
-	constexpr Record::Record(const std::array<std::int32_t, 2> value) : AsI32S { value } {}
-	constexpr Record::Record(const std::array<float, 2> value) : AsF32S { value } {}
-
-	constexpr Record::operator bool() const
+	/// <summary>
+	/// Represents a fatal error which cannot be catched (unlike exceptions).
+	/// </summary>
+	struct Error final
 	{
-		return this->AsU64;
+		/// <summary>
+		/// The type of the error.
+		/// </summary>
+		const ErrorClass Class;
+
+		/// <summary>
+		/// A short message (currently the name of the error).
+		/// </summary>
+		const std::u32string_view Message;
+
+		/// <summary>
+		/// A detailed description of the error.
+		/// </summary>
+		const std::u32string_view Description;
+
+		static inline auto Get_StackOverflowError() noexcept -> const Error&;
+		static inline auto Get_OutOfMemoryError() noexcept -> const Error&;
+		static inline auto Get_ExceptionInInitializerError() noexcept -> const Error&;
+		static inline auto Get_UnresolvedClassError() noexcept -> const Error&;
+		static inline auto Get_DynamicLinkError() noexcept -> const Error&;
+		static inline auto Get_UnknownPanicError() noexcept -> const Error&;
+	};
+
+	inline auto Error::Get_StackOverflowError() noexcept -> const Error&
+	{
+		static constexpr Error INSTANCE
+		{
+			ErrorClass::StackOverflow,
+			U"StackOverflowError",
+			UR"(
+				A chain of too many methods or constructors calling into one another: usually caused by a method or constructor
+				that recursively calls itself without returning.
+				This eventually causes the special area of memory known as the stack to run out.
+				Occasionally, a correctly functioning program that performs deep levels of recursion may still get this error,
+				in which case it may be solved by increasing the thread's stack size.
+				You can do this application-wide by in the Nominax.xml config file.
+			)"
+		};
+		return INSTANCE;
 	}
 
-	constexpr auto Record::operator ==(const Record other) const -> bool
+	inline auto Error::Get_OutOfMemoryError() noexcept -> const Error&
 	{
-		return this->AsU64 == other.AsU64;
+		static constexpr Error INSTANCE
+		{
+			ErrorClass::OutOfMemory,
+			U"OutOfMemoryError",
+			UR"(
+				Thrown when Nominax cannot allocate memory for a given object.
+				In principle, this means that there is not a big enough area of heap space available,
+				even after garbage collection and defragmentation (i.e. removing objects no longer referenced and rearranging objects in
+				memory to make a large enough space available).
+			)"
+		};
+		return INSTANCE;
 	}
 
-	constexpr auto Record::operator !=(const Record other) const -> bool
+	inline auto Error::Get_ExceptionInInitializerError() noexcept -> const Error&
 	{
-		return !(*this == other);
+		static constexpr Error INSTANCE
+		{
+			ErrorClass::ExceptionInInitializer,
+			U"ExceptionInInitializerError",
+			UR"(
+				Occurs if you have a static field or static constructor in your class which itself throws an exception,
+				preventing your class from being initialized.
+				This in turn means the class cannot be initialized, and so the first time it needs to be loaded,
+				an ExceptionInInitializerError will be thrown.
+			)"
+		};
+		return INSTANCE;
 	}
 
-	constexpr auto Record::operator <(const Record other) const -> bool
+	inline auto Error::Get_UnresolvedClassError() noexcept -> const Error&
 	{
-		return this->AsU64 < other.AsU64;
+		static constexpr Error INSTANCE
+		{
+			ErrorClass::UnresolvedClassError,
+			U"UnresolvedClassError",
+			UR"(
+				In principle, this error is thrown if Nominax cannot find a class that it needs to load "in the normal course of execution",
+				for example, because your code is attempting to create an object of the relevant class or is calling a static method on it,
+				or refers to it in an typeof etc.
+			)"
+		};
+		return INSTANCE;
 	}
 
-	constexpr auto Record::operator >(const Record other) const -> bool
+	inline auto Get_DynamicLinkError() noexcept -> const Error&
 	{
-		return this->AsU64 > other.AsU64;
+		static constexpr Error INSTANCE
+		{
+			ErrorClass::DynamicLinkError,
+			U"DynamicLinkError",
+			UR"(
+				Occurs if the FFI is used and the dynamically requested function
+				cannot be found at startup linking.
+				This usually means that either the dynamic library is not loaded correctly
+				or the function does not exist or it is not exported from the dynamic library correctly.
+				Double check the location of the dynamic library and the function signature.
+				Make sure to use the correct calling conventions and attributes from FFI/NominaxFFI.h
+			)"
+		};
+		return INSTANCE;
 	}
 
-	constexpr auto Record::operator <=(const Record other) const -> bool
+	inline auto Error::Get_UnknownPanicError() noexcept -> const Error&
 	{
-		return this->AsU64 <= other.AsU64;
+		static constexpr Error INSTANCE
+		{
+			ErrorClass::UnknownPanicError,
+			U"UnknownPanicError",
+			UR"(
+				Occurs if a panic is triggered in the runtime system.
+				A panic is invoked if a fatal error is detect and the execution cannot proceed.
+				Nominax is aborted afterwards.
+			)"
+		};
+		return INSTANCE;
 	}
-
-	constexpr auto Record::operator >=(const Record other) const -> bool
-	{
-		return this->AsU64 >= other.AsU64;
-	}
-
-	static_assert(sizeof(float) == sizeof(std::int32_t));
-	static_assert(sizeof(double) == sizeof(std::int64_t));
-	static_assert(sizeof(Record) == sizeof(std::int64_t));
-	static_assert(alignof(Record) == alignof(std::int64_t));
-	static_assert(std::is_standard_layout_v<Record>);
-	static_assert(std::is_trivial_v<Record>);
-	static_assert(std::is_default_constructible_v<Record>);
 }

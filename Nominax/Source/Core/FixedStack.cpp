@@ -212,9 +212,6 @@ namespace Nominax::Core
 		NOX_PAS_NOT_ZERO(sizeInRecords, "Fixed stack with zero size was requested!");
 
 		// allocate:
-		this->Buffer_.resize(sizeInRecords);
-
-		// insert padding:
-		this->Buffer_.front() = Foundation::Record::Padding();
+		this->Buffer_.resize(sizeInRecords);;
 	}
 }

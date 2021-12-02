@@ -205,293 +205,178 @@
 
 #pragma once
 
-#include <array>
 #include <cstdint>
 #include <type_traits>
 
-namespace Nominax::Foundation
+#include "../../Foundation/Panic/Assertions.hpp"
+
+namespace Nominax::Core::VM
 {
 	/// <summary>
-    /// 64-bit memory record.
-    /// Contains either: Record32, void*, std::uint64_t, std::int64_t, double
-    /// </summary>
-	union alignas(alignof(std::int64_t)) Record
+	/// Non owning raw memory view.
+	///	Somewhat like std::span but also contains alignment info and panics
+	///	on creation with a nullptr or zero size.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	template <typename T> requires std::is_pointer_v<T>
+	struct BufferView final
 	{
 		/// <summary>
-		/// Use as std::uint32_t.
+		/// Construct with buffer pointer and size.
 		/// </summary>
-		std::uint32_t AsU32;
-
-		/// <summary>
-		/// Use as std::int32_t.
-		/// </summary>
-		std::int32_t AsI32;
-
-		/// <summary>
-		/// Use as float.
-		/// </summary>
-		float AsF32;
-
-		/// <summary>
-		/// Use as std::uint64_t.
-		/// </summary>
-		std::uint64_t AsU64;
-
-		/// <summary>
-		/// Use as std::int64_t.
-		/// </summary>
-		std::int64_t AsI64;
-
-		/// <summary>
-		/// Use as double.
-		/// </summary>
-		double AsF64;
-
-		/// <summary>
-		/// Use as PTR 64.
-		/// </summary>
-		void* AsPtr;
-
-		/// <summary>
-		/// Use as native char.
-		/// </summary>
-		char AsChar;
-
-		/// <summary>
-		/// Use as ASCII/UTF-8 char.
-		/// </summary>
-		char8_t AsChar8;
-
-		/// <summary>
-		/// Use as UTF-16 char.
-		/// </summary>
-		char16_t AsChar16;
-
-		/// <summary>
-		/// Use as UTF-32 char.
-		/// </summary>
-		char32_t AsChar32;
-
-		/// <summary>
-		/// Use as std::uint32_t's array.
-		/// </summary>
-		std::array<std::uint32_t, 2> AsU32S;
-
-		/// <summary>
-		/// Use as std::int32_t's array.
-		/// </summary>
-		std::array<std::int32_t, 2> AsI32S;
-
-		/// <summary>
-		/// Use as float's array.
-		/// </summary>
-		std::array<float, 2> AsF32S;
-
-        /// <summary>
-        /// Use as boolean.
-        /// </summary>
-        bool AsBool;
-
-		/// <summary>
-		/// Default construct.
-		/// </summary>
+		/// <param name="buffer">The buffer pointer. Panics if nullptr.</param>
+		/// <param name="size">The buffer size shall be the amount of objects (*T) pointed by buffer. Panics if zero.</param>
+		///	<param name="alignment">The buffer memory alignment. Panics if zero.</param>
 		/// <returns></returns>
-		Record() = default;
+		BufferView(T buffer, std::uint64_t size, std::uint64_t alignment) noexcept;
 
 		/// <summary>
-		/// Construct from std::uint32_t and zero upper 32 bits.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(std::uint32_t value);
-
-		/// <summary>
-		/// Construct from std::int32_t and zero upper 32 bits.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(std::int32_t value);
-
-		/// <summary>
-		/// Construct from float and zero upper 32 bits.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(float value);
-
-		/// <summary>
-		/// Construct from std::uint64_t.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(std::uint64_t value);
-
-		/// <summary>
-		/// Construct from std::int64_t.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(std::int64_t value);
-
-		/// <summary>
-		/// Construct from double.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(double value);
-
-		/// <summary>
-		/// Construct from PTR 64.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(void* value);
-
-		/// <summary>
-		/// Construct from ASCII/UTF-8 char.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(char8_t value);
-
-		/// <summary>
-		/// Construct from UTF-16 char.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(char16_t value);
-
-		/// <summary>
-		/// Construct from UTF-32 char.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(char32_t value);
-
-		/// <summary>
-		/// Construct from std::uint32_t array.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(std::array<std::uint32_t, 2> value);
-
-		/// <summary>
-		/// Construct from std::int32_t array.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(std::array<std::int32_t, 2> value);
-
-		/// <summary>
-		/// Construct from float array.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		explicit constexpr Record(std::array<float, 2> value);
-
-		/// <summary>
-		/// Returns true if value contains non zero, else false.
-		/// </summary>
-		/// <returns></returns>
-		explicit constexpr operator bool() const;
-
-		/// <summary>
-		/// Equal.
+		/// Copy constructor.
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		constexpr auto operator ==(Record other) const -> bool;
+		BufferView(const BufferView& other) noexcept = default;
 
 		/// <summary>
-		/// Not equal.
+		/// Move constructor.
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		constexpr auto operator !=(Record other) const -> bool;
+		BufferView(BufferView&& other) noexcept = default;
 
 		/// <summary>
-		/// Less.
+		/// Copy assignment operator.
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		constexpr auto operator <(Record other) const -> bool;
+		auto operator =(const BufferView& other) noexcept -> BufferView& = default;
 
 		/// <summary>
-		/// Above.
+		/// Move assignment operator.
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		constexpr auto operator >(Record other) const -> bool;
+		auto operator =(BufferView&& other) noexcept -> BufferView& = default;
 
 		/// <summary>
-		/// Less equal.
+		/// Destructor.
 		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		constexpr auto operator <=(Record other) const -> bool;
+		~BufferView() = default;
 
 		/// <summary>
-		/// Above equal.
+		/// Unwrap value.
 		/// </summary>
-		/// <param name="other"></param>
 		/// <returns></returns>
-		constexpr auto operator >=(Record other) const -> bool;
+		[[nodiscard]]
+		auto operator *() const noexcept -> T;
+
+		/// <summary>
+		/// Unwrap value.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto operator *() noexcept -> T;
+
+		/// <summary>
+		/// Unwrap value.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto operator ->() const noexcept -> T;
+
+		/// <summary>
+		/// Unwrap value.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto operator ->() noexcept -> T;
+
+		/// <summary>
+		/// Unwrap value.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto Unwrap() const noexcept -> T;
+
+		/// <summary>
+		/// Unwrap value.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto Unwrap() noexcept -> T;
+
+		/// <summary>
+		/// Unwrap value.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto Size() const noexcept -> std::uint64_t;
+
+		/// <summary>
+		/// Unwrap value.
+		/// </summary>
+		/// <returns></returns>
+		[[nodiscard]]
+		auto Alignment() const noexcept -> std::uint64_t;
+
+	private:
+		T Buffer_ { };
+		std::uint64_t Size_ { }, Alignment_ { };
 	};
 
-	constexpr Record::Record(const std::uint32_t value) : AsU32 { value } {}
-	constexpr Record::Record(const std::int32_t value) : AsI32 { value } {}
-	constexpr Record::Record(const float value) : AsF32 { value } {}
-	constexpr Record::Record(const std::uint64_t value) : AsU64 { value } {}
-	constexpr Record::Record(const std::int64_t value) : AsI64 { value } {}
-	constexpr Record::Record(const double value) : AsF64 { value } {}
-	constexpr Record::Record(void* const value) : AsPtr { value } {}
-	constexpr Record::Record(const char8_t value) : AsChar8 { value } {}
-	constexpr Record::Record(const char16_t value) : AsChar16 { value } {}
-	constexpr Record::Record(const char32_t value) : AsChar32 { value } {}
-	constexpr Record::Record(const std::array<std::uint32_t, 2> value) : AsU32S { value } {}
-	constexpr Record::Record(const std::array<std::int32_t, 2> value) : AsI32S { value } {}
-	constexpr Record::Record(const std::array<float, 2> value) : AsF32S { value } {}
-
-	constexpr Record::operator bool() const
+	template <typename T> requires std::is_pointer_v<T>
+	inline BufferView<T>::BufferView(const T buffer, const std::uint64_t size, const std::uint64_t alignment) noexcept
+	: Buffer_ { buffer }, Size_ { size }, Alignment_ { alignment }
 	{
-		return this->AsU64;
+		NOX_PAS(buffer != nullptr, "Invalid buffer pointer!");
+		NOX_PAS(size != 0, "Invalid buffer size!");
 	}
 
-	constexpr auto Record::operator ==(const Record other) const -> bool
+	template <typename T> requires std::is_pointer_v<T>
+	inline auto BufferView<T>::operator *() const noexcept -> T
 	{
-		return this->AsU64 == other.AsU64;
+		return this->Buffer_;
 	}
 
-	constexpr auto Record::operator !=(const Record other) const -> bool
+	template <typename T> requires std::is_pointer_v<T>
+	inline auto BufferView<T>::operator *() noexcept -> T
 	{
-		return !(*this == other);
+		return this->Buffer_;
 	}
 
-	constexpr auto Record::operator <(const Record other) const -> bool
+	template <typename T> requires std::is_pointer_v<T>
+	inline auto BufferView<T>::operator ->() const noexcept -> T
 	{
-		return this->AsU64 < other.AsU64;
+		return this->Buffer_;
 	}
 
-	constexpr auto Record::operator >(const Record other) const -> bool
+	template <typename T> requires std::is_pointer_v<T>
+	inline auto BufferView<T>::operator ->() noexcept -> T
 	{
-		return this->AsU64 > other.AsU64;
+		return this->Buffer_;
 	}
 
-	constexpr auto Record::operator <=(const Record other) const -> bool
+	template <typename T> requires std::is_pointer_v<T>
+	inline auto BufferView<T>::Unwrap() const noexcept -> T
 	{
-		return this->AsU64 <= other.AsU64;
+		return this->Buffer_;
 	}
 
-	constexpr auto Record::operator >=(const Record other) const -> bool
+	template <typename T> requires std::is_pointer_v<T>
+	inline auto BufferView<T>::Unwrap() noexcept -> T
 	{
-		return this->AsU64 >= other.AsU64;
+		return this->Buffer_;
 	}
 
-	static_assert(sizeof(float) == sizeof(std::int32_t));
-	static_assert(sizeof(double) == sizeof(std::int64_t));
-	static_assert(sizeof(Record) == sizeof(std::int64_t));
-	static_assert(alignof(Record) == alignof(std::int64_t));
-	static_assert(std::is_standard_layout_v<Record>);
-	static_assert(std::is_trivial_v<Record>);
-	static_assert(std::is_default_constructible_v<Record>);
+	template <typename T> requires std::is_pointer_v<T>
+	inline auto BufferView<T>::Size() const noexcept -> std::uint64_t
+	{
+		return this->Size_;
+	}
+
+	template <typename T> requires std::is_pointer_v<T>
+	inline auto BufferView<T>::Alignment() const noexcept -> std::uint64_t
+	{
+		return this->Alignment_;
+	}
 }

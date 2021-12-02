@@ -203,7 +203,15 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "Include/Nominax/Nominax.hpp"
+#include "Include/Nominax/Core/LPCEntryProxy.hpp"
+
+auto main(const int argc, const char* const* argv, const char* const* environ) -> int
+{
+    ::Nominax::Core::LPCEntryProxy(argc, argv, environ);
+    return 0;
+}
+
+#if 0
 
 using namespace Nominax::Prelude;
 
@@ -253,3 +261,5 @@ auto main(const int argc, const char* const* const argv) -> int
 
 	return 0;
 }
+
+#endif

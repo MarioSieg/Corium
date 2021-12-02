@@ -245,13 +245,6 @@ namespace Nominax::Core
 
 		#endif
 
-		// first stack entry is never used and must be nop-padding:
-		if (*Stack != Foundation::Record::Padding())
-		{
-			[[unlikely]]
-            return ReactorValidationResult::MissingStackPrologue;
-		}
-
 		if (this->IntrinsicTable) [[likely]]
 		{
 			// validate intrinsic routines:
