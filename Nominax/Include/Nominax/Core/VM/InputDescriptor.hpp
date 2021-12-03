@@ -222,6 +222,6 @@ namespace Nominax::Core::VM
 		const ImageView Image;
 		const IntrinsicTableView IntrinsicTable;
 		const StackView Stack;
-		InterruptRoutine* const InterruptRoutine;
+		InterruptRoutine* const InterruptHandler;
 	};
 }

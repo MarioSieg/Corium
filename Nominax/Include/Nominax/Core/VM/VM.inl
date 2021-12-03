@@ -397,7 +397,7 @@ namespace Nominax::Core::VM
 		[[maybe_unused]]
         const void* NOX_RESTRICT const* const   jumpTable { std::data(JUMP_TABLE) };                /* jump table						*/
 		IntrinsicRoutine* const* const          intrinsicTable { *input->IntrinsicTable };			/* intrinsic table hi				*/
-		InterruptRoutine* const					interruptHandlerHook { input->InterruptRoutine };	/* global interrupt routine			*/
+		InterruptRoutine* const					interruptHandlerHook { input->InterruptHandler };	/* global interrupt routine			*/
 		const Signal* const NOX_RESTRICT        ipLo { *input->Image };								/* instruction low ptr				*/
 		const Signal*                           ip { ipLo };                                        /* instruction ptr					*/
 		const Signal*                           bp { ipLo };                                        /* base pointer						*/
