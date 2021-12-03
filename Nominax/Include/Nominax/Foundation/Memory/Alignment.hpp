@@ -221,7 +221,7 @@ namespace Nominax::Foundation::Memory
 	[[nodiscard]]
 	constexpr auto IsAlignmentValid(const std::uint64_t alignment) noexcept -> bool
 	{
-		return alignment && !(alignment & (alignment - 1));
+		return alignment > 0 && !(alignment & (alignment - 1));
 	}
 
 	static_assert(IsAlignmentValid(alignof(std::max_align_t)), "WTF");

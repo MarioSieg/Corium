@@ -203,25 +203,53 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "../../TestBase.hpp"
 
-#include "../../ByteCode/Signal.hpp"
-#include "../../ByteCode/Instruction.hpp"
-
-#include "BufferView.hpp"
-#include "Interrupt.hpp"
-
-namespace Nominax::Core::VM
+TEST(BufferView, Construct)
 {
-	using ImageView = BufferView<const ByteCode::Signal*>;
-	using IntrinsicTableView = BufferView<ByteCode::IntrinsicRoutine**>;
-	using StackView = BufferView<Foundation::Record*>;
+	int y { };
+	BufferView<int*> view { &y, 1, alignof(int) };
+	ASSERT_EQ(view.Size(), 1);
+	ASSERT_EQ(view.Alignment(), alignof(int));
+	ASSERT_EQ(view.Unwrap(), &y);
+	ASSERT_EQ(*view, &y);
+}
 
-	struct InputDescriptor final
+TEST(BufferView, ConstructWithInvalidPointer)
+{
+	constexpr auto executor
 	{
-		const ImageView Image;
-		const IntrinsicTableView IntrinsicTable;
-		const StackView Stack;
-		InterruptRoutine* const InterruptRoutine;
+		[]
+		{
+			int y { };
+			BufferView<int*> view { nullptr, 1, alignof(int) };
+		}
 	};
+	ASSERT_DEATH(executor(), "");
+}
+
+TEST(BufferView, ConstructWithInvalidSize)
+{
+	constexpr auto executor
+	{
+		[]
+		{
+			int y { };
+			BufferView<int*> view { &y, 0, alignof(int) };
+		}
+	};
+	ASSERT_DEATH(executor(), "");
+}
+
+TEST(BufferView, ConstructWithInvalidAlignment)
+{
+	constexpr auto executor
+	{
+		[]
+		{
+			int y { };
+			BufferView<int*> view { &y, 1, 3 };
+		}
+	};
+	ASSERT_DEATH(executor(), "");
 }

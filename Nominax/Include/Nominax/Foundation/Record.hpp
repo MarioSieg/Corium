@@ -436,6 +436,48 @@ namespace Nominax::Foundation
 		/// <param name="other"></param>
 		/// <returns></returns>
 		constexpr auto operator >=(Record other) const -> bool;
+
+		/// <summary>
+		/// Create from fixed scalar.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		static constexpr auto FromU32(std::uint32_t value) noexcept -> Record;
+
+		/// <summary>
+		/// Create from fixed scalar.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		static constexpr auto FromI32(std::uint32_t value) noexcept -> Record;
+
+		/// <summary>
+		/// Create from fixed scalar.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		static constexpr auto FromU64(std::uint64_t value) noexcept -> Record;
+
+		/// <summary>
+		/// Create from fixed scalar.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		static constexpr auto FromI64(std::uint64_t value) noexcept -> Record;
+
+		/// <summary>
+		/// Create from fixed scalar.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		static constexpr auto FromF32(float value) noexcept -> Record;
+
+		/// <summary>
+		/// Create from fixed scalar.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		static constexpr auto FromF64(double value) noexcept -> Record;
 	};
 
 	constexpr Record::Record(const std::uint32_t value) : AsU32 { value } {}
@@ -485,6 +527,36 @@ namespace Nominax::Foundation
 	constexpr auto Record::operator >=(const Record other) const -> bool
 	{
 		return this->AsU64 >= other.AsU64;
+	}
+
+	constexpr auto Record::FromU32(const std::uint32_t value) noexcept -> Record
+	{
+		return Record { value };
+	}
+
+	constexpr auto Record::FromI32(const std::uint32_t value) noexcept -> Record
+	{
+		return Record { value };
+	}
+
+	constexpr auto Record::FromU64(const std::uint64_t value) noexcept -> Record
+	{
+		return Record { value };
+	}
+
+	constexpr auto Record::FromI64(const std::uint64_t value) noexcept -> Record
+	{
+		return Record { value };
+	}
+
+	constexpr auto Record::FromF32(const float value) noexcept -> Record
+	{
+		return Record { value };
+	}
+
+	constexpr auto Record::FromF64(const double value) noexcept -> Record
+	{
+		return Record { value };
 	}
 
 	static_assert(sizeof(float) == sizeof(std::int32_t));

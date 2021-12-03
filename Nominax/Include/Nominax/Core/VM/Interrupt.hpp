@@ -227,16 +227,29 @@ namespace Nominax::Core::VM
 
 	struct Interrupt final
 	{
-		const InterruptClass Class { InterruptClass::Error };
+		constexpr explicit Interrupt(Error&& error) noexcept;
+		constexpr explicit Interrupt(Exception&& exception) noexcept;
+		constexpr explicit Interrupt(Breakpoint&& breakpoint) noexcept;
+
+		const InterruptClass Class;
 
 	private:
-		union
+		const union
 		{
 			Error ErrorData;
 			Exception ExceptionData;
 			Breakpoint BreakpointData;
-		} Data_ { .ErrorData = Error::Get_UnknownPanicError() };
+		} Data_;
 	};
 
-	using InterruptRoutine = auto(const Interrupt& interrupt, std::uint64_t count) -> InterruptRecoverMode;
+	constexpr Interrupt::Interrupt(Error&& error) noexcept
+	: Class { InterruptClass::Error }, Data_ { .ErrorData = error } { }
+
+	constexpr Interrupt::Interrupt(Exception&& exception) noexcept
+	: Class{ InterruptClass::Exception }, Data_{ .ExceptionData = exception } { }
+
+	constexpr Interrupt::Interrupt(Breakpoint&& breakpoint) noexcept
+	: Class{ InterruptClass::Breakpoint }, Data_{ .BreakpointData = breakpoint } { }
+
+	using InterruptRoutine = auto(Interrupt&& interrupt) -> InterruptRecoverMode;
 }

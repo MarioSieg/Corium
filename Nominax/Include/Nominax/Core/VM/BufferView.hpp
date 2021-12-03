@@ -209,6 +209,7 @@
 #include <type_traits>
 
 #include "../../Foundation/Panic/Assertions.hpp"
+#include "../../Foundation/Memory/Alignment.hpp"
 
 namespace Nominax::Core::VM
 {
@@ -330,6 +331,7 @@ namespace Nominax::Core::VM
 	{
 		NOX_PAS(buffer != nullptr, "Invalid buffer pointer!");
 		NOX_PAS(size != 0, "Invalid buffer size!");
+		NOX_PAS(Foundation::Memory::IsAlignmentValid(alignment), "Invalid buffer alignment!");
 	}
 
 	template <typename T> requires std::is_pointer_v<T>

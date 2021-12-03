@@ -208,19 +208,20 @@
 #include "../../../Include/Nominax/Core/VM/Stack.hpp"
 #include "../../../Include/Nominax/Foundation/Panic/Assertions.hpp"
 #include "../../../Include/Nominax/Foundation/Allocator/SystemAllocator.hpp"
+#include "../../../Include/Nominax/Foundation/Memory/Alignment.hpp"
 
 namespace Nominax::Core::VM
 {
 	using Foundation::Allocator::SystemAllocator;
+	using Foundation::Memory::IsAlignmentValid;
 
 	Stack::Stack(std::uint64_t size, const std::uint64_t alignment)
 	: Size_ { size }, Alignment_ { alignment }
 	{
 		NOX_PAS(size > 0, "Invalid stack size!");
-		NOX_PAS(alignment > 0, "Invalid stack alignment!");
+		NOX_PAS(IsAlignmentValid(alignment), "Invalid stack alignment!");
 		size *= sizeof(Foundation::Record);
-		this->Buffer_ = static_cast<Foundation::Record*>(SystemAllocator::AllocateAlignedChecked(size, alignment));
-		*this->Buffer_ = MAGIC_PADDING;
+		*(this->Buffer_ = static_cast<Foundation::Record*>(SystemAllocator::AllocateAlignedChecked(size, alignment))) = MAGIC_PADDING;
 	}
 
 	Stack::Stack(Stack&& other) noexcept
@@ -272,13 +273,16 @@ namespace Nominax::Core::VM
 		}
 	}
 
-	auto Stack::MemSet(const std::uint8_t value) const noexcept -> void
+	auto Stack::MemSet(const Foundation::Record value) noexcept -> void
 	{
-		std::memset(this->Buffer_ + 1, value, this->ByteSize());
+		const std::span<Foundation::Record> span { this->Begin() + 1, this->End() };
+		std::ranges::fill(span, value);
 	}
 
-	auto Stack::ZeroOut() const noexcept -> void
+	auto Stack::ZeroOut() noexcept -> void
 	{
-		std::memset(this->Buffer_ + 1, 0, this->ByteSize());
+		constexpr Foundation::Record value { };
+		const std::span<Foundation::Record> span{ this->Begin() + 1, this->End() };
+		std::ranges::fill(span, value);
 	}
 }

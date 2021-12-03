@@ -220,7 +220,7 @@ namespace Nominax::Core::Subsystem
     Host_ { host },
     Name_ { name },
     Description_ { description },
-    ID_ { IDAccumulator_.fetch_add(1, std::memory_order_relaxed) },
+    ID_ { IDAccumulator_.fetch_add(1, std::memory_order_seq_cst) },
     IsPaused_ { isPaused }
 	{
 		this->SetSubscriptions(subscriptions);

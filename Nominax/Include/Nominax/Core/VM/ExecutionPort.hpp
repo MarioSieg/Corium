@@ -206,9 +206,58 @@
 #pragma once
 
 #include "InputDescriptor.hpp"
-#include "OutputContext.hpp"
+#include "OutputState.hpp"
 
 namespace Nominax::Core::VM
 {
-	using ExecutionPort = auto(const InputDescriptor& input, OutputContext& output) -> bool;
+	/// <summary>
+	/// Includes all builtin execution ports.
+	/// </summary>
+	enum class ExecutionPortClass : std::uint8_t
+	{
+		Fallback = 0,
+		Debug,
+		Instrument,
+
+		#if NOX_ARCH_X86_64
+			X8664_AVX,
+			X8664_AVX512F
+		#endif
+	};
+
+	using ExecutionRoutine = auto(const InputDescriptor* input, OutputState* output, const void*** outJumpTable) -> bool;
+
+	struct ExecutionPort final
+	{
+		ExecutionPort(ExecutionRoutine* routine, ExecutionPortClass klass);
+		ExecutionPort(const ExecutionPort& other) = delete;
+		ExecutionPort(ExecutionPort&& other) = delete;
+		auto operator =(const ExecutionPort& other) -> ExecutionPort& = delete;
+		auto operator =(ExecutionPort&& other) -> ExecutionPort& = delete;
+		~ExecutionPort() = default;
+
+		auto Routine() const noexcept -> ExecutionRoutine*;
+		auto Class() const noexcept -> ExecutionPortClass;
+		auto JumpTable() const noexcept -> const void**;
+
+	private:
+		ExecutionRoutine* const Routine_;
+		const ExecutionPortClass Class_;
+		const void** JumpTable_;
+	};
+
+	inline auto ExecutionPort::Routine() const noexcept -> ExecutionRoutine*
+	{
+		return this->Routine_;
+	}
+
+	inline auto ExecutionPort::Class() const noexcept -> ExecutionPortClass
+	{
+		return this->Class_;
+	}
+
+	inline auto ExecutionPort::JumpTable() const noexcept -> const void**
+	{
+		return this->JumpTable_;
+	}
 }

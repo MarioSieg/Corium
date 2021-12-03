@@ -235,12 +235,4 @@ namespace Nominax::Foundation::Memory
 	{
 		asm volatile("" : : : "memory");
 	}
-
-	/// <summary>
-	/// Full memory barrier.
-	/// </summary>
-	NOX_INTRINSIC_PROXY inline auto MemoryBarrier() noexcept -> void
-	{
-		__sync_synchronize();
-	}
 }

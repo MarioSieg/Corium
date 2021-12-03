@@ -217,6 +217,7 @@ using namespace ::Nominax::Foundation::Concurrency;
 
 using namespace Nominax::Core;
 using namespace Subsystem;
+using namespace VM;
 
 using namespace Nominax::JIT;
 using namespace Nominax::GC;

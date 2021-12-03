@@ -203,291 +203,107 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "../../TestBase.hpp"
 
-#include "../../Foundation/Record.hpp"
-#include "../../Foundation/Memory/MemoryUnits.hpp"
-
-namespace Nominax::Core::VM
+TEST(Stack, Allocate)
 {
-	/// <summary>
-	/// Represents the stack memory for the execution engine.
-	/// </summary>
-	struct [[nodiscard]] Stack final
+	Stack stack { 10, 32 };
+	ASSERT_EQ(stack.Size(), 10);
+	ASSERT_EQ(stack.Alignment(), 32);
+	ASSERT_EQ(stack.ByteSize(), 10 * sizeof(Record));
+	ASSERT_EQ(stack[0], Stack::MAGIC_PADDING);
+	ASSERT_TRUE(IsAlignedTo(*stack, 32));
+}
+
+TEST(Stack, MoveConstruct)
+{
+	Stack a { 10, 4 };
+	a[1].AsI64 = -3;
+
+	Stack b { std::move(a) };
+	ASSERT_EQ(b.Size(), 10);
+	ASSERT_EQ(b.Alignment(), 4);
+	ASSERT_EQ(b[0], Stack::MAGIC_PADDING);
+	ASSERT_EQ(b[1].AsI64, -3);
+
+	ASSERT_EQ(a.Buffer(), nullptr);
+	ASSERT_EQ(a.Size(), 0);
+	ASSERT_EQ(a.Alignment(), 0);
+}
+
+TEST(Stack, MoveAssign)
+{
+	Stack a { 10, 4 };
+	a[1].AsI64 = -3;
+
+	Stack b { 3, 4 };
+	b = std::move(a);
+	ASSERT_EQ(b.Size(), 10);
+	ASSERT_EQ(b.Alignment(), 4);
+	ASSERT_EQ(b[0], Stack::MAGIC_PADDING);
+	ASSERT_EQ(b[1].AsI64, -3);
+
+	ASSERT_EQ(a.Buffer(), nullptr);
+	ASSERT_EQ(a.Size(), 0);
+	ASSERT_EQ(a.Alignment(), 0);
+}
+
+TEST(Stack, MemSet)
+{
+	Stack stack { 4 };
+	stack.MemSet(Record::FromU64(5));
+	ASSERT_EQ(stack[0], Stack::MAGIC_PADDING);
+	ASSERT_EQ(stack[1].AsU64, 5);
+	ASSERT_EQ(stack[2].AsU64, 5);
+	ASSERT_EQ(stack[3].AsU64, 5);
+}
+
+TEST(Stack, ZeroOut)
+{
+	Stack stack{ 4 };
+	stack.MemSet(Record::FromU64(5));
+	ASSERT_EQ(stack[0], Stack::MAGIC_PADDING);
+	ASSERT_EQ(stack[1].AsU64, 5);
+	ASSERT_EQ(stack[2].AsU64, 5);
+	ASSERT_EQ(stack[3].AsU64, 5);
+	stack.ZeroOut();
+	ASSERT_EQ(stack[1].AsU64, 0);
+	ASSERT_EQ(stack[2].AsU64, 0);
+	ASSERT_EQ(stack[3].AsU64, 0);
+}
+
+TEST(Stack, AllocateZeroSize)
+{
+	constexpr auto executor
 	{
-		/// <summary>
-		/// A small stack.
-		///	Can hold 125k records before stack overflow.
-		/// </summary>
-		static constexpr std::uint64_t SMALL_SIZE { 1_MB / sizeof(Foundation::Record) };
-
-		/// <summary>
-		/// A medium stack.
-		///	Can hold 512k records before stack overflow.
-		/// </summary>
-		static constexpr std::uint64_t MEDIUM_SIZE { 4_MB / sizeof(Foundation::Record) };
-
-		/// <summary>
-		/// A large stack.
-		///	Can hold 1m records before stack overflow.
-		///	This is used by default.
-		/// </summary>
-		static constexpr std::uint64_t LARGE_SIZE { 8_MB / sizeof(Foundation::Record) };
-
-		/// <summary>
-		/// Magic padding value for the stack front.
-		/// </summary>
-		static constexpr Foundation::Record MAGIC_PADDING { UINT64_C(0xBABE'BEBA'BABE'6666) };
-
-		/// <summary>
-		/// Allocates a new VM stack with given size.
-		/// </summary>
-		/// <param name="size">The stack size in records (amount of records)! Not the byte size!</param>
-		///	<param name="alignment">The stack memory alignment in bytes. By default alignof(Record).</param>
-		explicit Stack(std::uint64_t size, std::uint64_t alignment = alignof(Foundation::Record));
-
-		/// <summary>
-		/// No copy.
-		/// </summary>
-		///	<param name="other"></param>
-		/// <returns></returns>
-		Stack(const Stack& other) = delete;
-
-		/// <summary>
-		/// Move constructor.
-		/// </summary>
-		///	<param name="other"></param>
-		/// <returns></returns>
-		Stack(Stack&& other) noexcept;
-
-		/// <summary>
-		/// No copy.
-		/// </summary>
-		///	<param name="other"></param>
-		auto operator =(const Stack& other) -> Stack& = delete;
-
-		/// <summary>
-		/// Move assignment operator.
-		/// </summary>
-		///	<param name="other"></param>
-		auto operator =(Stack&& other) noexcept -> Stack&;
-
-		/// <summary>
-		/// Destructor.
-		/// </summary>
-		~Stack();
-
-		/// <summary>
-		/// Unwrap buffer.
-		/// </summary>
-		/// <returns></returns>
-		auto operator *() const noexcept -> const Foundation::Record*;
-
-		/// <summary>
-		/// Unwrap buffer.
-		/// </summary>
-		/// <returns></returns>
-		auto operator *() noexcept -> Foundation::Record*;
-
-		/// <summary>
-		/// Subscript.
-		/// </summary>
-		auto operator [](std::uint64_t idx) const noexcept -> Foundation::Record;
-
-		/// <summary>
-		/// Subscript.
-		/// </summary>
-		/// <returns></returns>
-		auto operator [](std::uint64_t idx) noexcept -> Foundation::Record&;
-
-		/// <summary>
-		/// Unwrap buffer.
-		/// </summary>
-		/// <param name="idx"></param>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto Buffer() const noexcept -> const Foundation::Record*;
-
-		/// <summary>
-		/// Unwrap buffer.
-		/// </summary>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto Buffer() noexcept -> Foundation::Record*;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto Begin() noexcept -> Foundation::Record*;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto Begin() const noexcept -> const Foundation::Record*;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		[[nodiscard]]
-		auto End() noexcept -> Foundation::Record*;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto End() const noexcept -> const Foundation::Record*;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		[[nodiscard]]
-		auto Front() noexcept -> Foundation::Record&;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto Front() const noexcept -> Foundation::Record;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		[[nodiscard]]
-		auto Back() noexcept -> Foundation::Record&;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		[[nodiscard]]
-		auto Back() const noexcept -> Foundation::Record;
-
-		/// <summary>
-		/// The size in records of the whole buffer.
-		/// </summary>
-		/// <returns></returns>
-		[[nodiscard]]
-		auto Size() const noexcept -> std::uint64_t;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>The size in bytes of the whole buffer.</returns>
-		[[nodiscard]]
-		auto ByteSize() const noexcept -> std::uint64_t;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>The alignment of the stack buffer.</returns>
-		[[nodiscard]]
-		auto Alignment() const noexcept -> std::uint64_t;
-
-		/// <summary>
-		/// Fills the buffer with the given values.
-		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		auto MemSet(Foundation::Record value) noexcept -> void;
-
-		/// <summary>
-		/// Fills the buffer with 0.
-		/// </summary>
-		auto ZeroOut() noexcept -> void;
-
-	private:
-		Foundation::Record* Buffer_ { };
-		std::uint64_t Size_ { };
-		std::uint64_t Alignment_ { };
+		[]
+		{
+			Stack stack { 0, 2 };
+		}
 	};
+	ASSERT_DEATH(executor(), "");
+}
 
-	inline auto Stack::Begin() noexcept -> Foundation::Record*
+TEST(Stack, AllocateZeroAlignment)
+{
+	constexpr auto executor
 	{
-		return this->Buffer_;
-	}
+		[]
+		{
+			Stack stack { 2, 0 };
+		}
+	};
+	ASSERT_DEATH(executor(), "");
+}
 
-	inline auto Stack::Begin() const noexcept -> const Foundation::Record*
+TEST(Stack, AllocateInvalidAlignment)
+{
+	constexpr auto executor
 	{
-		return this->Buffer_;
-	}
-
-	inline auto Stack::End() noexcept -> Foundation::Record*
-	{
-		return this->Buffer_ + this->Size_;
-	}
-
-	inline auto Stack::End() const noexcept -> const Foundation::Record*
-	{
-		return this->Buffer_ + this->Size_;
-	}
-
-	inline auto Stack::Front() noexcept -> Foundation::Record&
-	{
-		return *this->Buffer_;
-	}
-
-	inline auto Stack::Front() const noexcept -> Foundation::Record
-	{
-		return *this->Buffer_;
-	}
-
-	inline auto Stack::Back() noexcept -> Foundation::Record&
-	{
-		return *(this->Buffer_ + this->Size_ - 1);
-	}
-
-	inline auto Stack::Back() const noexcept -> Foundation::Record
-	{
-		return *(this->Buffer_ + this->Size_ - 1);
-	}
-
-	inline auto Stack::Size() const noexcept -> std::uint64_t
-	{
-		return this->Size_;
-	}
-
-	inline auto Stack::ByteSize() const noexcept -> std::uint64_t
-	{
-		return this->Size_ * sizeof(Foundation::Record);
-	}
-
-	inline auto Stack::Alignment() const noexcept -> std::uint64_t
-	{
-		return this->Alignment_;
-	}
-
-	inline auto Stack::operator *() const noexcept -> const Foundation::Record*
-	{
-		return this->Buffer_;
-	}
-
-	inline auto Stack::operator *() noexcept -> Foundation::Record*
-	{
-		return this->Buffer_;
-	}
-
-	inline auto Stack::operator [](const std::uint64_t idx) const noexcept -> Foundation::Record
-	{
-		return *(this->Buffer_ + idx);
-	}
-
-	inline auto Stack::operator [](const std::uint64_t idx) noexcept -> Foundation::Record&
-	{
-		return *(this->Buffer_ + idx);
-	}
-
-	inline auto Stack::Buffer() const noexcept -> const Foundation::Record*
-	{
-		return this->Buffer_;
-	}
-
-	inline auto Stack::Buffer() noexcept -> Foundation::Record*
-	{
-		return this->Buffer_;
-	}
+		[]
+		{
+			Stack stack { 2, 3 };
+		}
+	};
+	ASSERT_DEATH(executor(), "");
 }
