@@ -217,7 +217,7 @@ namespace Nominax::Core
 	/// <summary>
 	/// Contains all sub implementations for the reactor core.
 	/// </summary>
-	enum class ReactorCoreSpecialization : std::uint64_t
+	enum struct ReactorCoreSpecialization : std::uint64_t
 	{
 		/// <summary>
 		/// Fast fallback implementation - available on all platforms.

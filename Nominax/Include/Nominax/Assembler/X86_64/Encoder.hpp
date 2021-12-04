@@ -220,7 +220,7 @@
 
 namespace Nominax::Assembler::X86_64
 {
-    enum class MODField : std::uint8_t
+    enum struct MODField : std::uint8_t
     {
         Offset0 = 0x00,
         Offset8 = 0x40,

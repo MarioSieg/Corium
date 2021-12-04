@@ -216,7 +216,7 @@ namespace Nominax::Core
 	/// <summary>
 	/// Power preference for a VM reactor.
 	/// </summary>
-	enum class PowerPreference
+	enum struct PowerPreference
 	{
 		/// <summary>
 		/// Prefer faster performance but more power usage (desktop, server)

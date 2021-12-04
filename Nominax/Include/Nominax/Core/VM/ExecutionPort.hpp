@@ -213,7 +213,7 @@ namespace Nominax::Core::VM
 	/// <summary>
 	/// Includes all builtin execution ports.
 	/// </summary>
-	enum class ExecutionPortClass : std::uint8_t
+	enum struct ExecutionPortClass : std::uint8_t
 	{
 		Fallback = 0,
 		Debug,

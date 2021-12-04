@@ -234,7 +234,7 @@ namespace Nominax::Foundation::Algorithm
 	}
 
 	/// <summary>
-	/// Implements all bit operators for an enum class to be used as bitflags.
+	/// Implements all bit operators for an enum struct to be used as bitflags.
 	/// </summary>
 	#define NOX_IMPL_ENUM_BIT_FLAGS(e)										                \
 		constexpr auto operator & (const e a, const e b) noexcept -> e		                \

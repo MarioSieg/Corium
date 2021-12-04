@@ -216,7 +216,7 @@ namespace Nominax::Core::Subsystem
     /// Each bit flag corresponds to an event hook in IEventHooks.
     ///	Used to enable/disable hooks in a subsystem.
     /// </summary>
-    enum class HookFlags : std::uint32_t
+    enum struct HookFlags : std::uint32_t
     {
         /// <summary>
         /// NO hooks.

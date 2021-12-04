@@ -207,5 +207,5 @@
 
 namespace Nominax::Assembler::X86_64
 {
-    enum class CPUFeatureBits : std::uint8_t { };
+    enum struct CPUFeatureBits : std::uint8_t { };
 }

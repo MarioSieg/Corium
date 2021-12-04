@@ -245,7 +245,7 @@ namespace Nominax::Core
 	/// <summary>
 	/// Contains all results of a reactor validation.
 	/// </summary>
-	enum class ReactorValidationResult : std::uint8_t
+	enum struct ReactorValidationResult : std::uint8_t
 	{
 		Ok = 0,
 		NullPtr,

@@ -213,7 +213,7 @@
 
 namespace Nominax::GC
 {
-	enum class alignas(alignof(std::uint64_t)) Bits : std::uint64_t
+	enum struct alignas(alignof(std::uint64_t)) Bits : std::uint64_t
 	{
 		None = 0 << 0,
 		Mark = 1 << 0,

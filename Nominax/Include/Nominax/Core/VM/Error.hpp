@@ -213,7 +213,7 @@ namespace Nominax::Core::VM
 	/// <summary>
 	/// Defines the type of the error.
 	/// </summary>
-	enum class ErrorClass : std::uint8_t
+	enum struct ErrorClass : std::uint8_t
 	{
 		/// <summary>
 		/// A chain of too many methods or constructors calling into one another: usually caused by a method or constructor

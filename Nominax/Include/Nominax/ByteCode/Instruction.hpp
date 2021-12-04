@@ -217,7 +217,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Contains all byte code instructions with opcodes.
 	/// </summary>
-	enum class alignas(alignof(std::uint64_t)) Instruction : std::uint64_t
+	enum struct alignas(alignof(std::uint64_t)) Instruction : std::uint64_t
 	{
         #include "ExportInstructionEnum.hpp"
     };
@@ -225,7 +225,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Instruction category.
 	/// </summary>
-	enum class InstructionCategory : std::uint8_t
+	enum struct InstructionCategory : std::uint8_t
 	{
         #include "ExportInstructionCategoryEnum.hpp"
 	};
@@ -246,19 +246,19 @@ namespace Nominax::ByteCode
     /// <summary>
     /// Represents an unsigned stack offset.
     /// </summary>
-    enum class alignas(alignof(std::uint64_t)) MemoryOffset : std::uint64_t;
+    enum struct alignas(alignof(std::uint64_t)) MemoryOffset : std::uint64_t;
 
 	/// <summary>
 	/// Represents a jump address which
 	/// is essentially an index to a instruction.
 	/// For dynamic signals only.
 	/// </summary>
-	enum class alignas(alignof(std::uint64_t)) JumpAddress : std::uint64_t;
+	enum struct alignas(alignof(std::uint64_t)) JumpAddress : std::uint64_t;
 
 	/// <summary>
 	/// Subroutine invocation id for custom intrinsic routine.
 	/// </summary>
-	enum class alignas(alignof(std::uint64_t)) FFIIntrinsicInvocationID : std::uint64_t;
+	enum struct alignas(alignof(std::uint64_t)) FFIIntrinsicInvocationID : std::uint64_t;
 
 	/// <summary>
 	/// Custom intrinsic routine function prototype.
@@ -277,10 +277,10 @@ namespace Nominax::ByteCode
     /// <summary>
     /// Index of a type descriptor.
     /// </summary>
-    enum class alignas(alignof(std::uint64_t)) TypeID : std::uint64_t;
+    enum struct alignas(alignof(std::uint64_t)) TypeID : std::uint64_t;
 
     /// <summary>
     /// Index to a structure field.
     /// </summary>
-    enum class alignas(alignof(std::uint64_t)) FieldOffset : std::uint64_t;
+    enum struct alignas(alignof(std::uint64_t)) FieldOffset : std::uint64_t;
 }

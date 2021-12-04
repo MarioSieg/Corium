@@ -217,7 +217,7 @@ namespace Nominax::ByteCode
 	///	Only a hint for the Nominax runtime.
 	///	Maybe it is used for optimization, maybe ignored.
 	/// </summary>
-	enum class SubroutineAttributes : std::uint8_t
+	enum struct SubroutineAttributes : std::uint8_t
 	{
 		None = 0,
 

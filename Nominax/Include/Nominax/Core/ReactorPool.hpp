@@ -215,7 +215,7 @@ namespace Nominax::Core
     /// <summary>
     /// Represents the type on how the reactor pool will create reactors.
     /// </summary>
-    enum class ReactorPoolBootMode
+    enum struct ReactorPoolBootMode
     {
         /// <summary>
         /// All reactors are booted at the beginning.

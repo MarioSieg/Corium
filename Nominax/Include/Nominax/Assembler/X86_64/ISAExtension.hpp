@@ -212,7 +212,7 @@ namespace Nominax::Assembler::X86_64
 	/// <summary>
 	/// Contains all instruction set extensions.
 	/// </summary>
-	enum class ISAExtension : std::uint8_t
+	enum struct ISAExtension : std::uint8_t
 	{
         RDTSC,
         RDTSCP,

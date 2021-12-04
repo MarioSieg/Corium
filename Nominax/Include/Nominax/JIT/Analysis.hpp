@@ -213,7 +213,7 @@ namespace Nominax::JIT
 	/// Melt stages represent the "hotness" of a code:
 	/// how often it is executed/accessed.
 	/// </summary>
-	enum class MeltStage : std::uint8_t
+	enum struct MeltStage : std::uint8_t
 	{
 		/// <summary>
 		/// Cold code:

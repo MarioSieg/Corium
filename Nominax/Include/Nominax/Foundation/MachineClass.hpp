@@ -214,7 +214,7 @@ namespace Nominax::Foundation
 	/// <summary>
 /// Represents a machine rating.
 /// </summary>
-	enum class MachineClass : char
+	enum struct MachineClass : char
 	{
 		/// <summary>
 		/// Excellent

@@ -213,7 +213,7 @@ namespace Nominax::Core::VM
 	/// <summary>
 	/// Defines the type of the exception.
 	/// </summary>
-	enum class ExceptionClass : std::uint8_t
+	enum struct ExceptionClass : std::uint8_t
 	{
 		/// <summary>
 		///	Thrown before a null pointer is dereferenced.

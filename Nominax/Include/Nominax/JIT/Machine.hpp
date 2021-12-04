@@ -243,7 +243,7 @@ namespace Nominax::JIT
 	};
 	static_assert(MAX_INSTRUCTION_LENGTH_BYTES);
 
-	enum class MachineSize : std::uint8_t
+	enum struct MachineSize : std::uint8_t
 	{
 		/// <summary>
 		/// Byte - 8-bit.

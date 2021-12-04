@@ -215,7 +215,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Represents a stream optimization level.
 	/// </summary>
-	enum class OptimizationLevel : std::uint8_t
+	enum struct OptimizationLevel : std::uint8_t
 	{
 		Off = 0,
 		O1 = 1,

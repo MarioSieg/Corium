@@ -212,7 +212,7 @@ namespace Nominax::Core::Kernel
 	/// <summary>
 	/// Represents the systems power preference.
 	/// </summary>
-	enum class PowerPreference : std::uint8_t
+	enum struct PowerPreference : std::uint8_t
 	{
 		/// <summary>
 		/// Select automatically depending on platform and system.

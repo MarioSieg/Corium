@@ -220,7 +220,7 @@ namespace Nominax::ByteCode
 		/// <summary>
 		/// Discriminator for discriminated signals.
 		/// </summary>
-		enum class Discriminator : std::uint8_t
+		enum struct Discriminator : std::uint8_t
 		{
 			/// <summary>
 			/// Unsigned 64-bit offset.

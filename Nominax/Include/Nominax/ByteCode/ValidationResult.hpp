@@ -216,7 +216,7 @@ namespace Nominax::ByteCode
 	/// <summary>
 	/// Contains all byte code validation results.
 	/// </summary>
-	enum class ValidationResultCode
+	enum struct ValidationResultCode
 	{
 		/// <summary>
 		/// Validation did not found any problems.

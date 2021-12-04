@@ -211,14 +211,14 @@
 
 namespace Nominax::Core::VM
 {
-	enum class InterruptClass : std::uint8_t
+	enum struct InterruptClass : std::uint8_t
 	{
 		Error,
 		Exception,
 		Breakpoint
 	};
 
-	enum class InterruptRecoverMode : std::uint8_t
+	enum struct InterruptRecoverMode : std::uint8_t
 	{
 		ResumeExecution,
 		Throw,
@@ -246,10 +246,10 @@ namespace Nominax::Core::VM
 	: Class { InterruptClass::Error }, Data_ { .ErrorData = error } { }
 
 	constexpr Interrupt::Interrupt(Exception&& exception) noexcept
-	: Class{ InterruptClass::Exception }, Data_{ .ExceptionData = exception } { }
+	: Class { InterruptClass::Exception }, Data_{ .ExceptionData = exception } { }
 
 	constexpr Interrupt::Interrupt(Breakpoint&& breakpoint) noexcept
-	: Class{ InterruptClass::Breakpoint }, Data_{ .BreakpointData = breakpoint } { }
+	: Class { InterruptClass::Breakpoint }, Data_{ .BreakpointData = breakpoint } { }
 
 	using InterruptRoutine = auto(Interrupt&& interrupt) -> InterruptRecoverMode;
 }

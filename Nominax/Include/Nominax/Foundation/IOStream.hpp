@@ -217,7 +217,7 @@ namespace Nominax::Foundation
     /// <summary>
     /// File access types.
     /// </summary>
-    enum class FileAccessMode : char
+    enum struct FileAccessMode : char
     {
         /// <summary>
         /// Read access.
@@ -233,7 +233,7 @@ namespace Nominax::Foundation
     /// <summary>
     /// File content modes.
     /// </summary>
-    enum class FileContentMode : char
+    enum struct FileContentMode : char
     {
         /// <summary>
         /// Treat file as binary.

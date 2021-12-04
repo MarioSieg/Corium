@@ -213,7 +213,7 @@ namespace Nominax::Core::Kernel
 	/// <summary>
 	/// The type on how the reactor pool handles reactor allocations.
 	/// </summary>
-	enum class ReactorPoolMode : std::uint8_t
+	enum struct ReactorPoolMode : std::uint8_t
 	{
 		/// <summary>
 		/// All reactors are allocated on startup.

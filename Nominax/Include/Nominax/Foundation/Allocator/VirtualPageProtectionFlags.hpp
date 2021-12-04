@@ -212,7 +212,7 @@ namespace Nominax::Foundation::Allocator
 	/// <summary>
 	/// Contains all possible values for page protection flags.
 	/// </summary>
-	enum class MemoryPageProtectionFlags : std::uint8_t
+	enum struct MemoryPageProtectionFlags : std::uint8_t
 	{
 		/// <summary>
 		/// Not allowed to read, write or execute.

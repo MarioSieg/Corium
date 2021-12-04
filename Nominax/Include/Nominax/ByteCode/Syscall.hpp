@@ -212,7 +212,7 @@ namespace Nominax::ByteCode
     /// <summary>
     /// Subroutine invocation id for system intrinsic routines.
     /// </summary>
-    enum class alignas(alignof(std::uint64_t)) Syscall : std::uint64_t
+    enum struct alignas(alignof(std::uint64_t)) Syscall : std::uint64_t
     {
         #include "ExportSysCallEnum.hpp"
     };
