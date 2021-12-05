@@ -208,15 +208,26 @@
 #include "Stack.hpp"
 #include "InputDescriptor.hpp"
 #include "OutputState.hpp"
+#include "ExecutionPort.hpp"
+#include "ContextDescriptor.hpp"
 
 namespace Nominax::Core::VM
 {
 	struct Context final
 	{
+		Context(Context&& other) = delete;
+		Context(const Context& other) = delete;
+		auto operator =(const Context& other) -> Context& = delete;
+		auto operator =(Context&& other) -> Context& = delete;
+		~Context() = default;
 
 	private:
-		const InputDescriptor Input_;
-		OutputState State_;
+		explicit Context(ContextDescriptor&& descriptor);
+
+		const std::string Name_;
+		const ExecutionPort& Port_;
 		Stack Stack_;
+		OutputState State_;
+		const InputDescriptor Input_;
 	};
 }

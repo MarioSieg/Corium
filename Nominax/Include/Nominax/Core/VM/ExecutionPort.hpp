@@ -225,24 +225,87 @@ namespace Nominax::Core::VM
 		#endif
 	};
 
+	/// <summary>
+	/// Function prototype for any VM executor implementation.
+	/// </summary>
 	using ExecutionRoutine = auto(const InputDescriptor* input, OutputState* output, const void*** outJumpTable) -> bool;
 
+	/// <summary>
+	/// An execution port represents a specific VM executor implementation.
+	/// </summary>
 	struct ExecutionPort final
 	{
-		ExecutionPort(ExecutionRoutine* routine, ExecutionPortClass klass);
+		/// <summary>
+		/// Construct with values.
+		/// </summary>
+		/// <param name="routine">The execution routine. Panics if nullptr.</param>
+		/// <param name="klass">The port class.</param>
+		/// <param name="stackAlignment">The stack alignment. Panics if invalid.</param>
+		ExecutionPort(ExecutionRoutine* routine, ExecutionPortClass klass, std::uint64_t stackAlignment);
+
+		/// <summary>
+		/// No copy.
+		/// </summary>
+		/// <param name="other"></param>
 		ExecutionPort(const ExecutionPort& other) = delete;
+
+		/// <summary>
+		/// No move.
+		/// </summary>
+		/// <param name="other"></param>
 		ExecutionPort(ExecutionPort&& other) = delete;
+
+		/// <summary>
+		/// No copy.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
 		auto operator =(const ExecutionPort& other) -> ExecutionPort& = delete;
+
+		/// <summary>
+		/// No move.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
 		auto operator =(ExecutionPort&& other) -> ExecutionPort& = delete;
+
+		/// <summary>
+		/// Destructor.
+		/// </summary>
 		~ExecutionPort() = default;
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The execution routine of this port.</returns>
+		[[nodiscard]]
 		auto Routine() const noexcept -> ExecutionRoutine*;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The port class.</returns>
+		[[nodiscard]]
 		auto Class() const noexcept -> ExecutionPortClass;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The required stack alignment.</returns>
+		[[nodiscard]]
+		auto StackAlignment() const noexcept -> std::uint64_t;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>The jump table of the execution routine.</returns>
+		[[nodiscard]]
 		auto JumpTable() const noexcept -> const void**;
 
 	private:
 		ExecutionRoutine* const Routine_;
 		const ExecutionPortClass Class_;
+		const std::uint64_t StackAlignment_;
 		const void** JumpTable_;
 	};
 
@@ -259,5 +322,10 @@ namespace Nominax::Core::VM
 	inline auto ExecutionPort::JumpTable() const noexcept -> const void**
 	{
 		return this->JumpTable_;
+	}
+
+	inline auto ExecutionPort::StackAlignment() const noexcept -> std::uint64_t
+	{
+		return this->StackAlignment_;
 	}
 }

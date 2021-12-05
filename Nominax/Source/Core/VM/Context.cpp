@@ -203,17 +203,37 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "../../../Include/Nominax/Core/VM/Context.hpp"
+#include "../../../Include/Nominax/Core/VM/ImplementedExecutionPorts.hpp"
 
-#include "Breakpoint.hpp"
-#include "BufferView.hpp"
-#include "Context.hpp"
-#include "ContextDescriptor.hpp"
-#include "Error.hpp"
-#include "Exception.hpp"
-#include "ExecutionPort.hpp"
-#include "ImplementedExecutionPorts.hpp"
-#include "InputDescriptor.hpp"
-#include "Interrupt.hpp"
-#include "OutputState.hpp"
-#include "Stack.hpp"
+namespace Nominax::Core::VM
+{
+	Context::Context(ContextDescriptor&& descriptor)
+	: Name_ { std::move(descriptor.Name)},
+	Port_
+	{
+		[&descriptor]() -> const ExecutionPort&
+		{
+			const ExecutionPort* const port
+			{
+				descriptor.OverridePort
+				? descriptor.OverridePort
+				: &Ports::FALLBACK
+			};
+			return *port;
+		}()
+	},
+	Stack_
+	{
+		descriptor.StackSize,
+		Port_.StackAlignment()
+	},
+	State_ { },
+	Input_
+	{
+		.Image = descriptor.Image,
+		.IntrinsicTable = descriptor.IntrinsicTable,
+		.Stack = StackView { *Stack_, Stack_.Size(), Stack_.Alignment() },
+		.InterruptHandler = descriptor.InterruptHandler
+	} { }
+}

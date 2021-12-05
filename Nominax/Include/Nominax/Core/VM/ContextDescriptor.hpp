@@ -205,15 +205,25 @@
 
 #pragma once
 
-#include "Breakpoint.hpp"
-#include "BufferView.hpp"
-#include "Context.hpp"
-#include "ContextDescriptor.hpp"
-#include "Error.hpp"
-#include "Exception.hpp"
-#include "ExecutionPort.hpp"
-#include "ImplementedExecutionPorts.hpp"
+#include <string>
+#include <cstdint>
+
 #include "InputDescriptor.hpp"
-#include "Interrupt.hpp"
-#include "OutputState.hpp"
+#include "ExecutionPort.hpp"
 #include "Stack.hpp"
+
+namespace Nominax::Core::VM
+{
+	struct ContextDescriptor final
+	{
+		const IntrinsicTableView IntrinsicTable;
+		const ImageView Image;
+		InterruptRoutine* const InterruptHandler;
+
+		std::string Name { };
+		std::uint64_t StackSize { Stack::DEFAULT_SIZE };
+		bool EnableJIT { true };
+		void* UserData { };
+		const ExecutionPort* OverridePort { };
+	};
+}

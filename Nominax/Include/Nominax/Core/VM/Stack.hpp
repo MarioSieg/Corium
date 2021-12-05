@@ -235,6 +235,11 @@ namespace Nominax::Core::VM
 		static constexpr std::uint64_t LARGE_SIZE { 8_MB / sizeof(Foundation::Record) };
 
 		/// <summary>
+		/// The default size used by the stack.
+		/// </summary>
+		static constexpr std::uint64_t DEFAULT_SIZE { LARGE_SIZE };
+
+		/// <summary>
 		/// Magic padding value for the stack front.
 		/// </summary>
 		static constexpr Foundation::Record MAGIC_PADDING { UINT64_C(0xBABE'BEBA'BABE'6666) };
@@ -244,7 +249,7 @@ namespace Nominax::Core::VM
 		/// </summary>
 		/// <param name="size">The stack size in records (amount of records)! Not the byte size!</param>
 		///	<param name="alignment">The stack memory alignment in bytes. By default alignof(Record).</param>
-		explicit Stack(std::uint64_t size, std::uint64_t alignment = alignof(Foundation::Record));
+		explicit Stack(std::uint64_t size = DEFAULT_SIZE, std::uint64_t alignment = alignof(Foundation::Record));
 
 		/// <summary>
 		/// No copy.

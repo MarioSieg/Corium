@@ -259,19 +259,22 @@ namespace Nominax::Core::VM
 		inline const ExecutionPort FALLBACK
 		{
 			&VM_ExecutionPort_Fallback,
-			ExecutionPortClass::Fallback
+			ExecutionPortClass::Fallback,
+			alignof(Foundation::Record)
 		};
 
 		inline const ExecutionPort DEBUG
 		{
 			&VM_ExecutionPort_Debug,
-			ExecutionPortClass::Fallback
+			ExecutionPortClass::Fallback,
+			alignof(Foundation::Record)
 		};
 
 		inline const ExecutionPort INSTRUMENT
 		{
 			&VM_ExecutionPort_Instrument,
-			ExecutionPortClass::Instrument
+			ExecutionPortClass::Instrument,
+			alignof(Foundation::Record)
 		};
 
 		#if NOX_ARCH_X86_64
@@ -279,13 +282,15 @@ namespace Nominax::Core::VM
 			inline const ExecutionPort X8664_AVX
 			{
 				&VM_ExecutionPort_AVX,
-				ExecutionPortClass::X8664_AVX
+				ExecutionPortClass::X8664_AVX,
+				32
 			};
 
 			inline const ExecutionPort X8664_AVX512F
 			{
 				&VM_ExecutionPort_AVX512F,
-				ExecutionPortClass::X8664_AVX512F
+				ExecutionPortClass::X8664_AVX512F,
+				64
 			};
 
 		#endif

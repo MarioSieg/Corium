@@ -205,14 +205,16 @@
 
 #include "../../../Include/Nominax/Core/VM/ExecutionPort.hpp"
 #include "../../../Include/Nominax/Foundation/Panic/Assertions.hpp"
+#include "../../../Include/Nominax/Foundation/Memory/Alignment.hpp"
 
 namespace Nominax::Core::VM
 {
-	ExecutionPort::ExecutionPort(ExecutionRoutine* const routine, const ExecutionPortClass klass)
+	ExecutionPort::ExecutionPort(ExecutionRoutine* const routine, const ExecutionPortClass klass, const std::uint64_t stackAlignment)
 	: Routine_ { routine }, Class_ { klass }, JumpTable_ { nullptr }
 	{
 		NOX_PAS(routine, "Invalid execution routine!");
 		const bool query { (*this->Routine_)(nullptr, nullptr, &this->JumpTable_) && this->JumpTable_ };
 		NOX_PAS(query, "Failed to query jump table from execution port!");
+		NOX_PAS(Foundation::Memory::IsAlignmentValid(stackAlignment), "Invalid stack alignment!");
 	}
 }
