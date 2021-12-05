@@ -203,20 +203,8 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use super::Pass;
-use crate::ast::tree::compilation_unit::CompilationUnit;
-use crate::error::list::ErrorList;
+use crate::ast::tree::identifier::Identifier;
+use std::collections::HashMap;
 
-pub struct CodeGenerationPass;
-
-impl<'ast> Pass<'ast, CompilationUnit<'ast>, ()> for CodeGenerationPass {
-    const NAME: &'static str = "CodeGeneration";
-
-    fn execute(
-        _input: CompilationUnit<'ast>,
-        _verbose: bool,
-        _file: &str,
-    ) -> Result<(), ErrorList> {
-        Ok(())
-    }
-}
+pub type SymbolKey<'ast> = &'ast Identifier<'ast>;
+pub type SymbolTable<'ast, Bucket> = HashMap<SymbolKey<'ast>, Bucket>;

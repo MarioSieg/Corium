@@ -209,14 +209,14 @@ use crate::error::list::ErrorList;
 
 pub struct OptimizationPass;
 
-impl<'a> Pass<'a, CompilationUnit<'a>, CompilationUnit<'a>> for OptimizationPass {
+impl<'ast> Pass<'ast, CompilationUnit<'ast>, CompilationUnit<'ast>> for OptimizationPass {
     const NAME: &'static str = "Optimization";
 
     fn execute(
-        input: CompilationUnit<'a>,
+        input: CompilationUnit<'ast>,
         _verbose: bool,
         _file: &str,
-    ) -> Result<CompilationUnit<'a>, ErrorList> {
+    ) -> Result<CompilationUnit<'ast>, ErrorList> {
         Ok(input)
     }
 }

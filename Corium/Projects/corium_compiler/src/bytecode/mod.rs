@@ -203,7 +203,6 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-pub mod bundle;
 pub mod instruction;
 pub mod signal;
 pub mod stream;

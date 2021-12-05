@@ -203,20 +203,31 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use super::Pass;
-use crate::ast::tree::compilation_unit::CompilationUnit;
+use crate::ast::tree::global_statement::GlobalStatement;
+use crate::ast::tree::Statement;
 use crate::error::list::ErrorList;
+use crate::error::Error;
 
-pub struct CodeGenerationPass;
+pub mod bucket;
 
-impl<'ast> Pass<'ast, CompilationUnit<'ast>, ()> for CodeGenerationPass {
-    const NAME: &'static str = "CodeGeneration";
+pub type GlobalSymbolTable<'ast> = super::table::SymbolTable<'ast, bucket::Bucket<'ast>>;
 
-    fn execute(
-        _input: CompilationUnit<'ast>,
-        _verbose: bool,
-        _file: &str,
-    ) -> Result<(), ErrorList> {
-        Ok(())
+pub fn build_table<'ast>(
+    errors: &mut ErrorList,
+    input: &'ast [GlobalStatement<'ast>],
+) -> GlobalSymbolTable<'ast> {
+    let mut result = GlobalSymbolTable::new();
+    for statement in input {
+        let key = statement.identifier().unwrap();
+
+        if !result.contains_key(key) {
+            result.insert(key, bucket::Bucket::from(statement)); // if symbol is not defined, insert
+        } else {
+            errors.push(Error::Semantic(format!(
+                "Symbol {} already defined before!",
+                key
+            ))); // if symbol is already defined, add error
+        }
     }
+    result
 }

@@ -207,7 +207,6 @@ use super::{
     identifier::Identifier, immutable_variable::ImmutableVariable,
     mutable_variable::MutableVariable, return_statement::ReturnStatement,
 };
-use crate::ast::tree::expression::Expression;
 use crate::ast::tree::{AstComponent, Rule, Statement};
 use std::fmt;
 
@@ -253,20 +252,41 @@ impl<'ast> Statement<'ast> for LocalStatement<'ast> {
     fn is_symbol_table_entry(&self) -> bool {
         !matches!(self, Self::ReturnStatement(_))
     }
+}
 
-    fn spill_expressions(&'ast self, out: &mut Vec<&'ast Expression<'ast>>) {
-        match self {
-            Self::MutableVariable(variable) => {
-                out.push(&variable.value);
-            }
-            Self::ImmutableVariable(variable) => {
-                out.push(&variable.value);
-            }
-            Self::ReturnStatement(smt) => {
-                if let Some(expr) = &smt.0 {
-                    out.push(expr);
-                }
-            }
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    mod identifier {
+        use super::*;
+        use crate::ast::tree::expression::Expression;
+        use crate::ast::tree::literal::Literal;
+
+        #[test]
+        fn mutable_variable() {
+            let smt = LocalStatement::MutableVariable(MutableVariable {
+                name: Identifier::new("myName"),
+                value: Expression::Literal(Literal::Int(3)),
+                type_hint: None,
+            });
+            assert_eq!(smt.identifier().unwrap().full, "myName");
+        }
+
+        #[test]
+        fn immutable_variable() {
+            let smt = LocalStatement::ImmutableVariable(ImmutableVariable {
+                name: Identifier::new("myName3"),
+                value: Expression::Literal(Literal::Int(3)),
+                type_hint: None,
+            });
+            assert_eq!(smt.identifier().unwrap().full, "myName3");
+        }
+
+        #[test]
+        fn return_statement() {
+            let smt = LocalStatement::ReturnStatement(ReturnStatement(None));
+            assert!(smt.identifier().is_none());
         }
     }
 }

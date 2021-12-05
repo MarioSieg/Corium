@@ -203,7 +203,6 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::bytecode::bundle::Bundle;
 use crate::core::job::CompilationJob;
 use crate::core::unit::{CompilationResult, CompileDescriptor, FileCompilationUnit};
 use std::env;
@@ -266,6 +265,11 @@ impl CompilerContext {
         self.failed_compilations
     }
 
+    #[inline]
+    pub fn output_dir(&self) -> &PathBuf {
+        &self.output_dir
+    }
+
     pub fn compile<F>(&mut self, callback: Option<F>) -> Vec<String>
     where
         F: FnMut(),
@@ -312,7 +316,7 @@ impl CompilerContext {
         errors
     }
 
-    fn post_process_bytecode(&self, _bundle: &Bundle) {}
+    fn post_process_bytecode(&self, _bundle: &()) {}
 
     fn format_compilation_status(&mut self, result: CompilationResult, file: &str) -> Vec<String> {
         if let Err((time, errors)) = result {
@@ -325,7 +329,7 @@ impl CompilerContext {
             let mut result = Vec::with_capacity(errors.len() + 1);
             result.push(message);
             for error in errors.0 {
-                result.push(error.to_string());
+                result.push(format!("{:?}", error));
             }
             result
         } else {

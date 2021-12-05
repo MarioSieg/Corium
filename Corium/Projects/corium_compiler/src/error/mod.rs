@@ -203,7 +203,6 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use std::fmt;
 use std::path::PathBuf;
 
 pub mod list;
@@ -211,18 +210,6 @@ pub mod list;
 #[derive(Clone, Debug)]
 pub enum Error {
     Io(PathBuf),
-    Syntax(String, String),
-    Semantic(String, String),
-}
-
-impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Self::Io(path) => write!(f, "IO error {:?}", path),
-            Self::Syntax(msg, file) => {
-                writeln!(f, "Syntax error in `{}`: {}!", file, msg)
-            }
-            Self::Semantic(msg, file) => write!(f, "Semantic error in `{}`: {}!", file, msg),
-        }
-    }
+    Syntax(String),
+    Semantic(String),
 }

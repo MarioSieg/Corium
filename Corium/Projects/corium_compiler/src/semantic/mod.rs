@@ -203,20 +203,14 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use super::Pass;
 use crate::ast::tree::compilation_unit::CompilationUnit;
 use crate::error::list::ErrorList;
 
-pub struct CodeGenerationPass;
+pub mod global;
+pub mod table;
 
-impl<'ast> Pass<'ast, CompilationUnit<'ast>, ()> for CodeGenerationPass {
-    const NAME: &'static str = "CodeGeneration";
-
-    fn execute(
-        _input: CompilationUnit<'ast>,
-        _verbose: bool,
-        _file: &str,
-    ) -> Result<(), ErrorList> {
-        Ok(())
-    }
+pub fn analyze(input: &CompilationUnit) -> Result<(), ErrorList> {
+    let mut errors = ErrorList::new();
+    let global = global::build_table(&mut errors, &input.statements);
+    Ok(())
 }

@@ -1,4 +1,3 @@
-use crate::ast::tree::expression::Expression;
 use std::fmt;
 use std::fmt::Debug;
 use std::hash::Hash;
@@ -33,7 +32,6 @@ pub trait Statement<'ast>: AstComponent {
     fn descriptive_name(&self) -> &'static str;
     fn identifier(&self) -> Option<&identifier::Identifier>;
     fn is_symbol_table_entry(&self) -> bool;
-    fn spill_expressions(&'ast self, out: &mut Vec<&'ast Expression<'ast>>);
 }
 
 #[repr(u8)]

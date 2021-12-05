@@ -203,7 +203,6 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::bytecode::bundle::Bundle;
 use crate::core::compiler::compile_source;
 use crate::core::source_code::SourceCode;
 use crate::error::list::ErrorList;
@@ -232,7 +231,7 @@ impl default::Default for CompileDescriptor {
     }
 }
 
-pub type CompilationResult = Result<(Duration, Bundle), (Duration, ErrorList)>;
+pub type CompilationResult = Result<(Duration, ()), (Duration, ErrorList)>;
 
 /// Represents a compilation unit.
 /// Each file contains a single compilation unit.

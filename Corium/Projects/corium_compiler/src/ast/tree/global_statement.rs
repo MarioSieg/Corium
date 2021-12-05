@@ -207,7 +207,6 @@ use super::{
     function::Function, identifier::Identifier, immutable_variable::ImmutableVariable,
     mutable_variable::MutableVariable, native_function::NativeFunction,
 };
-use crate::ast::tree::expression::Expression;
 use crate::ast::tree::{AstComponent, Rule, Statement};
 use std::fmt;
 
@@ -259,32 +258,62 @@ impl<'ast> Statement<'ast> for GlobalStatement<'ast> {
     fn is_symbol_table_entry(&self) -> bool {
         true
     }
+}
 
-    fn spill_expressions(&'ast self, out: &mut Vec<&'ast Expression<'ast>>) {
-        match self {
-            Self::MutableVariable(variable) => out.push(&variable.value),
-            Self::ImmutableVariable(variable) => out.push(&variable.value),
-            Self::Function(function) => {
-                if let Some(params) = &function.signature.parameters {
-                    for param in params.iter() {
-                        if let Some(value) = &param.value {
-                            out.push(value);
-                        }
-                    }
-                }
-                for local in function.block.iter() {
-                    local.spill_expressions(out);
-                }
-            }
-            Self::NativeFunction(function) => {
-                if let Some(params) = &function.signature.parameters {
-                    for param in params.iter() {
-                        if let Some(value) = &param.value {
-                            out.push(value);
-                        }
-                    }
-                }
-            }
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    mod identifier {
+        use super::*;
+        use crate::ast::tree::block::Block;
+        use crate::ast::tree::expression::Expression;
+        use crate::ast::tree::function_signature::FunctionSignature;
+        use crate::ast::tree::literal::Literal;
+
+        #[test]
+        fn mutable_variable() {
+            let smt = GlobalStatement::MutableVariable(MutableVariable {
+                name: Identifier::new("myName"),
+                value: Expression::Literal(Literal::Int(3)),
+                type_hint: None,
+            });
+            assert_eq!(smt.identifier().unwrap().full, "myName");
+        }
+
+        #[test]
+        fn immutable_variable() {
+            let smt = GlobalStatement::ImmutableVariable(ImmutableVariable {
+                name: Identifier::new("myName3"),
+                value: Expression::Literal(Literal::Int(3)),
+                type_hint: None,
+            });
+            assert_eq!(smt.identifier().unwrap().full, "myName3");
+        }
+
+        #[test]
+        fn function() {
+            let smt = GlobalStatement::Function(Function {
+                signature: FunctionSignature {
+                    name: Identifier::new("myFunc"),
+                    parameters: None,
+                    return_type: None,
+                },
+                block: Block::new(),
+            });
+            assert_eq!(smt.identifier().unwrap().full, "myFunc");
+        }
+
+        #[test]
+        fn native_function() {
+            let smt = GlobalStatement::NativeFunction(NativeFunction {
+                signature: FunctionSignature {
+                    name: Identifier::new("ymmmym"),
+                    parameters: None,
+                    return_type: None,
+                },
+            });
+            assert_eq!(smt.identifier().unwrap().full, "ymmmym");
         }
     }
 }

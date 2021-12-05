@@ -213,14 +213,14 @@ use std::path::Path;
 
 pub struct AstPopulationPass;
 
-impl<'a> Pass<'a, RulePairs<'a>, CompilationUnit<'a>> for AstPopulationPass {
+impl<'ast> Pass<'ast, RulePairs<'ast>, CompilationUnit<'ast>> for AstPopulationPass {
     const NAME: &'static str = "AST Population";
 
     fn execute(
-        input: RulePairs<'a>,
+        input: RulePairs<'ast>,
         _verbose: bool,
-        file: &'a str,
-    ) -> Result<CompilationUnit<'a>, ErrorList> {
+        file: &'ast str,
+    ) -> Result<CompilationUnit<'ast>, ErrorList> {
         let mut result = CompilationUnit::populate(input);
         if result.module == Module::default() {
             file_name_to_module(file, &mut result.module)?;
@@ -231,13 +231,10 @@ impl<'a> Pass<'a, RulePairs<'a>, CompilationUnit<'a>> for AstPopulationPass {
 
 fn file_name_to_module<'a>(file: &'a str, out: &mut Module<'a>) -> Result<(), ErrorList> {
     let err = || -> Result<(), ErrorList> {
-        Err(Error::Semantic(
-            format!(
-                "Invalid file name: {}! File names must follow module name rules!",
-                file
-            ),
-            file.to_string(),
-        )
+        Err(Error::Semantic(format!(
+            "Invalid file name: {}! File names must follow module name rules!",
+            file
+        ))
         .into())
     };
     let path = Path::new(file);
