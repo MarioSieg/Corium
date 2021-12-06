@@ -204,13 +204,22 @@
 //    limitations under the License.
 
 use crate::ast::tree::compilation_unit::CompilationUnit;
+use crate::ast::tree::global_statement::GlobalStatement;
 use crate::error::list::ErrorList;
+use crate::semantic::local::LocalSymbolTable;
 
 pub mod global;
+pub mod local;
 pub mod table;
 
 pub fn analyze(input: &CompilationUnit) -> Result<(), ErrorList> {
     let mut errors = ErrorList::new();
     let _global = global::build_table(&mut errors, &input.statements);
+    let mut _local = LocalSymbolTable::new();
+    for statement in &input.statements {
+        if let GlobalStatement::Function(function) = statement {
+            local::build_table(&mut errors, function, &mut _local);
+        }
+    }
     Ok(())
 }

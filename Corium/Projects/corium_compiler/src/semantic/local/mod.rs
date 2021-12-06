@@ -204,119 +204,49 @@
 //    limitations under the License.
 
 use crate::ast::tree::function::Function;
-use crate::ast::tree::global_statement::GlobalStatement;
-use crate::ast::tree::immutable_variable::ImmutableVariable;
-use crate::ast::tree::mutable_variable::MutableVariable;
-use crate::ast::tree::native_function::NativeFunction;
+use crate::ast::tree::Statement;
+use crate::error::list::ErrorList;
+use crate::error::Error;
+use crate::semantic::local::bucket::Bucket;
 
-#[derive(Debug, Clone)]
-pub enum Bucket<'ast> {
-    Function(&'ast Function<'ast>),
-    NativeFunction(&'ast NativeFunction<'ast>),
-    MutableVariable(&'ast MutableVariable<'ast>),
-    ImmutableVariable(&'ast ImmutableVariable<'ast>),
-}
+pub mod bucket;
 
-impl<'ast> From<&'ast Function<'ast>> for Bucket<'ast> {
-    fn from(x: &'ast Function<'ast>) -> Self {
-        Self::Function(x)
-    }
-}
+pub type LocalSymbolTable<'ast> = super::table::SymbolTable<'ast, bucket::Bucket<'ast>>;
 
-impl<'ast> From<&'ast NativeFunction<'ast>> for Bucket<'ast> {
-    fn from(x: &'ast NativeFunction<'ast>) -> Self {
-        Self::NativeFunction(x)
-    }
-}
-
-impl<'ast> From<&'ast MutableVariable<'ast>> for Bucket<'ast> {
-    fn from(x: &'ast MutableVariable<'ast>) -> Self {
-        Self::MutableVariable(x)
-    }
-}
-
-impl<'ast> From<&'ast ImmutableVariable<'ast>> for Bucket<'ast> {
-    fn from(x: &'ast ImmutableVariable<'ast>) -> Self {
-        Self::ImmutableVariable(x)
-    }
-}
-
-impl<'ast> From<&'ast GlobalStatement<'ast>> for Option<Bucket<'ast>> {
-    fn from(x: &'ast GlobalStatement<'ast>) -> Self {
-        Some(match x {
-            GlobalStatement::Function(function) => Bucket::from(function),
-            GlobalStatement::NativeFunction(native_function) => Bucket::from(native_function),
-            GlobalStatement::MutableVariable(mutable_variable) => Bucket::from(mutable_variable),
-            GlobalStatement::ImmutableVariable(immutable_variable) => {
-                Bucket::from(immutable_variable)
+pub fn build_table<'ast>(
+    errors: &mut ErrorList,
+    input: &'ast Function<'ast>,
+    output: &mut LocalSymbolTable<'ast>,
+) {
+    output.clear();
+    if let Some(parameters) = &input.signature.parameters {
+        output.reserve(parameters.len() + input.block.len());
+        for parameter in parameters.iter() {
+            let key = &parameter.name;
+            if !output.contains_key(key) {
+                output.insert(key, Bucket::Parameter(parameter));
+            } else {
+                errors.push(Error::Semantic(format!(
+                    "Symbol {} already defined before!",
+                    key
+                ))); // if symbol is already defined, add error
             }
-        })
+        }
+    } else {
+        output.reserve(input.block.len());
     }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    mod from {
-        use super::*;
-        use crate::ast::tree::block::Block;
-        use crate::ast::tree::expression::Expression;
-        use crate::ast::tree::function_signature::FunctionSignature;
-        use crate::ast::tree::identifier::Identifier;
-        use crate::ast::tree::literal::Literal;
-
-        #[test]
-        fn mutable_variable() {
-            let smt = MutableVariable {
-                name: Identifier::new("myName"),
-                value: Expression::Literal(Literal::Int(3)),
-                type_hint: None,
-            };
-            let _bucket = Bucket::from(&smt);
-            let _var = Bucket::MutableVariable(&smt);
-            assert!(matches!(_bucket, _var));
-        }
-
-        #[test]
-        fn immutable_variable() {
-            let smt = ImmutableVariable {
-                name: Identifier::new("myName3"),
-                value: Expression::Literal(Literal::Int(3)),
-                type_hint: None,
-            };
-            let _bucket = Bucket::from(&smt);
-            let _var = Bucket::ImmutableVariable(&smt);
-            assert!(matches!(_bucket, _var));
-        }
-
-        #[test]
-        fn function() {
-            let smt = Function {
-                signature: FunctionSignature {
-                    name: Identifier::new("myFunc"),
-                    parameters: None,
-                    return_type: None,
-                },
-                block: Block::new(),
-            };
-            let _bucket = Bucket::from(&smt);
-            let _var = Bucket::Function(&smt);
-            assert!(matches!(_bucket, _var));
-        }
-
-        #[test]
-        fn native_function() {
-            let smt = NativeFunction {
-                signature: FunctionSignature {
-                    name: Identifier::new("ymmmym"),
-                    parameters: None,
-                    return_type: None,
-                },
-            };
-            let _bucket = Bucket::from(&smt);
-            let _var = Bucket::NativeFunction(&smt);
-            assert!(matches!(_bucket, _var));
+    for statement in input.block.iter() {
+        let key = statement.identifier().unwrap();
+        if !output.contains_key(key) {
+            // if symbol is not defined, insert
+            if let Some(bucket) = Option::<bucket::Bucket>::from(statement) {
+                output.insert(key, bucket);
+            }
+        } else {
+            errors.push(Error::Semantic(format!(
+                "Symbol {} already defined before!",
+                key
+            ))); // if symbol is already defined, add error
         }
     }
 }

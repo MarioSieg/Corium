@@ -203,30 +203,16 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::tree::function::Function;
-use crate::ast::tree::global_statement::GlobalStatement;
 use crate::ast::tree::immutable_variable::ImmutableVariable;
+use crate::ast::tree::local_statement::LocalStatement;
 use crate::ast::tree::mutable_variable::MutableVariable;
-use crate::ast::tree::native_function::NativeFunction;
+use crate::ast::tree::parameter::Parameter;
 
 #[derive(Debug, Clone)]
 pub enum Bucket<'ast> {
-    Function(&'ast Function<'ast>),
-    NativeFunction(&'ast NativeFunction<'ast>),
     MutableVariable(&'ast MutableVariable<'ast>),
     ImmutableVariable(&'ast ImmutableVariable<'ast>),
-}
-
-impl<'ast> From<&'ast Function<'ast>> for Bucket<'ast> {
-    fn from(x: &'ast Function<'ast>) -> Self {
-        Self::Function(x)
-    }
-}
-
-impl<'ast> From<&'ast NativeFunction<'ast>> for Bucket<'ast> {
-    fn from(x: &'ast NativeFunction<'ast>) -> Self {
-        Self::NativeFunction(x)
-    }
+    Parameter(&'ast Parameter<'ast>),
 }
 
 impl<'ast> From<&'ast MutableVariable<'ast>> for Bucket<'ast> {
@@ -241,82 +227,22 @@ impl<'ast> From<&'ast ImmutableVariable<'ast>> for Bucket<'ast> {
     }
 }
 
-impl<'ast> From<&'ast GlobalStatement<'ast>> for Option<Bucket<'ast>> {
-    fn from(x: &'ast GlobalStatement<'ast>) -> Self {
-        Some(match x {
-            GlobalStatement::Function(function) => Bucket::from(function),
-            GlobalStatement::NativeFunction(native_function) => Bucket::from(native_function),
-            GlobalStatement::MutableVariable(mutable_variable) => Bucket::from(mutable_variable),
-            GlobalStatement::ImmutableVariable(immutable_variable) => {
-                Bucket::from(immutable_variable)
-            }
-        })
+impl<'ast> From<&'ast Parameter<'ast>> for Bucket<'ast> {
+    fn from(x: &'ast Parameter<'ast>) -> Self {
+        Self::Parameter(x)
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    mod from {
-        use super::*;
-        use crate::ast::tree::block::Block;
-        use crate::ast::tree::expression::Expression;
-        use crate::ast::tree::function_signature::FunctionSignature;
-        use crate::ast::tree::identifier::Identifier;
-        use crate::ast::tree::literal::Literal;
-
-        #[test]
-        fn mutable_variable() {
-            let smt = MutableVariable {
-                name: Identifier::new("myName"),
-                value: Expression::Literal(Literal::Int(3)),
-                type_hint: None,
-            };
-            let _bucket = Bucket::from(&smt);
-            let _var = Bucket::MutableVariable(&smt);
-            assert!(matches!(_bucket, _var));
-        }
-
-        #[test]
-        fn immutable_variable() {
-            let smt = ImmutableVariable {
-                name: Identifier::new("myName3"),
-                value: Expression::Literal(Literal::Int(3)),
-                type_hint: None,
-            };
-            let _bucket = Bucket::from(&smt);
-            let _var = Bucket::ImmutableVariable(&smt);
-            assert!(matches!(_bucket, _var));
-        }
-
-        #[test]
-        fn function() {
-            let smt = Function {
-                signature: FunctionSignature {
-                    name: Identifier::new("myFunc"),
-                    parameters: None,
-                    return_type: None,
-                },
-                block: Block::new(),
-            };
-            let _bucket = Bucket::from(&smt);
-            let _var = Bucket::Function(&smt);
-            assert!(matches!(_bucket, _var));
-        }
-
-        #[test]
-        fn native_function() {
-            let smt = NativeFunction {
-                signature: FunctionSignature {
-                    name: Identifier::new("ymmmym"),
-                    parameters: None,
-                    return_type: None,
-                },
-            };
-            let _bucket = Bucket::from(&smt);
-            let _var = Bucket::NativeFunction(&smt);
-            assert!(matches!(_bucket, _var));
+impl<'ast> From<&'ast LocalStatement<'ast>> for Option<Bucket<'ast>> {
+    fn from(x: &'ast LocalStatement<'ast>) -> Self {
+        match x {
+            LocalStatement::MutableVariable(mutable_variable) => {
+                Some(Bucket::from(mutable_variable))
+            }
+            LocalStatement::ImmutableVariable(immutable_variable) => {
+                Some(Bucket::from(immutable_variable))
+            }
+            _ => None,
         }
     }
 }
