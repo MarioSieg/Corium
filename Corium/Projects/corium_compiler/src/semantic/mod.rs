@@ -214,11 +214,11 @@ pub mod table;
 
 pub fn analyze(input: &CompilationUnit) -> Result<(), ErrorList> {
     let mut errors = ErrorList::new();
-    let _global = global::build_table(&mut errors, &input.statements);
+    let global = global::build_table(&mut errors, &input.statements);
     let mut _local = LocalSymbolTable::new();
     for statement in &input.statements {
         if let GlobalStatement::Function(function) = statement {
-            local::build_table(&mut errors, function, &mut _local);
+            local::build_table(&mut errors, function, &global, &mut _local);
         }
     }
     Ok(())

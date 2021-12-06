@@ -207,16 +207,17 @@ use crate::ast::tree::function::Function;
 use crate::ast::tree::Statement;
 use crate::error::list::ErrorList;
 use crate::error::Error;
+use crate::semantic::global::GlobalSymbolTable;
 use crate::semantic::local::bucket::Bucket;
 
 pub mod bucket;
 
 pub type LocalSymbolTable<'ast> = super::table::SymbolTable<'ast, bucket::Bucket<'ast>>;
 
-
 pub fn build_table<'ast>(
     errors: &mut ErrorList,
     input: &'ast Function<'ast>,
+    global: &GlobalSymbolTable<'ast>,
     output: &mut LocalSymbolTable<'ast>,
 ) {
     output.clear();
@@ -224,7 +225,7 @@ pub fn build_table<'ast>(
         output.reserve(parameters.len() + input.block.len());
         for parameter in parameters.iter() {
             let key = &parameter.name;
-            if !output.contains_key(key) {
+            if !output.contains_key(key) && !global.contains_key(key) {
                 output.insert(key, Bucket::Parameter(parameter));
             } else {
                 errors.push(Error::Semantic(format!(
@@ -237,17 +238,336 @@ pub fn build_table<'ast>(
         output.reserve(input.block.len());
     }
     for statement in input.block.iter() {
-        let key = statement.identifier().unwrap();
-        if !output.contains_key(key) {
-            // if symbol is not defined, insert
-            if let Some(bucket) = Option::<bucket::Bucket>::from(statement) {
-                output.insert(key, bucket);
+        if let Some(key) = statement.identifier() {
+            if !output.contains_key(key) && !global.contains_key(key) {
+                // if symbol is not defined, insert
+                if let Some(bucket) = Option::<bucket::Bucket>::from(statement) {
+                    output.insert(key, bucket);
+                }
+            } else {
+                errors.push(Error::Semantic(format!(
+                    "Symbol {} already defined before!",
+                    key
+                ))); // if symbol is already defined, add error
             }
-        } else {
-            errors.push(Error::Semantic(format!(
-                "Symbol {} already defined before!",
-                key
-            ))); // if symbol is already defined, add error
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::ast::tree::block::Block;
+    use crate::ast::tree::expression::Expression;
+    use crate::ast::tree::function::Function;
+    use crate::ast::tree::function_signature::FunctionSignature;
+    use crate::ast::tree::identifier::Identifier;
+    use crate::ast::tree::immutable_variable::ImmutableVariable;
+    use crate::ast::tree::literal::Literal;
+    use crate::ast::tree::local_statement::LocalStatement;
+    use crate::ast::tree::mutable_variable::MutableVariable;
+    use crate::ast::tree::parameter::Parameter;
+    use crate::ast::tree::parameter_list::ParameterList;
+    use crate::error::list::ErrorList;
+
+    #[test]
+    fn build_table_valid() {
+        let mutable_variable = LocalStatement::MutableVariable(MutableVariable {
+            name: Identifier::new("x"),
+            value: Expression::Literal(Literal::Int(3)),
+            type_hint: None,
+        });
+        let immutable_variable = LocalStatement::ImmutableVariable(ImmutableVariable {
+            name: Identifier::new("y"),
+            value: Expression::Literal(Literal::Int(3)),
+            type_hint: None,
+        });
+        let host = Function {
+            signature: FunctionSignature {
+                name: Identifier::new("test"),
+                parameters: Some(ParameterList(vec![Parameter {
+                    name: Identifier::new("noel"),
+                    type_hint: Identifier::new("int"),
+                    value: None,
+                }])),
+                return_type: None,
+            },
+            block: Block(vec![mutable_variable, immutable_variable]),
+        };
+        let mut errors = ErrorList::new();
+        let global = GlobalSymbolTable::new();
+        let mut table = LocalSymbolTable::new();
+        build_table(&mut errors, &host, &global, &mut table);
+        assert!(errors.is_empty());
+        assert_eq!(table.len(), 3);
+        assert!(table.contains_key(&Identifier::new("x")));
+        assert!(table.contains_key(&Identifier::new("y")));
+        assert!(table.contains_key(&Identifier::new("noel")));
+        match table.get(&Identifier::new("x")).unwrap() {
+            Bucket::MutableVariable(mutable_variable) => {
+                assert_eq!(mutable_variable.name, Identifier::new("x"));
+            }
+            _ => panic!(),
+        }
+        match table.get(&Identifier::new("noel")).unwrap() {
+            Bucket::Parameter(parameter) => {
+                assert_eq!(parameter.name, Identifier::new("noel"));
+            }
+            _ => panic!(),
+        }
+    }
+
+    #[test]
+    fn build_table_invalid_already_defined_in_local() {
+        let mutable_variable = LocalStatement::MutableVariable(MutableVariable {
+            name: Identifier::new("x"),
+            value: Expression::Literal(Literal::Int(3)),
+            type_hint: None,
+        });
+        let immutable_variable = LocalStatement::ImmutableVariable(ImmutableVariable {
+            name: Identifier::new("x"),
+            value: Expression::Literal(Literal::Int(3)),
+            type_hint: None,
+        });
+        let host = Function {
+            signature: FunctionSignature {
+                name: Identifier::new("test"),
+                parameters: Some(ParameterList(vec![Parameter {
+                    name: Identifier::new("noel"),
+                    type_hint: Identifier::new("int"),
+                    value: None,
+                }])),
+                return_type: None,
+            },
+            block: Block(vec![mutable_variable, immutable_variable]),
+        };
+        let mut errors = ErrorList::new();
+        let global = GlobalSymbolTable::new();
+        let mut table = LocalSymbolTable::new();
+        build_table(&mut errors, &host, &global, &mut table);
+        assert_eq!(errors.len(), 1);
+        assert_eq!(table.len(), 2);
+        assert!(table.contains_key(&Identifier::new("x")));
+        assert!(table.contains_key(&Identifier::new("noel")));
+        match table.get(&Identifier::new("x")).unwrap() {
+            Bucket::MutableVariable(mutable_variable) => {
+                assert_eq!(mutable_variable.name, Identifier::new("x"));
+            }
+            _ => panic!(),
+        }
+        match table.get(&Identifier::new("noel")).unwrap() {
+            Bucket::Parameter(parameter) => {
+                assert_eq!(parameter.name, Identifier::new("noel"));
+            }
+            _ => panic!(),
+        }
+    }
+
+    #[test]
+    fn build_table_invalid_already_defined_as_param() {
+        let mutable_variable = LocalStatement::MutableVariable(MutableVariable {
+            name: Identifier::new("x"),
+            value: Expression::Literal(Literal::Int(3)),
+            type_hint: None,
+        });
+        let immutable_variable = LocalStatement::ImmutableVariable(ImmutableVariable {
+            name: Identifier::new("ymm"),
+            value: Expression::Literal(Literal::Int(3)),
+            type_hint: None,
+        });
+        let host = Function {
+            signature: FunctionSignature {
+                name: Identifier::new("test"),
+                parameters: Some(ParameterList(vec![Parameter {
+                    name: Identifier::new("ymm"),
+                    type_hint: Identifier::new("int"),
+                    value: None,
+                }])),
+                return_type: None,
+            },
+            block: Block(vec![mutable_variable, immutable_variable]),
+        };
+        let mut errors = ErrorList::new();
+        let global = GlobalSymbolTable::new();
+        let mut table = LocalSymbolTable::new();
+        build_table(&mut errors, &host, &global, &mut table);
+        assert_eq!(errors.len(), 1);
+        assert_eq!(table.len(), 2);
+        assert!(table.contains_key(&Identifier::new("x")));
+        assert!(table.contains_key(&Identifier::new("ymm")));
+        match table.get(&Identifier::new("x")).unwrap() {
+            Bucket::MutableVariable(mutable_variable) => {
+                assert_eq!(mutable_variable.name, Identifier::new("x"));
+            }
+            _ => panic!(),
+        }
+        match table.get(&Identifier::new("ymm")).unwrap() {
+            Bucket::Parameter(parameter) => {
+                assert_eq!(parameter.name, Identifier::new("ymm"));
+            }
+            _ => panic!(),
+        }
+    }
+
+    #[test]
+    fn build_table_invalid_already_defined_in_global() {
+        let mutable_variable = LocalStatement::MutableVariable(MutableVariable {
+            name: Identifier::new("x"),
+            value: Expression::Literal(Literal::Int(3)),
+            type_hint: None,
+        });
+        let immutable_variable = LocalStatement::ImmutableVariable(ImmutableVariable {
+            name: Identifier::new("ymm"),
+            value: Expression::Literal(Literal::Int(3)),
+            type_hint: None,
+        });
+        let host = Function {
+            signature: FunctionSignature {
+                name: Identifier::new("test"),
+                parameters: Some(ParameterList(vec![Parameter {
+                    name: Identifier::new("zmm"),
+                    type_hint: Identifier::new("int"),
+                    value: None,
+                }])),
+                return_type: None,
+            },
+            block: Block(vec![mutable_variable, immutable_variable]),
+        };
+        let mut errors = ErrorList::new();
+        let mut global = GlobalSymbolTable::new();
+        let ident = Identifier::new("ymm");
+        let var = MutableVariable {
+            name: Identifier::new("ymm"),
+            value: Expression::Literal(Literal::Int(3)),
+            type_hint: None,
+        };
+        global.insert(
+            &ident,
+            crate::semantic::global::bucket::Bucket::MutableVariable(&var),
+        );
+        let mut table = LocalSymbolTable::new();
+        build_table(&mut errors, &host, &global, &mut table);
+        assert_eq!(errors.len(), 1);
+        assert_eq!(table.len(), 2);
+        assert!(table.contains_key(&Identifier::new("x")));
+        assert!(global.contains_key(&Identifier::new("ymm")));
+        assert!(!table.contains_key(&Identifier::new("ymm")));
+        assert!(table.contains_key(&Identifier::new("zmm")));
+        match table.get(&Identifier::new("x")).unwrap() {
+            Bucket::MutableVariable(mutable_variable) => {
+                assert_eq!(mutable_variable.name, Identifier::new("x"));
+            }
+            _ => panic!(),
+        }
+        match table.get(&Identifier::new("zmm")).unwrap() {
+            Bucket::Parameter(parameter) => {
+                assert_eq!(parameter.name, Identifier::new("zmm"));
+            }
+            _ => panic!(),
+        }
+    }
+
+    #[test]
+    fn build_table_invalid_param_already_defined_in_global() {
+        let mutable_variable = LocalStatement::MutableVariable(MutableVariable {
+            name: Identifier::new("x"),
+            value: Expression::Literal(Literal::Int(3)),
+            type_hint: None,
+        });
+        let immutable_variable = LocalStatement::ImmutableVariable(ImmutableVariable {
+            name: Identifier::new("y"),
+            value: Expression::Literal(Literal::Int(3)),
+            type_hint: None,
+        });
+        let host = Function {
+            signature: FunctionSignature {
+                name: Identifier::new("test"),
+                parameters: Some(ParameterList(vec![Parameter {
+                    name: Identifier::new("ymm"),
+                    type_hint: Identifier::new("int"),
+                    value: None,
+                }])),
+                return_type: None,
+            },
+            block: Block(vec![mutable_variable, immutable_variable]),
+        };
+        let mut errors = ErrorList::new();
+        let mut global = GlobalSymbolTable::new();
+        let ident = Identifier::new("ymm");
+        let var = MutableVariable {
+            name: Identifier::new("ymm"),
+            value: Expression::Literal(Literal::Int(3)),
+            type_hint: None,
+        };
+        global.insert(
+            &ident,
+            crate::semantic::global::bucket::Bucket::MutableVariable(&var),
+        );
+        let mut table = LocalSymbolTable::new();
+        build_table(&mut errors, &host, &global, &mut table);
+        assert_eq!(errors.len(), 1);
+        assert_eq!(table.len(), 2);
+        assert!(table.contains_key(&Identifier::new("x")));
+        assert!(global.contains_key(&Identifier::new("ymm")));
+        assert!(!table.contains_key(&Identifier::new("ymm")));
+        assert!(table.contains_key(&Identifier::new("y")));
+        match table.get(&Identifier::new("x")).unwrap() {
+            Bucket::MutableVariable(mutable_variable) => {
+                assert_eq!(mutable_variable.name, Identifier::new("x"));
+            }
+            _ => panic!(),
+        }
+        match table.get(&Identifier::new("y")).unwrap() {
+            Bucket::ImmutableVariable(mutable_variable) => {
+                assert_eq!(mutable_variable.name, Identifier::new("y"));
+            }
+            _ => panic!(),
+        }
+    }
+
+    #[test]
+    fn build_table_invalid_already_defined_in_param() {
+        let mutable_variable = LocalStatement::MutableVariable(MutableVariable {
+            name: Identifier::new("x"),
+            value: Expression::Literal(Literal::Int(3)),
+            type_hint: None,
+        });
+        let immutable_variable = LocalStatement::ImmutableVariable(ImmutableVariable {
+            name: Identifier::new("ymm"),
+            value: Expression::Literal(Literal::Int(3)),
+            type_hint: None,
+        });
+        let host = Function {
+            signature: FunctionSignature {
+                name: Identifier::new("test"),
+                parameters: Some(ParameterList(vec![Parameter {
+                    name: Identifier::new("ymm"),
+                    type_hint: Identifier::new("int"),
+                    value: None,
+                }])),
+                return_type: None,
+            },
+            block: Block(vec![mutable_variable, immutable_variable]),
+        };
+        let mut errors = ErrorList::new();
+        let global = GlobalSymbolTable::new();
+        let mut table = LocalSymbolTable::new();
+        build_table(&mut errors, &host, &global, &mut table);
+        assert_eq!(errors.len(), 1);
+        assert_eq!(table.len(), 2);
+        assert!(table.contains_key(&Identifier::new("x")));
+        assert!(table.contains_key(&Identifier::new("ymm")));
+        match table.get(&Identifier::new("x")).unwrap() {
+            Bucket::MutableVariable(mutable_variable) => {
+                assert_eq!(mutable_variable.name, Identifier::new("x"));
+            }
+            _ => panic!(),
+        }
+        match table.get(&Identifier::new("ymm")).unwrap() {
+            Bucket::Parameter(parameter) => {
+                assert_eq!(parameter.name, Identifier::new("ymm"));
+            }
+            _ => panic!(),
         }
     }
 }

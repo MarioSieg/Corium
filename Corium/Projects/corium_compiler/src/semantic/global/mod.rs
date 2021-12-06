@@ -219,17 +219,18 @@ pub fn build_table<'ast>(
     let mut result = GlobalSymbolTable::new();
     result.reserve(input.len());
     for statement in input {
-        let key = statement.identifier().unwrap();
-        if !result.contains_key(key) {
-            // if symbol is not defined, insert
-            if let Some(bucket) = Option::<bucket::Bucket>::from(statement) {
-                result.insert(key, bucket);
+        if let Some(key) = statement.identifier() {
+            if !result.contains_key(key) {
+                // if symbol is not defined, insert
+                if let Some(bucket) = Option::<bucket::Bucket>::from(statement) {
+                    result.insert(key, bucket);
+                }
+            } else {
+                errors.push(Error::Semantic(format!(
+                    "Symbol {} already defined before!",
+                    key
+                ))); // if symbol is already defined, add error
             }
-        } else {
-            errors.push(Error::Semantic(format!(
-                "Symbol {} already defined before!",
-                key
-            ))); // if symbol is already defined, add error
         }
     }
     result
