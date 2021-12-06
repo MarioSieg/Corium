@@ -316,6 +316,12 @@ mod tests {
         let items: &[GlobalStatement] = &[mutable_variable, immutable_variable];
         let mut errors = ErrorList::new();
         let table = build_table(&mut errors, items);
+        assert_eq!(table.len(), 1);
+        assert!(table.contains_key(&Identifier::new("x")));
+        match table.get(&Identifier::new("x")).unwrap() {
+            Bucket::MutableVariable(_) => (),
+            _ => panic!(),
+        }
         assert_eq!(errors.len(), 1);
         assert!(matches!(errors[0], Error::Semantic(_)));
     }
