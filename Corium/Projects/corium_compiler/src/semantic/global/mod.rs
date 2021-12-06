@@ -231,3 +231,92 @@ pub fn build_table<'ast>(
     }
     result
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::ast::tree::block::Block;
+    use crate::ast::tree::expression::Expression;
+    use crate::ast::tree::function::Function;
+    use crate::ast::tree::function_signature::FunctionSignature;
+    use crate::ast::tree::identifier::Identifier;
+    use crate::ast::tree::immutable_variable::ImmutableVariable;
+    use crate::ast::tree::literal::Literal;
+    use crate::ast::tree::mutable_variable::MutableVariable;
+    use crate::ast::tree::native_function::NativeFunction;
+    use crate::semantic::global::bucket::Bucket;
+
+    #[test]
+    fn build_table_valid() {
+        let mutable_variable = GlobalStatement::MutableVariable(MutableVariable {
+            name: Identifier::new("x"),
+            value: Expression::Literal(Literal::Int(3)),
+            type_hint: None,
+        });
+        let immutable_variable = GlobalStatement::ImmutableVariable(ImmutableVariable {
+            name: Identifier::new("y"),
+            value: Expression::Literal(Literal::Int(3)),
+            type_hint: None,
+        });
+        let function = GlobalStatement::Function(Function {
+            signature: FunctionSignature {
+                name: Identifier::new("fx"),
+                parameters: None,
+                return_type: None,
+            },
+            block: Block::new(),
+        });
+        let native_function = GlobalStatement::NativeFunction(NativeFunction {
+            signature: FunctionSignature {
+                name: Identifier::new("fy"),
+                parameters: None,
+                return_type: None,
+            },
+        });
+        let items: &[GlobalStatement] = &[
+            mutable_variable,
+            immutable_variable,
+            function,
+            native_function,
+        ];
+        let mut errors = ErrorList::new();
+        let table = build_table(&mut errors, items);
+        assert!(errors.is_empty());
+        assert_eq!(table.len(), 4);
+        assert!(table.contains_key(&Identifier::new("x")));
+        assert!(table.contains_key(&Identifier::new("y")));
+        assert!(table.contains_key(&Identifier::new("fx")));
+        assert!(table.contains_key(&Identifier::new("fy")));
+        match table.get(&Identifier::new("x")).unwrap() {
+            Bucket::MutableVariable(mutable_variable) => {
+                assert_eq!(mutable_variable.name, Identifier::new("x"));
+            }
+            _ => panic!(),
+        }
+        match table.get(&Identifier::new("fx")).unwrap() {
+            Bucket::Function(function) => {
+                assert_eq!(function.signature.name, Identifier::new("fx"));
+            }
+            _ => panic!(),
+        }
+    }
+
+    #[test]
+    fn build_table_invalid() {
+        let mutable_variable = GlobalStatement::MutableVariable(MutableVariable {
+            name: Identifier::new("x"),
+            value: Expression::Literal(Literal::Int(3)),
+            type_hint: None,
+        });
+        let immutable_variable = GlobalStatement::ImmutableVariable(ImmutableVariable {
+            name: Identifier::new("x"),
+            value: Expression::Literal(Literal::Int(3)),
+            type_hint: None,
+        });
+        let items: &[GlobalStatement] = &[mutable_variable, immutable_variable];
+        let mut errors = ErrorList::new();
+        let table = build_table(&mut errors, items);
+        assert_eq!(errors.len(), 1);
+        assert!(matches!(errors[0], Error::Semantic(_)));
+    }
+}

@@ -211,6 +211,6 @@ pub mod table;
 
 pub fn analyze(input: &CompilationUnit) -> Result<(), ErrorList> {
     let mut errors = ErrorList::new();
-    let global = global::build_table(&mut errors, &input.statements);
+    let _global = global::build_table(&mut errors, &input.statements);
     Ok(())
 }

@@ -223,7 +223,7 @@ pub type RulePairs<'a> = Pairs<'a, Rule>;
 #[grammar = "parser/grammar/corium.pest"]
 pub struct CoriumParser;
 
-pub fn parse_source<'a>(src: &'a str) -> Result<RulePairs<'a>, ErrorList> {
+pub fn parse_source(src: &str) -> Result<RulePairs, ErrorList> {
     match CoriumParser::parse(Rule::CompilationUnit, src) {
         Ok(mut unit) => Ok(unit.next().unwrap().into_inner()),
         Err(err) => Err(Error::Syntax(format!("{}", err)).into()),
