@@ -213,6 +213,7 @@ pub mod bucket;
 
 pub type LocalSymbolTable<'ast> = super::table::SymbolTable<'ast, bucket::Bucket<'ast>>;
 
+
 pub fn build_table<'ast>(
     errors: &mut ErrorList,
     input: &'ast Function<'ast>,
