@@ -211,7 +211,7 @@ use crate::semantic::local::LocalSymbolTable;
 
 pub mod global;
 pub mod local;
-pub mod stage;
+pub mod core;
 pub mod table;
 
 pub fn analyze(input: &CompilationUnit) -> Result<u64, ErrorList> {
@@ -222,7 +222,7 @@ pub fn analyze(input: &CompilationUnit) -> Result<u64, ErrorList> {
                           _local: &LocalSymbolTable,
                           _function: &Function| {};
 
-    stage::evaluate(input, global_callback, local_callback)
+    core::evaluate(input, global_callback, local_callback)
 }
 
 #[cfg(test)]

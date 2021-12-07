@@ -252,7 +252,7 @@ mod tests {
     use crate::include_corium_source;
     use crate::parser::parse_source;
     use crate::semantic::analyze;
-    use crate::semantic::stage::evaluate;
+    use crate::semantic::core::evaluate;
 
     #[test]
     fn correct() {
