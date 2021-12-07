@@ -456,11 +456,11 @@ impl Instruction {
     ];
 
     #[inline]
-    pub fn immediate_argument_count(&self) -> u8 {
-        Self::IMMEDIATE_TABLE[*self as usize]
+    pub fn arg_count(&self) -> u8 {
+        Self::ARGUMENT_COUNT_TABLE[*self as usize]
     }
 
-    pub const IMMEDIATE_TABLE: [u8; Self::Count_ as usize] = [
+    pub const ARGUMENT_COUNT_TABLE: [u8; Self::Count_ as usize] = [
         /* int      */ 1, /* syscall  */ 1, /* intrin   */ 1, /* call     */ 1,
         /* ret      */ 0, /* mov      */ 2, /* sto      */ 2, /* push     */ 1,
         /* pop      */ 0, /* pop2     */ 0, /* dupl     */ 0, /* dupl2    */ 0,
@@ -634,12 +634,14 @@ pub enum Syscall {
     Count_,
 }
 
-pub type MemoryOffset = u64;
+pub type MemoryOffset = usize;
 
-pub type JumpAddress = u64;
+pub type JumpAddress = usize;
 
-pub type Intrinsic = u64;
+pub type Intrinsic = usize;
 
-pub type TypeID = u64;
+pub type TypeID = usize;
 
-pub type FieldOffset = u64;
+pub type FieldOffset = usize;
+
+pub type LabelID = usize;

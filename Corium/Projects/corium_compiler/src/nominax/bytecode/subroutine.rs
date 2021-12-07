@@ -203,117 +203,127 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::nominax::bytecode::instruction::JumpAddress;
+use crate::nominax::bytecode::instruction::{Instruction, JumpAddress, LabelID};
 use crate::nominax::bytecode::signal::Signal;
 use std::fmt;
-
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
-pub struct Label {
-    pub id: u64,
-    pub address: JumpAddress,
-    pub is_param: bool,
-}
-
-impl fmt::Display for Label {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, ".L{}", self.id)
-    }
-}
-
-#[derive(Clone, Debug, PartialEq)]
-pub enum Entry {
-    Signal(Signal),
-    Label(Label),
-}
-
-impl fmt::Display for Entry {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Self::Signal(signal) => {
-                let sep = if matches!(signal, Signal::Instruction(_)) {
-                    "\n"
-                } else {
-                    ""
-                };
-                write!(f, "{}\t{}", sep, signal)
-            }
-            Self::Label(label) => {
-                if label.is_param {
-                    write!(f, "{}", label)
-                } else {
-                    write!(f, "\n{}:", label)
-                }
-            }
-        }
-    }
-}
 
 /// Represents a stream of byte code signals.
 #[derive(Clone, Debug, PartialEq)]
 pub struct Subroutine {
-    rel_offset: u64,
-    label_accumulator: u64,
-    entries: Vec<Entry>,
+    unique_id: usize,
+    absolute_offset: usize,
+    labels: Vec<LabelID>,
+    signals: Vec<Signal>,
 }
 
 impl Subroutine {
-    #[inline]
-    pub fn new(rel_offset: u64) -> Self {
+    pub fn new(unique_id: usize, absolute_offset: usize) -> Self {
         Self {
-            rel_offset,
-            label_accumulator: 0,
-            entries: Vec::new(),
+            unique_id,
+            absolute_offset,
+            labels: Vec::new(),
+            signals: Vec::new(),
+        }
+    }
+
+    pub fn with_capacity(unique_id: usize, absolute_offset: usize, capacity: usize) -> Self {
+        Self {
+            unique_id,
+            absolute_offset,
+            labels: Vec::with_capacity(capacity),
+            signals: Vec::with_capacity(capacity),
         }
     }
 
     #[inline]
     pub fn len(&self) -> usize {
-        self.entries.len()
+        self.signals.len()
     }
 
     #[inline]
     pub fn capacity(&self) -> usize {
-        self.entries.capacity()
+        self.signals.capacity()
     }
 
     #[inline]
     pub fn is_empty(&self) -> bool {
-        self.entries.is_empty()
-    }
-
-    #[inline]
-    pub fn push(&mut self, entry: Entry) {
-        self.entries.push(entry);
+        self.signals.is_empty()
     }
 
     #[inline]
     pub fn reserve(&mut self, additional: usize) {
-        self.entries.reserve(additional);
+        self.signals.reserve(additional);
     }
 
-    pub fn insert_label(&mut self) -> Label {
-        let id: u64 = self.label_accumulator as _;
-        self.label_accumulator += 1;
-        let address: JumpAddress = self.rel_offset + id;
-        let label = Label {
-            id,
-            address,
-            is_param: false,
-        };
-        self.entries.push(Entry::Label(label));
-        label
+    #[inline]
+    pub fn absolute_offset(&self) -> usize {
+        self.absolute_offset
     }
 
-    pub fn join_label(&mut self, mut label: Label) {
-        label.is_param = true;
-        self.entries.push(Entry::Label(label));
+    #[inline]
+    pub fn relative_ip_needle(&self) -> usize {
+        self.signals.len().saturating_sub(1)
+    }
+
+    #[inline]
+    pub fn label_accumulator(&self) -> LabelID {
+        self.labels.len()
+    }
+
+    #[inline]
+    pub fn labels(&self) -> &Vec<LabelID> {
+        &self.labels
+    }
+
+    /// Create a new label and return the current label position.
+    #[inline]
+    pub fn pin_label(&mut self) -> Signal {
+        let target_address: JumpAddress = self.relative_ip_needle();
+        let id = self.labels.len();
+        self.labels.push(target_address);
+        self.signals.push(Signal::Label(id));
+        Signal::JumpAddress(target_address)
+    }
+
+    pub fn push(&mut self, instruction: Instruction, params: &[Signal]) {
+        assert_eq!(
+            instruction.arg_count() as usize,
+            params.len(),
+            "Invalid amount of instruction argument! Expected {}, got {}!",
+            instruction.arg_count(),
+            params.len()
+        );
+        self.signals.push(Signal::Instruction(instruction));
+        for param in params {
+            self.signals.push(*param);
+        }
     }
 }
 
 impl fmt::Display for Subroutine {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        for entry in &self.entries {
-            write!(f, "{} ", entry)?
+        writeln!(f, ".NOMINAX_V=*")?;
+        write!(f, ".P{}:", self.unique_id)?;
+        for signal in &self.signals {
+            match signal {
+                Signal::Instruction(_) => {
+                    write!(f, "\n\t\t{} ", signal)?;
+                }
+                Signal::Label(address) => {
+                    write!(f, "\n\t.L{}:", address)?;
+                }
+                Signal::JumpAddress(address) => {
+                    let id: LabelID = self
+                        .labels
+                        .iter()
+                        .position(|x| *x == *address)
+                        .expect("Invalid jump address!");
+                    write!(f, ".L{} ", id)?;
+                }
+                _ => {
+                    write!(f, "{} ", signal)?;
+                }
+            }
         }
         Ok(())
     }
@@ -325,26 +335,22 @@ mod tests {
     use crate::nominax::bytecode::instruction::Instruction;
 
     fn generate_random() -> Subroutine {
-        let mut s = Subroutine::new(0);
-        s.push(Entry::Signal(Signal::Instruction(Instruction::INT)));
-        s.push(Entry::Signal(Signal::Int(5)));
+        let mut routine = Subroutine::new(0, 0);
+        let mut l = routine.pin_label();
+        routine.push(Instruction::NOP, &[]);
         for i in 0..16 {
-            let mut l = None;
             if i % 5 == 0 {
-                l = Some(s.insert_label());
+                l = routine.pin_label();
             }
-            s.push(Entry::Signal(Signal::Instruction(Instruction::PUSH)));
-            if i % 5 == 0 {
-                s.join_label(l.unwrap());
-            } else if i % 2 == 0 {
-                s.push(Entry::Signal(Signal::Int(i << i)));
+            let arg = if i % 2 == 0 {
+                Signal::Int(i << i)
             } else {
-                s.push(Entry::Signal(Signal::Float(
-                    (i << i ^ 0xFEFEFE) as f64 + (i as f64 * 0.25),
-                )));
+                Signal::Float((i << i ^ 0xFEFEFE) as f64 + (i as f64 * 0.25))
             };
+            routine.push(Instruction::PUSH, &[arg]);
+            routine.push(Instruction::JMP, &[l]);
         }
-        s
+        routine
     }
 
     #[test]
