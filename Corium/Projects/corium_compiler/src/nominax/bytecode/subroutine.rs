@@ -302,7 +302,6 @@ impl Subroutine {
 
 impl fmt::Display for Subroutine {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        writeln!(f, ".NOMINAX_V=*")?;
         write!(f, ".P{}:", self.unique_id)?;
         for signal in &self.signals {
             match signal {

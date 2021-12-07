@@ -213,6 +213,11 @@ const NOMINAX_EXE_NAME: &str = if cfg!(windows) {
     "Nominax"
 };
 
+const NOMINAX_MAGIC_CHECKSUM: &str =
+    "2061:8A6C:80BD:5CBC:A2FD:DAEA:00F6:BF9C:BD6C:F278:047F:BABE:AE19:9600:22A7:02D4";
+
+const NOMINAX_VERSION: &str = "*";
+
 pub fn exec_nominax(args: &[&str]) {
     let mut nominax = Command::new(NOMINAX_EXE_NAME);
     for arg in args {
