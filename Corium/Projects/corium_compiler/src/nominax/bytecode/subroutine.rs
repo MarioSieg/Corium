@@ -318,10 +318,10 @@ impl fmt::Display for Subroutine {
                         .iter()
                         .position(|x| *x == *address)
                         .expect("Invalid jump address!");
-                    write!(f, ".L{} ", id)?;
+                    write!(f, ".L{}; ", id)?;
                 }
                 _ => {
-                    write!(f, "{} ", signal)?;
+                    write!(f, "{}; ", signal)?;
                 }
             }
         }
@@ -332,23 +332,47 @@ impl fmt::Display for Subroutine {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::nominax::bytecode::instruction::Instruction;
+    use crate::ast::tree::builtin_types::{Float, Int};
+    use crate::nominax::bytecode::instruction::{
+        FieldOffset, Intrinsic, MemoryOffset, Opcode, Syscall, TypeID,
+    };
+    use rand::prelude::*;
 
     fn generate_random() -> Subroutine {
         let mut routine = Subroutine::new(0, 0);
-        let mut l = routine.pin_label();
-        routine.push(Instruction::NOP, &[]);
-        for i in 0..16 {
-            if i % 5 == 0 {
-                l = routine.pin_label();
+        let mut label = routine.pin_label();
+        for _ in 0..=20 {
+            let opcode =
+                thread_rng().gen_range(Instruction::INT as Opcode..Instruction::Count_ as Opcode);
+            let instruction = unsafe { std::mem::transmute::<Opcode, Instruction>(opcode) };
+            let arg_count = instruction.arg_count();
+            let mut args = Vec::new();
+            for _ in 0..arg_count {
+                let arg = match rand::thread_rng().gen_range(0..8) {
+                    0 => Signal::Int(rand::random::<Int>()),
+                    1 => Signal::Float(rand::random::<Float>()),
+                    2 => {
+                        let syscall_opcode = thread_rng()
+                            .gen_range(Syscall::COS as Opcode..Syscall::Count_ as Opcode);
+                        let syscall =
+                            unsafe { std::mem::transmute::<Opcode, Syscall>(syscall_opcode) };
+                        Signal::Syscall(syscall)
+                    }
+                    3 => Signal::Intrinsic(rand::random::<Intrinsic>()),
+                    4 => Signal::MemoryOffset(rand::random::<MemoryOffset>()),
+                    5 => label,
+                    6 => Signal::TypeID(rand::random::<TypeID>()),
+                    7 => Signal::FieldOffset(rand::random::<FieldOffset>()),
+                    8 => {
+                        let current = label;
+                        label = routine.pin_label();
+                        current
+                    }
+                    _ => unreachable!(),
+                };
+                args.push(arg);
             }
-            let arg = if i % 2 == 0 {
-                Signal::Int(i << i)
-            } else {
-                Signal::Float((i << i ^ 0xFEFEFE) as f64 + (i as f64 * 0.25))
-            };
-            routine.push(Instruction::PUSH, &[arg]);
-            routine.push(Instruction::JMP, &[l]);
+            routine.push(instruction, &args);
         }
         routine
     }

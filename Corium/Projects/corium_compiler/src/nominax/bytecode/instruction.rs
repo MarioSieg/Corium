@@ -203,7 +203,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#[repr(u64)]
+#[repr(usize)]
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 #[allow(non_camel_case_types)]
 pub enum Instruction {
@@ -585,7 +585,7 @@ pub enum InstructionCategory {
     Count_,
 }
 
-#[repr(u64)]
+#[repr(usize)]
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 #[allow(non_camel_case_types)]
 pub enum Syscall {
@@ -645,3 +645,5 @@ pub type TypeID = usize;
 pub type FieldOffset = usize;
 
 pub type LabelID = usize;
+
+pub type Opcode = usize;

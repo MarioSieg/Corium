@@ -214,13 +214,14 @@ use std::fmt;
 pub enum Signal {
     Int(Int),
     Float(Float),
-    Instruction(Instruction),
-    SysCall(Syscall),
+    Syscall(Syscall),
     Intrinsic(Intrinsic),
     MemoryOffset(MemoryOffset),
     JumpAddress(JumpAddress),
     TypeID(TypeID),
     FieldOffset(FieldOffset),
+
+    Instruction(Instruction),
     Label(LabelID),
 }
 
@@ -230,7 +231,7 @@ impl Signal {
             Self::Int(_) => "imm",
             Self::Float(_) => "fmm",
             Self::Instruction(_) => "instr",
-            Self::SysCall(_) => "sys",
+            Self::Syscall(_) => "sys",
             Self::Intrinsic(_) => "int",
             Self::MemoryOffset(_) => "mof",
             Self::JumpAddress(_) => "rel",
@@ -247,7 +248,7 @@ impl fmt::Display for Signal {
             Self::Int(x) => write!(f, "[{}] #{}", self.name(), *x),
             Self::Float(x) => write!(f, "[{}] #{}", self.name(), *x),
             Self::Instruction(x) => write!(f, "{}", x.mnemonic()),
-            Self::SysCall(x) => write!(f, "[{}] #{:X}", self.name(), *x as u64),
+            Self::Syscall(x) => write!(f, "[{}] #{:X}", self.name(), *x as u64),
             Self::Intrinsic(x) => write!(f, "[{}] #{:X}", self.name(), *x),
             Self::MemoryOffset(x) => write!(f, "[{}] #{:X}", self.name(), *x),
             Self::JumpAddress(x) => write!(f, "[{}] #{:X}", self.name(), *x),
