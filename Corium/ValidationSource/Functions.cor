@@ -4,3 +4,7 @@ native function sin (x float)
 function square (x float, y float = 1.0) float {
     return x * y
 }
+
+function square2 (x int, y int = 1) int {
+    return x * y
+}

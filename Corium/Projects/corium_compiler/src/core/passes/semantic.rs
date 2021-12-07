@@ -210,14 +210,14 @@ use crate::semantic::analyze;
 
 pub struct SemanticPass;
 
-impl<'ast> Pass<'ast, &CompilationUnit<'ast>, ()> for SemanticPass {
+impl<'ast> Pass<'ast, &CompilationUnit<'ast>, u64> for SemanticPass {
     const NAME: &'static str = "Semantic Analysis";
 
     fn execute(
         input: &CompilationUnit<'ast>,
         _verbose: bool,
         _file: &str,
-    ) -> Result<(), ErrorList> {
+    ) -> Result<u64, ErrorList> {
         analyze(input)
     }
 }

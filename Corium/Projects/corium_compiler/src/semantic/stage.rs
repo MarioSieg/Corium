@@ -203,44 +203,69 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+use super::global;
+use super::local;
 use crate::ast::tree::compilation_unit::CompilationUnit;
 use crate::ast::tree::function::Function;
+use crate::ast::tree::global_statement::GlobalStatement;
 use crate::error::list::ErrorList;
 use crate::semantic::global::GlobalSymbolTable;
 use crate::semantic::local::LocalSymbolTable;
 
-pub mod global;
-pub mod local;
-pub mod stage;
-pub mod table;
+pub fn evaluate<F1, F2>(
+    input: &CompilationUnit,
+    mut global_callback: F1,
+    mut local_callback: F2,
+) -> Result<u64, ErrorList>
+where
+    F1: FnMut(&mut ErrorList, &GlobalSymbolTable),
+    F2: FnMut(&mut ErrorList, &GlobalSymbolTable, &LocalSymbolTable, &Function),
+{
+    let mut errors = ErrorList::new();
 
-pub fn analyze(input: &CompilationUnit) -> Result<u64, ErrorList> {
-    let global_callback = |_errors: &mut ErrorList, _global: &GlobalSymbolTable| {};
+    let global = global::build_table(&mut errors, &input.statements);
+    global_callback(&mut errors, &global);
 
-    let local_callback = |_errors: &mut ErrorList,
-                          _global: &GlobalSymbolTable,
-                          _local: &LocalSymbolTable,
-                          _function: &Function| {};
+    let mut local_i: u64 = 0;
+    let mut local = LocalSymbolTable::new();
 
-    stage::evaluate(input, global_callback, local_callback)
+    input.statements.iter().for_each(|statement| {
+        if let GlobalStatement::Function(function) = statement {
+            local.clear();
+            local::build_table(&mut errors, function, &global, &mut local);
+            local_callback(&mut errors, &global, &local, function);
+            local_i += 1;
+        }
+    });
+
+    if errors.is_empty() {
+        Ok(local_i)
+    } else {
+        Err(errors)
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use crate::ast::populator::NestedAstPopulator;
     use crate::ast::tree::compilation_unit::CompilationUnit;
     use crate::include_corium_source;
     use crate::parser::parse_source;
+    use crate::semantic::analyze;
+    use crate::semantic::stage::evaluate;
 
     #[test]
     fn correct() {
         let src = include_corium_source!("../../../../ValidationSource/Functions.cor");
         let result = CompilationUnit::populate(parse_source(&src.0).unwrap());
-        let result = analyze(&result);
+        let mut i = 0;
+        let mut j = 0;
+        let result = evaluate(&result, |_, _| i += 1, |_, _, _, _| j += 1);
         assert!(result.is_ok());
         let amount = result.unwrap();
         assert_eq!(amount, 2);
+        assert_eq!(i, 1);
+        assert_eq!(j, 2);
     }
 
     #[test]
