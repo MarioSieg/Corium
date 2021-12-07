@@ -205,6 +205,8 @@
 
 use std::process::Command;
 
+pub mod bytecode;
+
 const NOMINAX_EXE_NAME: &str = if cfg!(windows) {
     "Nominax.exe"
 } else {

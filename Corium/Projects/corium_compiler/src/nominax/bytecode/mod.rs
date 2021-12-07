@@ -203,65 +203,6 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::bytecode::instruction::Instruction;
-use crate::bytecode::signal::Signal;
-use std::fmt;
-
-/// Represents a stream of byte code signals.
-#[derive(Clone, Debug, PartialEq)]
-pub struct Stream(Vec<Signal>);
-
-impl Stream {
-    #[inline]
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    #[inline]
-    pub fn len(&self) -> usize {
-        self.0.len()
-    }
-
-    #[inline]
-    pub fn capacity(&self) -> usize {
-        self.0.capacity()
-    }
-
-    #[inline]
-    pub fn is_empty(&self) -> bool {
-        self.0.is_empty()
-    }
-
-    #[inline]
-    pub fn push(&mut self, sig: Signal) {
-        self.0.push(sig)
-    }
-
-    #[inline]
-    pub fn push_instr(&mut self, instr: Instruction) {
-        self.push(Signal::Instruction(instr))
-    }
-
-    #[inline]
-    pub fn reserve(&mut self, additional: usize) {
-        self.0.reserve(additional);
-    }
-}
-
-impl fmt::Display for Stream {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        for signal in &self.0 {
-            if let Signal::Instruction(_) = signal {
-                writeln!(f)?;
-            }
-            write!(f, "{} ", signal)?
-        }
-        Ok(())
-    }
-}
-
-impl Default for Stream {
-    fn default() -> Self {
-        Self(Vec::new())
-    }
-}
+pub mod instruction;
+pub mod signal;
+pub mod subroutine;

@@ -204,7 +204,7 @@
 //    limitations under the License.
 
 use crate::ast::tree::builtin_types::BuiltinType;
-use crate::bytecode::instruction::Syscall;
+use crate::nominax::bytecode::instruction::Syscall;
 use std::fmt;
 
 pub struct Intrinsic<'a> {

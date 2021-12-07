@@ -209,9 +209,9 @@ use crate::error::list::ErrorList;
 use crate::semantic::global::GlobalSymbolTable;
 use crate::semantic::local::LocalSymbolTable;
 
+pub mod core;
 pub mod global;
 pub mod local;
-pub mod core;
 pub mod table;
 
 pub fn analyze(input: &CompilationUnit) -> Result<u64, ErrorList> {

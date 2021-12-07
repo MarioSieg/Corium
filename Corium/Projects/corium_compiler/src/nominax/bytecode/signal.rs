@@ -204,7 +204,7 @@
 //    limitations under the License.
 
 use crate::ast::tree::builtin_types::{Float, Int};
-use crate::bytecode::instruction::{
+use crate::nominax::bytecode::instruction::{
     FieldOffset, Instruction, Intrinsic, JumpAddress, MemoryOffset, Syscall, TypeID,
 };
 use std::fmt;
@@ -242,15 +242,15 @@ impl Signal {
 impl fmt::Display for Signal {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Int(x) => write!(f, "[{}] #{}", self.name(), *x),
-            Self::Float(x) => write!(f, "[{}] #{}", self.name(), *x),
+            Self::Int(x) => write!(f, "[{}] {}", self.name(), *x),
+            Self::Float(x) => write!(f, "[{}] {}", self.name(), *x),
             Self::Instruction(x) => write!(f, "{}", x.mnemonic()),
-            Self::SysCall(x) => write!(f, "[{}] #{:X}", self.name(), *x as u64),
-            Self::Intrinsic(x) => write!(f, "[{}] #{:X}", self.name(), *x),
-            Self::MemoryOffset(x) => write!(f, "[{}] #{:X}", self.name(), *x),
-            Self::JumpAddress(x) => write!(f, "[{}] #{:X}", self.name(), *x),
-            Self::TypeID(x) => write!(f, "[{}] #{:X}", self.name(), *x),
-            Self::FieldOffset(x) => write!(f, "[{}] #{:X}", self.name(), *x),
+            Self::SysCall(x) => write!(f, "[{}] {:X}", self.name(), *x as u64),
+            Self::Intrinsic(x) => write!(f, "[{}] {:X}", self.name(), *x),
+            Self::MemoryOffset(x) => write!(f, "[{}] {:X}", self.name(), *x),
+            Self::JumpAddress(x) => write!(f, "[{}] {:X}", self.name(), *x),
+            Self::TypeID(x) => write!(f, "[{}] {:X}", self.name(), *x),
+            Self::FieldOffset(x) => write!(f, "[{}] {:X}", self.name(), *x),
         }
     }
 }
