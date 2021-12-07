@@ -220,7 +220,6 @@ pub fn build_table<'ast>(
     global: &GlobalSymbolTable<'ast>,
     output: &mut LocalSymbolTable<'ast>,
 ) {
-    output.clear();
     if let Some(parameters) = &input.signature.parameters {
         output.reserve(parameters.len() + input.block.len());
         for parameter in parameters.iter() {

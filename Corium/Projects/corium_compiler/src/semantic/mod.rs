@@ -214,12 +214,36 @@ pub mod table;
 
 pub fn analyze(input: &CompilationUnit) -> Result<(), ErrorList> {
     let mut errors = ErrorList::new();
+
     let global = global::build_table(&mut errors, &input.statements);
-    let mut _local = LocalSymbolTable::new();
-    for statement in &input.statements {
+    let mut local = LocalSymbolTable::new();
+
+    input.statements.iter().for_each(|statement| {
         if let GlobalStatement::Function(function) = statement {
-            local::build_table(&mut errors, function, &global, &mut _local);
+            local.clear();
+            local::build_table(&mut errors, function, &global, &mut local);
         }
+    });
+
+    errors.into()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::ast::populator::NestedAstPopulator;
+    use crate::ast::tree::compilation_unit::CompilationUnit;
+    use crate::core::unit::CompileDescriptor;
+    use crate::include_corium_source;
+    use crate::parser::parse_source;
+
+    #[test]
+    fn definition_errors() {
+        let src = include_corium_source!("../../../../ValidationSource/DefinitionErrors.cor");
+        let result = CompilationUnit::populate(parse_source(&src.0).unwrap());
+        let result = analyze(&result);
+        assert!(result.is_err());
+        let errors = result.unwrap_err();
+        assert_eq!(errors.len(), 10);
     }
-    Ok(())
 }

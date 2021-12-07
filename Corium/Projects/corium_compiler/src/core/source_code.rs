@@ -208,14 +208,13 @@ const LINE_ENDING: &str = "\r\n";
 #[cfg(not(windows))]
 const LINE_ENDING: &str = "\n";
 
-use std::convert::From;
-use std::fmt::Debug;
+use std::fmt::{self, Debug};
 use std::path::Path;
 
 #[macro_export]
 macro_rules! include_corium_source {
     ($file:expr $(,)?) => {
-        crate::core::source_code::SourceCode::from(include_str!($file))
+        crate::core::source_code::SourceCode::new(String::from(include_str!($file)))
     };
 }
 
@@ -224,7 +223,9 @@ pub struct SourceCode(pub String);
 
 impl SourceCode {
     pub fn new(src: String) -> Self {
-        Self(src)
+        let mut this = Self(src);
+        this.post_process();
+        this
     }
 
     pub fn read<P: AsRef<Path> + Debug>(path: P) -> Self {
@@ -240,21 +241,17 @@ impl SourceCode {
         self.0.push_str(LINE_ENDING);
     }
 
-    pub fn dump_with_padding(&self) {
-        let str = self.0.clone();
-        let str = str.replace("\n", "\\n");
-        let str = str.replace("\r", "\\r");
-        let str = str.replace("\t", "\\t");
-        let str = str.replace("\\", "\\\\");
-        let str = str.replace("\0", "\\0");
-        println!("{}", str);
+    pub fn tokenize_control_chars(&mut self) {
+        self.0 = self.0.replace("\n", "\\n");
+        self.0 = self.0.replace("\r", "\\r");
+        self.0 = self.0.replace("\t", "\\t");
+        self.0 = self.0.replace("\\", "\\\\");
+        self.0 = self.0.replace("\0", "\\0");
     }
 }
 
-impl From<&str> for SourceCode {
-    fn from(x: &str) -> Self {
-        let mut src = Self(x.to_string());
-        src.post_process();
-        src
+impl fmt::Display for SourceCode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
     }
 }

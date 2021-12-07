@@ -219,6 +219,15 @@ mod global {
     use crate::include_corium_source;
 
     #[test]
+    fn definition_errors() {
+        let src = include_corium_source!("../../../../ValidationSource/DefinitionErrors.cor");
+        let result = compile_source(&src, "DefinitionErrors.cor", &DESC);
+        assert!(result.is_err());
+        let errors = result.unwrap_err();
+        assert_eq!(errors.len(), 10);
+    }
+
+    #[test]
     fn mutable_variable() {
         let src = include_corium_source!("../../../../ValidationSource/MutableVariables.cor");
         if let Err(e) = compile_source(&src, "MutableVariables.cor", &DESC) {
