@@ -203,12 +203,18 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-.globl QueryRegSet_GPR
-.globl QueryRegSet_Neon
+#ifdef __APPLE__
+#define SUBROUTINE(x) _##x
+#else
+#define SUBROUTINE(x) x
+#endif
+
+.globl SUBROUTINE(QueryRegSet_GPR)
+.globl SUBROUTINE(QueryRegSet_Neon)
 
 # extern "C" NOX_ASM_ROUTINE auto QueryRegSet_GPR(GPRRegister64Layout* out) -> void;
 # Query general purpose registers (%x0 - %x30). (%pc) does not count as GPR!
-QueryRegSet_GPR:
+SUBROUTINE(QueryRegSet_GPR):
     str x0,  [x0]
     str x1,  [x0, 8*1]
     str x2,  [x0, 8*2]
@@ -244,7 +250,7 @@ QueryRegSet_GPR:
 
 # extern "C" NOX_ASM_ROUTINE auto QueryRegSet_Neon(NeonRegister128Layout* out) -> void;
 # Query all Neon registers (%v0 - %v31)
-QueryRegSet_Neon:
+SUBROUTINE(QueryRegSet_Neon):
     str q0,  [x0]
     str q1,  [x0, 16*1]
     str q2,  [x0, 16*2]

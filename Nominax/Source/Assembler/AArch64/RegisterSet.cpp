@@ -5,7 +5,7 @@ namespace Nominax::Assembler::AArch64
 {
     using Foundation::Print;
 
-    auto DumpRegisterSet(std::FILE& stream, const GPRRegisterSet& regset) -> void
+    auto DumpRegisterSet(Foundation::DataStream& stream, const GPRRegisterSet& regset) -> void
     {
         for (std::uint64_t i { 0 }; i < std::size(regset); ++i)
         {
@@ -18,7 +18,7 @@ namespace Nominax::Assembler::AArch64
         Print(stream, '\n');
     }
 
-    auto DumpRegisterSet(std::FILE& stream, const NeonRegisterSet& regset) -> void
+    auto DumpRegisterSet(Foundation::DataStream& stream, const NeonRegisterSet& regset) -> void
     {
         for (std::uint64_t i { 0 }; i < std::size(regset); ++i)
         {

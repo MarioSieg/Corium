@@ -205,6 +205,8 @@
 
 #include "../../../Include/Nominax/Assembler/X86_64/RegisterCache.hpp"
 #include "../../../Include/Nominax/Assembler/X86_64/Routines.hpp"
+#include "../../../Include/Nominax/Assembler/AArch64/RegisterCache.hpp"
+
 
 namespace Nominax::Assembler::X86_64
 {

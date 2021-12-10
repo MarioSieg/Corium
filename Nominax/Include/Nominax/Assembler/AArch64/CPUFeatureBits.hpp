@@ -205,7 +205,10 @@
 
 #include <cstdint>
 
-namespace Nominax::Assembler::X86_64
+namespace Nominax::Assembler::AArch64
 {
-    enum struct CPUFeatureBits : std::uint8_t { };
+    enum struct CPUFeatureBits : std::uint8_t
+    {
+        Count_ = 0
+    };
 }

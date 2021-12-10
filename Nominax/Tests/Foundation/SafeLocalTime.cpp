@@ -207,7 +207,14 @@
 
 TEST(Common, SafeLocalTime)
 {
-	auto time   = std::time(nullptr);
-	auto result = SafeLocalTime(time);
-	ASSERT_EQ(std::memcmp(std::localtime(&time), &result, sizeof(std::tm)), 0);
+	auto time { std::time(nullptr) };
+	auto result { SafeLocalTime(time) };
+    auto should { std::localtime(&time) };
+	ASSERT_EQ(result.tm_sec, should->tm_sec);
+    ASSERT_EQ(result.tm_min, should->tm_min);
+    ASSERT_EQ(result.tm_hour, should->tm_hour);
+    ASSERT_EQ(result.tm_mday, should->tm_mday);
+    ASSERT_EQ(result.tm_mon, should->tm_mon);
+    ASSERT_EQ(result.tm_year, should->tm_year);
+    ASSERT_EQ(result.tm_isdst, should->tm_isdst);
 }

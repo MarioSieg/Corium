@@ -241,7 +241,7 @@ namespace Nominax::Core::VM
 		/// <param name="routine">The execution routine. Panics if nullptr.</param>
 		/// <param name="klass">The port class.</param>
 		/// <param name="stackAlignment">The stack alignment. Panics if invalid.</param>
-		ExecutionPort(ExecutionRoutine* routine, ExecutionPortClass klass, std::uint64_t stackAlignment);
+		ExecutionPort(ExecutionRoutine* routine, ExecutionPortClass klass, std::uint64_t stackAlignment = alignof(Foundation::Record));
 
 		/// <summary>
 		/// No copy.

@@ -210,7 +210,7 @@
 namespace Nominax::Core::VM
 {
 	ExecutionPort::ExecutionPort(ExecutionRoutine* const routine, const ExecutionPortClass klass, const std::uint64_t stackAlignment)
-	: Routine_ { routine }, Class_ { klass }, JumpTable_ { nullptr }
+	: Routine_ { routine }, Class_ { klass }, StackAlignment_ { stackAlignment }, JumpTable_ { nullptr }
 	{
 		NOX_PAS(routine, "Invalid execution routine!");
 		const bool query { (*this->Routine_)(nullptr, nullptr, &this->JumpTable_) && this->JumpTable_ };

@@ -209,6 +209,7 @@
 #include <cstring>
 #include <type_traits>
 
+#include "../Memory/AlignedMalloc.hpp"
 #include "../Platform.hpp"
 #include "../Panic/Assertions.hpp"
 
@@ -428,8 +429,8 @@ namespace Nominax::Foundation::Allocator
 	{
 		#if NOX_OS_WINDOWS && NOX_COM_CLANG
 			return _aligned_malloc(size, alignment);
-		#else
-			return aligned_alloc(alignment, size);
+        #else
+            return Memory::AlignedMalloc(size, alignment);
 		#endif
 	}
 
@@ -455,7 +456,7 @@ namespace Nominax::Foundation::Allocator
 		#if NOX_OS_WINDOWS && NOX_COM_CLANG
 			_aligned_free(ptr);
 		#else
-			std::free(ptr);
+            Memory::AlignedFree(ptr);
 		#endif
 	}
 

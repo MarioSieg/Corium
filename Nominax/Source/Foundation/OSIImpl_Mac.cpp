@@ -212,6 +212,7 @@
 #include <string>
 
 #include <sys/mman.h>
+#include <sys/resource.h>
 #include <dlfcn.h>
 #include <unistd.h>
 
@@ -235,16 +236,8 @@ namespace Nominax::Foundation
 
 	auto OSI::QueryProcessMemoryUsed() -> std::uint64_t
 	{
-		std::FILE* const file { std::fopen("/proc/self/statm", "r") };
-		if (!file)
-		{
-			[[unlikely]]
-            return 0;
-		}
-		long pages { 0 };
-		const int items { std::fscanf(file, "%*s%ld", &pages) };
-		std::fclose(file);
-		return static_cast<std::uint64_t>(items == 1 ? pages * sysconf(_SC_PAGESIZE) : 0);
+        ::rusage usage { };
+        return ::getrusage(RUSAGE_SELF, &usage) == 0 ? usage.ru_maxrss : 0;
 	}
 
 	auto OSI::QueryCpuName() -> const std::string&
@@ -348,31 +341,43 @@ namespace Nominax::Foundation
 
 	auto OSI::MemoryMap
 	(
-		const std::uint64_t             size,
+		const std::uint64_t size,
 		const MemoryPageProtectionFlags protectionFlags
 	) -> void*
 	{
-		const int     argPageProtections { MapOsPageProtectionFlags(protectionFlags) };
-		constexpr int argMappingFlags { MEMORY_MAPPING_FLAGS };
-		const int     prevError { errno };
-		void* const   ptr { mmap(nullptr, size, argPageProtections, argMappingFlags, -1, 0) };
+		const int argPageProtections { MapOsPageProtectionFlags(protectionFlags) };
+		int argMappingFlags { MEMORY_MAPPING_FLAGS };
+        if (argPageProtections & (PROT_WRITE | PROT_EXEC))
+        {
+            argMappingFlags |= MAP_JIT;
+        }
+		const int prevError { errno };
+		void* const ptr { ::mmap(nullptr, size, argPageProtections, argMappingFlags, -1, 0) };
 		errno = prevError;
+        if (argPageProtections & (PROT_WRITE | PROT_EXEC))
+        {
+            pthread_jit_write_protect_np(false);
+        }
 		return ptr;
 	}
 
 	auto OSI::MemoryUnmap(void* const region, const std::uint64_t size) -> bool
 	{
-		const int  prevError { errno };
-		const bool result { munmap(region, static_cast<std::size_t>(size)) == 0 };
+		const int prevError { errno };
+		const bool result { ::munmap(region, static_cast<std::size_t>(size)) == 0 };
 		errno = prevError;
 		return result;
 	}
 
 	auto OSI::MemoryProtect(void* const region, const std::uint64_t size, const MemoryPageProtectionFlags protectionFlags) -> bool
 	{
-		const int  argPageProtections { MapOsPageProtectionFlags(protectionFlags) };
-		const int  prevError { errno };
-		const bool result { mprotect(region, static_cast<std::size_t>(size), argPageProtections) == 0 };
+		const int argPageProtections { MapOsPageProtectionFlags(protectionFlags) };
+        if (argPageProtections & (PROT_READ | PROT_EXEC) && !(argPageProtections & PROT_WRITE))
+        {
+            pthread_jit_write_protect_np(true);
+        }
+		const int prevError { errno };
+		const bool result { ::mprotect(region, static_cast<std::size_t>(size), argPageProtections) == 0 };
 		errno = prevError;
 		return result;
 	}

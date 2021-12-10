@@ -220,7 +220,7 @@ namespace Nominax::Assembler::AArch64
         this->RIP = std::bit_cast<GPRRegister64Layout>(Routines::QueryPC());
     }
 
-    auto RegisterCache::Display(std::FILE& stream) const -> void
+    auto RegisterCache::Display(Foundation::DataStream& stream) const -> void
     {
         using Foundation::Print;
 
