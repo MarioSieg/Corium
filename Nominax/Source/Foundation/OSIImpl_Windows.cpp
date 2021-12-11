@@ -222,10 +222,9 @@ namespace Nominax::Foundation
 		{
 			[]
 			{
-				MEMORYSTATUSEX status;
-				ZeroMemory(&status, sizeof(MEMORYSTATUSEX));
-				status.dwLength = sizeof(MEMORYSTATUSEX);
-				GlobalMemoryStatusEx(&status);
+				::MEMORYSTATUSEX status { };
+				status.dwLength = sizeof(::MEMORYSTATUSEX);
+				::GlobalMemoryStatusEx(&status);
 				return status.ullTotalPhys;
 			}()
 		};
@@ -234,9 +233,8 @@ namespace Nominax::Foundation
 
 	auto OSI::QueryProcessMemoryUsed() -> std::uint64_t
 	{
-		PROCESS_MEMORY_COUNTERS pmc;
-		ZeroMemory(&pmc, sizeof(PROCESS_MEMORY_COUNTERS));
-		GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(PROCESS_MEMORY_COUNTERS));
+		::PROCESS_MEMORY_COUNTERS pmc { };
+		::K32GetProcessMemoryInfo(::GetCurrentProcess(), &pmc, sizeof(::PROCESS_MEMORY_COUNTERS));
 		return pmc.WorkingSetSize;
 	}
 
@@ -246,10 +244,10 @@ namespace Nominax::Foundation
 		{
 			[]() -> std::string
 			{
-				HKEY    key;
-				LSTATUS status
+				::HKEY key;
+				::LSTATUS status
 				{
-					RegOpenKeyExA
+					::RegOpenKeyExA
 					(
 						HKEY_LOCAL_MACHINE,
 						R"(HARDWARE\DESCRIPTION\System\CentralProcessor\0)",
@@ -261,17 +259,17 @@ namespace Nominax::Foundation
 				if (status)
 				{
 					[[unlikely]]
-						return "Unknown";
+					return "Unknown";
 				}
-				std::array<TCHAR, 64 + 1> id { };
-				DWORD                     idLen { sizeof id };
+				std::array<::TCHAR, 64 + 1> id { };
+				::DWORD idLen { sizeof id };
 				status = RegQueryValueExA
 				(
 					key,
 					"ProcessorNameString",
 					nullptr,
 					nullptr,
-					reinterpret_cast<LPBYTE>(std::data(id)),
+					reinterpret_cast<::LPBYTE>(std::data(id)),
 					&idLen
 				);
 				return status ? "Unknown" : std::data(id);
@@ -286,9 +284,8 @@ namespace Nominax::Foundation
 		{
 			[]
 			{
-				SYSTEM_INFO sysInfo;
-				ZeroMemory(&sysInfo, sizeof(::SYSTEM_INFO));
-				GetSystemInfo(&sysInfo);
+				::SYSTEM_INFO sysInfo { };
+				::GetSystemInfo(&sysInfo);
 				return static_cast<std::uint64_t>(sysInfo.dwPageSize);
 			}()
 		};
@@ -297,18 +294,18 @@ namespace Nominax::Foundation
 
 	auto OSI::DylibOpen(const char* const filePath) -> void*
 	{
-		return LoadLibraryA(filePath);
+		return ::LoadLibraryA(filePath);
 	}
 
 	auto OSI::DylibLookupSymbol(void* const handle, const char* const symbolName) -> void*
 	{
-		const FARPROC symbol { GetProcAddress(static_cast<HMODULE>(handle), symbolName) };
+		const ::FARPROC symbol { ::GetProcAddress(static_cast<::HMODULE>(handle), symbolName) };
 		return reinterpret_cast<void*>(reinterpret_cast<std::uintptr_t>(symbol));
 	}
 
 	auto OSI::DylibClose(void*& handle) -> void
 	{
-		FreeLibrary(static_cast<HMODULE>(handle));
+		::FreeLibrary(static_cast<::HMODULE>(handle));
 		handle = nullptr;
 	}
 
@@ -318,7 +315,7 @@ namespace Nominax::Foundation
 	/// <param name="protectionFlags">The Nominax protection flags.</param>
 	/// <returns>The OS specific flags.</returns>
 	[[nodiscard]]
-	static constexpr auto MapOsPageProtectionFlags(const MemoryPageProtectionFlags protectionFlags) -> DWORD
+	static constexpr auto MapOsPageProtectionFlags(const MemoryPageProtectionFlags protectionFlags) -> ::DWORD
 	{
 		switch (protectionFlags)
 		{
@@ -343,43 +340,43 @@ namespace Nominax::Foundation
 	/// <summary>
 	/// Allocation flags for VirtualAlloc.
 	/// </summary>
-	static constexpr DWORD MEMORY_MAPPING_FLAGS { MEM_RESERVE | MEM_COMMIT | MEM_TOP_DOWN };
+	static constexpr ::DWORD MEMORY_MAPPING_FLAGS { MEM_RESERVE | MEM_COMMIT | MEM_TOP_DOWN };
 
 	auto OSI::MemoryMap
 	(
-		const std::uint64_t             size,
+		const std::uint64_t size,
 		const Allocator::MemoryPageProtectionFlags protectionFlags
 	) -> void*
 	{
-		constexpr LPVOID argAddress { nullptr };
-		const SIZE_T     argSize { size };
-		constexpr DWORD  argAllocType { MEMORY_MAPPING_FLAGS };
-		const DWORD      argProtection { MapOsPageProtectionFlags(protectionFlags) };
-		const DWORD      prevError { GetLastError() };
-		const LPVOID     result { VirtualAlloc(argAddress, argSize, argAllocType, argProtection) };
-		SetLastError(prevError);
+		constexpr ::LPVOID argAddress { nullptr };
+		const ::SIZE_T argSize { size };
+		constexpr ::DWORD argAllocType { MEMORY_MAPPING_FLAGS };
+		const ::DWORD argProtection { MapOsPageProtectionFlags(protectionFlags) };
+		const ::DWORD prevError { ::GetLastError() };
+		const ::LPVOID result { ::VirtualAlloc(argAddress, argSize, argAllocType, argProtection) };
+		::SetLastError(prevError);
 		return result;
 	}
 
 	auto OSI::MemoryUnmap(void* const region, [[maybe_unused]] const std::uint64_t size) -> bool
 	{
-		const LPVOID    argAddress { region };
-		constexpr DWORD argFreeType { MEM_RELEASE };
-		const DWORD     prevError { GetLastError() };
-		const BOOL      result { VirtualFree(argAddress, 0, argFreeType) };
-		SetLastError(prevError);
+		const ::LPVOID argAddress { region };
+		constexpr ::DWORD argFreeType { MEM_RELEASE };
+		const ::DWORD prevError { ::GetLastError() };
+		const ::BOOL result { ::VirtualFree(argAddress, 0, argFreeType) };
+		::SetLastError(prevError);
 		return result;
 	}
 
 	auto OSI::MemoryProtect( void* const region, const std::uint64_t size, const Allocator::MemoryPageProtectionFlags protectionFlags) -> bool
 	{
-		const LPVOID argAddress { region };
-		const SIZE_T argSize { size };
-		const DWORD  argProtection { MapOsPageProtectionFlags(protectionFlags) };
-		DWORD        argDummy;
-		const DWORD  prevError { GetLastError() };
-		const BOOL   result { VirtualProtect(argAddress, argSize, argProtection, &argDummy) };
-		SetLastError(prevError);
+		const ::LPVOID argAddress { region };
+		const ::SIZE_T argSize { size };
+		const ::DWORD argProtection { MapOsPageProtectionFlags(protectionFlags) };
+		::DWORD argDummy;
+		const ::DWORD prevError { ::GetLastError() };
+		const ::BOOL result { ::VirtualProtect(argAddress, argSize, argProtection, &argDummy) };
+		::SetLastError(prevError);
 		return result;
 	}
 }

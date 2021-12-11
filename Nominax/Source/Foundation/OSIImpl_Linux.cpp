@@ -244,7 +244,7 @@ namespace Nominax::Foundation
 		long pages { 0 };
 		const int items { std::fscanf(file, "%*s%ld", &pages) };
 		std::fclose(file);
-		return static_cast<std::uint64_t>(items == 1 ? pages * sysconf(_SC_PAGESIZE) : 0);
+		return static_cast<std::uint64_t>(items == 1 ? pages * ::sysconf(_SC_PAGESIZE) : 0);
 	}
 
 	auto OSI::QueryCpuName() -> const std::string&
@@ -352,27 +352,27 @@ namespace Nominax::Foundation
 		const MemoryPageProtectionFlags protectionFlags
 	) -> void*
 	{
-		const int     argPageProtections { MapOsPageProtectionFlags(protectionFlags) };
+		const int argPageProtections { MapOsPageProtectionFlags(protectionFlags) };
 		constexpr int argMappingFlags { MEMORY_MAPPING_FLAGS };
-		const int     prevError { errno };
-		void* const   ptr { mmap(nullptr, size, argPageProtections, argMappingFlags, -1, 0) };
+		const int prevError { errno };
+		void* const   ptr { ::mmap(nullptr, size, argPageProtections, argMappingFlags, -1, 0) };
 		errno = prevError;
 		return ptr;
 	}
 
 	auto OSI::MemoryUnmap(void* const region, const std::uint64_t size) -> bool
 	{
-		const int  prevError { errno };
-		const bool result { munmap(region, static_cast<std::size_t>(size)) == 0 };
+		const int prevError { errno };
+		const bool result { ::munmap(region, static_cast<std::size_t>(size)) == 0 };
 		errno = prevError;
 		return result;
 	}
 
 	auto OSI::MemoryProtect(void* const region, const std::uint64_t size, const MemoryPageProtectionFlags protectionFlags) -> bool
 	{
-		const int  argPageProtections { MapOsPageProtectionFlags(protectionFlags) };
-		const int  prevError { errno };
-		const bool result { mprotect(region, static_cast<std::size_t>(size), argPageProtections) == 0 };
+		const int argPageProtections { MapOsPageProtectionFlags(protectionFlags) };
+		const int prevError { errno };
+		const bool result { ::mprotect(region, static_cast<std::size_t>(size), argPageProtections) == 0 };
 		errno = prevError;
 		return result;
 	}
