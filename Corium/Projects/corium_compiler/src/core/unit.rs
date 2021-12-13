@@ -206,29 +206,17 @@
 use crate::core::compiler::compile_source;
 use crate::core::source_code::SourceCode;
 use crate::error::list::ErrorList;
-use std::default;
 use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant};
 
 /// FileCompilationUnitDescriptor
+#[derive(Clone, Debug, Default)]
 pub struct CompileDescriptor {
     pub dump_ast: bool,
     pub dump_asm: bool,
     pub opt_level: u8,
     pub verbose: bool,
     pub pass_timer: bool,
-}
-
-impl default::Default for CompileDescriptor {
-    fn default() -> Self {
-        Self {
-            dump_ast: false,
-            dump_asm: false,
-            opt_level: 0,
-            verbose: false,
-            pass_timer: false,
-        }
-    }
 }
 
 pub type CompilationResult = Result<(Duration, ()), (Duration, ErrorList)>;

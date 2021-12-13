@@ -203,11 +203,13 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+use crate::ast::tree::expression::Expression;
 use crate::ast::tree::function::Function;
 use crate::ast::tree::global_statement::GlobalStatement;
 use crate::ast::tree::immutable_variable::ImmutableVariable;
 use crate::ast::tree::mutable_variable::MutableVariable;
 use crate::ast::tree::native_function::NativeFunction;
+use crate::semantic::SymbolBucket;
 
 #[derive(Debug, Clone)]
 pub enum Bucket<'ast> {
@@ -215,6 +217,16 @@ pub enum Bucket<'ast> {
     NativeFunction(&'ast NativeFunction<'ast>),
     MutableVariable(&'ast MutableVariable<'ast>),
     ImmutableVariable(&'ast ImmutableVariable<'ast>),
+}
+
+impl<'ast> SymbolBucket<'ast> for Bucket<'ast> {
+    fn extract_expression(&'ast self) -> Option<&'ast Expression<'ast>> {
+        match self {
+            Self::MutableVariable(mutable_variable) => Some(&mutable_variable.value),
+            Self::ImmutableVariable(immutable_variable) => Some(&immutable_variable.value),
+            _ => None,
+        }
+    }
 }
 
 impl<'ast> From<&'ast Function<'ast>> for Bucket<'ast> {

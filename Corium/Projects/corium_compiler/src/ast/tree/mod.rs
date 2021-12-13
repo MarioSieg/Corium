@@ -30,7 +30,7 @@ pub trait AstComponent: Clone + fmt::Display + fmt::Debug {
 
 pub trait Statement<'ast>: AstComponent {
     fn descriptive_name(&self) -> &'static str;
-    fn identifier(&self) -> Option<&identifier::Identifier>;
+    fn extract_identifier(&self) -> Option<&identifier::Identifier>;
     fn is_symbol_table_entry(&self) -> bool;
 }
 

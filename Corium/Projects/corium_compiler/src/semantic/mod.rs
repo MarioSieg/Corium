@@ -204,25 +204,22 @@
 //    limitations under the License.
 
 use crate::ast::tree::compilation_unit::CompilationUnit;
-use crate::ast::tree::function::Function;
+use crate::ast::tree::expression::Expression;
 use crate::error::list::ErrorList;
-use crate::semantic::global::GlobalSymbolTable;
-use crate::semantic::local::LocalSymbolTable;
+use std::fmt::Debug;
 
 pub mod core;
 pub mod global;
 pub mod local;
 pub mod table;
+pub mod validate;
 
-pub fn analyze(input: &CompilationUnit) -> Result<u64, ErrorList> {
-    let global_callback = |_errors: &mut ErrorList, _global: &GlobalSymbolTable| {};
+pub trait SymbolBucket<'ast>: Debug + Clone {
+    fn extract_expression(&'ast self) -> Option<&'ast Expression<'ast>>;
+}
 
-    let local_callback = |_errors: &mut ErrorList,
-                          _global: &GlobalSymbolTable,
-                          _local: &LocalSymbolTable,
-                          _function: &Function| {};
-
-    core::evaluate(input, global_callback, local_callback)
+pub fn analyze_full(input: &CompilationUnit) -> Result<u64, ErrorList> {
+    core::evaluate(input)
 }
 
 #[cfg(test)]
@@ -237,7 +234,7 @@ mod tests {
     fn correct() {
         let src = include_corium_source!("../../../../ValidationSource/Functions.cor");
         let result = CompilationUnit::populate(parse_source(&src.0).unwrap());
-        let result = analyze(&result);
+        let result = analyze_full(&result);
         assert!(result.is_ok());
         let amount = result.unwrap();
         assert_eq!(amount, 2);
@@ -247,7 +244,7 @@ mod tests {
     fn definition_errors() {
         let src = include_corium_source!("../../../../ValidationSource/DefinitionErrors.cor");
         let result = CompilationUnit::populate(parse_source(&src.0).unwrap());
-        let result = analyze(&result);
+        let result = analyze_full(&result);
         assert!(result.is_err());
         let errors = result.unwrap_err();
         assert_eq!(errors.len(), 10);

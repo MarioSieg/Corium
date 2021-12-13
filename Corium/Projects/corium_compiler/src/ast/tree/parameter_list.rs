@@ -208,7 +208,7 @@ use crate::ast::tree::{AstComponent, Rule};
 use std::fmt;
 use std::ops::Deref;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct ParameterList<'ast>(pub Vec<Parameter<'ast>>);
 
 impl<'ast> ParameterList<'ast> {
@@ -240,11 +240,5 @@ impl<'ast> Deref for ParameterList<'ast> {
 
     fn deref(&self) -> &Self::Target {
         &self.0
-    }
-}
-
-impl<'ast> Default for ParameterList<'ast> {
-    fn default() -> Self {
-        Self(Vec::new())
     }
 }

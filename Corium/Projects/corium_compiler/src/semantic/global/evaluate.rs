@@ -203,117 +203,22 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use super::{
-    function::Function, identifier::Identifier, immutable_variable::ImmutableVariable,
-    mutable_variable::MutableVariable, native_function::NativeFunction,
-};
-use crate::ast::tree::{AstComponent, Rule, Statement};
-use std::fmt;
+use crate::ast::tree::global_statement::GlobalStatement;
+use crate::error::list::ErrorList;
+use crate::semantic::global::table::{self, GlobalSymbolTable};
 
-/// Represents a file scope statement.
-#[derive(Clone, Debug)]
-pub enum GlobalStatement<'ast> {
-    MutableVariable(MutableVariable<'ast>),
-    ImmutableVariable(ImmutableVariable<'ast>),
-    Function(Function<'ast>),
-    NativeFunction(NativeFunction<'ast>),
-}
+/// Builds and evaluates the global symbol table.
+pub fn evaluate<'ast>(
+    errors: &mut ErrorList,
+    input: &'ast [GlobalStatement<'ast>],
+) -> GlobalSymbolTable<'ast> {
 
-impl<'ast> AstComponent for GlobalStatement<'ast> {
-    const CORRESPONDING_RULE: Rule = Rule::GlobalStatement;
-}
+    // 1. Populate our symbol table from the input
+    let symbol_table = table::populate(errors, input);
 
-impl<'ast> fmt::Display for GlobalStatement<'ast> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::MutableVariable(variable) => write!(f, "{}", variable),
-            Self::ImmutableVariable(variable) => write!(f, "{}", variable),
-            Self::Function(function) => write!(f, "{}", function),
-            Self::NativeFunction(native_function) => write!(f, "{}", native_function),
-        }
-    }
-}
+    // 2. Run analysis
+    super::analyze::analyze(errors, &symbol_table);
 
-impl<'ast> Statement<'ast> for GlobalStatement<'ast> {
-    fn descriptive_name(&self) -> &'static str {
-        match self {
-            Self::MutableVariable(_) => "mutable variable",
-            Self::ImmutableVariable(_) => "immutable variable",
-            Self::Function(_) => "function",
-            Self::NativeFunction(_) => "native function",
-        }
-    }
-
-    fn extract_identifier(&self) -> Option<&Identifier> {
-        let name = match self {
-            Self::MutableVariable(variable) => &variable.name,
-            Self::ImmutableVariable(variable) => &variable.name,
-            Self::Function(function) => &function.signature.name,
-            Self::NativeFunction(native_function) => &native_function.signature.name,
-        };
-        Some(name)
-    }
-
-    #[inline]
-    fn is_symbol_table_entry(&self) -> bool {
-        true
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    mod identifier {
-        use super::*;
-        use crate::ast::tree::block::Block;
-        use crate::ast::tree::expression::Expression;
-        use crate::ast::tree::function_signature::FunctionSignature;
-        use crate::ast::tree::literal::Literal;
-
-        #[test]
-        fn mutable_variable() {
-            let smt = GlobalStatement::MutableVariable(MutableVariable {
-                name: Identifier::new("myName"),
-                value: Expression::Literal(Literal::Int(3)),
-                type_hint: None,
-            });
-            assert_eq!(smt.extract_identifier().unwrap().full, "myName");
-        }
-
-        #[test]
-        fn immutable_variable() {
-            let smt = GlobalStatement::ImmutableVariable(ImmutableVariable {
-                name: Identifier::new("myName3"),
-                value: Expression::Literal(Literal::Int(3)),
-                type_hint: None,
-            });
-            assert_eq!(smt.extract_identifier().unwrap().full, "myName3");
-        }
-
-        #[test]
-        fn function() {
-            let smt = GlobalStatement::Function(Function {
-                signature: FunctionSignature {
-                    name: Identifier::new("myFunc"),
-                    parameters: None,
-                    return_type: None,
-                },
-                block: Block::new(),
-            });
-            assert_eq!(smt.extract_identifier().unwrap().full, "myFunc");
-        }
-
-        #[test]
-        fn native_function() {
-            let smt = GlobalStatement::NativeFunction(NativeFunction {
-                signature: FunctionSignature {
-                    name: Identifier::new("ymmmym"),
-                    parameters: None,
-                    return_type: None,
-                },
-            });
-            assert_eq!(smt.extract_identifier().unwrap().full, "ymmmym");
-        }
-    }
+    // Return our global symbol table
+    symbol_table
 }

@@ -203,117 +203,183 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use super::{
-    function::Function, identifier::Identifier, immutable_variable::ImmutableVariable,
-    mutable_variable::MutableVariable, native_function::NativeFunction,
-};
-use crate::ast::tree::{AstComponent, Rule, Statement};
-use std::fmt;
+use crate::ast::tree::expression::Expression;
+use crate::error::list::ErrorList;
+use crate::error::Error;
+use crate::semantic::global::table::GlobalSymbolTable;
+use crate::semantic::local::table::LocalSymbolTable;
 
-/// Represents a file scope statement.
-#[derive(Clone, Debug)]
-pub enum GlobalStatement<'ast> {
-    MutableVariable(MutableVariable<'ast>),
-    ImmutableVariable(ImmutableVariable<'ast>),
-    Function(Function<'ast>),
-    NativeFunction(NativeFunction<'ast>),
-}
-
-impl<'ast> AstComponent for GlobalStatement<'ast> {
-    const CORRESPONDING_RULE: Rule = Rule::GlobalStatement;
-}
-
-impl<'ast> fmt::Display for GlobalStatement<'ast> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::MutableVariable(variable) => write!(f, "{}", variable),
-            Self::ImmutableVariable(variable) => write!(f, "{}", variable),
-            Self::Function(function) => write!(f, "{}", function),
-            Self::NativeFunction(native_function) => write!(f, "{}", native_function),
+pub fn validate_identifiers(
+    errors: &mut ErrorList,
+    expr: &Expression,
+    global: &GlobalSymbolTable,
+    local: Option<&LocalSymbolTable>,
+) {
+    match expr {
+        Expression::Identifier(identifier) => {
+            let mut found_symbol: bool = global.contains_key(identifier);
+            if let Some(local) = local {
+                found_symbol |= local.contains_key(identifier);
+            }
+            if !found_symbol {
+                errors.push(Error::Semantic(format!("Undefined symbol: {}", identifier)));
+            }
         }
-    }
-}
-
-impl<'ast> Statement<'ast> for GlobalStatement<'ast> {
-    fn descriptive_name(&self) -> &'static str {
-        match self {
-            Self::MutableVariable(_) => "mutable variable",
-            Self::ImmutableVariable(_) => "immutable variable",
-            Self::Function(_) => "function",
-            Self::NativeFunction(_) => "native function",
+        Expression::Parenthesis(nested) => validate_identifiers(errors, nested, global, local),
+        Expression::Unary { op: _, expr } => validate_identifiers(errors, expr, global, local),
+        Expression::Binary { lhs, op: _, rhs } => {
+            validate_identifiers(errors, lhs, global, local);
+            validate_identifiers(errors, rhs, global, local);
         }
-    }
-
-    fn extract_identifier(&self) -> Option<&Identifier> {
-        let name = match self {
-            Self::MutableVariable(variable) => &variable.name,
-            Self::ImmutableVariable(variable) => &variable.name,
-            Self::Function(function) => &function.signature.name,
-            Self::NativeFunction(native_function) => &native_function.signature.name,
-        };
-        Some(name)
-    }
-
-    #[inline]
-    fn is_symbol_table_entry(&self) -> bool {
-        true
+        _ => (),
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::ast::tree::identifier::Identifier;
+    use crate::ast::tree::literal::Literal;
+    use crate::ast::tree::mutable_variable::MutableVariable;
 
-    mod identifier {
-        use super::*;
-        use crate::ast::tree::block::Block;
-        use crate::ast::tree::expression::Expression;
-        use crate::ast::tree::function_signature::FunctionSignature;
-        use crate::ast::tree::literal::Literal;
+    #[test]
+    fn present_in_global() {
+        use crate::semantic::global::bucket::Bucket;
 
-        #[test]
-        fn mutable_variable() {
-            let smt = GlobalStatement::MutableVariable(MutableVariable {
-                name: Identifier::new("myName"),
-                value: Expression::Literal(Literal::Int(3)),
-                type_hint: None,
-            });
-            assert_eq!(smt.extract_identifier().unwrap().full, "myName");
-        }
+        let expr = Expression::Identifier(Identifier::new("x"));
+        let mut errors = ErrorList::new();
+        let ident = Identifier::new("x");
+        let var = MutableVariable {
+            name: ident.clone(),
+            value: Expression::Literal(Literal::Bool(true)),
+            type_hint: None,
+        };
 
-        #[test]
-        fn immutable_variable() {
-            let smt = GlobalStatement::ImmutableVariable(ImmutableVariable {
-                name: Identifier::new("myName3"),
-                value: Expression::Literal(Literal::Int(3)),
-                type_hint: None,
-            });
-            assert_eq!(smt.extract_identifier().unwrap().full, "myName3");
-        }
+        let global = GlobalSymbolTable::from([(&ident, Bucket::MutableVariable(&var))]);
 
-        #[test]
-        fn function() {
-            let smt = GlobalStatement::Function(Function {
-                signature: FunctionSignature {
-                    name: Identifier::new("myFunc"),
-                    parameters: None,
-                    return_type: None,
-                },
-                block: Block::new(),
-            });
-            assert_eq!(smt.extract_identifier().unwrap().full, "myFunc");
-        }
+        validate_identifiers(&mut errors, &expr, &global, None);
 
-        #[test]
-        fn native_function() {
-            let smt = GlobalStatement::NativeFunction(NativeFunction {
-                signature: FunctionSignature {
-                    name: Identifier::new("ymmmym"),
-                    parameters: None,
-                    return_type: None,
-                },
-            });
-            assert_eq!(smt.extract_identifier().unwrap().full, "ymmmym");
-        }
+        assert!(errors.is_empty());
+    }
+
+    #[test]
+    fn present_in_local() {
+        let expr = Expression::Identifier(Identifier::new("y"));
+        let mut errors = ErrorList::new();
+
+        let global_ident = Identifier::new("x");
+        let global_var = MutableVariable {
+            name: global_ident.clone(),
+            value: Expression::Literal(Literal::Bool(true)),
+            type_hint: None,
+        };
+
+        let local_ident = Identifier::new("y");
+        let local_var = MutableVariable {
+            name: local_ident.clone(),
+            value: Expression::Literal(Literal::Bool(true)),
+            type_hint: None,
+        };
+
+        let global = GlobalSymbolTable::from([(
+            &global_ident,
+            crate::semantic::global::bucket::Bucket::MutableVariable(&global_var),
+        )]);
+        let local = LocalSymbolTable::from([(
+            &local_ident,
+            crate::semantic::local::bucket::Bucket::MutableVariable(&local_var),
+        )]);
+
+        validate_identifiers(&mut errors, &expr, &global, Some(&local));
+
+        assert!(errors.is_empty());
+    }
+
+    #[test]
+    fn present_in_global_for_local() {
+        let expr = Expression::Identifier(Identifier::new("x"));
+        let mut errors = ErrorList::new();
+
+        let global_ident = Identifier::new("x");
+        let global_var = MutableVariable {
+            name: global_ident.clone(),
+            value: Expression::Literal(Literal::Bool(true)),
+            type_hint: None,
+        };
+
+        let local_ident = Identifier::new("y");
+        let local_var = MutableVariable {
+            name: local_ident.clone(),
+            value: Expression::Literal(Literal::Bool(true)),
+            type_hint: None,
+        };
+
+        let global = GlobalSymbolTable::from([(
+            &global_ident,
+            crate::semantic::global::bucket::Bucket::MutableVariable(&global_var),
+        )]);
+        let local = LocalSymbolTable::from([(
+            &local_ident,
+            crate::semantic::local::bucket::Bucket::MutableVariable(&local_var),
+        )]);
+
+        validate_identifiers(&mut errors, &expr, &global, Some(&local));
+
+        assert!(errors.is_empty());
+    }
+
+    #[test]
+    fn not_present_in_global() {
+        use crate::semantic::global::bucket::Bucket;
+
+        let expr = Expression::Identifier(Identifier::new("z"));
+        let mut errors = ErrorList::new();
+        let ident = Identifier::new("x");
+        let var = MutableVariable {
+            name: ident.clone(),
+            value: Expression::Literal(Literal::Bool(true)),
+            type_hint: None,
+        };
+
+        let global = GlobalSymbolTable::from([(&ident, Bucket::MutableVariable(&var))]);
+
+        validate_identifiers(&mut errors, &expr, &global, None);
+
+        assert!(!errors.is_empty());
+        assert_eq!(errors.len(), 1);
+    }
+
+    #[test]
+    fn not_present_in_local_neither_global() {
+        let expr = Expression::Identifier(Identifier::new("kortest"));
+        let mut errors = ErrorList::new();
+
+        let global_ident = Identifier::new("x");
+        let global_var = MutableVariable {
+            name: global_ident.clone(),
+            value: Expression::Literal(Literal::Bool(true)),
+            type_hint: None,
+        };
+
+        let local_ident = Identifier::new("y");
+        let local_var = MutableVariable {
+            name: local_ident.clone(),
+            value: Expression::Literal(Literal::Bool(true)),
+            type_hint: None,
+        };
+
+        let global = GlobalSymbolTable::from([(
+            &global_ident,
+            crate::semantic::global::bucket::Bucket::MutableVariable(&global_var),
+        )]);
+        let local = LocalSymbolTable::from([(
+            &local_ident,
+            crate::semantic::local::bucket::Bucket::MutableVariable(&local_var),
+        )]);
+
+        validate_identifiers(&mut errors, &expr, &global, Some(&local));
+
+        assert!(!errors.is_empty());
+        assert_eq!(errors.len(), 1);
     }
 }

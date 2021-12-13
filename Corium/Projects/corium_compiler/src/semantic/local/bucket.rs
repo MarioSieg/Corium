@@ -203,16 +203,28 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+use crate::ast::tree::expression::Expression;
 use crate::ast::tree::immutable_variable::ImmutableVariable;
 use crate::ast::tree::local_statement::LocalStatement;
 use crate::ast::tree::mutable_variable::MutableVariable;
 use crate::ast::tree::parameter::Parameter;
+use crate::semantic::SymbolBucket;
 
 #[derive(Debug, Clone)]
 pub enum Bucket<'ast> {
     MutableVariable(&'ast MutableVariable<'ast>),
     ImmutableVariable(&'ast ImmutableVariable<'ast>),
     Parameter(&'ast Parameter<'ast>),
+}
+
+impl<'ast> SymbolBucket<'ast> for Bucket<'ast> {
+    fn extract_expression(&'ast self) -> Option<&'ast Expression<'ast>> {
+        match self {
+            Self::MutableVariable(mutable_variable) => Some(&mutable_variable.value),
+            Self::ImmutableVariable(immutable_variable) => Some(&immutable_variable.value),
+            Self::Parameter(parameter) => parameter.value.as_ref(),
+        }
+    }
 }
 
 impl<'ast> From<&'ast MutableVariable<'ast>> for Bucket<'ast> {

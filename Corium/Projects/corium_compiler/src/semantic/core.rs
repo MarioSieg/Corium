@@ -206,40 +206,21 @@
 use super::global;
 use super::local;
 use crate::ast::tree::compilation_unit::CompilationUnit;
-use crate::ast::tree::function::Function;
-use crate::ast::tree::global_statement::GlobalStatement;
 use crate::error::list::ErrorList;
-use crate::semantic::global::GlobalSymbolTable;
-use crate::semantic::local::LocalSymbolTable;
 
-pub fn evaluate<F1, F2>(
-    input: &CompilationUnit,
-    mut global_callback: F1,
-    mut local_callback: F2,
-) -> Result<u64, ErrorList>
-where
-    F1: FnMut(&mut ErrorList, &GlobalSymbolTable),
-    F2: FnMut(&mut ErrorList, &GlobalSymbolTable, &LocalSymbolTable, &Function),
-{
+/// The entry point for the semantic analysis.
+pub fn evaluate(input: &CompilationUnit) -> Result<u64, ErrorList> {
     let mut errors = ErrorList::new();
 
-    let global = global::build_table(&mut errors, &input.statements);
-    global_callback(&mut errors, &global);
+    // Build and evaluate the global symbol table
+    let global_symbol_table = global::evaluate::evaluate(&mut errors, &input.statements);
 
-    let mut local_i: u64 = 0;
-    let mut local = LocalSymbolTable::new();
-
-    input.statements.iter().for_each(|statement| {
-        if let GlobalStatement::Function(function) = statement {
-            local.clear();
-            local::build_table(&mut errors, function, &global, &mut local);
-            local_callback(&mut errors, &global, &local, function);
-            local_i += 1;
-        }
-    });
+    // Build and evaluate all local symbol tables
+    let local_count =
+        local::evaluate::evaluate(&mut errors, &input.statements, &global_symbol_table);
 
     if errors.is_empty() {
-        Ok(local_i)
+        Ok(local_count)
     } else {
         Err(errors)
     }
@@ -251,28 +232,24 @@ mod tests {
     use crate::ast::tree::compilation_unit::CompilationUnit;
     use crate::include_corium_source;
     use crate::parser::parse_source;
-    use crate::semantic::analyze;
+    use crate::semantic::analyze_full;
     use crate::semantic::core::evaluate;
 
     #[test]
     fn correct() {
         let src = include_corium_source!("../../../../ValidationSource/Functions.cor");
         let result = CompilationUnit::populate(parse_source(&src.0).unwrap());
-        let mut i = 0;
-        let mut j = 0;
-        let result = evaluate(&result, |_, _| i += 1, |_, _, _, _| j += 1);
+        let result = evaluate(&result);
         assert!(result.is_ok());
         let amount = result.unwrap();
         assert_eq!(amount, 2);
-        assert_eq!(i, 1);
-        assert_eq!(j, 2);
     }
 
     #[test]
     fn definition_errors() {
         let src = include_corium_source!("../../../../ValidationSource/DefinitionErrors.cor");
         let result = CompilationUnit::populate(parse_source(&src.0).unwrap());
-        let result = analyze(&result);
+        let result = analyze_full(&result);
         assert!(result.is_err());
         let errors = result.unwrap_err();
         assert_eq!(errors.len(), 10);

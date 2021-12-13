@@ -206,7 +206,7 @@
 use super::Pass;
 use crate::ast::tree::compilation_unit::CompilationUnit;
 use crate::error::list::ErrorList;
-use crate::semantic::analyze;
+use crate::semantic::analyze_full;
 
 pub struct SemanticPass;
 
@@ -218,6 +218,6 @@ impl<'ast> Pass<'ast, &CompilationUnit<'ast>, u64> for SemanticPass {
         _verbose: bool,
         _file: &str,
     ) -> Result<u64, ErrorList> {
-        analyze(input)
+        analyze_full(input)
     }
 }

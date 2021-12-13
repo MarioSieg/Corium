@@ -240,7 +240,7 @@ impl<'ast> Statement<'ast> for LocalStatement<'ast> {
         }
     }
 
-    fn identifier(&self) -> Option<&Identifier> {
+    fn extract_identifier(&self) -> Option<&Identifier> {
         match self {
             Self::MutableVariable(variable) => Some(&variable.name),
             Self::ImmutableVariable(variable) => Some(&variable.name),
@@ -270,7 +270,7 @@ mod tests {
                 value: Expression::Literal(Literal::Int(3)),
                 type_hint: None,
             });
-            assert_eq!(smt.identifier().unwrap().full, "myName");
+            assert_eq!(smt.extract_identifier().unwrap().full, "myName");
         }
 
         #[test]
@@ -280,13 +280,13 @@ mod tests {
                 value: Expression::Literal(Literal::Int(3)),
                 type_hint: None,
             });
-            assert_eq!(smt.identifier().unwrap().full, "myName3");
+            assert_eq!(smt.extract_identifier().unwrap().full, "myName3");
         }
 
         #[test]
         fn return_statement() {
             let smt = LocalStatement::ReturnStatement(ReturnStatement(None));
-            assert!(smt.identifier().is_none());
+            assert!(smt.extract_identifier().is_none());
         }
     }
 }

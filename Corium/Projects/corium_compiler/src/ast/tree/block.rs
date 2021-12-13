@@ -208,7 +208,7 @@ use crate::ast::tree::{AstComponent, Rule};
 use std::fmt;
 use std::ops::Deref;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct Block<'ast>(pub Vec<LocalStatement<'ast>>);
 
 impl<'ast> AstComponent for Block<'ast> {
@@ -237,12 +237,6 @@ impl<'ast> Block<'ast> {
     #[inline]
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()
-    }
-}
-
-impl<'ast> Default for Block<'ast> {
-    fn default() -> Self {
-        Self(Vec::new())
     }
 }
 
