@@ -217,9 +217,9 @@ namespace Nominax
 		class Image;
 	}
 
-    namespace Core
+    namespace Core::VM
     {
-        class Reactor;
+		struct ExecutionEngine;
     }
 }
 
@@ -371,7 +371,7 @@ namespace Nominax::Core::Subsystem
 		/// <param name="code">The code image which will be execution.</param>
 		/// <param name="userData">Some user data.</param>
 		/// <returns></returns>
-		virtual auto OnPreExecute(Reactor& vm, ByteCode::Image& code, void* userData) & -> void;
+		virtual auto OnPreExecute(VM::ExecutionEngine& vm, ByteCode::Image& code, void* userData) & -> void;
 
 		/// <summary>
 		/// Invoked after an image is executed from the queue.
@@ -380,7 +380,7 @@ namespace Nominax::Core::Subsystem
 		/// <param name="code">The code image which will be execution.</param>
 		/// <param name="userData">Some user data.</param>
 		/// <returns></returns>
-		virtual auto OnPostExecute(Reactor& vm, ByteCode::Image& code, void* userData) & -> void;
+		virtual auto OnPostExecute(VM::ExecutionEngine& vm, ByteCode::Image& code, void* userData) & -> void;
 
 		/// <summary>
 		/// Invoked when the host pre shut down the subsystems.

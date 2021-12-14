@@ -226,6 +226,8 @@ namespace Nominax::Core::Kernel
 
 	auto Kernel::Initialize(KernelDescriptor&& descriptor) -> std::shared_ptr<Kernel>
 	{
-		return std::make_shared<Kernel>(std::move(descriptor));
+		Kernel* const kernel { new(std::nothrow) Kernel(std::move(descriptor)) };
+		NOX_PAS(kernel, "Kernel allocation failed");
+		return std::shared_ptr<Kernel> { kernel };
 	}
 }

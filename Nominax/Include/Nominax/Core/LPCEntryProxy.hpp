@@ -207,5 +207,5 @@
 
 namespace Nominax::Core
 {
-	extern auto LPCEntryProxy(int argc, const char* const* argv, const char* const* environ = nullptr) -> void;
+	extern auto LPCEntryProxy(signed argc, const char* const* argv, const char* const* environ = nullptr) -> signed;
 }

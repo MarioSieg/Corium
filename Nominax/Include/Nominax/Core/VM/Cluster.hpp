@@ -221,8 +221,6 @@ namespace Nominax::Core::VM
 		auto operator =(Cluster&& other) -> Cluster& = default;
 		~Cluster() = default;
 
-		std::vector<ExecutionEngine> VMVector { };
+		std::vector<ExecutionEngine> VMVector;
 	};
-
-	inline Cluster::Cluster(const std::uint64_t concurrency) : VMVector { concurrency } { }
 }

@@ -203,23 +203,9 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../../Include/Nominax/Core/Subsystem/IHypervisorHooks.hpp"
-#include "../../../Include/Nominax/Core/Subsystem/ISubsystem.hpp"
+#include "../../../Include/Nominax/Core/VM/Cluster.hpp"
 
-namespace Nominax::Core::Subsystem
+namespace Nominax::Core::VM
 {
-    auto IHypervisorHooks::OnPreInstall([[maybe_unused]] SubsystemDescriptor& config, [[maybe_unused]] void* const userData) & -> void { }
-    auto IHypervisorHooks::OnPostInstall([[maybe_unused]] ISubsystem& system) & -> void { }
 
-    auto IHypervisorHooks::OnPreUninstall([[maybe_unused]] ISubsystem& system) & -> void { }
-    auto IHypervisorHooks::OnPostUninstall() & -> void { }
-
-    auto IHypervisorHooks::OnPreBoot() & -> void { }
-    auto IHypervisorHooks::OnPostBoot() & -> void { }
-
-    auto IHypervisorHooks::OnPreShutdown() & -> void { }
-    auto IHypervisorHooks::OnPostShutdown() & -> void { }
-
-    auto IHypervisorHooks::OnPause([[maybe_unused]] ISubsystem& system) & -> void { }
-    auto IHypervisorHooks::OnResume([[maybe_unused]] ISubsystem& system) & -> void { }
 }

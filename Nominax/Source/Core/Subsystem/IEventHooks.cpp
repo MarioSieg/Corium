@@ -213,8 +213,8 @@ namespace Nominax::Core::Subsystem
     auto IEventHooks::OnPreBoot() & -> void { }
     auto IEventHooks::OnPostBoot() & -> void { }
 
-    auto IEventHooks::OnPreExecute([[maybe_unused]] Reactor& vm, [[maybe_unused]] ByteCode::Image& code, [[maybe_unused]] void* userData) & -> void { }
-    auto IEventHooks::OnPostExecute([[maybe_unused]] Reactor& vm, [[maybe_unused]] ByteCode::Image& code, [[maybe_unused]] void* userData) & -> void { }
+    auto IEventHooks::OnPreExecute([[maybe_unused]] VM::ExecutionEngine& vm, [[maybe_unused]] ByteCode::Image& code, [[maybe_unused]] void* userData) & -> void { }
+    auto IEventHooks::OnPostExecute([[maybe_unused]] VM::ExecutionEngine& vm, [[maybe_unused]] ByteCode::Image& code, [[maybe_unused]] void* userData) & -> void { }
 
     auto IEventHooks::OnPreShutdown() & -> void { }
     auto IEventHooks::OnPostShutdown() & -> void { }

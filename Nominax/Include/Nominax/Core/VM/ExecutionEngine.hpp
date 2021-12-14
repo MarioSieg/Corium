@@ -219,6 +219,12 @@ namespace Nominax::Core::VM
 	struct [[nodiscard]] ExecutionEngine final
 	{
 		/// <summary>
+		/// Construct new instance.
+		/// </summary>
+		/// <param name="descriptor"></param>
+		explicit ExecutionEngine(ExecutionEngineDescriptor&& descriptor);
+
+		/// <summary>
 		/// No move.
 		/// </summary>
 		/// <param name="other"></param>
@@ -249,13 +255,8 @@ namespace Nominax::Core::VM
 		/// </summary>
 		~ExecutionEngine() = default;
 
-	private:
-		/// <summary>
-		/// Construct new instance.
-		/// </summary>
-		/// <param name="descriptor"></param>
-		explicit ExecutionEngine(ExecutionEngineDescriptor&& descriptor);
 
+	private:
 		const std::string Name_;
 		const ExecutionPort& Port_;
 		Stack Stack_;

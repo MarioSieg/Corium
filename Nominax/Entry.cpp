@@ -205,8 +205,7 @@
 
 #include "Include/Nominax/Core/LPCEntryProxy.hpp"
 
-auto main(const int argc, const char* const* argv, const char* const* environ) -> int
+auto main(const signed argc, const char* const* const argv, const char* const* const environ) -> signed
 {
-    ::Nominax::Core::LPCEntryProxy(argc, argv, environ);
-    return 0;
+    return ::Nominax::Core::LPCEntryProxy(argc, argv, environ);
 }

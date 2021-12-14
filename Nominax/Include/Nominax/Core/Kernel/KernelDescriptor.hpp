@@ -206,6 +206,7 @@
 #pragma once
 
 #include <cstdint>
+#include <string>
 
 namespace Nominax::Core::Kernel
 {

@@ -210,7 +210,7 @@ namespace Nominax::Core
 {
 	namespace K = Kernel;
 
-	auto LPCEntryProxy(const int argc, const char* const* const argv, const char* const* const environ) -> void
+	auto LPCEntryProxy(const signed argc, const char* const* const argv, const char* const* const environ) -> signed
 	{
 		K::KernelDescriptor descriptor
 		{
@@ -221,5 +221,6 @@ namespace Nominax::Core
 			.Concurrency = 1
 		};
 		auto kernel { K::Kernel::Initialize(std::move(descriptor)) };
+		return 0;
 	}
 }

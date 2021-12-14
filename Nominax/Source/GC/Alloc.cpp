@@ -231,14 +231,14 @@ namespace Nominax::GC
         }
 	}
 
-	auto GCHeapAllocTrace(void*& out, const std::uint64_t size, const std::uint64_t alignment, MallInfo& info) noexcept -> std::uint64_t
+	auto GCHeapAllocTrace(void*& out, const std::uint64_t size, const std::uint64_t alignment, [[maybe_unused]] MallInfo& info) noexcept -> std::uint64_t
 	{
 		const Stopwatch clock { };
 		out = GCHeapAlloc(size, alignment);
 		return clock.Elapsed<std::chrono::nanoseconds>().count();
 	}
 
-	auto GCHeapAllocProfile(void*& out, const std::uint64_t size, const std::uint64_t alignment, MallInfoEX& info) noexcept -> std::uint64_t
+	auto GCHeapAllocProfile(void*& out, const std::uint64_t size, const std::uint64_t alignment, [[maybe_unused]] MallInfoEX& info) noexcept -> std::uint64_t
 	{
 		const Stopwatch clock { };
 		out = GCHeapAlloc(size, alignment);

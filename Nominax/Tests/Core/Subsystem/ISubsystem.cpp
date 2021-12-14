@@ -247,9 +247,9 @@ TEST(Subsystem, Invoke)
     handle->Invoke<HookFlags::OnPreBoot | HookFlags::OnPostBoot>();
     ASSERT_EQ(MockSubsystemWithAllEvents::MockCounter, 2);
     MockSubsystemWithAllEvents::MockCounter = 0;
-    std::array<std::uint8_t, sizeof(Reactor)> vm { };
+    std::array<std::uint8_t, sizeof(ExecutionEngine)> vm { };
     std::array<std::uint8_t, sizeof(Image)> image { };
-    handle->Invoke<HookFlags::OnPreExecute | HookFlags::OnPostExecute>(*reinterpret_cast<Reactor*>(std::data(vm)), *reinterpret_cast<Image*>(std::data(image)), nullptr);
+    handle->Invoke<HookFlags::OnPreExecute | HookFlags::OnPostExecute>(*reinterpret_cast<ExecutionEngine*>(std::data(vm)), *reinterpret_cast<Image*>(std::data(image)), nullptr);
     ASSERT_EQ(MockSubsystemWithAllEvents::MockCounter, 2);
     MockSubsystemWithAllEvents::MockCounter = 0;
     handle->SetPaused(true);

@@ -278,12 +278,12 @@ struct MockSubsystemWithAllEvents : ISubsystem
         Messages.emplace_back(MockMessage);
     }
 
-    auto OnPreExecute(Reactor& vm, Image& code, void* userData) & -> void override
+    auto OnPreExecute(ExecutionEngine& vm, Image& code, void* userData) & -> void override
     {
         ++MockCounter;
     }
 
-    auto OnPostExecute(Reactor& vm, Image& code, void* userData) & -> void override
+    auto OnPostExecute(ExecutionEngine& vm, Image& code, void* userData) & -> void override
     {
         ++MockCounter;
     }
