@@ -210,6 +210,6 @@ namespace Nominax::Core::VM
 {
     Cluster::Cluster(const std::uint64_t concurrency)
     {
-        NOX_PAS(concurrency > 0, "Concurrency of zero is not allowed!");
+        Foundation::Assert(concurrency > 0, "Concurrency of zero is not allowed!");
     }
 }

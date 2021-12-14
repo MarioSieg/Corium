@@ -235,7 +235,7 @@ namespace Nominax::Foundation
 	/// <param name="formatString">The format string.</param>
 	/// <param name="args">The arguments to format.</param>
 	template <typename... Args>
-	NOX_COLD inline auto Print([[maybe_unused]] const fmt::string_view formatString, [[maybe_unused]] Args&&...args) -> void
+	inline auto Print([[maybe_unused]] const fmt::string_view formatString, [[maybe_unused]] Args&&...args) -> void
 	{
 		if constexpr (!NOX_TEST)
         {
@@ -260,7 +260,7 @@ namespace Nominax::Foundation
     /// <param name="formatString">The format string.</param>
     /// <param name="args">The arguments to format.</param>
     template <typename... Args>
-    NOX_COLD inline auto Print(DataStream& stream, const fmt::string_view formatString, Args&&...args) -> void
+    inline auto Print(DataStream& stream, const fmt::string_view formatString, Args&&...args) -> void
     {
         fmt::print(*stream, formatString, std::forward<Args>(args)...);
     }
@@ -270,7 +270,7 @@ namespace Nominax::Foundation
 	/// </summary>
 	/// <param name="x"></param>
 	/// <returns></returns>
-    NOX_COLD inline auto Print(const char x) -> void
+    inline auto Print(const char x) -> void
 	{
         if constexpr (!NOX_TEST)
         {
@@ -287,7 +287,6 @@ namespace Nominax::Foundation
     /// </summary>
     /// <param name="x"></param>
     /// <returns></returns>
-    NOX_COLD
     inline auto Print([[maybe_unused]] DataStream& stream, const char x) -> void
     {
         stream.PutChar(x);

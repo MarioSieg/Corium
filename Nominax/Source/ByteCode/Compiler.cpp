@@ -3,7 +3,7 @@
 
 #include "../../Include/Nominax/ByteCode/Compiler.hpp"
 #include "../../Include/Nominax/ByteCode/Stream.hpp"
-#include "../../Include/Nominax/Foundation/Print.hpp"
+#include "../../Include/Nominax/Foundation/Protocol.hpp"
 #include "../../Include/Nominax/Foundation/IOStream.hpp"
 
 namespace Nominax::ByteCode

@@ -209,7 +209,7 @@ namespace Nominax::Core
 {
 	FixedStack::FixedStack(std::pmr::memory_resource& allocator, const std::uint64_t sizeInRecords) : Buffer_ { &allocator }
 	{
-		NOX_PAS_NOT_ZERO(sizeInRecords, "Fixed stack with zero size was requested!");
+        Foundation::Assert(sizeInRecords, "Fixed stack with zero size was requested!");
 
 		// allocate:
 		this->Buffer_.resize(sizeInRecords);;

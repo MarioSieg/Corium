@@ -329,9 +329,9 @@ namespace Nominax::Core::VM
 	inline BufferView<T>::BufferView(const T buffer, const std::uint64_t size, const std::uint64_t alignment) noexcept
 	: Buffer_ { buffer }, Size_ { size }, Alignment_ { alignment }
 	{
-		NOX_PAS(buffer != nullptr, "Invalid buffer pointer!");
-		NOX_PAS(size != 0, "Invalid buffer size!");
-		NOX_PAS(Foundation::Memory::IsAlignmentValid(alignment), "Invalid buffer alignment!");
+		Foundation::Assert(buffer != nullptr, "Invalid buffer pointer!");
+		Foundation::Assert(size != 0, "Invalid buffer size!");
+		Foundation::Assert(Foundation::Memory::IsAlignmentValid(alignment), "Invalid buffer alignment!");
 	}
 
 	template <typename T> requires std::is_pointer_v<T>

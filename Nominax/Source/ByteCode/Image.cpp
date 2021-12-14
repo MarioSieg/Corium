@@ -213,16 +213,16 @@ namespace Nominax::ByteCode
 
 	Image::Image(const std::span<const Signal> blob)
 	{
-		NOX_PAS(!std::empty(blob), "Byte code image with zero size is invalid!");
+        Foundation::Assert(!std::empty(blob), "Byte code image with zero size is invalid!");
 		this->Blob_.resize(std::size(blob));
 		std::copy(std::execution::par_unseq, std::cbegin(blob), std::cend(blob), std::begin(this->Blob_));
 	}
 
 	Image::Image(const void* const data, const std::uint64_t byteSize)
 	{
-		NOX_PAS_NOT_ZERO(byteSize, "Byte code image with zero size is invalid!");
-		NOX_PAS_NOT_NULL(data, "Byte code image with null data is invalid!");
-		NOX_PAS(byteSize % sizeof(Signal) == 0, "Byte code image size must be a multiple of eight!");
+		Foundation::Assert(byteSize, "Byte code image with zero size is invalid!");
+		Foundation::Assert(data, "Byte code image with null data is invalid!");
+        Foundation::Assert(byteSize % sizeof(Signal) == 0, "Byte code image size must be a multiple of eight!");
 		this->Blob_.resize(byteSize / sizeof(Signal));
 		std::memcpy(std::data(this->Blob_), data, byteSize);
 	}

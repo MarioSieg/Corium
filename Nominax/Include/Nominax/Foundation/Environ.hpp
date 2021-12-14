@@ -231,10 +231,10 @@ namespace Nominax::Foundation
 	/// </summary>
 	/// <param name="environ"></param>
 	/// <returns>The count in the environ array.</returns>
-	inline auto LengthOfEnviron(const char* const* const environ) noexcept -> std::uint64_t
+	inline auto LengthOfEnviron(const char* const* const environ) noexcept -> std::ptrdiff_t
 	{
-		std::uint64_t r { };
-		for (const char* const* i { environ }; *i; ++i, ++r);
-		return r;
+        const char* const* i { environ };
+		for (; *i; ++i);
+		return i - environ;
 	}
 }

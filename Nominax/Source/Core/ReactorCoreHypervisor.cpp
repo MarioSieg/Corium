@@ -304,7 +304,7 @@ namespace Nominax::Core
 		{
 			REACTOR_REGISTRY[static_cast<std::uint64_t>(target)]
 		};
-		NOX_PAS_NOT_NULL(routine, "Reactor core execution routine is nullptr!");
+        Foundation::Assert(routine, "Reactor core execution routine is nullptr!");
 		return routine;
 	}
 
@@ -348,7 +348,7 @@ namespace Nominax::Core
 	) -> const ReactorState&
 	{
 		const bool result { HyperVisor::GetOptimalReactorRoutine(target).ExecutionRoutine(&input, &output, outJumpTable) };
-		NOX_PAS(result, "Singleton execution proxy execution routine returned false!");
+        Foundation::Assert(result, "Singleton execution proxy execution routine returned false!");
 		return output;
 	}
 

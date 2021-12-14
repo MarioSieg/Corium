@@ -233,7 +233,7 @@ namespace Nominax::Core::Subsystem
 		{
 			ISubsystem* instance { nullptr };
 			AllocateSubsystem<T, Args...>(instance, std::forward<Args>()...);
-			NOX_PAS_NOT_NULL(instance, "Failed to allocate subsystem!");
+            Foundation::Assert(instance, "Failed to allocate subsystem!");
 			return Proxy { instance, std::move(config), userData };
 		}
 	}

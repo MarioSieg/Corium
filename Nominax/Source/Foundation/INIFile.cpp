@@ -205,7 +205,7 @@
 
 #include "../../Include/Nominax/Foundation/INIFile.hpp"
 #include "../../Include/Nominax/Foundation/Algorithm/Variant.hpp"
-#include "../../Include/Nominax/Foundation/Print.hpp"
+#include "../../Include/Nominax/Foundation/Protocol.hpp"
 
 namespace Nominax::Foundation
 {

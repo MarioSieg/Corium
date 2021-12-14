@@ -210,9 +210,9 @@ namespace Nominax::Foundation::Memory
 {
 	MappedMemory::MappedMemory(const std::uint64_t size, const Allocator::MemoryPageProtectionFlags flags, const bool lockedProtection)
 	{
-		NOX_DBG_PAS_NOT_ZERO(size, "Memory mapping with zero size requested!");
+		Foundation::Assert(size, "Memory mapping with zero size requested!");
 		void* const region { Allocator::VMM::VirtualAlloc(size, flags, lockedProtection, &this->Header_) };
-		NOX_DBG_PAS_NOT_NULL(region, "Virtual memory allocation failed!");
+        Foundation::Assert(region, "Virtual memory allocation failed!");
 		this->Region_ = region;
 	}
 
@@ -220,6 +220,6 @@ namespace Nominax::Foundation::Memory
 	{
         [[maybe_unused]]
 		const bool result { Allocator::VMM::VirtualDealloc(this->Region_) };
-		NOX_DBG_PAS(result, "Virtual memory deallocation failed!");
+        Foundation::Assert(result, "Virtual memory deallocation failed!");
 	}
 }

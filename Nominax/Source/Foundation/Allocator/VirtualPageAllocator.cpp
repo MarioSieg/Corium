@@ -227,7 +227,7 @@ namespace Nominax::Foundation::Allocator
             return nullptr;
 		}
 		void* const block { OSI::MemoryMap(sizeof(VAH) + size, flags) };
-		NOX_DBG_PAS_NOT_NULL(block, "Memory mapping failed!");
+        Foundation::Assert(block, "Memory mapping failed!");
 		auto& header { *static_cast<VAH*>(block) };
 		header.Size = size;
 		header.ProtectionFlags = flags;

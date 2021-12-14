@@ -204,7 +204,7 @@
 //    limitations under the License.
 
 #include "../../Include/Nominax/Foundation/IDisplay.hpp"
-#include "../../Include/Nominax/Foundation/Print.hpp"
+#include "../../Include/Nominax/Foundation/Protocol.hpp"
 
 namespace Nominax::Foundation
 {

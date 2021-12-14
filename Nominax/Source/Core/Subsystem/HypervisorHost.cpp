@@ -231,7 +231,7 @@ namespace Nominax::Core::Subsystem
 
     auto HypervisorHost::Lookup(const HostToSystemKey systemKey) -> ISubsystem&
     {
-        NOX_PAS(this->IsInstalled(systemKey), "Subsystem lookup with invalid system key!");
+        Foundation::Assert(this->IsInstalled(systemKey), "Subsystem lookup with invalid system key!");
         Proxy& proxy { this->SystemMap_.at(systemKey) };
         ISubsystem& underlying { *proxy };
         return underlying;

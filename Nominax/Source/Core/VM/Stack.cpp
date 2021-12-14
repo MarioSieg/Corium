@@ -218,8 +218,8 @@ namespace Nominax::Core::VM
 	Stack::Stack(std::uint64_t size, const std::uint64_t alignment)
 	: Size_ { size }, Alignment_ { alignment }
 	{
-		NOX_PAS(size > 0, "Invalid stack size!");
-		NOX_PAS(IsAlignmentValid(alignment), "Invalid stack alignment!");
+		Foundation::Assert(size > 0, "Invalid stack size!");
+		Foundation::Assert(IsAlignmentValid(alignment), "Invalid stack alignment!");
 		size *= sizeof(Foundation::Record);
 		*(this->Buffer_ = static_cast<Foundation::Record*>(SystemAllocator::AllocateAlignedChecked(size, alignment))) = MAGIC_PADDING;
 	}

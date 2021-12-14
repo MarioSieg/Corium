@@ -205,7 +205,7 @@
 
 #pragma once
 
-#include "../Print.hpp"
+#include "../Protocol.hpp"
 #include "../Platform.hpp"
 #include "SourceLocation.hpp"
 

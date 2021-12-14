@@ -251,9 +251,9 @@ namespace Nominax::Assembler::X86_64
         return (~((m >> 6) & ~3) & ~(r1 & ~7) & ~(r2 & ~7)) & true;
     }
 
-    constexpr auto EncodeModRM(const MODField mod, const std::uint8_t r1, const std::uint8_t r2) -> std::uint8_t
+    inline auto EncodeModRM(const MODField mod, const std::uint8_t r1, const std::uint8_t r2) -> std::uint8_t
     {
-        NOX_DBG_PAS(CheckModRM(mod, r1, r2), "Invalid ModRM byte.");
+        Foundation::DebugAssert(CheckModRM(mod, r1, r2), "Invalid ModRM byte.");
         const std::uint8_t m { Foundation::Algorithm::ToUnderlying(mod) };
         return m | ((r1 & 7) << 3) | (r2 & 7);
     }
@@ -265,7 +265,7 @@ namespace Nominax::Assembler::X86_64
 
     inline auto EncodeSIB(const std::uint8_t scale, const std::uint8_t index) -> std::uint8_t
     {
-        NOX_DBG_PAS(CheckSIB(scale, index), "Invalid SIB byte.");
+        Foundation::DebugAssert(CheckSIB(scale, index), "Invalid SIB byte.");
         return scale | ((index & 7) << 3) | 4;
     }
 

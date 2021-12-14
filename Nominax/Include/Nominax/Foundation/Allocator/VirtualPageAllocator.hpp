@@ -414,7 +414,7 @@ namespace Nominax::Foundation::Allocator
 
 	inline auto VMM::MapHeaderFromRegion(void* const region, VirtualAllocationHeader*& out) -> void
 	{
-		NOX_DBG_PAS_NOT_NULL(region, "Region for header mapping was null!");
+        Foundation::DebugAssert(region, "Region for header mapping was null!");
 		out = &VirtualAllocationHeader::MapHeader(VirtualAllocationHeader::ComputeRegionStart(region));
 	}
 }

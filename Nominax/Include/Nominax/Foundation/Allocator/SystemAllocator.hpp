@@ -463,54 +463,54 @@ namespace Nominax::Foundation::Allocator
 	NOX_FLATTEN inline auto SystemAllocator::AllocateChecked(const std::uint64_t size) -> void*
 	{
 		void* mem { Allocate(size) };
-		NOX_PAS_NOT_NULL(mem, "Allocation error!");
+        Foundation::DebugAssert(mem, "Allocation error!");
 		return mem;
 	}
 
 	NOX_FLATTEN inline auto SystemAllocator::AllocateAndZeroChecked(const std::uint64_t size) -> void*
 	{
 		void* mem { AllocateAndZero(size) };
-		NOX_PAS_NOT_NULL(mem, "Allocation error!");
+        Foundation::DebugAssert(mem, "Allocation error!");
 		return mem;
 	}
 
 	NOX_FLATTEN inline auto SystemAllocator::ReallocateChecked(void* const where, const std::uint64_t size) -> void*
 	{
 		void* mem { Reallocate(where, size) };
-		NOX_PAS_NOT_NULL(mem, "Allocation error!");
+        Foundation::DebugAssert(mem, "Allocation error!");
 		return mem;
 	}
 
 	NOX_FLATTEN inline auto SystemAllocator::DeallocateChecked(void* const ptr) -> void
 	{
-		NOX_PAS_NOT_NULL(ptr, "Allocation error!");
+        Foundation::DebugAssert(ptr, "Allocation error!");
 		Deallocate(ptr);
 	}
 
 	NOX_FLATTEN inline auto SystemAllocator::AllocateAlignedChecked(const std::uint64_t size, const std::uint64_t alignment) -> void*
 	{
 		void* const mem { AllocateAligned(size, alignment) };
-		NOX_PAS_NOT_NULL(mem, "Allocation error!");
+        Foundation::DebugAssert(mem, "Allocation error!");
 		return mem;
 	}
 
 	NOX_FLATTEN inline auto SystemAllocator::AllocateAlignedAndZeroChecked(const std::uint64_t size, const std::uint64_t alignment) -> void*
 	{
 		void* const mem { AllocateAlignedAndZero(size, alignment) };
-		NOX_PAS_NOT_NULL(mem, "Allocation error!");
+        Foundation::DebugAssert(mem, "Allocation error!");
 		return mem;
 	}
 
 	NOX_FLATTEN inline auto SystemAllocator::ReallocateAlignedChecked(void* const where, const std::uint64_t size, const std::uint64_t alignment) -> void*
 	{
 		void* const mem { ReallocateAligned(where, size, alignment) };
-		NOX_PAS_NOT_NULL(mem, "Allocation error!");
+        Foundation::DebugAssert(mem, "Allocation error!");
 		return mem;
 	}
 
 	NOX_FLATTEN inline auto SystemAllocator::DeallocateAlignedChecked(void* const ptr) -> void
 	{
-		NOX_PAS_NOT_NULL(ptr, "Allocation error!");
+        Foundation::DebugAssert(ptr, "Allocation error!");
 		DeallocateAligned(ptr);
 	}
 }

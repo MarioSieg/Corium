@@ -219,6 +219,6 @@ namespace Nominax::JIT
         };
         std::ranges::copy(source, std::begin(region));
         const bool protectionSuccess { this->Protect(SECURITY_FLAGS, LOCK_PROTECTION) };
-        NOX_PAS(protectionSuccess, "Protection of execbuf failed!");
+        Foundation::Assert(protectionSuccess, "Protection of execbuf failed!");
     }
 }

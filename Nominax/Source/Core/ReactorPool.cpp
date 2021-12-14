@@ -203,7 +203,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../../Nominax/Include/Nominax/Foundation/Print.hpp"
+#include "../../../Nominax/Include/Nominax/Foundation/Protocol.hpp"
 #include "../../../Nominax/Include/Nominax/Core/_Core.hpp"
 #include "../../Include/Nominax/Core/ReactorPool.hpp"
 
@@ -225,7 +225,7 @@ namespace Nominax::Core
         ReactorConfig_ { config },
         ReactorRoutineLink_ { routineLink }
 	{
-        NOX_PAS_NOT_ZERO(reactorCount, "Reactor pool with zero reactors is not allowed!");
+        Foundation::Assert(reactorCount, "Reactor pool with zero reactors is not allowed!");
 
 		Print(NOX_FMT("Initializing reactor pool with {} reactors...\n"), reactorCount);
         Print(NOX_FMT("Pool boot mode: {}\n"), bootMode == ReactorPoolBootMode::Cached ? "Cached" : "Deferred");
@@ -278,9 +278,9 @@ namespace Nominax::Core
 
     auto ReactorPool::QueryAlphaReactor() -> Reactor&
     {
-        NOX_PAS(!std::empty(this->Pool_), "Reactor pool must at least contain one reactor! (Alpha reactor)");
+        Foundation::Assert(!std::empty(this->Pool_), "Reactor pool must at least contain one reactor! (Alpha reactor)");
         std::optional<std::unique_ptr<Reactor>>& alpha { this->Pool_.front() };
-        NOX_PAS(alpha.has_value(), "Alpha reactor must be initialized!");
+        Foundation::Assert(alpha.has_value(), "Alpha reactor must be initialized!");
         return **alpha;
     }
 

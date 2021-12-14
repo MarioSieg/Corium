@@ -1,5 +1,5 @@
 #include "../../Include/Nominax/Foundation/Version.hpp"
-#include "../../Include/Nominax/Foundation/Print.hpp"
+#include "../../Include/Nominax/Foundation/Protocol.hpp"
 
 namespace Nominax::Foundation
 {

@@ -216,7 +216,7 @@ namespace Nominax::Core
 	    ExecutionRoutine { executionRoutine },
 	    JTable { jumpTable }
 	{
-		NOX_PAS_NOT_NULL(this->ExecutionRoutine, "Routine for reactor routine link is null!");
-		NOX_PAS_NOT_NULL(this->JTable, "Jump table for reactor routine link is null!");
+		Foundation::Assert(this->ExecutionRoutine, "Routine for reactor routine link is null!");
+		Foundation::Assert(this->JTable, "Jump table for reactor routine link is null!");
 	}
 }

@@ -429,7 +429,7 @@ namespace Nominax::Core::Subsystem
         };
 
         // check if there already was a subsystem with the same key (should never happen - accumulator is incremented)
-        NOX_PAS(result.second, "Subsystem with host key already exists!");
+        Foundation::Assert(result.second, "Subsystem with host key already exists!");
 
         // Query instance and invoke hooks
         ISubsystem& system { *(*result.first).second };

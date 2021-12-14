@@ -403,7 +403,7 @@ namespace Nominax::Foundation::Memory
         const bool lockedProtection
     )
     {
-        NOX_DBG_PAS_NOT_ZERO(size, "Memory mapping with zero size requested!");
+        Foundation::DebugAssert(size, "Memory mapping with zero size requested!");
         if constexpr (alignof(T) > alignof(std::max_align_t))
         {
             this->Region_ = Allocator::VMM::VirtualAllocAligned(size * sizeof(T), alignof(T), flags, lockedProtection, &this->Header_);
@@ -412,7 +412,7 @@ namespace Nominax::Foundation::Memory
         {
             this->Region_ = Allocator::VMM::VirtualAlloc(size * sizeof(T), flags, lockedProtection, &this->Header_);
         }
-        NOX_DBG_PAS_NOT_NULL(this->Region_, "Virtual memory allocation failed!");
+        Foundation::DebugAssert(this->Region_, "Virtual memory allocation failed!");
     }
 
     template <typename T> requires MappedMemoryType<T>
@@ -530,27 +530,27 @@ namespace Nominax::Foundation::Memory
     }
 
     template <typename T> requires MappedMemoryType<T>
-    inline auto MappedMemoryWrapper<T>::operator[](const std::uint64_t idx) -> T&
+    inline auto MappedMemoryWrapper<T>::operator [](const std::uint64_t idx) -> T&
     {
-        NOX_DBG_PAS_L(idx, this->GetSize(), "Subscript out of range!");
+        Foundation::DebugAssert(idx < this->GetSize(), "Subscript out of range!");
         return *(this->GetBuffer() + idx);
     }
 
     template <typename T> requires MappedMemoryType<T>
-    inline auto MappedMemoryWrapper<T>::operator[](const std::uint64_t idx) const -> const T&
+    inline auto MappedMemoryWrapper<T>::operator [](const std::uint64_t idx) const -> const T&
     {
-        NOX_DBG_PAS_L(idx, this->GetSize(), "Subscript out of range!");
+        Foundation::DebugAssert(idx < this->GetSize(), "Subscript out of range!");
         return (*this->GetBuffer() + idx);
     }
 
     template <typename T> requires MappedMemoryType<T>
-    inline auto MappedMemoryWrapper<T>::operator*() const -> const T&
+    inline auto MappedMemoryWrapper<T>::operator *() const -> const T&
     {
         return *this->GetBuffer();
     }
 
     template <typename T> requires MappedMemoryType<T>
-    inline auto MappedMemoryWrapper<T>::operator*() -> T&
+    inline auto MappedMemoryWrapper<T>::operator *() -> T&
     {
         return *this->GetBuffer();
     }

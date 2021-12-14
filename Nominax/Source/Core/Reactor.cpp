@@ -280,10 +280,10 @@ namespace Nominax::Core
 			Foundation::Panic::Panic({}, NOX_FMT("Reactor {:#X} validation failed with the following reason: {}"), this->ID_, message);
 		}
 		ReactorCoreExecutionRoutine* const routine { this->RoutineLink_.ExecutionRoutine };
-		NOX_PAS_NOT_NULL(routine, "Reactor execution routine is null!");
+        Foundation::Assert(routine, "Reactor execution routine is null!");
 		this->Output_.Input = &this->Input_;
 		const bool result { (*routine)(&this->Input_, &this->Output_, nullptr) };
-		NOX_PAS(result, "Reactor routine execution return false!");
+        Foundation::Assert(result, "Reactor routine execution return false!");
         return this->Output_;
 	}
 }

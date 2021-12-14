@@ -216,6 +216,7 @@
 #include "ThreadIDHash.hpp"
 
 #include "../../../Include/Nominax/Foundation/Platform.hpp"
+#include "../../../Include/Nominax/Foundation/Panic/Assertions.hpp"
 
 namespace Nominax::Core::Subsystem
 {
@@ -548,7 +549,7 @@ namespace Nominax::Core::Subsystem
 	inline auto ISubsystem::QuerySpecInterface() const noexcept -> SpecConfig&
 	{
 		auto* const spec { dynamic_cast<SpecConfig*>(&*this->BootConfigStorage) };
-		NOX_PAS_NOT_NULL(spec, "Invalid spec config type!");
+        Foundation::Assert(spec, "Invalid spec config type!");
 		return *spec;
 	}
 

@@ -214,7 +214,7 @@ namespace Nominax::Foundation::Memory
 {
     auto AlignedMalloc(const std::uint64_t size, const std::uint64_t alignment) -> void*
     {
-        NOX_DBG_PAS(Algorithm::IsPowerOfTwo(alignment), "Alignment must be a power of two!");
+        Foundation::DebugAssert(Algorithm::IsPowerOfTwo(alignment), "Alignment must be a power of two!");
         const std::uint64_t offset { alignment - 1 + sizeof (void*) };
         void* NOX_RESTRICT const origin { std::malloc(size + offset) };
         if (!origin)
@@ -229,7 +229,7 @@ namespace Nominax::Foundation::Memory
 
     auto AlignedFree(void* const block) -> void
     {
-        NOX_DBG_PAS_NOT_NULL(block, "Pointer to free was null!");
+        Foundation::DebugAssert(block, "Pointer to free was null!");
         std::free(*(static_cast<void**>(block) - 1));
     }
 }

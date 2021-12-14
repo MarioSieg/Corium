@@ -209,13 +209,6 @@
 #include "../../Include/Nominax/Foundation/Panic/Assertions.hpp"
 #include "../../Include/Nominax/Foundation/Algorithm/Enum.hpp"
 
-#define NOX_VALIDATE_HANDLE()                                                           \
-	do                                                                                  \
-	{                                                                                   \
-	    NOX_DBG_PAS_NOT_NULL(this->Handle_, "IO stream handle is not initialized!");    \
-	}                                                                                   \
-	while(false)
-
 namespace Nominax::Foundation
 {
     auto IOStream::GetCAccessModeProxy(const FileAccessMode accessMode, const FileContentMode contentMode) -> ModeProxy
@@ -246,7 +239,7 @@ namespace Nominax::Foundation
         {
             const auto modeProxy { GetCAccessModeProxy(accessMode, contentMode) };
             NativeHandle* const handle { FOpen(fileName, modeProxy) };
-            NOX_PAS(handle, Format("Failed to open file handle: {}", fileName));
+            Foundation::Assert(handle, Format("Failed to open file handle: {}", fileName));
             return *handle;
         }()
     },
@@ -314,8 +307,8 @@ namespace Nominax::Foundation
 
     auto IOStream::SeekSize() const -> std::uint64_t
     {
-        NOX_VALIDATE_HANDLE();
-        NOX_PAS_EQ(this->ContentMode_, FileContentMode::Binary, "Only supported with binary mode!");
+        Foundation::Assert(this->Handle_, "IO stream handle is not initialized!");
+        Foundation::Assert(this->ContentMode_ == FileContentMode::Binary, "Only supported with binary mode!");
         std::fseek(this->Handle_, 0, SEEK_END);
         const long size { std::ftell(this->Handle_) };
         std::rewind(this->Handle_);
@@ -324,7 +317,7 @@ namespace Nominax::Foundation
 
     auto IOStream::ReadAll(std::vector<std::uint8_t>& out) const -> bool
     {
-        NOX_PAS_EQ(this->ContentMode_, FileContentMode::Binary, "Only supported with binary mode!");
+        Foundation::Assert(this->ContentMode_ == FileContentMode::Binary, "Only supported with binary mode!");
         const std::uint64_t size { this->SeekSize() };
         if (!size) [[unlikely]]
         {

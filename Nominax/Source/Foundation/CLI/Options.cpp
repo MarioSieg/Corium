@@ -205,7 +205,7 @@
 
 #include "../../../Include/Nominax/Foundation/CLI/Options.hpp"
 #include "../../../Include/Nominax/Foundation/Version.hpp"
-#include "../../../Include/Nominax/Foundation/Print.hpp"
+#include "../../../Include/Nominax/Foundation/Protocol.hpp"
 #include "../../../Include/Nominax/ByteCode/InstructionMetaDataRegistry.hpp"
 
 namespace Nominax::Foundation::CLI

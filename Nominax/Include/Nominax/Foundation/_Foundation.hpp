@@ -231,7 +231,7 @@
 #include "OSInterface.hpp"
 #include "SigBus.hpp"
 #include "Platform.hpp"
-#include "Print.hpp"
+#include "Protocol.hpp"
 #include "ProtocolController.hpp"
 #include "ScopeExitGuard.hpp"
 #include "Record.hpp"
