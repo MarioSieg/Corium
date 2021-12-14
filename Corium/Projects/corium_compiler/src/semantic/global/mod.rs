@@ -203,7 +203,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-pub mod analyze;
+pub mod validate_identifiers;
 pub mod bucket;
 pub mod evaluate;
 pub mod table;

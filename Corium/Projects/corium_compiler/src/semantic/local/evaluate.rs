@@ -232,7 +232,7 @@ pub fn evaluate<'ast>(
             table::populate(errors, function, global, &mut symbol_table);
 
             // Run analysis
-            super::analyze::analyze(errors, &global, &symbol_table);
+            super::validate_identifiers::validate(errors, &global, &symbol_table);
 
             i += 1;
         }

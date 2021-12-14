@@ -208,7 +208,7 @@ use crate::semantic::global::table::GlobalSymbolTable;
 use crate::semantic::validate;
 use crate::semantic::SymbolBucket;
 
-pub fn analyze(errors: &mut ErrorList, input: &GlobalSymbolTable) {
+pub fn validate(errors: &mut ErrorList, input: &GlobalSymbolTable) {
     for bucket in input.values() {
         if let Some(expr) = bucket.extract_expression() {
             validate::validate_identifiers(errors, expr, input, None);

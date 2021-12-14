@@ -217,7 +217,7 @@ pub fn evaluate<'ast>(
     let symbol_table = table::populate(errors, input);
 
     // 2. Run analysis
-    super::analyze::analyze(errors, &symbol_table);
+    super::validate_identifiers::validate(errors, &symbol_table);
 
     // Return our global symbol table
     symbol_table
