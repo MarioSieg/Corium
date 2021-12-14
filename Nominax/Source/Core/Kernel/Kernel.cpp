@@ -207,13 +207,25 @@
 
 namespace Nominax::Core::Kernel
 {
-	Kernel::Kernel()
+	Kernel::Kernel(KernelDescriptor&& descriptor)
+	: Name_ { std::move(descriptor.Name) },
+	ArgC_ { descriptor.ArgC },
+	ArgV_ { descriptor.ArgV },
+	Environ_ { descriptor.Environ },
+	Cluster_ { descriptor.Concurrency },
+	Host_ { },
+	Pipes_ { }
 	{
-
+		this->Host_.BootAll();
 	}
 
 	Kernel::~Kernel()
 	{
+		this->Host_.ShutdownAll();
+	}
 
+	auto Kernel::Initialize(KernelDescriptor&& descriptor) -> std::shared_ptr<Kernel>
+	{
+		return std::make_shared<Kernel>(std::move(descriptor));
 	}
 }

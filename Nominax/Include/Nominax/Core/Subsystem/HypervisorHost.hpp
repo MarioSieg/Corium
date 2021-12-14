@@ -376,7 +376,7 @@ namespace Nominax::Core::Subsystem
         /// <param name="code"></param>
         /// <param name="userData"></param>
         /// <returns></returns>
-        auto BeginPreExecution(Reactor& vm, ByteCode::Image& code, void* userData) -> void;
+        auto BeginPreExecution(VM::ExecutionEngine& vm, ByteCode::Image& code, void* userData) -> void;
 
         /// <summary>
         /// Invokes the PostExecution event on all subsystems.
@@ -385,7 +385,7 @@ namespace Nominax::Core::Subsystem
         /// <param name="code"></param>
         /// <param name="userData"></param>
         /// <returns></returns>
-        auto BeginPostExecution(Reactor& vm, ByteCode::Image& code, void* userData) -> void;
+        auto BeginPostExecution(VM::ExecutionEngine& vm, ByteCode::Image& code, void* userData) -> void;
 
         /// <summary>
         /// Invokes the specified event flags on all subsystems.

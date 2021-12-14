@@ -207,8 +207,9 @@
 
 #include "Breakpoint.hpp"
 #include "BufferView.hpp"
-#include "Context.hpp"
-#include "ContextDescriptor.hpp"
+#include "Cluster.hpp"
+#include "ExecutionEngine.hpp"
+#include "ExecutionEngineDescriptor.hpp"
 #include "Error.hpp"
 #include "Exception.hpp"
 #include "ExecutionPort.hpp"

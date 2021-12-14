@@ -205,15 +205,35 @@
 
 #pragma once
 
+#include <memory>
+#include <vector>
+
+#include "Pipes.hpp"
+#include "KernelDescriptor.hpp"
+#include "../VM/Cluster.hpp"
+#include "../Subsystem/HypervisorHost.hpp"
+
 namespace Nominax::Core::Kernel
 {
 	struct [[nodiscard]] Kernel
 	{
-		Kernel();
 		Kernel(const Kernel& other) = delete;
 		Kernel(Kernel&& other) = delete;
 		auto operator =(const Kernel& other) -> Kernel& = delete;
 		auto operator =(Kernel&& other) -> Kernel& = delete;
 		virtual ~Kernel();
+
+		static auto Initialize(KernelDescriptor&& descriptor) -> std::shared_ptr<Kernel>;
+
+	private:
+		explicit Kernel(KernelDescriptor&& descriptor);
+
+		const std::string Name_;
+		const signed ArgC_;
+		const char* const* const ArgV_;
+		const char* const* const Environ_;
+		VM::Cluster Cluster_;
+		Subsystem::HypervisorHost Host_;
+		Pipes Pipes_;
 	};
 }

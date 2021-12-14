@@ -205,22 +205,25 @@
 
 #pragma once
 
-#include "Descriptor/_Descriptor.hpp"
+#include <string>
+#include <cstdint>
 
-namespace Nominax::Core::Kernel
+#include "InputDescriptor.hpp"
+#include "ExecutionPort.hpp"
+#include "Stack.hpp"
+
+namespace Nominax::Core::VM
 {
-	/// <summary>
-	/// Global kernel configuration.
-	/// </summary>
-	struct KernelDescriptor final
+	struct ExecutionEngineDescriptor final
 	{
-		AppDescriptor App { };
-		CacheDescriptor Cache { };
-		ComputeDescriptor Compute { };
-		GCDescriptor GC { };
-		JITDescriptor JIT { };
-		MemoryDescriptor Memory { };
-		PerformanceDescriptor Performance { };
-		RuntimeDescriptor Runtime { };
+		const IntrinsicTableView IntrinsicTable;
+		const ImageView Image;
+		InterruptRoutine* const InterruptHandler;
+
+		std::string Name { };
+		std::uint64_t StackSize { Stack::DEFAULT_SIZE };
+		bool EnableJIT { true };
+		void* UserData { };
+		const ExecutionPort* OverridePort { };
 	};
 }

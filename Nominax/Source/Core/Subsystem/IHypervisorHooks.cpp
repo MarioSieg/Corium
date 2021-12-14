@@ -217,9 +217,9 @@ namespace Nominax::Core::Subsystem
     auto IHypervisorHooks::OnPreBoot() & -> void { }
     auto IHypervisorHooks::OnPostBoot() & -> void { }
 
-    auto IHypervisorHooks::OnPreExecute([[maybe_unused]] Reactor& vm, [[maybe_unused]] ByteCode::Image& code, [[maybe_unused]] void* const userData) & -> void { }
+    auto IHypervisorHooks::OnPreExecute([[maybe_unused]] VM::ExecutionEngine& vm, [[maybe_unused]] ByteCode::Image& code, [[maybe_unused]] void* const userData) & -> void { }
 
-    auto IHypervisorHooks::OnPostExecute([[maybe_unused]] Reactor& vm, [[maybe_unused]] ByteCode::Image& code, [[maybe_unused]] void* const userData) & -> void { }
+    auto IHypervisorHooks::OnPostExecute([[maybe_unused]] VM::ExecutionEngine& vm, [[maybe_unused]] ByteCode::Image& code, [[maybe_unused]] void* const userData) & -> void { }
 
     auto IHypervisorHooks::OnPreShutdown() & -> void { }
     auto IHypervisorHooks::OnPostShutdown() & -> void { }

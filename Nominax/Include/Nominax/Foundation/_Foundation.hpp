@@ -220,6 +220,7 @@
 #include "CompileTimeConfig.hpp"
 #include "DataStream.hpp"
 #include "EmbeddedHTML.hpp"
+#include "Environ.hpp"
 #include "GenericBitScalar.hpp"
 #include "IOStream.hpp"
 #include "IDisplay.hpp"

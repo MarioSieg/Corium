@@ -205,21 +205,61 @@
 
 #pragma once
 
-namespace Nominax::Core::Kernel
+#include "Stack.hpp"
+#include "InputDescriptor.hpp"
+#include "OutputState.hpp"
+#include "ExecutionPort.hpp"
+#include "ExecutionEngineDescriptor.hpp"
+
+namespace Nominax::Core::VM
 {
 	/// <summary>
-	/// Configuration for the cache.
+	/// Per thread execution engine context.
 	/// </summary>
-	struct CacheDescriptor final
+	struct [[nodiscard]] ExecutionEngine final
 	{
 		/// <summary>
-		/// Enables/disables caching of various data.
+		/// No move.
 		/// </summary>
-		bool EnableCaching { true };
+		/// <param name="other"></param>
+		ExecutionEngine(ExecutionEngine&& other) = delete;
 
 		/// <summary>
-		/// Override the automatic cache directory.
+		/// No copy.
 		/// </summary>
-		std::string OverrideCacheDir { };
+		/// <param name="other"></param>
+		ExecutionEngine(const ExecutionEngine& other) = delete;
+
+		/// <summary>
+		/// No move.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(ExecutionEngine&& other) -> ExecutionEngine& = delete;
+
+		/// <summary>
+		/// No copy.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		auto operator =(const ExecutionEngine& other) -> ExecutionEngine& = delete;
+
+		/// <summary>
+		/// Destructor.
+		/// </summary>
+		~ExecutionEngine() = default;
+
+	private:
+		/// <summary>
+		/// Construct new instance.
+		/// </summary>
+		/// <param name="descriptor"></param>
+		explicit ExecutionEngine(ExecutionEngineDescriptor&& descriptor);
+
+		const std::string Name_;
+		const ExecutionPort& Port_;
+		Stack Stack_;
+		OutputState State_;
+		const InputDescriptor Input_;
 	};
 }

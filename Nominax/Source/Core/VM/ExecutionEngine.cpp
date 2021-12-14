@@ -203,72 +203,37 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#pragma once
+#include "../../../Include/Nominax/Core/VM/ExecutionEngine.hpp"
+#include "../../../Include/Nominax/Core/VM/ImplementedExecutionPorts.hpp"
 
-#include <cstdint>
-#include <string>
-
-namespace Nominax::Core::Kernel
+namespace Nominax::Core::VM
 {
-	/// <summary>
-	/// The type on how the reactor pool handles reactor allocations.
-	/// </summary>
-	enum struct ReactorPoolMode : std::uint8_t
+	ExecutionEngine::ExecutionEngine(ExecutionEngineDescriptor&& descriptor)
+	: Name_ { std::move(descriptor.Name)},
+	Port_
 	{
-		/// <summary>
-		/// All reactors are allocated on startup.
-		/// </summary>
-		Preload,
-
-		/// <summary>
-		/// Reacted are allocated when needed.
-		/// </summary>
-		Deferred
-	};
-
-	/// <summary>
-	/// Configuration for the VM runtime system.
-	/// </summary>
-	struct RuntimeDescriptor final
+		[&descriptor]() -> const ExecutionPort&
+		{
+			const ExecutionPort* const port
+			{
+				descriptor.OverridePort
+				? descriptor.OverridePort
+				: &Ports::FALLBACK
+			};
+			return *port;
+		}()
+	},
+	Stack_
 	{
-		/// <summary>
-		/// Enable additional system checks.
-		/// </summary>
-		bool PerformAdditionalChecks { false };
-
-		/// <summary>
-		/// Enables/disables the protocol logging.
-		/// </summary>
-		bool EnableProtocol { false };
-
-		/// <summary>
-		/// Enables/disables the protocol logging file.
-		/// </summary>
-		bool EnableProtocolFile { false };
-
-		/// <summary>
-		/// Enables/disables the creation of panic dumps.
-		/// </summary>
-		bool EnablePanicDumps { true };
-
-		/// <summary>
-		/// File name of the protocol file.
-		/// </summary>
-		std::string ProtocolFileName { "Protocol.log" };
-
-		/// <summary>
-		/// The reactor pool mode.
-		/// </summary>
-		ReactorPoolMode PoolMode { ReactorPoolMode::Deferred };
-
-		/// <summary>
-		/// Enables/disables debugging mode.
-		/// </summary>
-		bool EnableDebugMode { false };
-
-		/// <summary>
-		/// Enables/disables sandbox security mode.
-		/// </summary>
-		bool EnableSandboxMode { false };
-	};
+		descriptor.StackSize,
+		Port_.StackAlignment()
+	},
+	State_ { },
+	Input_
+	{
+		.Image = descriptor.Image,
+		.IntrinsicTable = descriptor.IntrinsicTable,
+		.Stack = StackView { *Stack_, Stack_.Size(), Stack_.Alignment() },
+		.InterruptHandler = descriptor.InterruptHandler
+	} { }
 }

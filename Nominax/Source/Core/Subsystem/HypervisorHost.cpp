@@ -264,7 +264,10 @@ namespace Nominax::Core::Subsystem
 
     HypervisorHost::~HypervisorHost()
     {
-        this->UninstallAll();
+        if (!std::empty(this->SystemMap_))
+        {
+            this->UninstallAll();
+        }
     }
 
     auto HypervisorHost::FullSystemMap() const noexcept -> const SystemMap&
@@ -303,13 +306,13 @@ namespace Nominax::Core::Subsystem
         this->OnPostShutdown();
     }
 
-    auto HypervisorHost::BeginPreExecution(Reactor& vm, ByteCode::Image& code, void* userData) -> void
+    auto HypervisorHost::BeginPreExecution(VM::ExecutionEngine& vm, ByteCode::Image& code, void* userData) -> void
     {
         this->OnPreExecute(vm, code, userData);
         InvokeGroup<HookFlags::OnPreExecute, false>(vm, code, userData);
     }
 
-    auto HypervisorHost::BeginPostExecution(Reactor& vm, ByteCode::Image& code, void* userData) -> void
+    auto HypervisorHost::BeginPostExecution(VM::ExecutionEngine& vm, ByteCode::Image& code, void* userData) -> void
     {
         this->OnPostExecute(vm, code, userData);
         InvokeGroup<HookFlags::OnPostExecute, true>(vm, code, userData);
