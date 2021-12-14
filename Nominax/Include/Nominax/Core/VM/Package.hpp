@@ -204,3 +204,18 @@
 //    limitations under the License.
 
 #pragma once
+
+#include <memory>
+
+namespace Nominax::ByteCode
+{
+	class Image;
+}
+
+namespace Nominax::Core::VM
+{
+	struct ExecutionPackage final
+	{
+		std::shared_ptr<ByteCode::Image> AppImage { };
+	};
+}

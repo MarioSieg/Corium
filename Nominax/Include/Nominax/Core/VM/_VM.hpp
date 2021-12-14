@@ -217,4 +217,6 @@
 #include "InputDescriptor.hpp"
 #include "Interrupt.hpp"
 #include "OutputState.hpp"
+#include "Package.hpp"
+#include "Queue.hpp"
 #include "Stack.hpp"
