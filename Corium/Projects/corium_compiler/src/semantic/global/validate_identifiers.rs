@@ -204,7 +204,7 @@
 //    limitations under the License.
 
 use crate::error::list::ErrorList;
-use crate::semantic::global::table::GlobalSymbolTable;
+use crate::semantic::global::symbol_table::GlobalSymbolTable;
 use crate::semantic::validate;
 use crate::semantic::SymbolBucket;
 
@@ -218,6 +218,7 @@ pub fn validate(errors: &mut ErrorList, input: &GlobalSymbolTable) {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
     use crate::ast::tree::block::Block;
     use crate::ast::tree::expression::Expression;
     use crate::ast::tree::function::Function;
@@ -228,8 +229,7 @@ mod tests {
     use crate::ast::tree::literal::Literal;
     use crate::ast::tree::mutable_variable::MutableVariable;
     use crate::ast::tree::native_function::NativeFunction;
-    use crate::error::list::ErrorList;
-    use crate::semantic::global::table::populate;
+    use crate::semantic::global::symbol_table::populate;
 
     #[test]
     fn valid() {
@@ -240,7 +240,7 @@ mod tests {
         });
         let immutable_variable = GlobalStatement::ImmutableVariable(ImmutableVariable {
             name: Identifier::new("y"),
-            value: Expression::Literal(Literal::Int(3)),
+            value: Expression::Identifier(Identifier::new("x")),
             type_hint: None,
         });
         let function = GlobalStatement::Function(Function {
@@ -266,7 +266,49 @@ mod tests {
         ];
         let mut errors = ErrorList::new();
         let table = populate(&mut errors, items);
+        validate(&mut errors, &table);
         assert!(errors.is_empty());
+        assert_eq!(table.len(), 4);
+    }
+
+    #[test]
+    fn undefined() {
+        let mutable_variable = GlobalStatement::MutableVariable(MutableVariable {
+            name: Identifier::new("x"),
+            value: Expression::Literal(Literal::Int(3)),
+            type_hint: None,
+        });
+        let immutable_variable = GlobalStatement::ImmutableVariable(ImmutableVariable {
+            name: Identifier::new("y"),
+            value: Expression::Identifier(Identifier::new("ymm")),
+            type_hint: None,
+        });
+        let function = GlobalStatement::Function(Function {
+            signature: FunctionSignature {
+                name: Identifier::new("fx"),
+                parameters: None,
+                return_type: None,
+            },
+            block: Block::new(),
+        });
+        let native_function = GlobalStatement::NativeFunction(NativeFunction {
+            signature: FunctionSignature {
+                name: Identifier::new("fy"),
+                parameters: None,
+                return_type: None,
+            },
+        });
+        let items: &[GlobalStatement] = &[
+            mutable_variable,
+            immutable_variable,
+            function,
+            native_function,
+        ];
+        let mut errors = ErrorList::new();
+        let table = populate(&mut errors, items);
+        validate(&mut errors, &table);
+        assert!(!errors.is_empty());
+        assert_eq!(errors.len(), 1);
         assert_eq!(table.len(), 4);
     }
 }

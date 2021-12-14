@@ -207,7 +207,7 @@ use crate::ast::tree::function::Function;
 use crate::ast::tree::Statement;
 use crate::error::list::ErrorList;
 use crate::error::Error;
-use crate::semantic::global::table::GlobalSymbolTable;
+use crate::semantic::global::symbol_table::GlobalSymbolTable;
 use crate::semantic::local::bucket;
 use crate::semantic::table::SymbolTable;
 
@@ -266,9 +266,9 @@ mod tests {
     use crate::ast::tree::parameter::Parameter;
     use crate::ast::tree::parameter_list::ParameterList;
     use crate::error::list::ErrorList;
-    use crate::semantic::global::table::GlobalSymbolTable;
+    use crate::semantic::global::symbol_table::GlobalSymbolTable;
     use crate::semantic::local::bucket::Bucket;
-    use crate::semantic::local::table::LocalSymbolTable;
+    use crate::semantic::local::symbol_table::LocalSymbolTable;
 
     #[test]
     fn build_table_valid() {

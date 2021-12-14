@@ -206,8 +206,8 @@
 use crate::ast::tree::expression::Expression;
 use crate::error::list::ErrorList;
 use crate::error::Error;
-use crate::semantic::global::table::GlobalSymbolTable;
-use crate::semantic::local::table::LocalSymbolTable;
+use crate::semantic::global::symbol_table::GlobalSymbolTable;
+use crate::semantic::local::symbol_table::LocalSymbolTable;
 
 pub fn validate_identifiers(
     errors: &mut ErrorList,

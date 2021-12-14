@@ -205,19 +205,19 @@
 
 use crate::ast::tree::global_statement::GlobalStatement;
 use crate::error::list::ErrorList;
-use crate::semantic::global::table::{self, GlobalSymbolTable};
+use crate::semantic::global::symbol_table::{self, GlobalSymbolTable};
+use crate::semantic::global::validate_identifiers;
 
 /// Builds and evaluates the global symbol table.
 pub fn evaluate<'ast>(
     errors: &mut ErrorList,
     input: &'ast [GlobalStatement<'ast>],
 ) -> GlobalSymbolTable<'ast> {
-
     // 1. Populate our symbol table from the input
-    let symbol_table = table::populate(errors, input);
+    let symbol_table = symbol_table::populate(errors, input);
 
     // 2. Run analysis
-    super::validate_identifiers::validate(errors, &symbol_table);
+    validate_identifiers::validate(errors, &symbol_table);
 
     // Return our global symbol table
     symbol_table

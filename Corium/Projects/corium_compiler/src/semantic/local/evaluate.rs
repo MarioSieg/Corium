@@ -205,8 +205,9 @@
 
 use crate::ast::tree::global_statement::GlobalStatement;
 use crate::error::list::ErrorList;
-use crate::semantic::global::table::GlobalSymbolTable;
-use crate::semantic::local::table::{self, LocalSymbolTable};
+use crate::semantic::global::symbol_table::GlobalSymbolTable;
+use crate::semantic::local::symbol_table::{self, LocalSymbolTable};
+use crate::semantic::local::validate_identifiers;
 
 pub fn evaluate<'ast>(
     errors: &mut ErrorList,
@@ -221,18 +222,16 @@ pub fn evaluate<'ast>(
 
     // Iterate all global statements and filter for functions
     input.iter().for_each(|statement| {
-
         // If we got a function
         if let GlobalStatement::Function(function) = statement {
-
             // Reset local symbol table
             symbol_table.clear();
 
             // Build new local symbol table from function info
-            table::populate(errors, function, global, &mut symbol_table);
+            symbol_table::populate(errors, function, global, &mut symbol_table);
 
             // Run analysis
-            super::validate_identifiers::validate(errors, &global, &symbol_table);
+            validate_identifiers::validate(errors, &global, &symbol_table);
 
             i += 1;
         }
