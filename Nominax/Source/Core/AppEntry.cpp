@@ -203,14 +203,14 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../../Include/Nominax/Core/LPCEntryProxy.hpp"
+#include "../../../Include/Nominax/Core/AppEntry.hpp"
 #include "../../../Include/Nominax/Core/Kernel/Kernel.hpp"
 
 namespace Nominax::Core
 {
 	namespace K = Kernel;
 
-	auto LPCEntryProxy(const signed argc, const char* const* const argv, const char* const* const environ) -> signed
+	auto AppEntry(const signed argc, const char* const* const argv, const char* const* const environ) -> signed
 	{
 		K::KernelDescriptor descriptor
 		{

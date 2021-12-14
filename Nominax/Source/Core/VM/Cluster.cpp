@@ -204,8 +204,12 @@
 //    limitations under the License.
 
 #include "../../../Include/Nominax/Core/VM/Cluster.hpp"
+#include "../../../Include/Nominax/Foundation/Panic/Assertions.hpp"
 
 namespace Nominax::Core::VM
 {
-
+    Cluster::Cluster(const std::uint64_t concurrency)
+    {
+        NOX_PAS(concurrency > 0, "Concurrency of zero is not allowed!");
+    }
 }

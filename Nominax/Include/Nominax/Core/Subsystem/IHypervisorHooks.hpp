@@ -212,7 +212,7 @@ namespace Nominax
 		class Image;
 	}
 
-    namespace VM
+    namespace Core::VM
     {
         struct ExecutionEngine;
     }

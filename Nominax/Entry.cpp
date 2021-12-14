@@ -203,9 +203,9 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "Include/Nominax/Core/LPCEntryProxy.hpp"
+#include "Include/Nominax/Core/AppEntry.hpp"
 
 auto main(const signed argc, const char* const* const argv, const char* const* const environ) -> signed
 {
-    return ::Nominax::Core::LPCEntryProxy(argc, argv, environ);
+    return ::Nominax::Core::AppEntry(argc, argv, environ);
 }

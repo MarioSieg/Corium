@@ -222,4 +222,7 @@ namespace Nominax::Core::Subsystem
 
     auto IHypervisorHooks::OnPause([[maybe_unused]] ISubsystem& system) & -> void { }
     auto IHypervisorHooks::OnResume([[maybe_unused]] ISubsystem& system) & -> void { }
+
+    auto IHypervisorHooks::OnPreExecute([[maybe_unused]] VM::ExecutionEngine& vm, [[maybe_unused]] ByteCode::Image& code, [[maybe_unused]] void* const userData) & -> void { }
+    auto IHypervisorHooks::OnPostExecute([[maybe_unused]] VM::ExecutionEngine& vm, [[maybe_unused]] ByteCode::Image& code, [[maybe_unused]] void* const userData) & -> void { }
 }
