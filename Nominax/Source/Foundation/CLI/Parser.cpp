@@ -229,11 +229,11 @@ namespace Nominax::Foundation::CLI
         return found(option.Short) || found(option.Long);
 	}
 
-    auto Parser::Display(DataStream& stream) const -> void
+    auto Parser::Display(std::ostream& stream) const -> void
     {
         for (const auto& option : this->Options_)
         {
-            Print(stream, NOX_FMT("{0: <3} | {1: <12} | {2: <20}\n"), option.Short, option.Long, option.Description);
+            Print(stream, "{0: <3} | {1: <12} | {2: <20}\n", option.Short, option.Long, option.Description);
         }
     }
 }

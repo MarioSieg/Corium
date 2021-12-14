@@ -304,6 +304,6 @@ namespace Nominax::Foundation
         /// <summary>
         /// Prints this object into the file stream.
         /// </summary>
-        virtual auto Display(DataStream& stream) const -> void override;
+        virtual auto Display(std::ostream& stream) const -> void override;
 	};
 }

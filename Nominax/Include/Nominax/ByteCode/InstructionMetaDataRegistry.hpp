@@ -210,7 +210,6 @@
 #include <string_view>
 #include <initializer_list>
 
-#include "../Foundation/DataStream.hpp"
 #include "Signal.hpp"
 
 namespace Nominax::ByteCode
@@ -498,7 +497,7 @@ namespace Nominax::ByteCode
             #include "ExportInstructiontImmediateTable.hpp"
         };
 
-        NOX_COLD static auto PrintInstructionSetTable(Foundation::DataStream& stream) -> void;
+        NOX_COLD static auto PrintInstructionSetTable(std::ostream& stream) -> void;
     };
 
     consteval auto ValidateImmediateArgumentCounts() -> bool

@@ -233,7 +233,7 @@ namespace Nominax::Foundation
 		this->Sections_[this->CurrentSection].insert_or_assign(std::move(key), std::move(value));
 	}
 
-	auto INIFile::Serialize(DataStream& out) const -> bool
+	auto INIFile::Serialize(std::ostream& out) const -> bool
 	{
 		for (const auto& [section, entries] : this->Sections_)
 		{
@@ -241,40 +241,40 @@ namespace Nominax::Foundation
 			{
 				continue;
 			}
-            Print(out, NOX_FMT("{}{}{}\n"), SECTION_BEGIN, section.c_str(), SECTION_END);
+            Print(out, "{}{}{}\n", SECTION_BEGIN, section.c_str(), SECTION_END);
 			for (const auto& [key, value] : entries)
 			{
-                Print(out, NOX_FMT("{} {} "), key.c_str(), EQU);
+                Print(out, "{} {} ", key.c_str(), EQU);
                 std::visit
                 (
                     Algorithm::Overload
                     {
                         [&out](const std::string& val)
                         {
-                            Print(out, NOX_FMT("\"{}\""), val.c_str());
+                            Print(out, "\"{}\"", val.c_str());
                         },
                         [&out](const std::int64_t val)
                         {
-                            Print(out, NOX_FMT("{}"), val);
+                            Print(out, "{}", val);
                         },
                         [&out](const double val)
                         {
-                            Print(out, NOX_FMT("{}"), val);
+                            Print(out, "{}", val);
                         },
                         [&out](const bool val)
                         {
-                            Print(out, NOX_FMT("{}"), val ? "true" : "false");
+                            Print(out, "{}", val ? "true" : "false");
                         }
                     }, value
                 );
-                out.NewLine();
+                Print(out, '\n');
 			}
-            out.NewLine();
+            Print(out, '\n');
 		}
 		return true;
 	}
 
-	auto INIFile::Deserialize([[maybe_unused]] DataStream& in) -> bool
+	auto INIFile::Deserialize([[maybe_unused]] std::istream& in) -> bool
 	{
 		return false;
 	}

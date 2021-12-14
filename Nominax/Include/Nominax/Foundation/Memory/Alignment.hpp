@@ -207,6 +207,7 @@
 
 #include <bit>
 #include <cstdint>
+#include <cstddef>
 
 #include "../Algorithm/Math.hpp"
 

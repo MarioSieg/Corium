@@ -6,7 +6,6 @@
 #include "../../../Include/Nominax/Foundation/Panic/Dump.hpp"
 #include "../../../Include/Nominax/Foundation/Stopwatch.hpp"
 #include "../../../Include/Nominax/Foundation/EmbeddedHTML.hpp"
-#include "../../../Include/Nominax/Foundation/IOStream.hpp"
 
 namespace Nominax::Foundation::Panic
 {
@@ -14,7 +13,7 @@ namespace Nominax::Foundation::Panic
 
 	auto GetPanicDumpDirName() -> std::string
 	{
-		std::string time { Format(NOX_FMT("{}/NominaxPanic {:%A %c}/"), PANIC_OUTPUT_DIR, SafeLocalTime(std::time(nullptr))) };
+		std::string time { Format("{}/NominaxPanic {:%A %c}/", PANIC_OUTPUT_DIR, SafeLocalTime(std::time(nullptr))) };
 		std::ranges::replace(time, ':', ' ');
 		return time;
 	}
@@ -48,19 +47,10 @@ namespace Nominax::Foundation::Panic
 		{
 			{
 				const auto& regs { *static_cast<const NOX_ARCH_PROXY::RegisterCache*>(regCache) };
-				auto regFile
-				{
-					IOStream::TryOpen
-					(
-						directory + "RegisterDump.txt",
-						FileAccessMode::Write,
-						FileContentMode::Text
-					)
-				};
+				std::ofstream regFile { directory + "RegisterDump.txt" };
 				if (regFile) [[likely]]
 				{
-					IOStream& regStream { *regFile };
-					regs.Display(regStream);
+					regs.Display(regFile);
 				}
 			}
 			std::ifstream i { directory + "RegisterDump.txt" };

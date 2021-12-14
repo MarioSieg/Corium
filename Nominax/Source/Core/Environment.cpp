@@ -234,7 +234,7 @@ namespace Nominax::Core
 	/// <returns></returns>
 	static inline auto MapStackSize(const std::uint64_t sizeInBytes) -> std::uint64_t
 	{
-        Foundation::Assert(sizeInBytes % sizeof(Record) == 0, Format(NOX_FMT("Invalid stack size: {}! Must be a multiple of sizeof(Record) -> 8!"), sizeInBytes));
+        Foundation::Assert(sizeInBytes % sizeof(Record) == 0, "Invalid stack size: {}! Must be a multiple of sizeof(Record) -> 8!", sizeInBytes);
 		return sizeInBytes / sizeof(Record);
 	}
 
@@ -283,7 +283,7 @@ namespace Nominax::Core
 	[[nodiscard]]
 	NOX_ALLOC_SIZE(1) static inline auto AllocatePool(const std::uint64_t size, const std::string_view poolId) -> std::uint8_t*
 	{
-		Print(NOX_FMT("Allocating {} pool with size: {} MB\n"), poolId, Memory::Bytes2Megabytes(static_cast<double>(size)));
+		Print("Allocating {} pool with size: {} MB\n", poolId, Memory::Bytes2Megabytes(static_cast<double>(size)));
 		auto* NOX_RESTRICT const mem { new(std::nothrow) std::uint8_t[size] };
 		if (!mem) [[unlikely]]
 		{
@@ -291,7 +291,7 @@ namespace Nominax::Core
             (
                 Format
                 (
-                    NOX_FMT("Allocation of monotonic {} pool with size {} MB failed!"),
+                    "Allocation of monotonic {} pool with size {} MB failed!",
                     poolId,
                     Memory::Bytes2Megabytes(static_cast<double>(size))
                 )
@@ -491,7 +491,7 @@ namespace Nominax::Core
 		std::ios_base::sync_with_stdio(false);
 		SYSTEM_VERSION.DisplayToConsole();
         NATIVE_TYPE_REGISTRY.DisplayToConsole();
-		Print(NOX_FMT("\nBooting runtime environment...\nApp: \"{}\"\n"), descriptor.AppName);
+		Print("\nBooting runtime environment...\nApp: \"{}\"\n", descriptor.AppName);
 		const auto tik { std::chrono::high_resolution_clock::now() };
 
 		// Invoke hook:
@@ -499,7 +499,7 @@ namespace Nominax::Core
 
 		Print
 		(
-			NOX_FMT("Monotonic system pool fixed size: {} MB, Fallback: {} MB\n"),
+			"Monotonic system pool fixed size: {} MB, Fallback: {} MB\n",
 			Memory::Bytes2Megabytes(descriptor.SystemPoolSize),
 			Memory::Bytes2Megabytes(FALLBACK_SYSTEM_POOL_SIZE)
 		);
@@ -534,14 +534,11 @@ namespace Nominax::Core
 
 		Print
 		(
-           	NOX_FMT
-			(
-				"Runtime environment online!\n"
-				"Process memory snapshot: {:.1f} % [{:.1f} MB / {:.1f} MB]\n"
-				"Monotonic system pool snapshot: {:.1f} % [{:.1f} MB / {:.1f} MB]\n"
-				"Boot time: {}\n"
-				"\n"
-			),
+            "Runtime environment online!\n"
+            "Process memory snapshot: {:.1f} % [{:.1f} MB / {:.1f} MB]\n"
+            "Monotonic system pool snapshot: {:.1f} % [{:.1f} MB / {:.1f} MB]\n"
+            "Boot time: {}\n"
+            "\n",
             memUsagePercent,
             Memory::Bytes2Megabytes(static_cast<float>(memSnapshot)),
             Memory::Bytes2Megabytes(static_cast<float>(this->Context_->SysInfoSnapshot.TotalSystemMemory)),
@@ -564,7 +561,7 @@ namespace Nominax::Core
         DISPATCH_HOOK(OnPreExecutionHook, image);
 
         // Info
-        Print(NOX_FMT("Executing...\n"));
+        Print("Executing...\n");
         std::FILE* const outStream  { stdout };
         std::fflush(outStream);
 
@@ -577,7 +574,7 @@ namespace Nominax::Core
 
         // Print exec info:
         const auto time { duration_cast<duration<double, std::ratio<1>>>(micros) };
-        Print(NOX_FMT("Execution #{} done! Runtime {:.4}\n"), this->Context_->ExecutionCount, time);
+        Print("Execution #{} done! Runtime {:.4}\n", this->Context_->ExecutionCount, time);
         std::fflush(outStream);
 
         // Invoke hook:
@@ -592,7 +589,7 @@ namespace Nominax::Core
         Foundation::Assert(this->IsOnline(), "Environment is offline!");
         Foundation::Assert
         (
-			buildResult == ByteCode::ValidationResultCode::Ok, NOX_FMT("Byte code validation failed for stream! {}"), ByteCode::BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES[Algorithm::ToUnderlying(buildResult)]
+			buildResult == ByteCode::ValidationResultCode::OK, "Byte code validation failed for stream! {}", ByteCode::BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES[Algorithm::ToUnderlying(buildResult)]
 		);
 		return (*this)(codeImage);
 	}
@@ -604,12 +601,9 @@ namespace Nominax::Core
         Foundation::Assert(this->IsOnline(), "Environment is offline!");
         Foundation::Assert
 		(
-			buildResult == ByteCode::ValidationResultCode::Ok,
-			Format
-			(
-                NOX_FMT("Byte code validation failed for stream! {}"),
-				ByteCode::BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES[Algorithm::ToUnderlying(buildResult)]
-			)
+			buildResult == ByteCode::ValidationResultCode::OK,
+            "Byte code validation failed for stream! {}",
+            ByteCode::BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES[Algorithm::ToUnderlying(buildResult)]
 		);
 		return (*this)(codeImage);
 	}

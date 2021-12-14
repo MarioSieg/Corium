@@ -5,7 +5,7 @@ namespace Nominax::Assembler::AArch64
 {
     using Foundation::Print;
 
-    auto DumpRegisterSet(Foundation::DataStream& stream, const GPRRegisterSet& regset) -> void
+    auto DumpRegisterSet(std::ostream& stream, const GPRRegisterSet& regset) -> void
     {
         for (std::uint64_t i { 0 }; i < std::size(regset); ++i)
         {
@@ -13,17 +13,17 @@ namespace Nominax::Assembler::AArch64
             {
                 Print(stream, '\n');
             }
-            Print(stream, NOX_FMT("%v{}{} = {:016X} "), i, i < 10 ? " " : "", regset[i].AsU64);
+            Print(stream, "%v{}{} = {:016X} ", i, i < 10 ? " " : "", regset[i].AsU64);
         }
         Print(stream, '\n');
     }
 
-    auto DumpRegisterSet(Foundation::DataStream& stream, const NeonRegisterSet& regset) -> void
+    auto DumpRegisterSet(std::ostream& stream, const NeonRegisterSet& regset) -> void
     {
         for (std::uint64_t i { 0 }; i < std::size(regset); ++i)
         {
-            Print(stream, NOX_FMT("%v{}{} = "), i, i < 10 ? " " : "");
-            Print(stream, NOX_FMT("{:016X}{:016X}\n"), regset[i].AsU64S[0], regset[i].AsU64S[1]);
+            Print(stream, "%v{}{} = ", i, i < 10 ? " " : "");
+            Print(stream, "{:016X}{:016X}\n", regset[i].AsU64S[0], regset[i].AsU64S[1]);
         }
     }
 }

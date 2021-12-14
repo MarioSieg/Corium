@@ -206,8 +206,8 @@
 #pragma once
 
 #include <string>
-
-#include "DataStream.hpp"
+#include <ostream>
+#include <istream>
 
 namespace Nominax::Foundation
 {
@@ -259,27 +259,27 @@ namespace Nominax::Foundation
 		/// </summary>
 		/// <returns>True on success, else false.</returns>
 		[[nodiscard]]
-		virtual auto SerializeToDisk(const std::string& file) const -> bool;
+		virtual auto SerializeToDisk(const std::string_view file) const -> bool;
 
 		/// <summary>
 		/// Deserialize from file stream.
 		/// </summary>
 		/// <returns>True on success, else false.</returns>
 		[[nodiscard]]
-		virtual auto DeserializeFromDisk(const std::string& file) -> bool;
+		virtual auto DeserializeFromDisk(const std::string_view file) -> bool;
 
 		/// <summary>
 		/// Serialize to file stream.
 		/// </summary>
 		/// <returns>True on success, else false.</returns>
 		[[nodiscard]]
-		virtual auto Serialize(DataStream& out) const -> bool = 0;
+		virtual auto Serialize(std::ostream& out) const -> bool = 0;
 
 		/// <summary>
 		/// Deserialize from file stream.
 		/// </summary>
 		/// <returns>True on success, else false.</returns>
 		[[nodiscard]]
-		virtual auto Deserialize(DataStream& in) -> bool = 0;
+		virtual auto Deserialize(std::istream& in) -> bool = 0;
 	};
 }

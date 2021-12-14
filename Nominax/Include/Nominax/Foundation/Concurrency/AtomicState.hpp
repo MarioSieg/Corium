@@ -214,9 +214,9 @@ namespace Nominax::Foundation::Concurrency
 	/// Stores the underlying type of an enum atomically as error code.
 	/// </summary>
 	/// <typeparam name="T">The enumeration type.</typeparam>
-	/// <typeparam name="SuccessState">The enumeration type success code like Ok.</typeparam>
+	/// <typeparam name="SuccessState">The enumeration type success code like OK.</typeparam>
 	/// <typeparam name="SingletonLock">If true the state is only updated when it is untouched (first time).</typeparam>
-	template <typename T, const T SuccessState = T::Ok, const bool SingletonLock = true> requires std::is_enum_v<T>
+	template <typename T, const T SuccessState = T::OK, const bool SingletonLock = true> requires std::is_enum_v<T>
 	class AtomicState final
 	{
 		/// <summary>

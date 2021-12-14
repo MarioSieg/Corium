@@ -242,7 +242,7 @@ namespace Nominax::Foundation::CLI
         // check if no arguments where submitted (1 arg is always .exe dir)
         if (std::size(parser.GetArgs()) <= 1 || help) [[unlikely]]
         {
-            Print(NOX_FMT("Usage: Nominax <BytecodeFile> <Options ...>\n"));
+            Print("Usage: Nominax <BytecodeFile> <Options ...>\n");
             parser.DisplayToConsole();
             return false;
         }
@@ -255,7 +255,7 @@ namespace Nominax::Foundation::CLI
         else if (dumpISA) [[unlikely]]
         {
             [[unlikely]]
-            ByteCode::InstructionMetaDataRegistry::PrintInstructionSetTable(ProtocolController::GetProtocolStream());
+            ByteCode::InstructionMetaDataRegistry::PrintInstructionSetTable(ProtocolController::OutputStream());
             return false;
         }
 
@@ -269,13 +269,13 @@ namespace Nominax::Foundation::CLI
         return true;
     }
 
-    auto Options::Display(DataStream& stream) const -> void
+    auto Options::Display(std::ostream& stream) const -> void
     {
         using Foundation::Print;
 
-        Print(stream, NOX_FMT("Force sandbox VM: {}\n"), this->ForceSandboxVM);
-        Print(stream, NOX_FMT("Force fallback VM: {}\n"), this->ForceFallbackVM);
-        Print(stream, NOX_FMT("Power safe mode: {}\n"), this->PowerSafeMode);
-        Print(stream, NOX_FMT("Config disabled: {}\n"), this->NoConfig);
+        Print(stream, "Force sandbox VM: {}\n", this->ForceSandboxVM);
+        Print(stream, "Force fallback VM: {}\n", this->ForceFallbackVM);
+        Print(stream, "Power safe mode: {}\n", this->PowerSafeMode);
+        Print(stream, "Config disabled: {}\n", this->NoConfig);
     }
 }

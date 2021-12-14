@@ -210,7 +210,7 @@ namespace Nominax::Assembler::X86_64
 {
     using Foundation::Print;
 
-    auto DumpRegisterSet(Foundation::DataStream& stream, const GPRRegisterSet& regset) -> void
+    auto DumpRegisterSet(std::ostream& stream, const GPRRegisterSet& regset) -> void
     {
         static constexpr std::array<std::string_view, 16> GPR_LUT
         {
@@ -233,29 +233,29 @@ namespace Nominax::Assembler::X86_64
         };
         for (std::uint64_t i { 0 }; i < std::size(regset); ++i)
         {
-            Print(stream, NOX_FMT("\n{} = {:016X} "), GPR_LUT[i], regset[i].AsU64);
+            Print(stream, "\n{} = {:016X} ", GPR_LUT[i], regset[i].AsU64);
         }
         Print(stream, '\n');
     }
 
-    auto DumpRegisterSet(Foundation::DataStream& stream, const SSERegisterSet& regset) -> void
+    auto DumpRegisterSet(std::ostream& stream, const SSERegisterSet& regset) -> void
     {
         for (std::uint64_t i { 0 }; i < std::size(regset); ++i)
         {
-            Print(stream, NOX_FMT("%xmm{}{} = "), i, i < 10 ? " " : "");
-            Print(stream, NOX_FMT("{:016X}{:016X}\n"), regset[i].AsU64S[0], regset[i].AsU64S[1]);
+            Print(stream, "%xmm{}{} = ", i, i < 10 ? " " : "");
+            Print(stream, "{:016X}{:016X}\n", regset[i].AsU64S[0], regset[i].AsU64S[1]);
         }
     }
 
-    auto DumpRegisterSet(Foundation::DataStream& stream, const AVXRegisterSet& regset) -> void
+    auto DumpRegisterSet(std::ostream& stream, const AVXRegisterSet& regset) -> void
     {
         for (std::uint64_t i { 0 }; i < std::size(regset); ++i)
         {
-            Print(stream, NOX_FMT("%ymm{}{} = "), i, i < 10 ? " " : "");
+            Print(stream, "%ymm{}{} = ", i, i < 10 ? " " : "");
             Print
             (
                 stream,
-                NOX_FMT("{:016X}{:016X}{:016X}{:016X}\n"),
+                "{:016X}{:016X}{:016X}{:016X}\n",
                 regset[i].AsU64S[0],
                 regset[i].AsU64S[1],
                 regset[i].AsU64S[2],
@@ -264,15 +264,15 @@ namespace Nominax::Assembler::X86_64
         }
     }
 
-    auto DumpRegisterSet(Foundation::DataStream& stream, const AVX512RegisterSet& regset) -> void
+    auto DumpRegisterSet(std::ostream& stream, const AVX512RegisterSet& regset) -> void
     {
         for (std::uint64_t i { 0 }; i < std::size(regset); ++i)
         {
-            Print(stream, NOX_FMT("%zmm{}{} = "), i, i < 10 ? " " : "");
+            Print(stream, "%zmm{}{} = ", i, i < 10 ? " " : "");
             Print
             (
                 stream,
-                NOX_FMT("{:016X}{:016X}{:016X}{:016X}{:016X}{:016X}{:016X}{:016X}\n"),
+                "{:016X}{:016X}{:016X}{:016X}{:016X}{:016X}{:016X}{:016X}\n",
                 regset[i].AsU64S[0],
                 regset[i].AsU64S[1],
                 regset[i].AsU64S[2],
@@ -285,21 +285,21 @@ namespace Nominax::Assembler::X86_64
         }
     }
 
-    auto DumpRegisterSet(Foundation::DataStream& stream, const AVX512MaskRegisterSet& regset) -> void
+    auto DumpRegisterSet(std::ostream& stream, const AVX512MaskRegisterSet& regset) -> void
     {
         for (std::uint64_t i { 0 }; i < std::size(regset); ++i)
         {
-            Print(stream, NOX_FMT("%k{} = "), i);
-            Print(stream, NOX_FMT("{:04X}\n"), regset[i]);
+            Print(stream, "%k{} = ", i);
+            Print(stream, "{:04X}\n", regset[i]);
         }
     }
 
-    auto DumpRegisterSet(Foundation::DataStream& stream, const AVX512BWMaskRegisterSet& regset) -> void
+    auto DumpRegisterSet(std::ostream& stream, const AVX512BWMaskRegisterSet& regset) -> void
     {
         for (std::uint64_t i { 0 }; i < std::size(regset); ++i)
         {
-            Print(stream, NOX_FMT("%k{} = "), i);
-            Print(stream, NOX_FMT("{:016X}\n"), regset[i]);
+            Print(stream, "%k{} = ", i);
+            Print(stream, "{:016X}\n", regset[i]);
         }
     }
 }

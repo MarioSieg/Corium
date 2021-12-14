@@ -206,10 +206,10 @@
 #pragma once
 
 #include <cstdio>
+#include <ostream>
 #include <variant>
 
 #include "RegisterLayout.hpp"
-#include "../../Foundation/DataStream.hpp"
 
 namespace Nominax::Assembler::AArch64
 {
@@ -227,11 +227,11 @@ namespace Nominax::Assembler::AArch64
     /// Prints the contents of the register set with register names.
     /// <param name="regset">The register set to print.</param>
     /// </summary>
-    extern auto DumpRegisterSet(Foundation::DataStream& stream, const GPRRegisterSet& regset) -> void;
+    extern auto DumpRegisterSet(std::ostream& stream, const GPRRegisterSet& regset) -> void;
 
     /// <summary>
     /// Prints the contents of the register set with register names.
     /// <param name="regset">The register set to print.</param>
     /// </summary>
-    extern auto DumpRegisterSet(Foundation::DataStream& stream, const NeonRegisterSet& regset) -> void;
+    extern auto DumpRegisterSet(std::ostream& stream, const NeonRegisterSet& regset) -> void;
 }

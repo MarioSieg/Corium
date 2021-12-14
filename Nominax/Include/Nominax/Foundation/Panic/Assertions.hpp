@@ -206,27 +206,28 @@
 #pragma once
 
 #include "Panic.hpp"
+#include "SourceLocation.hpp"
 #include "../Platform.hpp"
 
 namespace Nominax::Foundation
 {
     template <typename... Args>
-	inline auto Assert(const bool expression, const fmt::string_view formatString, Args&&... args) -> void
+	inline auto Assert(const bool expression, const std::string_view formatString, Args&&... args) -> void
     {
         if (!expression) [[unlikely]]
         {
-            Panic::Panic({}, formatString, std::forward<Args>(args)...);
+            Panic::Panic(Panic::SourceLocation { }, formatString, std::forward<Args>(args)...);
         }
     }
 
     template <typename... Args>
-    inline auto DebugAssert(const bool expression, const fmt::string_view formatString, Args&&... args) -> void
+    inline auto DebugAssert(const bool expression, const std::string_view formatString, Args&&... args) -> void
     {
         if constexpr (NOX_DEBUG)
         {
             if (!expression) [[unlikely]]
             {
-                Panic::Panic({}, formatString, std::forward<Args>(args)...);
+                Panic::Panic(Panic::SourceLocation { }, formatString, std::forward<Args>(args)...);
             }
         }
     }

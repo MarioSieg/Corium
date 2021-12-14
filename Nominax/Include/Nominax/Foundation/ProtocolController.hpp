@@ -205,7 +205,7 @@
 
 #pragma once
 
-#include "DataStream.hpp"
+#include <iostream>
 
 namespace Nominax::Foundation
 {
@@ -260,12 +260,23 @@ namespace Nominax::Foundation
         /// </summary>
         /// <returns>The current stream acting as stdout.</returns>
         [[nodiscard]]
-        static inline auto GetProtocolStream() -> DataStream&;
+        static inline auto OutputStream() -> std::ostream&;
+
+        /// <summary>
+        /// Query output stream.
+        /// </summary>
+        /// <returns>The current stream acting as stdout.</returns>
+        [[nodiscard]]
+        static inline auto InputStream() -> std::istream&;
     };
 
-    inline auto ProtocolController::GetProtocolStream() -> DataStream&
+    inline auto ProtocolController::OutputStream() -> std::ostream&
     {
-        static DataStream Out { DataStream::StdOut() };
-        return Out;
+        return std::cout;
+    }
+
+    inline auto ProtocolController::InputStream() -> std::istream&
+    {
+        return std::cin;
     }
 }

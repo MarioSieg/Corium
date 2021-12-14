@@ -744,7 +744,7 @@ namespace Nominax::Foundation
 
 	static_assert(sizeof(ObjectHeader) == ObjectHeader::RECORD_BLOCKS * ObjectHeader::STRIDE);
 	static_assert(sizeof(ObjectHeader) == 32);
-	static_assert(sizeof(ObjectHeader) % ObjectHeader::RECORD_BLOCKS == 0); // Ok, ok we know the size must be 16 bytes!
+	static_assert(sizeof(ObjectHeader) % ObjectHeader::RECORD_BLOCKS == 0); // OK, ok we know the size must be 16 bytes!
 	static_assert(std::is_standard_layout_v<ObjectHeader>);
 	static_assert(std::is_trivially_copyable_v<ObjectHeader>);
 

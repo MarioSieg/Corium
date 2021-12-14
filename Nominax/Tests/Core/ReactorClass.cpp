@@ -295,7 +295,7 @@ TEST(ReactorClass, TryExecuteValid)
     }
     stream.Epilogue();
 	Image out { };
-	ASSERT_EQ(Stream::Build(stream, env.GetOptimizationHints(), out), ValidationResultCode::Ok);
+	ASSERT_EQ(Stream::Build(stream, env.GetOptimizationHints(), out), ValidationResultCode::OK);
 	Reactor reactor
 	{
 		Resource,

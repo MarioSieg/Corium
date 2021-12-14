@@ -217,30 +217,30 @@ namespace Nominax::ByteCode
 		out.DiscriminatorImageSize = std::size(this->CodeDiscriminatorBuffer_);
 	}
 
-	auto Stream::Serialize(Foundation::DataStream& out) const -> bool
+	auto Stream::Serialize(std::ostream& out) const -> bool
 	{
 		// header
         SerializationImageHeader header { };
 		this->GetSerializationImageHeader(header);
         header.EncryptDecrypt();
-		out.Write(header);
+		out.write(reinterpret_cast<const char*>(&header), sizeof header);
 
 		// code section
         constexpr std::uint64_t codeSectionMarker { STREAM_IMAGE_CODE_SECTION_MARKER };
-        out.Write(codeSectionMarker);
-		out.Write(std::data(this->CodeBuffer_), sizeof(CodeStorageType::value_type) * std::size(this->CodeBuffer_));
+        out.write(reinterpret_cast<const char*>(&codeSectionMarker), sizeof codeSectionMarker);
+		out.write(reinterpret_cast<const char*>(std::data(this->CodeBuffer_)), sizeof(CodeStorageType::value_type) * std::size(this->CodeBuffer_));
 
 		// discriminator section
         constexpr std::uint64_t discriminatorSectionMarker { STREAM_IMAGE_DISCRIMINATOR_SECTION_MARKER };
-        out.Write(discriminatorSectionMarker);
-        out.Write(std::data(this->CodeDiscriminatorBuffer_), sizeof(DiscriminatorStorageType::value_type) * std::size(this->CodeDiscriminatorBuffer_));
+        out.write(reinterpret_cast<const char*>(&discriminatorSectionMarker), sizeof discriminatorSectionMarker);
+        out.write(reinterpret_cast<const char*>(std::data(this->CodeDiscriminatorBuffer_)), sizeof(DiscriminatorStorageType::value_type) * std::size(this->CodeDiscriminatorBuffer_));
 		return true;
 	}
 
-	auto Stream::Deserialize(Foundation::DataStream& in) -> bool
+	auto Stream::Deserialize(std::istream& in) -> bool
 	{
 		SerializationImageHeader header { };
-		in.Read(header);
+		in.read(reinterpret_cast<char*>(&header), sizeof(header));
 		for (std::uint64_t i { 0 }; i < std::size(SerializationImageHeader::MAGIC_ID); ++i)
 		{
 			if (header.Magic[i] != SerializationImageHeader::MAGIC_ID[i])
@@ -259,7 +259,7 @@ namespace Nominax::ByteCode
 
 		// validate code section marker
 		std::uint64_t codeSectionMarker { };
-		in.Read(codeSectionMarker);
+		in.read(reinterpret_cast<char*>(&codeSectionMarker), sizeof codeSectionMarker);
 		if (codeSectionMarker != STREAM_IMAGE_CODE_SECTION_MARKER)
 		{
 			[[unlikely]]
@@ -269,11 +269,11 @@ namespace Nominax::ByteCode
 		// load code section:
 		this->CodeBuffer_.clear();
 		this->CodeBuffer_.resize(header.CodeImageSize);
-		in.Read(std::data(this->CodeBuffer_), sizeof(CodeStorageType::value_type) * header.CodeImageSize);
+		in.read(reinterpret_cast<char*>(std::data(this->CodeBuffer_)), sizeof(CodeStorageType::value_type) * header.CodeImageSize);
 
 		// validate discriminator section marker
 		std::uint64_t discriminatorSectionMarker { };
-		in.Read(discriminatorSectionMarker);
+		in.read(reinterpret_cast<char*>(&discriminatorSectionMarker), sizeof discriminatorSectionMarker);
 		if (discriminatorSectionMarker != STREAM_IMAGE_DISCRIMINATOR_SECTION_MARKER)
 		{
 			[[unlikely]]
@@ -283,7 +283,7 @@ namespace Nominax::ByteCode
 		// load discriminator section:
 		this->CodeDiscriminatorBuffer_.clear();
 		this->CodeDiscriminatorBuffer_.resize(header.DiscriminatorImageSize);
-		in.Read(std::data(this->CodeDiscriminatorBuffer_), sizeof(DiscriminatorStorageType::value_type) * header.DiscriminatorImageSize);
+		in.read(reinterpret_cast<char*>(std::data(this->CodeDiscriminatorBuffer_)), sizeof(DiscriminatorStorageType::value_type) * header.DiscriminatorImageSize);
 
 		return true;
 	}
@@ -311,25 +311,25 @@ namespace Nominax::ByteCode
 	auto Stream::Build(Stream&& stream, const OptimizationHints& optInfo, Image& out) -> ValidationResultCode
 	{
 		const ValidationResultCode validationResult { ValidateFullPass(stream) };
-		if (validationResult != ValidationResultCode::Ok)
+		if (validationResult != ValidationResultCode::OK)
 		{
 			[[unlikely]]
             return validationResult;
 		}
         LinkStreamToImageByMove(std::move(stream), optInfo, out);
-		return ValidationResultCode::Ok;
+		return ValidationResultCode::OK;
 	}
 
 	auto Stream::Build(const Stream& stream, const OptimizationHints& optInfo, Image& out) -> ValidationResultCode
 	{
 		const ValidationResultCode validationResult { ValidateFullPass(stream) };
-		if (validationResult != ValidationResultCode::Ok)
+		if (validationResult != ValidationResultCode::OK)
 		{
 			[[unlikely]]
             return validationResult;
 		}
         LinkStreamToImageByCopy(stream, optInfo, out);
-		return ValidationResultCode::Ok;
+		return ValidationResultCode::OK;
 	}
 
 	auto Stream::ContainsPrologue() const -> bool
@@ -342,25 +342,25 @@ namespace Nominax::ByteCode
 		return ByteCode::ContainsEpilogue(*this);
 	}
 
-    auto Stream::Display(Foundation::DataStream& stream) const -> void
+    auto Stream::Display(std::ostream& stream) const -> void
     {
         using namespace Foundation;
 
-        Print(stream, NOX_FMT("Stream size: {}\n"), this->Size());
+        Print(stream, "Stream size: {}\n", this->Size());
         Print
         (
             stream,
-            NOX_FMT("Code buffer: {:.3F} MB\n"),
+            "Code buffer: {:.3F} MB\n",
             Memory::Bytes2Megabytes<float>(static_cast<float>(std::size(this->CodeBuffer_)) * static_cast<float>(sizeof(CodeStorageType::value_type)))
         );
         Print
         (
             stream,
-            NOX_FMT("Discriminator buffer: {:.3F} MB\n"),
+            "Discriminator buffer: {:.3F} MB\n",
             Memory::Bytes2Megabytes<float>(static_cast<float>(std::size(this->CodeDiscriminatorBuffer_)) * static_cast<float>(sizeof(DiscriminatorStorageType::value_type)))
         );
-        Print(stream, NOX_FMT("Total: {:.3F} MB\n"), Memory::Bytes2Megabytes<float>(static_cast<float>(this->SizeInBytes())));
-        Print(stream, NOX_FMT("Signal: {}, Size: {:.3} kB, Granularity: {} B"), this->Size(), Memory::Bytes2Kilobytes(static_cast<float>(this->SizeInBytes())), sizeof(Signal));
+        Print(stream, "Total: {:.3F} MB\n", Memory::Bytes2Megabytes<float>(static_cast<float>(this->SizeInBytes())));
+        Print(stream, "Signal: {}, Size: {:.3} kB, Granularity: {} B", this->Size(), Memory::Bytes2Kilobytes(static_cast<float>(this->SizeInBytes())), sizeof(Signal));
         for (std::uint64_t i { 0 }; i < this->Size(); ++i)
         {
             const Signal sig { this->CodeBuffer_[i] };
@@ -368,65 +368,24 @@ namespace Nominax::ByteCode
 
             switch (dis)
             {
-                default:
                 case Signal::Discriminator::MemoryOffset:
-                    Print
-            		(
-						stream,
-						NOX_FMT(" {}{}{}{}{}{}"),
-						Compiler::TYPE_MARKER,
-						Compiler::LPAREN,
-						Signal::DISCRIMINATOR_MNEMONICS[Algorithm::ToUnderlying(dis)],
-						Compiler::RPAREN,
-						Compiler::IMMEDIATE_MARKER,
-						sig.AsRecord.AsU64
-					);
+
                 continue;
 
                 case Signal::Discriminator::SysCall:
-                    Print
-            		(
-						stream,
-						NOX_FMT(" {}{}{}{}{}{}"),
-						Compiler::TYPE_MARKER,
-						Compiler::LPAREN,
-						Signal::DISCRIMINATOR_MNEMONICS[Algorithm::ToUnderlying(dis)],
-						Compiler::RPAREN,
-						Compiler::IMMEDIATE_MARKER,
-						SysCallMetaDataRegistry::MNEMONIC_TABLE[sig.AsRecord.AsU64]
-					);
+
                 continue;
 
                 case Signal::Discriminator::Int:
-                    Print
-            		(
-						stream,
-						NOX_FMT(" {}{}{}{}{}{}"),
-						Compiler::TYPE_MARKER,
-						Compiler::LPAREN,
-						Signal::DISCRIMINATOR_MNEMONICS[Algorithm::ToUnderlying(dis)],
-						Compiler::RPAREN,
-						Compiler::IMMEDIATE_MARKER,
-						sig.AsRecord.AsI64
-					);
+
                 continue;
 
                 case Signal::Discriminator::Float:
-                    Print
-            		(
-						stream,
-						NOX_FMT(" {}{}{}{}{}{}"),
-						Compiler::TYPE_MARKER,
-						Compiler::LPAREN,
-						Signal::DISCRIMINATOR_MNEMONICS[Algorithm::ToUnderlying(dis)],
-						Compiler::RPAREN,
-						Compiler::IMMEDIATE_MARKER,
-						sig.AsRecord.AsF64
-					);
+
                 continue;
 
                 case Signal::Discriminator::Instruction:
-                    Print(stream, NOX_FMT("\n{}"), InstructionMetaDataRegistry::MNEMONIC_TABLE[sig.AsRecord.AsU64]);
+
                 continue;
             }
         }

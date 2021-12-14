@@ -370,7 +370,7 @@ namespace Nominax::Foundation
         /// <summary>
         /// Prints this object into the file stream.
         /// </summary>
-        virtual auto Display(DataStream& stream) const -> void override;
+        virtual auto Display(std::ostream& stream) const -> void override;
     };
 
     constexpr NativeTypeRegistry::NativeTypeRegistry(std::array<const NativeTypeInfo, REGISTRY_SIZE>&& data) : Data { data } { }

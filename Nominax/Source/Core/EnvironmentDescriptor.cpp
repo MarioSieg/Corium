@@ -210,7 +210,7 @@ namespace Nominax::Core
 {
     using Foundation::INIFile;
 
-    auto EnvironmentDescriptor::Serialize(Foundation::DataStream& out) const -> bool
+    auto EnvironmentDescriptor::Serialize(std::ostream& out) const -> bool
     {
         INIFile file { };
 
@@ -234,7 +234,7 @@ namespace Nominax::Core
         return file.Serialize(out);
     }
 
-    auto EnvironmentDescriptor::Deserialize([[maybe_unused]] Foundation::DataStream& in) -> bool
+    auto EnvironmentDescriptor::Deserialize([[maybe_unused]] std::istream& in) -> bool
     {
         return false;
     }

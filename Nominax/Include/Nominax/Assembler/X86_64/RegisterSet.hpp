@@ -206,10 +206,10 @@
 #pragma once
 
 #include <optional>
+#include <ostream>
 #include <variant>
 
 #include "RegisterLayout.hpp"
-#include "../../Foundation/DataStream.hpp"
 
 namespace Nominax::Assembler::X86_64
 {
@@ -247,35 +247,35 @@ namespace Nominax::Assembler::X86_64
     /// Prints the contents of the register set with register names.
     /// <param name="regset">The register set to print.</param>
     /// </summary>
-    extern auto DumpRegisterSet(Foundation::DataStream& stream, const GPRRegisterSet& regset) -> void;
+    extern auto DumpRegisterSet(std::ostream& stream, const GPRRegisterSet& regset) -> void;
 
     /// <summary>
     /// Prints the contents of the register set with register names.
     /// <param name="regset">The register set to print.</param>
     /// </summary>
-    extern auto DumpRegisterSet(Foundation::DataStream& stream, const SSERegisterSet& regset) -> void;
+    extern auto DumpRegisterSet(std::ostream& stream, const SSERegisterSet& regset) -> void;
 
     /// <summary>
     /// Prints the contents of the register set with register names.
     /// <param name="regset">The register set to print.</param>
     /// </summary>
-    extern auto DumpRegisterSet(Foundation::DataStream& stream, const AVXRegisterSet& regset) -> void;
+    extern auto DumpRegisterSet(std::ostream& stream, const AVXRegisterSet& regset) -> void;
 
     /// <summary>
     /// Prints the contents of the register set with register names.
     /// <param name="regset">The register set to print.</param>
     /// </summary>
-    extern auto DumpRegisterSet(Foundation::DataStream& stream, const AVX512RegisterSet& regset) -> void;
+    extern auto DumpRegisterSet(std::ostream& stream, const AVX512RegisterSet& regset) -> void;
 
     /// <summary>
     /// Prints the contents of the register set with register names.
     /// <param name="regset">The register set to print.</param>
     /// </summary>
-    extern auto DumpRegisterSet(Foundation::DataStream& stream, const AVX512MaskRegisterSet& regset) -> void;
+    extern auto DumpRegisterSet(std::ostream& stream, const AVX512MaskRegisterSet& regset) -> void;
 
     /// <summary>
     /// Prints the contents of the register set with register names.
     /// <param name="regset">The register set to print.</param>
     /// </summary>
-    extern auto DumpRegisterSet(Foundation::DataStream& stream, const AVX512BWMaskRegisterSet& regset) -> void;
+    extern auto DumpRegisterSet(std::ostream& stream, const AVX512BWMaskRegisterSet& regset) -> void;
 }

@@ -216,36 +216,27 @@
 
 #include <type_traits>
 
-#include "DataStream.hpp"
 #include "ProtocolController.hpp"
 #include "Platform.hpp"
 
 namespace Nominax::Foundation
 {
-	/// <summary>
-	/// Prints out the formatting string and
-	/// formats the arguments into the string if format
-	/// arguments are given.
-	/// The formatting rules follow the C++ 20 <format> convention.
-	/// All printing inside Nominax should be done via this functions
-	/// and friends because it also allows different configurations.
-	/// </summary>
-	/// <typeparam name="Str">The string type.</typeparam>
-	/// <typeparam name="...Args">The argument types.</typeparam>
-	/// <param name="formatString">The format string.</param>
-	/// <param name="args">The arguments to format.</param>
-	template <typename... Args>
-	inline auto Print([[maybe_unused]] const fmt::string_view formatString, [[maybe_unused]] Args&&...args) -> void
-	{
-		if constexpr (!NOX_TEST)
-        {
-            if (ProtocolController::IsProtocolEnabled)
-            {
-                [[unlikely]]
-                fmt::print(*ProtocolController::GetProtocolStream(), formatString, std::forward<Args>(args)...);
-            }
-        }
-	}
+    /// <summary>
+    /// Formats the arguments into the string if format
+    /// arguments are given.
+    /// The formatting rules follow the C++ 20 <format> convention.
+    /// All printing inside Nominax should be done via this functions
+    /// and friends because it also allows different configurations.
+    /// </summary>
+    /// <typeparam name="Str">The string type.</typeparam>
+    /// <typeparam name="...Args">The argument types.</typeparam>
+    /// <param name="formatString">The format string.</param>
+    /// <param name="args">The arguments to format.</param>
+    template <typename... Args>
+    inline auto Format(const std::string_view formatString, Args&&...args) -> std::string
+    {
+        return fmt::format(formatString, std::forward<Args>(args)...);
+    }
 
     /// <summary>
     /// Prints out the formatting string and
@@ -260,40 +251,14 @@ namespace Nominax::Foundation
     /// <param name="formatString">The format string.</param>
     /// <param name="args">The arguments to format.</param>
     template <typename... Args>
-    inline auto Print(DataStream& stream, const fmt::string_view formatString, Args&&...args) -> void
+    inline auto Print(std::ostream& stream, const std::string_view formatString, Args&&...args) -> void
     {
-        fmt::print(*stream, formatString, std::forward<Args>(args)...);
+        stream << Format(formatString, std::forward<Args>(args)...);
     }
 
 	/// <summary>
-	/// Print single char.
-	/// </summary>
-	/// <param name="x"></param>
-	/// <returns></returns>
-    inline auto Print(const char x) -> void
-	{
-        if constexpr (!NOX_TEST)
-        {
-            if (ProtocolController::IsProtocolEnabled)
-            {
-                [[unlikely]]
-                ProtocolController::GetProtocolStream().PutChar(x);
-            }
-        }
-	}
-
-    /// <summary>
-    /// Print single char.
-    /// </summary>
-    /// <param name="x"></param>
-    /// <returns></returns>
-    inline auto Print([[maybe_unused]] DataStream& stream, const char x) -> void
-    {
-        stream.PutChar(x);
-    }
-
-	/// <summary>
-	/// Formats the arguments into the string if format
+	/// Prints out the formatting string and
+	/// formats the arguments into the string if format
 	/// arguments are given.
 	/// The formatting rules follow the C++ 20 <format> convention.
 	/// All printing inside Nominax should be done via this functions
@@ -304,8 +269,28 @@ namespace Nominax::Foundation
 	/// <param name="formatString">The format string.</param>
 	/// <param name="args">The arguments to format.</param>
 	template <typename... Args>
-	inline auto Format([[maybe_unused]] const fmt::string_view formatString, [[maybe_unused]] Args&&...args) -> std::string
+	inline auto Print(const std::string_view formatString, Args&&...args) -> void
 	{
-		return fmt::format(formatString, std::forward<Args>(args)...);
+        Print(ProtocolController::OutputStream(), formatString, std::forward<Args>(args)...);
+	}
+
+    /// <summary>
+    /// Print single char.
+    /// </summary>
+    /// <param name="x"></param>
+    /// <returns></returns>
+    inline auto Print(std::ostream& stream, const char x) -> void
+    {
+        stream.put(x);
+    }
+
+	/// <summary>
+	/// Print single char.
+	/// </summary>
+	/// <param name="x"></param>
+	/// <returns></returns>
+    inline auto Print(const char x) -> void
+	{
+        Print(ProtocolController::OutputStream(), x);
 	}
 }

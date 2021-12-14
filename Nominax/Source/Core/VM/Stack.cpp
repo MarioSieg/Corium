@@ -203,7 +203,8 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <cstring>
+#include <algorithm>
+#include <span>
 
 #include "../../../Include/Nominax/Core/VM/Stack.hpp"
 #include "../../../Include/Nominax/Foundation/Panic/Assertions.hpp"

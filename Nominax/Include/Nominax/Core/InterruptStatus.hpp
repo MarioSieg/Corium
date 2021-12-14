@@ -218,7 +218,7 @@ namespace Nominax::Core
     enum InterruptStatus : std::int64_t
     {
         /// <summary>
-        /// Ok, exit was requested.
+        /// OK, exit was requested.
         /// </summary>
         InterruptStatus_OK = 0,
 

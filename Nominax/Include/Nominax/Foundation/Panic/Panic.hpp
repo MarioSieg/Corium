@@ -232,7 +232,7 @@ namespace Nominax::Foundation::Panic
 	template <typename... Ts>
 	[[noreturn]]
 	NOX_COLD NOX_NEVER_INLINE
-	auto Panic(const SourceLocation& srcLoc, const fmt::string_view formatStr, Ts&&... args) -> void
+	auto Panic(const SourceLocation& srcLoc, const std::string_view formatStr, Ts&&... args) -> void
 	{
 		const std::string message { Format(formatStr, std::forward<Ts>(args)...) };
 		Panic(message, srcLoc);

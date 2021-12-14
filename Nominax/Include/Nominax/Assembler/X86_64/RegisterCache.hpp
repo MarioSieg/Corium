@@ -295,6 +295,6 @@ namespace Nominax::Assembler::X86_64
         /// If there are shadowing SIMD registers, it only prints the largest union.
         /// Like if the is AVX it will print all %ymm instead of %xmm and %ymm because %ymm contain %xmm (lower 128-bit).
         /// </summary>
-        virtual auto Display(Foundation::DataStream& stream) const -> void override;
+        virtual auto Display(std::ostream& stream) const -> void override;
     };
 }

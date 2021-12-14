@@ -252,11 +252,11 @@ namespace Nominax::Assembler::X86_64
         this->RIP = std::bit_cast<GPRRegister64Layout>(Routines::QueryRIP());
     }
 
-    auto RegisterCache::Display(Foundation::DataStream& stream) const -> void
+    auto RegisterCache::Display(std::ostream& stream) const -> void
     {
         using Foundation::Print;
 
-        Print(stream, NOX_FMT("%rip = {:016X}"), this->RIP.AsU64);
+        Print(stream, "%rip = {:016X}", this->RIP.AsU64);
         DumpRegisterSet(stream, this->GPRSet);
         if (this->AVXSet)
         {

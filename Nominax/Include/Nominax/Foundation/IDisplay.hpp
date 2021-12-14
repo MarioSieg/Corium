@@ -205,14 +205,14 @@
 
 #pragma once
 
-#include "DataStream.hpp"
+#include <ostream>
 
 namespace Nominax::Foundation
 {
     /// <summary>
     /// Base class for all printable objects.
     /// </summary>
-    class IDisplay
+    struct IDisplay
     {
     protected:
         constexpr IDisplay() = default;
@@ -252,11 +252,11 @@ namespace Nominax::Foundation
         /// <summary>
         /// Prints this object into the file stream.
         /// </summary>
-        NOX_COLD virtual auto Display(DataStream& stream) const -> void = 0;
+        virtual auto Display(std::ostream& stream) const -> void = 0;
 
         /// <summary>
         /// Prints this object into the console.
         /// </summary>
-        NOX_COLD virtual auto DisplayToConsole() const -> void;
+        virtual auto DisplayToConsole() const -> void;
     };
 }

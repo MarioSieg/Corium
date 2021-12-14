@@ -309,7 +309,7 @@ namespace Nominax::ByteCode
 			{
 				const std::ptrdiff_t index { Foundation::Algorithm::DistanceRef(iterator, bufBegin) };
 				const Signal signal { codeBuf[index] };
-				auto result { ValidationResultCode::Ok };
+				auto result { ValidationResultCode::OK };
 
 				switch (iterator)
 				{
@@ -325,7 +325,7 @@ namespace Nominax::ByteCode
 					case Signal::Discriminator::JumpAddress:
 					{
 						result = ValidateJumpAddress(input, signal.AsJumpAddress)
-							? ValidationResultCode::Ok
+							? ValidationResultCode::OK
 							: ValidationResultCode::InvalidJumpAddress;
 					}
 					break;
@@ -333,7 +333,7 @@ namespace Nominax::ByteCode
 					case Signal::Discriminator::Intrinsic:
 					{
 						result = ValidateUserIntrinsicCall(intrinsicRegistry, signal.AsFFIIntrinsic)
-							? ValidationResultCode::Ok
+							? ValidationResultCode::OK
 							: ValidationResultCode::InvalidUserIntrinsicCall;
 					}
 					break;
@@ -341,7 +341,7 @@ namespace Nominax::ByteCode
 					default: ;
 				}
 
-				if (result != ValidationResultCode::Ok) [[unlikely]]
+				if (result != ValidationResultCode::OK) [[unlikely]]
 				{
 					errorIndex.store(static_cast<std::uint32_t>(index));
 					error(result);
@@ -368,7 +368,7 @@ namespace Nominax::ByteCode
             *outIndex = 0;
 		}
 
-		return ValidationResultCode::Ok;
+		return ValidationResultCode::OK;
 	}
 
 	auto ValidateJumpAddress(const Stream& bucket, const JumpAddress address) noexcept -> bool
@@ -435,6 +435,6 @@ namespace Nominax::ByteCode
 			}
 		}
 
-		return ValidationResultCode::Ok;
+		return ValidationResultCode::OK;
 	}
 }

@@ -292,14 +292,14 @@ namespace Nominax::ByteCode
 		/// </summary>
 		/// <returns>True on success, else false.</returns>
 		[[nodiscard]]
-		virtual auto Serialize(Foundation::DataStream& out) const -> bool override;
+		virtual auto Serialize(std::ostream& out) const -> bool override;
 
 		/// <summary>
 		/// Deserialize from file stream.
 		/// </summary>
 		/// <returns>True on success, else false.</returns>
 		[[nodiscard]]
-		virtual auto Deserialize(Foundation::DataStream& in) -> bool override;
+		virtual auto Deserialize(std::istream& in) -> bool override;
 
 		/// <summary>
 		/// Fetch image header from this stream.
@@ -584,7 +584,7 @@ namespace Nominax::ByteCode
         /// <summary>
         /// Prints this object into the file stream.
         /// </summary>
-        NOX_COLD virtual auto Display(Foundation::DataStream& stream) const -> void override;
+        NOX_COLD virtual auto Display(std::ostream& stream) const -> void override;
 
         /// <summary>
         /// Emit a syscall instruction with correct parameter.

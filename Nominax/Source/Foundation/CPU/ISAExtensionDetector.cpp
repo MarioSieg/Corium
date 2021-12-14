@@ -213,9 +213,9 @@ namespace Nominax::Foundation::CPU
         this->DetectExtensions();
 	}
 
-    auto ISAExtensionDetector::Display(DataStream& stream) const -> void
+    auto ISAExtensionDetector::Display(std::ostream& stream) const -> void
     {
-        Print(stream, NOX_FMT("CPU Features:"));
+        Print(stream, "CPU Features:");
         #if NOX_ARCH_X86_64
             for (std::uint64_t i { 0 }, j { 0 }; i < std::size(this->FeatureBits_); ++i)
             {
@@ -225,7 +225,7 @@ namespace Nominax::Foundation::CPU
                     {
                         Print(stream, '\n');
                     }
-                    Print(stream, NOX_FMT("{} "), Assembler::X86_64::CPU_FEATURE_BIT_NAMES[i]);
+                    Print(stream, "{} ", Assembler::X86_64::CPU_FEATURE_BIT_NAMES[i]);
                 }
             }
         #endif

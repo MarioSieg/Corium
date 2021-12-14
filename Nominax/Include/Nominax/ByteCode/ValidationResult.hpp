@@ -221,7 +221,7 @@ namespace Nominax::ByteCode
 		/// <summary>
 		/// Validation did not found any problems.
 		/// </summary>
-		Ok = 0,
+		OK = 0,
 
 		/// <summary>
 		/// More arguments specified than required.
@@ -279,7 +279,7 @@ namespace Nominax::ByteCode
 	/// </summary>
 	constexpr std::array<std::string_view, Foundation::Algorithm::ToUnderlying(ValidationResultCode::Count_)> BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES
 	{
-		"Ok",
+		"OK",
 		"Too many arguments provided!",
 		"Not enough arguments provided!",
 		"Argument data type mismatch!",

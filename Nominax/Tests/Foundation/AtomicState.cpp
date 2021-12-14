@@ -208,8 +208,8 @@
 TEST(AtomicState, DefConstructor)
 {
 	const AtomicState<ValidationResultCode> state { };
-	ASSERT_EQ(state(), ValidationResultCode::Ok);
-	ASSERT_EQ(static_cast<ValidationResultCode>((*state).load()), ValidationResultCode::Ok);
+	ASSERT_EQ(state(), ValidationResultCode::OK);
+	ASSERT_EQ(static_cast<ValidationResultCode>((*state).load()), ValidationResultCode::OK);
 	ASSERT_TRUE(state);
 }
 
@@ -227,18 +227,18 @@ TEST(AtomicState, SetStateSingleton)
 	state(ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(state(), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_FALSE(state);
-	state(ValidationResultCode::Ok);
+	state(ValidationResultCode::OK);
 	ASSERT_EQ(state(), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_FALSE(state);
 }
 
 TEST(AtomicState, SetStateNoSingleton)
 {
-	AtomicState<ValidationResultCode, ValidationResultCode::Ok, false> state { };
+	AtomicState<ValidationResultCode, ValidationResultCode::OK, false> state { };
 	state(ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_EQ(state(), ValidationResultCode::ArgumentTypeMismatch);
 	ASSERT_FALSE(state);
-	state(ValidationResultCode::Ok);
-	ASSERT_EQ(state(), ValidationResultCode::Ok);
+	state(ValidationResultCode::OK);
+	ASSERT_EQ(state(), ValidationResultCode::OK);
 	ASSERT_TRUE(state);
 }

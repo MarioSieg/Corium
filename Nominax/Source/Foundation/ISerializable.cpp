@@ -203,27 +203,33 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+#include <fstream>
+
 #include "../../../Nominax/Include/Nominax/Foundation/_Foundation.hpp"
 
 namespace Nominax::Foundation
 {
-	auto ISerializable::SerializeToDisk(const std::string& file) const -> bool
+	auto ISerializable::SerializeToDisk(const std::string_view file) const -> bool
 	{
-		std::optional<IOStream> stream { IOStream::TryOpen(file, FileAccessMode::Write, FileContentMode::Binary) };
-		if (!stream) [[unlikely]]
-		{
-			return false;
-		}
-        return this->Serialize(*stream);
+        std::ofstream f { };
+        f.open(std::string { file });
+        if (!f) [[unlikely]]
+        {
+            return false;
+        }
+
+        return this->Serialize(f);
 	}
 
-	auto ISerializable::DeserializeFromDisk(const std::string& file) -> bool
+	auto ISerializable::DeserializeFromDisk(const std::string_view file) -> bool
 	{
-		std::optional<IOStream> stream { IOStream::TryOpen(file, FileAccessMode::Read, FileContentMode::Binary) };
-		if (!stream) [[unlikely]]
-		{
-			return false;
-		}
-        return this->Deserialize(*stream);
+        std::ifstream f { };
+        f.open(std::string { file });
+        if (!f) [[unlikely]]
+        {
+            return false;
+        }
+
+        return this->Deserialize(f);
 	}
 }
