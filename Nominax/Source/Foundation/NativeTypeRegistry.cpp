@@ -1,5 +1,5 @@
 #include "../../../Include/Nominax/Foundation/NativeTypeRegistry.hpp"
-#include "../../../Include/Nominax/Foundation/Protocol.hpp"
+#include "../../Include/Nominax/Foundation/Protocol/Protocol.hpp"
 #include "../../../Include/Nominax/ByteCode/Signal.hpp"
 
 namespace Nominax::Foundation

@@ -204,7 +204,7 @@
 //    limitations under the License.
 
 #include "../../../Include/Nominax/Core/Subsystem/HypervisorHost.hpp"
-#include "../../../Include/Nominax/Foundation/Panic/Assertions.hpp"
+#include "../../../Include/Nominax/Foundation/SystemPanic/Assertions.hpp"
 
 namespace Nominax::Core::Subsystem
 {
@@ -231,7 +231,7 @@ namespace Nominax::Core::Subsystem
 
     auto HypervisorHost::Lookup(const HostToSystemKey systemKey) -> ISubsystem&
     {
-        Foundation::Assert(this->IsInstalled(systemKey), "Subsystem lookup with invalid system key!");
+        Assert(this->IsInstalled(systemKey), "Subsystem lookup with invalid system key!");
         Proxy& proxy { this->SystemMap_.at(systemKey) };
         ISubsystem& underlying { *proxy };
         return underlying;

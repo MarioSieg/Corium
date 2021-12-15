@@ -222,8 +222,6 @@ namespace Nominax::Assembler::AArch64
 
     auto RegisterCache::Display(std::ostream& stream) const -> void
     {
-        using Foundation::Print;
-
         Print(stream, "%rip = {:016X}", this->RIP.AsU64);
         DumpRegisterSet(stream, this->GPRSet);
         DumpRegisterSet(stream, this->NeonSet);

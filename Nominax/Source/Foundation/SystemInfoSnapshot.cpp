@@ -225,8 +225,6 @@ namespace Nominax::Foundation
 
     auto SystemInfoSnapshot::Display(std::ostream& stream) const -> void
     {
-        using Foundation::Print;
-
         const auto&
         [
             operatingSystemName,

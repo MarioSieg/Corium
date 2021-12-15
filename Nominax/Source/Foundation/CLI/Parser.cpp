@@ -204,7 +204,7 @@
 //    limitations under the License.
 
 #include "../../../Include/Nominax/Foundation/CLI/Parser.hpp"
-#include "../../../Include/Nominax/Foundation/Protocol.hpp"
+#include "../../../Include/Nominax/Foundation/Protocol/Protocol.hpp"
 
 namespace Nominax::Foundation::CLI
 {

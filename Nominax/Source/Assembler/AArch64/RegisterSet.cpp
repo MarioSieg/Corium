@@ -3,8 +3,6 @@
 
 namespace Nominax::Assembler::AArch64
 {
-    using Foundation::Print;
-
     auto DumpRegisterSet(std::ostream& stream, const GPRRegisterSet& regset) -> void
     {
         for (std::uint64_t i { 0 }; i < std::size(regset); ++i)

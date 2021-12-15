@@ -205,13 +205,13 @@
 
 #include "../../../Include/Nominax/Core/Subsystem/Proxy.hpp"
 #include "../../../Include/Nominax/Core/Subsystem/ISubsystem.hpp"
-#include "../../../Include/Nominax/Foundation/Panic/Assertions.hpp"
+#include "../../../Include/Nominax/Foundation/SystemPanic/Assertions.hpp"
 
 namespace Nominax::Core::Subsystem
 {
 	Proxy::Proxy(ISubsystem* const instance, std::unique_ptr<SubsystemDescriptor>&& config, void* const userData) : Handle_ { instance }
 	{
-        Foundation::Assert(instance, "Proxy creation failed because instance was nullptr!");
+        Assert(instance, "Proxy creation failed because instance was nullptr!");
 		if (this->Handle_->HasSubscribed(HookFlags::OnConstruct))
 		{
 			this->Handle_->Invoke<HookFlags::OnConstruct>(std::move(config), userData);

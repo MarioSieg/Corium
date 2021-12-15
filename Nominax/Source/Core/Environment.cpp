@@ -217,8 +217,8 @@ namespace Nominax::Core
 	#define DISPATCH_HOOK(method, ...)							    \
         do															\
         {															\
-            Foundation::Print("Dispatching hook: " #method "\n");	\
-            Foundation::Assert										\
+            Print("Dispatching hook: " #method "\n");	            \
+            Assert										\
             (														\
                 this-> method (__VA_ARGS__),						\
                 "\" "#method "\" returned false!"					\
@@ -234,7 +234,7 @@ namespace Nominax::Core
 	/// <returns></returns>
 	static inline auto MapStackSize(const std::uint64_t sizeInBytes) -> std::uint64_t
 	{
-        Foundation::Assert(sizeInBytes % sizeof(Record) == 0, "Invalid stack size: {}! Must be a multiple of sizeof(Record) -> 8!", sizeInBytes);
+        Assert(sizeInBytes % sizeof(Record) == 0, "Invalid stack size: {}! Must be a multiple of sizeof(Record) -> 8!", sizeInBytes);
 		return sizeInBytes / sizeof(Record);
 	}
 
@@ -287,7 +287,7 @@ namespace Nominax::Core
 		auto* NOX_RESTRICT const mem { new(std::nothrow) std::uint8_t[size] };
 		if (!mem) [[unlikely]]
 		{
-            Panic::Panic
+            Panic
             (
                 Format
                 (
@@ -507,7 +507,7 @@ namespace Nominax::Core
 		// No, we cannot use std::make_unique because we want it noexcept!
 		// ReSharper disable once CppSmartPointerVsMakeFunction
 		this->Context_ = std::unique_ptr<Context, ContextDeleter>(new(std::nothrow) Context(descriptor));
-        Foundation::Assert(this->Context_.operator bool(), "Context allocation failed!");
+        Assert(this->Context_.operator bool(), "Context allocation failed!");
 
 		// Invoke hook:
 		DISPATCH_HOOK(OnPostBootHook,);
@@ -555,7 +555,7 @@ namespace Nominax::Core
         using std::chrono::duration_cast;
         using std::chrono::duration;
 
-        Foundation::Assert(this->IsOnline(), "Environment is offline!");
+        Assert(this->IsOnline(), "Environment is offline!");
 
         // Invoke hook:
         DISPATCH_HOOK(OnPreExecutionHook, image);
@@ -586,8 +586,8 @@ namespace Nominax::Core
 	{
 		ByteCode::Image codeImage { };
 		const ByteCode::ValidationResultCode buildResult { ByteCode::Stream::Build(std::move(stream), this->GetOptimizationHints(), codeImage) };
-        Foundation::Assert(this->IsOnline(), "Environment is offline!");
-        Foundation::Assert
+        Assert(this->IsOnline(), "Environment is offline!");
+        Assert
         (
 			buildResult == ByteCode::ValidationResultCode::OK, "Byte code validation failed for stream! {}", ByteCode::BYTE_CODE_VALIDATION_RESULT_CODE_MESSAGES[Algorithm::ToUnderlying(buildResult)]
 		);
@@ -598,8 +598,8 @@ namespace Nominax::Core
 	{
 		ByteCode::Image codeImage { };
 		const ByteCode::ValidationResultCode buildResult { ByteCode::Stream::Build(stream, this->GetOptimizationHints(), codeImage) };
-        Foundation::Assert(this->IsOnline(), "Environment is offline!");
-        Foundation::Assert
+        Assert(this->IsOnline(), "Environment is offline!");
+        Assert
 		(
 			buildResult == ByteCode::ValidationResultCode::OK,
             "Byte code validation failed for stream! {}",
@@ -638,49 +638,49 @@ namespace Nominax::Core
 
 	auto Environment::GetBootStamp() const -> std::chrono::high_resolution_clock::time_point
 	{
-        Foundation::Assert(this->IsOnline(), "Environment is offline!");
+        Assert(this->IsOnline(), "Environment is offline!");
 		return this->Context_->BootStamp;
 	}
 
 	auto Environment::GetBootTime() const -> std::chrono::milliseconds
 	{
-        Foundation::Assert(this->IsOnline(), "Environment is offline!");
+        Assert(this->IsOnline(), "Environment is offline!");
 		return this->Context_->BootTime;
 	}
 
 	auto Environment::GetSystemInfoSnapshot() const -> const SystemInfoSnapshot&
 	{
-        Foundation::Assert(this->IsOnline(), "Environment is offline!");
+        Assert(this->IsOnline(), "Environment is offline!");
 		return this->Context_->SysInfoSnapshot;
 	}
 
 	auto Environment::GetCpuFeatureSnapshot() const -> const CPU::ISAExtensionDetector&
 	{
-        Foundation::Assert(this->IsOnline(), "Environment is offline!");
+        Assert(this->IsOnline(), "Environment is offline!");
 		return this->Context_->CPUFeatures;
 	}
 
 	auto Environment::GetAppName() const -> const std::pmr::string&
 	{
-        Foundation::Assert(this->IsOnline(), "Environment is offline!");
+        Assert(this->IsOnline(), "Environment is offline!");
 		return this->Context_->AppName;
 	}
 
 	auto Environment::GetMonotonicSystemPoolSize() const -> std::uint64_t
 	{
-        Foundation::Assert(this->IsOnline(), "Environment is offline!");
+        Assert(this->IsOnline(), "Environment is offline!");
 		return this->Context_->SystemPoolSize;
 	}
 
 	auto Environment::GetExecutionCount() const -> std::uint64_t
 	{
-        Foundation::Assert(this->IsOnline(), "Environment is offline!");
+        Assert(this->IsOnline(), "Environment is offline!");
         return this->Context_->ExecutionCount;
 	}
 
 	auto Environment::GetOptimizationHints() const -> ByteCode::OptimizationHints
 	{
-        Foundation::Assert(this->IsOnline(), "Environment is offline!");
+        Assert(this->IsOnline(), "Environment is offline!");
 		const JumpTable jumpTable { this->Context_->OptimalReactorRoutine.JTable };
 		return
 		{
@@ -690,37 +690,37 @@ namespace Nominax::Core
 
     auto Environment::GetOutputStream() const -> std::FILE&
     {
-        Foundation::Assert(this->IsOnline(), "Environment is offline!");
+        Assert(this->IsOnline(), "Environment is offline!");
         return *this->Context_->OutputStream;
     }
 
     auto Environment::GetErrorStream() const -> std::FILE&
     {
-        Foundation::Assert(this->IsOnline(), "Environment is offline!");
+        Assert(this->IsOnline(), "Environment is offline!");
         return *this->Context_->ErrorStream;
     }
 
     auto Environment::GetInputStream() const -> std::FILE&
     {
-        Foundation::Assert(this->IsOnline(), "Environment is offline!");
+        Assert(this->IsOnline(), "Environment is offline!");
         return *this->Context_->InputStream;
     }
 
     auto Environment::SetOutputStream(std::FILE& stream) const -> void
     {
-        Foundation::Assert(this->IsOnline(), "Environment is offline!");
+        Assert(this->IsOnline(), "Environment is offline!");
         this->Context_->OutputStream = &stream;
     }
 
     auto Environment::SetErrorStream(std::FILE& stream) const -> void
     {
-        Foundation::Assert(this->IsOnline(), "Environment is offline!");
+        Assert(this->IsOnline(), "Environment is offline!");
         this->Context_->ErrorStream = &stream;
     }
 
     auto Environment::SetInputStream(std::FILE& stream) const -> void
     {
-        Foundation::Assert(this->IsOnline(), "Environment is offline!");
+        Assert(this->IsOnline(), "Environment is offline!");
         this->Context_->InputStream = &stream;
     }
 

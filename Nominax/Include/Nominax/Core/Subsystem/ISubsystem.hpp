@@ -216,7 +216,7 @@
 #include "ThreadIDHash.hpp"
 
 #include "../../../Include/Nominax/Foundation/Platform.hpp"
-#include "../../../Include/Nominax/Foundation/Panic/Assertions.hpp"
+#include "../../../Include/Nominax/Foundation/SystemPanic/Assertions.hpp"
 
 namespace Nominax::Core::Subsystem
 {
@@ -417,7 +417,7 @@ namespace Nominax::Core::Subsystem
 		auto OnConstruct(std::unique_ptr<SubsystemDescriptor>&& config, void* userData) & -> void override;
 
 		/// <summary>
-		/// Invokes the Panic() function with addition subsystem information and the message.,
+		/// Invokes the SystemPanic() function with addition subsystem information and the message.,
 		/// </summary>
 		/// <param name="message"></param>
 		/// <returns></returns>
@@ -549,7 +549,7 @@ namespace Nominax::Core::Subsystem
 	inline auto ISubsystem::QuerySpecInterface() const noexcept -> SpecConfig&
 	{
 		auto* const spec { dynamic_cast<SpecConfig*>(&*this->BootConfigStorage) };
-        Foundation::Assert(spec, "Invalid spec config type!");
+        Assert(spec, "Invalid spec config type!");
 		return *spec;
 	}
 

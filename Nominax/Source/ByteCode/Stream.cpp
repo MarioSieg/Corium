@@ -211,7 +211,7 @@ namespace Nominax::ByteCode
 {
 	auto Stream::GetSerializationImageHeader(SerializationImageHeader& out) const -> void
 	{
-        Foundation::DebugAssert(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
+        DebugAssert(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		std::memcpy(std::data(out.Magic), std::data(SerializationImageHeader::MAGIC_ID), sizeof out.Magic);
 		out.CodeImageSize = std::size(this->CodeBuffer_);
 		out.DiscriminatorImageSize = std::size(this->CodeDiscriminatorBuffer_);

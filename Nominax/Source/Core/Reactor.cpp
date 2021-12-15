@@ -245,7 +245,7 @@ namespace Nominax::Core
 		InterruptHandler_ { descriptor.InterruptHandler ? descriptor.InterruptHandler : &DEFAULT_INTERRUPT_ROUTINE },
 		RoutineLink_ { routineLink }
 	{
-		Foundation::Print
+		Print
 		(
 			"Reactor {:08X}: "
 			"Stack: {} MB, "
@@ -277,13 +277,13 @@ namespace Nominax::Core
 		if (validationResult != ReactorValidationResult::Ok) [[unlikely]]
 		{
 			const std::string_view message { REACTOR_VALIDATION_RESULT_ERROR_MESSAGES[Foundation::Algorithm::ToUnderlying(validationResult)] };
-			Foundation::Panic::Panic({}, "Reactor {:#X} validation failed with the following reason: {}", this->ID_, message);
+			Panic({}, "Reactor {:#X} validation failed with the following reason: {}", this->ID_, message);
 		}
 		ReactorCoreExecutionRoutine* const routine { this->RoutineLink_.ExecutionRoutine };
-        Foundation::Assert(routine, "Reactor execution routine is null!");
+        Assert(routine, "Reactor execution routine is null!");
 		this->Output_.Input = &this->Input_;
 		const bool result { (*routine)(&this->Input_, &this->Output_, nullptr) };
-        Foundation::Assert(result, "Reactor routine execution return false!");
+        Assert(result, "Reactor routine execution return false!");
         return this->Output_;
 	}
 }

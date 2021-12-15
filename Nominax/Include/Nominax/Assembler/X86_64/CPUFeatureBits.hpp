@@ -257,7 +257,7 @@ namespace Nominax::Assembler::X86_64
         CX8 = 8,
 
         /// <summary>
-        /// On-board Advanced Programmable InterruptStatus Controller
+        /// On-board Advanced Programmable InterruptStatus ProtocolController
         /// </summary>
         APIC = 9,
 

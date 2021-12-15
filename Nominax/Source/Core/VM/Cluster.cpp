@@ -204,12 +204,12 @@
 //    limitations under the License.
 
 #include "../../../Include/Nominax/Core/VM/Cluster.hpp"
-#include "../../../Include/Nominax/Foundation/Panic/Assertions.hpp"
+#include "../../../Include/Nominax/Foundation/SystemPanic/Assertions.hpp"
 
 namespace Nominax::Core::VM
 {
     Cluster::Cluster(const std::uint64_t concurrency)
     {
-        Foundation::Assert(concurrency > 0, "Concurrency of zero is not allowed!");
+        Assert(concurrency > 0, "Concurrency of zero is not allowed!");
     }
 }

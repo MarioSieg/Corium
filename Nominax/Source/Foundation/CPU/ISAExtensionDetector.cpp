@@ -240,7 +240,7 @@ namespace Nominax::Foundation::CPU
         using CFB = ISAExtensionBit;
 
         // check if CPUID is supported on system
-        Foundation::Assert(IsCPUIDSupported(), "CPUID instruction is not supported on system!");
+        Assert(IsCPUIDSupported(), "CPUID instruction is not supported on system!");
 
         // extract gathered CPU feature bits:
         ISAExtensionMaskBuffer buffer{ };

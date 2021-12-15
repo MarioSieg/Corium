@@ -3,11 +3,11 @@
 #include <filesystem>
 
 #include "../../../Include/Nominax/Assembler/_Assembler.hpp"
-#include "../../../Include/Nominax/Foundation/Panic/Dump.hpp"
+#include "../../../Include/Nominax/Foundation/SystemPanic/Dump.hpp"
 #include "../../../Include/Nominax/Foundation/Stopwatch.hpp"
 #include "../../../Include/Nominax/Foundation/EmbeddedHTML.hpp"
 
-namespace Nominax::Foundation::Panic
+namespace Nominax::Foundation::SystemPanic
 {
 	using NOX_ARCH_PROXY::RegisterCache;
 

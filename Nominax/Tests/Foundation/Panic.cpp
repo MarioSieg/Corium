@@ -6,7 +6,7 @@ TEST(Panic, Panic)
     {
         []
         {
-            Panic::Panic("ERROR!");
+            Panic("ERROR!");
         }
     };
     ASSERT_DEATH(executor(), "");

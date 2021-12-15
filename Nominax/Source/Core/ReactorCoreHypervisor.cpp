@@ -210,8 +210,6 @@
 
 namespace Nominax::Core
 {
-    using Foundation::Print;
-
 	auto SingletonExecutionProxy
 	(
 		const VerboseReactorDescriptor& input,
@@ -304,7 +302,7 @@ namespace Nominax::Core
 		{
 			REACTOR_REGISTRY[static_cast<std::uint64_t>(target)]
 		};
-        Foundation::Assert(routine, "Reactor core execution routine is nullptr!");
+        Assert(routine, "Reactor core execution routine is nullptr!");
 		return routine;
 	}
 
@@ -348,7 +346,7 @@ namespace Nominax::Core
 	) -> const ReactorState&
 	{
 		const bool result { HyperVisor::GetOptimalReactorRoutine(target).ExecutionRoutine(&input, &output, outJumpTable) };
-        Foundation::Assert(result, "Singleton execution proxy execution routine returned false!");
+        Assert(result, "Singleton execution proxy execution routine returned false!");
 		return output;
 	}
 

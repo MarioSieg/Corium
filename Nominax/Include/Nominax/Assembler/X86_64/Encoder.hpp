@@ -208,7 +208,7 @@
 #include "Register.hpp"
 #include "Emitter.hpp"
 
-#include "../../Foundation/Panic/Assertions.hpp"
+#include "../../Foundation/SystemPanic/Assertions.hpp"
 #include "../../Foundation/Algorithm/Enum.hpp"
 
 #define NOX_REX(w, r, x, b)             (0x40|(b)|((x)<<1)|((r)<<2)|((w)<<3))
@@ -253,7 +253,7 @@ namespace Nominax::Assembler::X86_64
 
     inline auto EncodeModRM(const MODField mod, const std::uint8_t r1, const std::uint8_t r2) -> std::uint8_t
     {
-        Foundation::DebugAssert(CheckModRM(mod, r1, r2), "Invalid ModRM byte.");
+        DebugAssert(CheckModRM(mod, r1, r2), "Invalid ModRM byte.");
         const std::uint8_t m { Foundation::Algorithm::ToUnderlying(mod) };
         return m | ((r1 & 7) << 3) | (r2 & 7);
     }
@@ -265,7 +265,7 @@ namespace Nominax::Assembler::X86_64
 
     inline auto EncodeSIB(const std::uint8_t scale, const std::uint8_t index) -> std::uint8_t
     {
-        Foundation::DebugAssert(CheckSIB(scale, index), "Invalid SIB byte.");
+        DebugAssert(CheckSIB(scale, index), "Invalid SIB byte.");
         return scale | ((index & 7) << 3) | 4;
     }
 

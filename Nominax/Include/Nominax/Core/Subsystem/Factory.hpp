@@ -209,7 +209,7 @@
 #include "Proxy.hpp"
 #include "Allocator.hpp"
 
-#include "../../Foundation/Panic/Assertions.hpp"
+#include "../../Foundation/SystemPanic/Assertions.hpp"
 #include "../../Foundation/Platform.hpp"
 
 namespace Nominax::Core::Subsystem
@@ -233,7 +233,7 @@ namespace Nominax::Core::Subsystem
 		{
 			ISubsystem* instance { nullptr };
 			AllocateSubsystem<T, Args...>(instance, std::forward<Args>()...);
-            Foundation::Assert(instance, "Failed to allocate subsystem!");
+            Assert(instance, "Failed to allocate subsystem!");
 			return Proxy { instance, std::move(config), userData };
 		}
 	}

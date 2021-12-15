@@ -465,7 +465,7 @@ class FMT_API ostream final : private detail::buffer<char> {
   **Example**::
 
     auto out = fmt::output_file("guide.txt");
-    out.print("Don't {}", "Panic");
+    out.print("Don't {}", "SystemPanic");
   \endrst
  */
 template <typename... T>

@@ -207,7 +207,7 @@
 
 #include "../../../Include/Nominax/Foundation/Allocator/VirtualPageAllocator.hpp"
 #include "../../../Include/Nominax/Foundation/OSInterface.hpp"
-#include "../../../Include/Nominax/Foundation/Panic/Assertions.hpp"
+#include "../../../Include/Nominax/Foundation/SystemPanic/Assertions.hpp"
 
 namespace Nominax::Foundation::Allocator
 {
@@ -227,7 +227,7 @@ namespace Nominax::Foundation::Allocator
             return nullptr;
 		}
 		void* const block { OSI::MemoryMap(sizeof(VAH) + size, flags) };
-        Foundation::Assert(block, "Memory mapping failed!");
+        Assert(block, "Memory mapping failed!");
 		auto& header { *static_cast<VAH*>(block) };
 		header.Size = size;
 		header.ProtectionFlags = flags;

@@ -207,7 +207,7 @@
 
 #include <bit>
 
-#include "../Panic/Assertions.hpp"
+#include "../SystemPanic/Assertions.hpp"
 #include "VirtualPageProtectionFlags.hpp"
 
 namespace Nominax::Foundation::Allocator
@@ -414,7 +414,7 @@ namespace Nominax::Foundation::Allocator
 
 	inline auto VMM::MapHeaderFromRegion(void* const region, VirtualAllocationHeader*& out) -> void
 	{
-        Foundation::DebugAssert(region, "Region for header mapping was null!");
+        DebugAssert(region, "Region for header mapping was null!");
 		out = &VirtualAllocationHeader::MapHeader(VirtualAllocationHeader::ComputeRegionStart(region));
 	}
 }

@@ -208,7 +208,7 @@
 #include <cstdint>
 #include <type_traits>
 
-#include "../../Foundation/Panic/Assertions.hpp"
+#include "../../Foundation/SystemPanic/Assertions.hpp"
 #include "../../Foundation/Memory/Alignment.hpp"
 
 namespace Nominax::Core::VM
@@ -329,9 +329,9 @@ namespace Nominax::Core::VM
 	inline BufferView<T>::BufferView(const T buffer, const std::uint64_t size, const std::uint64_t alignment) noexcept
 	: Buffer_ { buffer }, Size_ { size }, Alignment_ { alignment }
 	{
-		Foundation::Assert(buffer != nullptr, "Invalid buffer pointer!");
-		Foundation::Assert(size != 0, "Invalid buffer size!");
-		Foundation::Assert(Foundation::Memory::IsAlignmentValid(alignment), "Invalid buffer alignment!");
+		Assert(buffer != nullptr, "Invalid buffer pointer!");
+		Assert(size != 0, "Invalid buffer size!");
+		Assert(Foundation::Memory::IsAlignmentValid(alignment), "Invalid buffer alignment!");
 	}
 
 	template <typename T> requires std::is_pointer_v<T>

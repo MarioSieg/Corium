@@ -209,7 +209,7 @@
 #include <vector>
 
 #include "Header.hpp"
-#include "../Panic/Assertions.hpp"
+#include "../SystemPanic/Assertions.hpp"
 
 namespace Nominax::Foundation
 {
@@ -962,7 +962,7 @@ namespace Nominax::Foundation
 
 	NOX_FLATTEN inline auto IMMUTATOR Object::QueryRawHeader() const noexcept(NOX_RELEASE) -> BlobBlockType*
 	{
-        Foundation::DebugAssert(this->Blob_, "Blob is null");
+        DebugAssert(this->Blob_, "Blob is null");
 		return this->Blob_;
 	}
 
@@ -975,13 +975,13 @@ namespace Nominax::Foundation
 
 	NOX_FLATTEN inline auto IMMUTATOR Object::LookupObjectBlock() const noexcept(NOX_RELEASE) -> BlobBlockType*
 	{
-        Foundation::DebugAssert(this->Blob_, "Blob is null");
+        DebugAssert(this->Blob_, "Blob is null");
 		return this->Blob_ + ObjectHeader::RECORD_OFFSET;
 	}
 
 	NOX_FLATTEN inline auto IMMUTATOR Object::LookupObjectBlockEnd() const noexcept(NOX_RELEASE) -> BlobBlockType*
 	{
-        Foundation::DebugAssert(this->HeaderRead_BlockSize() > 0, "Invalid header block size");
+        DebugAssert(this->HeaderRead_BlockSize() > 0, "Invalid header block size");
 		return this->LookupObjectBlock() + this->HeaderRead_BlockSize();
 	}
 

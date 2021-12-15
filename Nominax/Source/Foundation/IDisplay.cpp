@@ -204,7 +204,7 @@
 //    limitations under the License.
 
 #include "../../Include/Nominax/Foundation/IDisplay.hpp"
-#include "../../Include/Nominax/Foundation/Protocol.hpp"
+#include "../../Include/Nominax/Foundation/Protocol/Protocol.hpp"
 
 namespace Nominax::Foundation
 {
@@ -212,10 +212,7 @@ namespace Nominax::Foundation
     {
         if constexpr (!NOX_TEST)
         {
-            if (ProtocolController::IsProtocolEnabled) [[unlikely]]
-            {
-                this->Display(ProtocolController::OutputStream());
-            }
+            this->Display(Protocol::OutputStream());
         }
     }
 }

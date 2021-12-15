@@ -208,13 +208,13 @@
 
 #include "../../../Include/Nominax/Foundation/Memory/AlignedMalloc.hpp"
 #include "../../../Include/Nominax/Foundation/Algorithm/Math.hpp"
-#include "../../../Include/Nominax/Foundation/Panic/Assertions.hpp"
+#include "../../../Include/Nominax/Foundation/SystemPanic/Assertions.hpp"
 
 namespace Nominax::Foundation::Memory
 {
     auto AlignedMalloc(const std::uint64_t size, const std::uint64_t alignment) -> void*
     {
-        Foundation::DebugAssert(Algorithm::IsPowerOfTwo(alignment), "Alignment must be a power of two!");
+        DebugAssert(Algorithm::IsPowerOfTwo(alignment), "Alignment must be a power of two!");
         const std::uint64_t offset { alignment - 1 + sizeof (void*) };
         void* NOX_RESTRICT const origin { std::malloc(size + offset) };
         if (!origin)
@@ -229,7 +229,7 @@ namespace Nominax::Foundation::Memory
 
     auto AlignedFree(void* const block) -> void
     {
-        Foundation::DebugAssert(block, "Pointer to free was null!");
+        DebugAssert(block, "Pointer to free was null!");
         std::free(*(static_cast<void**>(block) - 1));
     }
 }

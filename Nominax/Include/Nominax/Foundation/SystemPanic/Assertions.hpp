@@ -205,36 +205,36 @@
 
 #pragma once
 
-#include "../Protocol.hpp"
-#include "../Platform.hpp"
+#include "Panic.hpp"
 #include "SourceLocation.hpp"
+#include "../Platform.hpp"
 
-namespace Nominax::Foundation::Panic
+namespace Nominax::Foundation::SystemPanic
 {
-	/// <summary>
-	/// Aborts the runtime showing a message and some information.
-	/// </summary>
-	/// <param name="message"></param>
-	/// <param name="srcLoc"></param>
-	/// <returns></returns>
-	[[noreturn]]
-	NOX_COLD NOX_NEVER_INLINE
-	extern auto Panic(std::string_view message, const SourceLocation& srcLoc = {}) -> void;
+    template <typename... Args>
+    inline auto Assert(const bool expression, const std::string_view formatString, Args&&... args) -> void
+    {
+        if (!expression) [[unlikely]]
+        {
+            Panic(SourceLocation { }, formatString, std::forward<Args>(args)...);
+        }
+    }
 
-	/// <summary>
-	/// Panic and format.
-	/// </summary>
-	/// <typeparam name="...Ts"></typeparam>
-	/// <param name="srcLoc"></param>
-	/// <param name="formatStr"></param>
-	/// <param name="args"></param>
-	/// <returns></returns>
-	template <typename... Ts>
-	[[noreturn]]
-	NOX_COLD NOX_NEVER_INLINE
-	auto Panic(const SourceLocation& srcLoc, const std::string_view formatStr, Ts&&... args) -> void
-	{
-		const std::string message { Format(formatStr, std::forward<Ts>(args)...) };
-		Panic(message, srcLoc);
-	}
+    template <typename... Args>
+    inline auto DebugAssert(const bool expression, const std::string_view formatString, Args&&... args) -> void
+    {
+        if constexpr (NOX_DEBUG)
+        {
+            if (!expression) [[unlikely]]
+            {
+                Panic(SourceLocation { }, formatString, std::forward<Args>(args)...);
+            }
+        }
+    }
+}
+
+namespace Nominax
+{
+    using Foundation::SystemPanic::Assert;
+    using Foundation::SystemPanic::DebugAssert;
 }

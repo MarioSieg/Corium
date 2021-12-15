@@ -208,6 +208,7 @@
 #include "gtest/gtest.h"
 #include "../Include/Nominax/Nominax.hpp"
 
+using namespace Nominax;
 using namespace Nominax::Foundation;
 using namespace Memory;
 using namespace Allocator;

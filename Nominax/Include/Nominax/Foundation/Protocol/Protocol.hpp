@@ -205,111 +205,98 @@
 
 #pragma once
 
-#include <cstdint>
-#include <string_view>
+#define FMT_ENFORCE_COMPILE_STRING true
 
-namespace Nominax::Foundation::Panic
+#include "fmt/format.h"
+#include "fmt/chrono.h"
+#include "fmt/color.h"
+
+#define FMT_CONSTEVAL constexpr
+#define NOX_FMT(x) FMT_STRING(x)
+
+#include <type_traits>
+
+#include "Controller.hpp"
+#include "../Platform.hpp"
+
+namespace Nominax::Foundation::Protocol
 {
+    /// <summary>
+    /// Formats the arguments into the string if format
+    /// arguments are given.
+    /// The formatting rules follow the C++ 20 <format> convention.
+    /// All printing inside Nominax should be done via this functions
+    /// and friends because it also allows different configurations.
+    /// </summary>
+    /// <typeparam name="Str">The string type.</typeparam>
+    /// <typeparam name="...Args">The argument types.</typeparam>
+    /// <param name="formatString">The format string.</param>
+    /// <param name="args">The arguments to format.</param>
+    template <typename... Args>
+    inline auto Format(const std::string_view formatString, Args&&...args) -> std::string
+    {
+        return fmt::format(formatString, std::forward<Args>(args)...);
+    }
+
+    /// <summary>
+    /// Prints out the formatting string and
+    /// formats the arguments into the string if format
+    /// arguments are given.
+    /// The formatting rules follow the C++ 20 <format> convention.
+    /// All printing inside Nominax should be done via this functions
+    /// and friends because it also allows different configurations.
+    /// </summary>
+    /// <typeparam name="Str">The string type.</typeparam>
+    /// <typeparam name="...Args">The argument types.</typeparam>
+    /// <param name="formatString">The format string.</param>
+    /// <param name="args">The arguments to format.</param>
+    template <typename... Args>
+    inline auto Print(std::ostream& stream, const std::string_view formatString, Args&&...args) -> void
+    {
+        stream << Format(formatString, std::forward<Args>(args)...);
+    }
+
 	/// <summary>
-	/// Custom implementation of std::source_location.
-	///	Because std::source_location is not yet implemented in all compilers.
-	/// But this implementation does not contain column because it's not implemented in GCC yet and not really needed.
+	/// Prints out the formatting string and
+	/// formats the arguments into the string if format
+	/// arguments are given.
+	/// The formatting rules follow the C++ 20 <format> convention.
+	/// All printing inside Nominax should be done via this functions
+	/// and friends because it also allows different configurations.
 	/// </summary>
-	struct SourceLocation final
+	/// <typeparam name="Str">The string type.</typeparam>
+	/// <typeparam name="...Args">The argument types.</typeparam>
+	/// <param name="formatString">The format string.</param>
+	/// <param name="args">The arguments to format.</param>
+	template <typename... Args>
+	inline auto Print(const std::string_view formatString, Args&&...args) -> void
 	{
-
-		/// <summary>
-		/// Construct and set data.
-		/// </summary>
-		constexpr SourceLocation
-		(
-			std::uint_least32_t line = __builtin_LINE(),
-			std::string_view fileName = __builtin_FILE(),
-			std::string_view functionName = __builtin_FUNCTION()
-		) noexcept;
-
-		/// <summary>
-		/// Copy constructor.
-		/// </summary>
-		/// <param name="other"></param>
-		constexpr SourceLocation(const SourceLocation& other) noexcept = default;
-
-		/// <summary>
-		/// Move constructor.
-		/// </summary>
-		/// <param name="other"></param>
-		constexpr SourceLocation(SourceLocation&& other) noexcept = default;
-
-		/// <summary>
-		/// Copy assignment operator.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		constexpr auto operator =(const SourceLocation& other) noexcept -> SourceLocation& = default;
-
-		/// <summary>
-		/// Move assignment operator.
-		/// </summary>
-		/// <param name="other"></param>
-		/// <returns></returns>
-		constexpr auto operator =(SourceLocation&& other) noexcept -> SourceLocation& = default;
-
-		/// <summary>
-		/// Destructor.
-		/// </summary>
-		~SourceLocation() = default;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>Current line number.</returns>
-		[[nodiscard]]
-		constexpr auto GetLine() const noexcept -> std::uint_least32_t;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>Current file name.</returns>
-		[[nodiscard]]
-		constexpr auto GetFileName() const noexcept -> std::string_view;
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns>Current function name.</returns>
-		[[nodiscard]]
-		constexpr auto GetFunctionName() const noexcept -> std::string_view;
-
-	private:
-		std::uint_least32_t Line_;
-		std::string_view FileName_;
-		std::string_view FunctionName_;
-	};
-
-	constexpr SourceLocation::SourceLocation
-	(
-		const std::uint_least32_t line,
-		const std::string_view fileName,
-		const std::string_view functionName
-	) noexcept
-	{
-		this->Line_ = line;
-		this->FileName_ = fileName;
-		this->FunctionName_ = functionName;
+        Print(OutputStream(), formatString, std::forward<Args>(args)...);
 	}
 
-	constexpr auto SourceLocation::GetLine() const noexcept -> std::uint_least32_t
-	{
-		return this->Line_;
-	}
+    /// <summary>
+    /// Print single char.
+    /// </summary>
+    /// <param name="x"></param>
+    /// <returns></returns>
+    inline auto Print(std::ostream& stream, const char x) -> void
+    {
+        stream.put(x);
+    }
 
-	constexpr auto SourceLocation::GetFileName() const noexcept -> std::string_view
+	/// <summary>
+	/// Print single char.
+	/// </summary>
+	/// <param name="x"></param>
+	/// <returns></returns>
+    inline auto Print(const char x) -> void
 	{
-		return this->FileName_;
+        Print(OutputStream(), x);
 	}
+}
 
-	constexpr auto SourceLocation::GetFunctionName() const noexcept -> std::string_view
-	{
-		return this->FunctionName_;
-	}
+namespace Nominax
+{
+    using Foundation::Protocol::Print;
+    using Foundation::Protocol::Format;
 }

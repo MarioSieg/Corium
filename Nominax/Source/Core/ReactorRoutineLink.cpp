@@ -216,7 +216,7 @@ namespace Nominax::Core
 	    ExecutionRoutine { executionRoutine },
 	    JTable { jumpTable }
 	{
-		Foundation::Assert(this->ExecutionRoutine, "Routine for reactor routine link is null!");
-		Foundation::Assert(this->JTable, "Jump table for reactor routine link is null!");
+		Assert(this->ExecutionRoutine, "Routine for reactor routine link is null!");
+		Assert(this->JTable, "Jump table for reactor routine link is null!");
 	}
 }

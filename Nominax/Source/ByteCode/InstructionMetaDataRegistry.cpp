@@ -204,14 +204,12 @@
 //    limitations under the License.
 
 #include "../../Include/Nominax/ByteCode/InstructionMetaDataRegistry.hpp"
-#include "../../Include/Nominax/Foundation/Protocol.hpp"
+#include "../../Include/Nominax/Foundation/Protocol/Protocol.hpp"
 
 namespace Nominax::ByteCode
 {
     auto InstructionMetaDataRegistry::PrintInstructionSetTable(std::ostream& stream) -> void
     {
-        using Foundation::Print;
-
         Print(stream, "OP | {0: <8} | {1: <2} | S+ | S- | S+- | C | {2: <4} | {3: <4}\n", "Mnemonic", "IA", "OP1", "OP2");
 
         const auto getOperandName

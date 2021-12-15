@@ -205,7 +205,7 @@
 
 #include "../../../Include/Nominax/Foundation/CLI/Options.hpp"
 #include "../../../Include/Nominax/Foundation/Version.hpp"
-#include "../../../Include/Nominax/Foundation/Protocol.hpp"
+#include "../../../Include/Nominax/Foundation/Protocol/Protocol.hpp"
 #include "../../../Include/Nominax/ByteCode/InstructionMetaDataRegistry.hpp"
 
 namespace Nominax::Foundation::CLI
@@ -255,11 +255,9 @@ namespace Nominax::Foundation::CLI
         else if (dumpISA) [[unlikely]]
         {
             [[unlikely]]
-            ByteCode::InstructionMetaDataRegistry::PrintInstructionSetTable(ProtocolController::OutputStream());
+            ByteCode::InstructionMetaDataRegistry::PrintInstructionSetTable(Protocol::OutputStream());
             return false;
         }
-
-        ProtocolController::IsProtocolEnabled = !nolog;
 
         this->ForceSandboxVM = sandbox;
         this->ForceFallbackVM = fallback;
@@ -271,8 +269,6 @@ namespace Nominax::Foundation::CLI
 
     auto Options::Display(std::ostream& stream) const -> void
     {
-        using Foundation::Print;
-
         Print(stream, "Force sandbox VM: {}\n", this->ForceSandboxVM);
         Print(stream, "Force fallback VM: {}\n", this->ForceFallbackVM);
         Print(stream, "Power safe mode: {}\n", this->PowerSafeMode);

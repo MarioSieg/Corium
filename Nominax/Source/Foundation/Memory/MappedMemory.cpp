@@ -204,15 +204,15 @@
 //    limitations under the License.
 
 #include "../../../../Nominax/Include/Nominax/Foundation/Memory/MappedMemory.hpp"
-#include "../../../../Nominax/Include/Nominax/Foundation/Panic/Assertions.hpp"
+#include "../../../../Nominax/Include/Nominax/Foundation/SystemPanic/Assertions.hpp"
 
 namespace Nominax::Foundation::Memory
 {
 	MappedMemory::MappedMemory(const std::uint64_t size, const Allocator::MemoryPageProtectionFlags flags, const bool lockedProtection)
 	{
-		Foundation::Assert(size, "Memory mapping with zero size requested!");
+		Assert(size, "Memory mapping with zero size requested!");
 		void* const region { Allocator::VMM::VirtualAlloc(size, flags, lockedProtection, &this->Header_) };
-        Foundation::Assert(region, "Virtual memory allocation failed!");
+        Assert(region, "Virtual memory allocation failed!");
 		this->Region_ = region;
 	}
 
@@ -220,6 +220,6 @@ namespace Nominax::Foundation::Memory
 	{
         [[maybe_unused]]
 		const bool result { Allocator::VMM::VirtualDealloc(this->Region_) };
-        Foundation::Assert(result, "Virtual memory deallocation failed!");
+        Assert(result, "Virtual memory deallocation failed!");
 	}
 }

@@ -211,7 +211,7 @@
 
 #include "../Memory/AlignedMalloc.hpp"
 #include "../Platform.hpp"
-#include "../Panic/Assertions.hpp"
+#include "../SystemPanic/Assertions.hpp"
 
 namespace Nominax::Foundation::Allocator
 {
@@ -463,54 +463,54 @@ namespace Nominax::Foundation::Allocator
 	NOX_FLATTEN inline auto SystemAllocator::AllocateChecked(const std::uint64_t size) -> void*
 	{
 		void* mem { Allocate(size) };
-        Foundation::DebugAssert(mem, "Allocation error!");
+        DebugAssert(mem, "Allocation error!");
 		return mem;
 	}
 
 	NOX_FLATTEN inline auto SystemAllocator::AllocateAndZeroChecked(const std::uint64_t size) -> void*
 	{
 		void* mem { AllocateAndZero(size) };
-        Foundation::DebugAssert(mem, "Allocation error!");
+        DebugAssert(mem, "Allocation error!");
 		return mem;
 	}
 
 	NOX_FLATTEN inline auto SystemAllocator::ReallocateChecked(void* const where, const std::uint64_t size) -> void*
 	{
 		void* mem { Reallocate(where, size) };
-        Foundation::DebugAssert(mem, "Allocation error!");
+        DebugAssert(mem, "Allocation error!");
 		return mem;
 	}
 
 	NOX_FLATTEN inline auto SystemAllocator::DeallocateChecked(void* const ptr) -> void
 	{
-        Foundation::DebugAssert(ptr, "Allocation error!");
+        DebugAssert(ptr, "Allocation error!");
 		Deallocate(ptr);
 	}
 
 	NOX_FLATTEN inline auto SystemAllocator::AllocateAlignedChecked(const std::uint64_t size, const std::uint64_t alignment) -> void*
 	{
 		void* const mem { AllocateAligned(size, alignment) };
-        Foundation::DebugAssert(mem, "Allocation error!");
+        DebugAssert(mem, "Allocation error!");
 		return mem;
 	}
 
 	NOX_FLATTEN inline auto SystemAllocator::AllocateAlignedAndZeroChecked(const std::uint64_t size, const std::uint64_t alignment) -> void*
 	{
 		void* const mem { AllocateAlignedAndZero(size, alignment) };
-        Foundation::DebugAssert(mem, "Allocation error!");
+        DebugAssert(mem, "Allocation error!");
 		return mem;
 	}
 
 	NOX_FLATTEN inline auto SystemAllocator::ReallocateAlignedChecked(void* const where, const std::uint64_t size, const std::uint64_t alignment) -> void*
 	{
 		void* const mem { ReallocateAligned(where, size, alignment) };
-        Foundation::DebugAssert(mem, "Allocation error!");
+        DebugAssert(mem, "Allocation error!");
 		return mem;
 	}
 
 	NOX_FLATTEN inline auto SystemAllocator::DeallocateAlignedChecked(void* const ptr) -> void
 	{
-        Foundation::DebugAssert(ptr, "Allocation error!");
+        DebugAssert(ptr, "Allocation error!");
 		DeallocateAligned(ptr);
 	}
 }

@@ -207,7 +207,7 @@
 #include <span>
 
 #include "../../../Include/Nominax/Core/VM/Stack.hpp"
-#include "../../../Include/Nominax/Foundation/Panic/Assertions.hpp"
+#include "../../../Include/Nominax/Foundation/SystemPanic/Assertions.hpp"
 #include "../../../Include/Nominax/Foundation/Allocator/SystemAllocator.hpp"
 #include "../../../Include/Nominax/Foundation/Memory/Alignment.hpp"
 
@@ -219,8 +219,8 @@ namespace Nominax::Core::VM
 	Stack::Stack(std::uint64_t size, const std::uint64_t alignment)
 	: Size_ { size }, Alignment_ { alignment }
 	{
-		Foundation::Assert(size > 0, "Invalid stack size!");
-		Foundation::Assert(IsAlignmentValid(alignment), "Invalid stack alignment!");
+		Assert(size > 0, "Invalid stack size!");
+		Assert(IsAlignmentValid(alignment), "Invalid stack alignment!");
 		size *= sizeof(Foundation::Record);
 		*(this->Buffer_ = static_cast<Foundation::Record*>(SystemAllocator::AllocateAlignedChecked(size, alignment))) = MAGIC_PADDING;
 	}

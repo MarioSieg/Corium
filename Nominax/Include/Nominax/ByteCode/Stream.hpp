@@ -212,7 +212,7 @@
 #include "ValidationResult.hpp"
 
 #include "../Foundation/ISerializable.hpp"
-#include "../Foundation/Panic/Assertions.hpp"
+#include "../Foundation/SystemPanic/Assertions.hpp"
 #include "../Foundation/IDisplay.hpp"
 
 namespace Nominax::ByteCode
@@ -775,27 +775,27 @@ namespace Nominax::ByteCode
 
 	inline auto Stream::Resize(const std::uint64_t size) -> void
 	{
-        Foundation::DebugAssert(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
+        DebugAssert(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.resize(size);
 		this->CodeDiscriminatorBuffer_.resize(size);
 	}
 
 	inline auto Stream::Reserve(const std::uint64_t size) -> void
 	{
-        Foundation::DebugAssert(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
+        DebugAssert(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.reserve(size);
 		this->CodeDiscriminatorBuffer_.reserve(size);
 	}
 
 	inline auto Stream::Size() const -> std::uint64_t
 	{
-        Foundation::DebugAssert(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
+        DebugAssert(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		return std::size(this->CodeBuffer_);
 	}
 
 	inline auto Stream::SizeInBytes() const -> std::uint64_t
 	{
-        Foundation::DebugAssert(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
+        DebugAssert(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		return
 			std::size(this->CodeBuffer_)
 			* sizeof(Signal)
@@ -805,63 +805,63 @@ namespace Nominax::ByteCode
 
 	inline auto Stream::Emit(const Instruction instr) -> void
 	{
-        Foundation::DebugAssert(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
+        DebugAssert(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal { instr });
 		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::Instruction);
 	}
 
 	inline auto Stream::Emit(const enum Syscall intrin) -> void
 	{
-        Foundation::DebugAssert(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
+        DebugAssert(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal { intrin });
 		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::SysCall);
 	}
 
 	inline auto Stream::Emit(const FFIIntrinsicInvocationID intrin) -> void
 	{
-        Foundation::DebugAssert(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
+        DebugAssert(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal { intrin });
 		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::Intrinsic);
 	}
 
 	inline auto Stream::Emit(const JumpAddress address) -> void
 	{
-        Foundation::DebugAssert(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
+        DebugAssert(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal { address });
 		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::JumpAddress);
 	}
 
 	inline auto Stream::Emit(const MemoryOffset value) -> void
 	{
-        Foundation::DebugAssert(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
+        DebugAssert(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal { value });
 		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::MemoryOffset);
 	}
 
 	inline auto Stream::Emit(const std::int64_t value) -> void
 	{
-        Foundation::DebugAssert(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
+        DebugAssert(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal { value });
 		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::Int);
 	}
 
 	inline auto Stream::Emit(const double value) -> void
 	{
-        Foundation::DebugAssert(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
+        DebugAssert(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
 		this->CodeBuffer_.emplace_back(Signal { value });
 		this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::Float);
 	}
 
     inline auto Stream::Emit(const TypeID value) -> void
     {
-        Foundation::DebugAssert(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
+        DebugAssert(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
         this->CodeBuffer_.emplace_back(Signal { value });
         this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::TypeID);
     }
 
     inline auto Stream::Emit(const FieldOffset value) -> void
     {
-        Foundation::DebugAssert(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
+        DebugAssert(std::size(this->CodeBuffer_) == std::size(this->CodeDiscriminatorBuffer_), "Stream size mismatch");
         this->CodeBuffer_.emplace_back(Signal { value });
         this->CodeDiscriminatorBuffer_.emplace_back(Signal::Discriminator::FieldOffset);
     }

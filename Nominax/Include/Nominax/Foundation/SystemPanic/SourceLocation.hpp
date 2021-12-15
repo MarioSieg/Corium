@@ -203,49 +203,118 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <iostream>
+#pragma once
 
-#include "../../../../Nominax/Include/Nominax/Foundation/_Foundation.hpp"
-#include "../../../../Nominax/Include/Nominax/Assembler/_Assembler.hpp"
+#include <cstdint>
+#include <string_view>
 
 namespace Nominax::Foundation::SystemPanic
 {
-    using NOX_ARCH_PROXY::RegisterCache;
-
-    static auto PrintPanicMessage(std::string_view message, const SourceLocation& srcLoc) -> void;
-
-    NOX_COLD auto Panic(const std::string_view message, const SourceLocation& srcLoc) -> void
+	/// <summary>
+	/// Custom implementation of std::source_location.
+	///	Because std::source_location is not yet implemented in all compilers.
+	/// But this implementation does not contain column because it's not implemented in GCC yet and not really needed.
+	/// </summary>
+	struct SourceLocation final
 	{
-        const RegisterCache regCache { };
-        PrintPanicMessage(message, srcLoc);
-        regCache.DisplayToConsole();
-        CreatePanicDump(message, srcLoc, &regCache);
-        std::fflush(stdout);
-        std::fflush(stderr);
-		std::flush(std::cout);
-        std::flush(std::cerr);
-		std::abort();
-	}
 
-	constexpr std::string_view PANIC_MESSAGE
-	{
-		"The Nominax runtime system encountered an internal error!\n"
-		"Please submit this report and help to fix the problem!\n"
-		"Send the index.html and the style.css files to: mt3000@gmx.de\n"
-		"Thank you for your support and sorry for the inconvenience :(\n"
+		/// <summary>
+		/// Construct and set data.
+		/// </summary>
+		constexpr SourceLocation
+		(
+			std::uint_least32_t line = __builtin_LINE(),
+			std::string_view fileName = __builtin_FILE(),
+			std::string_view functionName = __builtin_FUNCTION()
+		) noexcept;
+
+		/// <summary>
+		/// Copy constructor.
+		/// </summary>
+		/// <param name="other"></param>
+		constexpr SourceLocation(const SourceLocation& other) noexcept = default;
+
+		/// <summary>
+		/// Move constructor.
+		/// </summary>
+		/// <param name="other"></param>
+		constexpr SourceLocation(SourceLocation&& other) noexcept = default;
+
+		/// <summary>
+		/// Copy assignment operator.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator =(const SourceLocation& other) noexcept -> SourceLocation& = default;
+
+		/// <summary>
+		/// Move assignment operator.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		constexpr auto operator =(SourceLocation&& other) noexcept -> SourceLocation& = default;
+
+		/// <summary>
+		/// Destructor.
+		/// </summary>
+		~SourceLocation() = default;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>Current line number.</returns>
+		[[nodiscard]]
+		constexpr auto GetLine() const noexcept -> std::uint_least32_t;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>Current file name.</returns>
+		[[nodiscard]]
+		constexpr auto GetFileName() const noexcept -> std::string_view;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns>Current function name.</returns>
+		[[nodiscard]]
+		constexpr auto GetFunctionName() const noexcept -> std::string_view;
+
+	private:
+		std::uint_least32_t Line_;
+		std::string_view FileName_;
+		std::string_view FunctionName_;
 	};
 
-    NOX_COLD static auto PrintPanicMessage(const std::string_view message, const SourceLocation& srcLoc) -> void
-    {
-        Print("\n! NOMINAX RUNTIME SystemPanic !\n");
-		Print(PANIC_MESSAGE);
-        Print
-        (
-            "File: {}\nLine: {}\nRoutine: {}\n",
-            srcLoc.GetFileName(),
-            srcLoc.GetLine(),
-            srcLoc.GetFunctionName()
-        );
-        Print("Message: {}\n", message);
-    }
+	constexpr SourceLocation::SourceLocation
+	(
+		const std::uint_least32_t line,
+		const std::string_view fileName,
+		const std::string_view functionName
+	) noexcept
+	{
+		this->Line_ = line;
+		this->FileName_ = fileName;
+		this->FunctionName_ = functionName;
+	}
+
+	constexpr auto SourceLocation::GetLine() const noexcept -> std::uint_least32_t
+	{
+		return this->Line_;
+	}
+
+	constexpr auto SourceLocation::GetFileName() const noexcept -> std::string_view
+	{
+		return this->FileName_;
+	}
+
+	constexpr auto SourceLocation::GetFunctionName() const noexcept -> std::string_view
+	{
+		return this->FunctionName_;
+	}
+}
+
+namespace Nominax
+{
+    using Foundation::SystemPanic::SourceLocation;
 }
