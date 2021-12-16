@@ -215,6 +215,7 @@
 #include "Memory/_Memory.hpp"
 #include "Object/_Object.hpp"
 #include "SystemPanic/_Panic.hpp"
+#include "Protocol/_Protocol.hpp"
 #include "Random/_Random.hpp"
 
 #include "CompileTimeConfig.hpp"
@@ -229,8 +230,6 @@
 #include "OSInterface.hpp"
 #include "SigBus.hpp"
 #include "Platform.hpp"
-#include "Protocol/Protocol.hpp"
-#include "Protocol/Controller.hpp"
 #include "ScopeExitGuard.hpp"
 #include "Record.hpp"
 #include "SystemInfoSnapshot.hpp"
@@ -238,3 +237,4 @@
 #include "TextFile.hpp"
 #include "VariadicMacroHelper.hpp"
 #include "VectorLib.hpp"
+#include "Version.hpp"

@@ -267,9 +267,9 @@ namespace Nominax::Foundation
                         }
                     }, value
                 );
-                Print(out, '\n');
+                PrintNewline(out);
 			}
-            Print(out, '\n');
+            PrintNewline(out);
 		}
 		return true;
 	}

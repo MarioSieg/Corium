@@ -489,7 +489,7 @@ namespace Nominax::Core
 
 		// Basic setup:
 		std::ios_base::sync_with_stdio(false);
-		SYSTEM_VERSION.DisplayToConsole();
+		Version::Current().DisplayToConsole();
         NATIVE_TYPE_REGISTRY.DisplayToConsole();
 		Print("\nBooting runtime environment...\nApp: \"{}\"\n", descriptor.AppName);
 		const auto tik { std::chrono::high_resolution_clock::now() };

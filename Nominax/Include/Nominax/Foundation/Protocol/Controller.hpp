@@ -205,6 +205,7 @@
 
 #pragma once
 
+#include <chrono>
 #include <iostream>
 
 namespace Nominax::Foundation::Protocol
@@ -217,5 +218,19 @@ namespace Nominax::Foundation::Protocol
     inline auto InputStream() noexcept -> std::istream&
     {
         return std::cin;
+    }
+
+    inline thread_local auto TimeStampCounter { std::chrono::high_resolution_clock::now() };
+
+    inline auto ResetTimeStamp()
+    {
+        TimeStampCounter = std::chrono::high_resolution_clock::now();
+    }
+
+    inline auto GetTimeStamp() noexcept -> double
+    {
+        const auto now { std::chrono::high_resolution_clock::now() };
+        auto duration { std::chrono::duration_cast<std::chrono::duration<double>>(now - TimeStampCounter) };
+        return duration.count();
     }
 }

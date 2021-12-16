@@ -203,7 +203,10 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "../../../Include/Nominax/Core/Kernel/Kernel.hpp"
+#include "../../../Include/Nominax/Core/Kernel/_Kernel.hpp"
+#include "../../../Include/Nominax/Foundation/_Foundation.hpp"
+
+using namespace Nominax::Foundation;
 
 namespace Nominax::Core::Kernel
 {
@@ -216,6 +219,9 @@ namespace Nominax::Core::Kernel
 	Host_ { },
 	Pipes_ { }
 	{
+        Protocol::ResetTimeStamp();
+        Print("Booting Nominax runtime environment...\n");
+        Version::Current().DisplayToConsole();
 		this->Host_.BootAll();
 	}
 

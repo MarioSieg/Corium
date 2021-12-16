@@ -229,7 +229,7 @@ namespace Nominax::Foundation::CPU
                 }
             }
         #endif
-        Print(stream, '\n');
+        PrintNewline(stream);
     }
 
     auto ISAExtensionDetector::DetectExtensions() -> void

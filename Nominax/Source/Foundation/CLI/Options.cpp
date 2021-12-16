@@ -248,8 +248,6 @@ namespace Nominax::Foundation::CLI
         }
         else if (version) [[unlikely]]
         {
-            [[unlikely]]
-            SYSTEM_VERSION.DisplayToConsole();
             return false;
         }
         else if (dumpISA) [[unlikely]]

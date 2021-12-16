@@ -205,16 +205,14 @@
 
 #pragma once
 
-#define FMT_ENFORCE_COMPILE_STRING true
+#include <type_traits>
 
 #include "fmt/format.h"
 #include "fmt/chrono.h"
 #include "fmt/color.h"
+#include "fmt/ostream.h"
 
 #define FMT_CONSTEVAL constexpr
-#define NOX_FMT(x) FMT_STRING(x)
-
-#include <type_traits>
 
 #include "Controller.hpp"
 #include "../Platform.hpp"
@@ -253,7 +251,7 @@ namespace Nominax::Foundation::Protocol
     template <typename... Args>
     inline auto Print(std::ostream& stream, const std::string_view formatString, Args&&...args) -> void
     {
-        stream << Format(formatString, std::forward<Args>(args)...);
+        fmt::print(stream, "[{:.04f}] {}", GetTimeStamp(), Format(formatString, std::forward<Args>(args)...));
     }
 
 	/// <summary>
@@ -275,28 +273,29 @@ namespace Nominax::Foundation::Protocol
 	}
 
     /// <summary>
-    /// Print single char.
+    /// Print new line.
     /// </summary>
     /// <param name="x"></param>
     /// <returns></returns>
-    inline auto Print(std::ostream& stream, const char x) -> void
+    inline auto PrintNewline(std::ostream& stream) -> void
     {
-        stream.put(x);
+        stream.put('\n');
     }
 
-	/// <summary>
-	/// Print single char.
-	/// </summary>
-	/// <param name="x"></param>
-	/// <returns></returns>
-    inline auto Print(const char x) -> void
-	{
-        Print(OutputStream(), x);
-	}
+    /// <summary>
+    /// Print new line.
+    /// </summary>
+    /// <param name="x"></param>
+    /// <returns></returns>
+    inline auto PrintNewline() -> void
+    {
+        PrintNewline(OutputStream());
+    }
 }
 
 namespace Nominax
 {
-    using Foundation::Protocol::Print;
     using Foundation::Protocol::Format;
+    using Foundation::Protocol::Print;
+    using Foundation::Protocol::PrintNewline;
 }

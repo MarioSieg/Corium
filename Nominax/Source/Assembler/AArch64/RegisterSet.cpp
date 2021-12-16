@@ -9,11 +9,11 @@ namespace Nominax::Assembler::AArch64
         {
             if (i % 2 == 0)
             {
-                Print(stream, '\n');
+                PrintNewline(stream);
             }
             Print(stream, "%v{}{} = {:016X} ", i, i < 10 ? " " : "", regset[i].AsU64);
         }
-        Print(stream, '\n');
+        PrintNewline(stream);
     }
 
     auto DumpRegisterSet(std::ostream& stream, const NeonRegisterSet& regset) -> void
