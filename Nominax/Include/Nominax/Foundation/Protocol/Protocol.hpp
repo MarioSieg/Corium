@@ -271,31 +271,10 @@ namespace Nominax::Foundation::Protocol
 	{
         Print(OutputStream(), formatString, std::forward<Args>(args)...);
 	}
-
-    /// <summary>
-    /// Print new line.
-    /// </summary>
-    /// <param name="x"></param>
-    /// <returns></returns>
-    inline auto PrintNewline(std::ostream& stream) -> void
-    {
-        stream.put('\n');
-    }
-
-    /// <summary>
-    /// Print new line.
-    /// </summary>
-    /// <param name="x"></param>
-    /// <returns></returns>
-    inline auto PrintNewline() -> void
-    {
-        PrintNewline(OutputStream());
-    }
 }
 
 namespace Nominax
 {
     using Foundation::Protocol::Format;
     using Foundation::Protocol::Print;
-    using Foundation::Protocol::PrintNewline;
 }

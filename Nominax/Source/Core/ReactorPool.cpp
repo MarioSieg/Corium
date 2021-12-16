@@ -234,7 +234,7 @@ namespace Nominax::Core
             this->BootReactor();
 		}
 
-        PrintNewline();
+        std::cout.put('\n');
 	}
 
 	ReactorPool::~ReactorPool()

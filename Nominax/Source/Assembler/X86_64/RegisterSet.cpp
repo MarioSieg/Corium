@@ -208,8 +208,6 @@
 
 namespace Nominax::Assembler::X86_64
 {
-    using Foundation::Print;
-
     auto DumpRegisterSet(std::ostream& stream, const GPRRegisterSet& regset) -> void
     {
         static constexpr std::array<std::string_view, 16> GPR_LUT
@@ -235,7 +233,7 @@ namespace Nominax::Assembler::X86_64
         {
             Print(stream, "\n{} = {:016X} ", GPR_LUT[i], regset[i].AsU64);
         }
-        Print(stream, '\n');
+        stream.put('\n');
     }
 
     auto DumpRegisterSet(std::ostream& stream, const SSERegisterSet& regset) -> void

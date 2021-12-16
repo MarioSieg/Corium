@@ -389,6 +389,6 @@ namespace Nominax::ByteCode
                 continue;
             }
         }
-        PrintNewline();
+		std::cout.put('\n');
     }
 }

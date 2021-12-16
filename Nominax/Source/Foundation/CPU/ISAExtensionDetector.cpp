@@ -223,13 +223,13 @@ namespace Nominax::Foundation::CPU
                 {
                     if (j++ % 8 == 0)
                     {
-                        Print(stream, '\n');
+                        stream.put('\n');
                     }
                     Print(stream, "{} ", Assembler::X86_64::CPU_FEATURE_BIT_NAMES[i]);
                 }
             }
         #endif
-        PrintNewline(stream);
+        stream.put('\n');
     }
 
     auto ISAExtensionDetector::DetectExtensions() -> void

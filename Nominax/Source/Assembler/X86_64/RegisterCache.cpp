@@ -254,8 +254,6 @@ namespace Nominax::Assembler::X86_64
 
     auto RegisterCache::Display(std::ostream& stream) const -> void
     {
-        using Foundation::Print;
-
         Print(stream, "%rip = {:016X}", this->RIP.AsU64);
         DumpRegisterSet(stream, this->GPRSet);
         if (this->AVXSet)
