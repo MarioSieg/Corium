@@ -1,0 +1,20 @@
+.COMPILE
+.NOMINAX *
+.SOURCE Functions.cor
+.SECTION EXEC
+
+; function square(x float, y float = 1) float
+.ROUTINE %0:
+	nop
+	imul
+	ret
+.END
+
+; function square2(x int, y int = 1) int
+.ROUTINE %0:
+	nop
+	imul
+	ret
+.END
+
+.END

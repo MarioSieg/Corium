@@ -271,9 +271,9 @@ impl<'ast> Expression<'ast> {
     fn build_expression_tree(mut self, chain: Chain<'ast>) -> Self {
         for (op, expr) in chain {
             self = Self::Binary {
-                lhs: Box::new(self),
+                left: Box::new(self),
                 op,
-                rhs: Box::new(expr),
+                right: Box::new(expr),
             }
         }
         self

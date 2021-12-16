@@ -205,6 +205,7 @@
 
 use super::instruction::JumpAddress;
 use super::signal::Signal;
+use crate::codegen::bytecode::instruction::Instruction;
 use std::fmt;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
@@ -224,6 +225,7 @@ impl fmt::Display for Label {
 pub enum Entry {
     Signal(Signal),
     Label(Label),
+    Comment(String),
 }
 
 impl fmt::Display for Entry {
@@ -231,11 +233,11 @@ impl fmt::Display for Entry {
         match self {
             Self::Signal(signal) => {
                 let sep = if matches!(signal, Signal::Instruction(_)) {
-                    "\n"
+                    "\n\t"
                 } else {
-                    ""
+                    " "
                 };
-                write!(f, "{}\t{}", sep, signal)
+                write!(f, "{}{}", sep, signal)
             }
             Self::Label(label) => {
                 if label.is_param {
@@ -244,6 +246,7 @@ impl fmt::Display for Entry {
                     write!(f, "\n{}:", label)
                 }
             }
+            Self::Comment(comment) => write!(f, " ; {}", comment),
         }
     }
 }
@@ -251,16 +254,20 @@ impl fmt::Display for Entry {
 /// Represents a stream of byte code signals.
 #[derive(Clone, Debug, PartialEq)]
 pub struct Subroutine {
+    name: String,
     rel_offset: u64,
+    verbose_asm: bool,
     label_accumulator: u64,
     entries: Vec<Entry>,
 }
 
 impl Subroutine {
     #[inline]
-    pub fn new(rel_offset: u64) -> Self {
+    pub fn new(name: String, rel_offset: u64, verbose_asm: bool) -> Self {
         Self {
+            name,
             rel_offset,
+            verbose_asm,
             label_accumulator: 0,
             entries: Vec::new(),
         }
@@ -282,8 +289,22 @@ impl Subroutine {
     }
 
     #[inline]
-    pub fn push(&mut self, entry: Entry) {
-        self.entries.push(entry);
+    pub fn push(&mut self, signal: Signal) {
+        self.entries.push(Entry::Signal(signal));
+        if self.verbose_asm {
+            self.comment(format!("{:?}", signal));
+        }
+    }
+
+    #[inline]
+    pub fn instruct(&mut self, instruction: Instruction) {
+        self.entries
+            .push(Entry::Signal(Signal::Instruction(instruction)))
+    }
+
+    #[inline]
+    pub fn comment(&mut self, comment: String) {
+        self.entries.push(Entry::Comment(comment));
     }
 
     #[inline]
@@ -308,24 +329,34 @@ impl Subroutine {
         label.is_param = true;
         self.entries.push(Entry::Label(label));
     }
+
+    #[inline]
+    pub fn entries(&self) -> &Vec<Entry> {
+        &self.entries
+    }
 }
 
 impl fmt::Display for Subroutine {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        for entry in &self.entries {
-            write!(f, "{} ", entry)?
+        if self.verbose_asm {
+            writeln!(f, "; {}", self.name)?;
         }
-        Ok(())
+        write!(f, ".ROUTINE %{}:", self.rel_offset)?;
+        for entry in &self.entries {
+            write!(f, "{}", entry)?;
+        }
+        writeln!(f)?;
+        writeln!(f, ".END")
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::codegen::bytecode::instruction::Instruction;
     use super::*;
+    use crate::codegen::bytecode::instruction::Instruction;
 
     fn generate_random() -> Subroutine {
-        let mut s = Subroutine::new(0);
+        let mut s = Subroutine::new(String::new(), 0, false);
         s.push(Entry::Signal(Signal::Instruction(Instruction::INT)));
         s.push(Entry::Signal(Signal::Int(5)));
         for i in 0..16 {

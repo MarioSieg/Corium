@@ -1,0 +1,6 @@
+.COMPILE
+.NOMINAX *
+.SOURCE Comments.cor
+.SECTION EXEC
+
+.END

@@ -475,9 +475,9 @@ mod populators {
                 let mut result = CoriumParser::parse(Rule::Expression, "66 + 1").unwrap();
                 let ast = Expression::populate(result.next().unwrap().into_inner());
                 let _expr = Expression::Binary {
-                    lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                    left: Box::new(Expression::Literal(Literal::Int(66))),
                     op: BinaryOperator::Addition,
-                    rhs: Box::new(Expression::Literal(Literal::Int(1))),
+                    right: Box::new(Expression::Literal(Literal::Int(1))),
                 };
                 assert!(matches!(ast, _expr));
             }
@@ -487,9 +487,9 @@ mod populators {
                 let mut result = CoriumParser::parse(Rule::Expression, "66 + x").unwrap();
                 let ast = Expression::populate(result.next().unwrap().into_inner());
                 let _expr = Expression::Binary {
-                    lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                    left: Box::new(Expression::Literal(Literal::Int(66))),
                     op: BinaryOperator::Addition,
-                    rhs: Box::new(Expression::Identifier(Identifier::new("x"))),
+                    right: Box::new(Expression::Identifier(Identifier::new("x"))),
                 };
                 assert!(matches!(ast, _expr));
             }
@@ -504,12 +504,12 @@ mod populators {
                     let result = result.next().unwrap().into_inner();
                     let ast = crate::parser::precedence::climb_expression(result);
                     let _expr = Expression::Binary {
-                        lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                        left: Box::new(Expression::Literal(Literal::Int(66))),
                         op: BinaryOperator::Addition,
-                        rhs: Box::new(Expression::Binary {
-                            lhs: Box::new(Expression::Literal(Literal::Int(1))),
+                        right: Box::new(Expression::Binary {
+                            left: Box::new(Expression::Literal(Literal::Int(1))),
                             op: BinaryOperator::Multiplication,
-                            rhs: Box::new(Expression::Literal(Literal::Int(5))),
+                            right: Box::new(Expression::Literal(Literal::Int(5))),
                         }),
                     };
                     println!("{}", ast);
@@ -523,16 +523,16 @@ mod populators {
                     let result = result.next().unwrap().into_inner();
                     let ast = crate::parser::precedence::climb_expression(result);
                     let _expr = Expression::Binary {
-                        lhs: Box::new(Expression::Binary {
-                            lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                        left: Box::new(Expression::Binary {
+                            left: Box::new(Expression::Literal(Literal::Int(66))),
                             op: BinaryOperator::Multiplication,
-                            rhs: Box::new(Expression::Literal(Literal::Int(1))),
+                            right: Box::new(Expression::Literal(Literal::Int(1))),
                         }),
                         op: BinaryOperator::BitwiseAnd,
-                        rhs: Box::new(Expression::Binary {
-                            lhs: Box::new(Expression::Literal(Literal::Int(2))),
+                        right: Box::new(Expression::Binary {
+                            left: Box::new(Expression::Literal(Literal::Int(2))),
                             op: BinaryOperator::Modulo,
-                            rhs: Box::new(Expression::Literal(Literal::Int(5))),
+                            right: Box::new(Expression::Literal(Literal::Int(5))),
                         }),
                     };
                     println!("{}", ast);
@@ -546,16 +546,16 @@ mod populators {
                     let result = result.next().unwrap().into_inner();
                     let ast = crate::parser::precedence::climb_expression(result);
                     let _expr = Expression::Binary {
-                        lhs: Box::new(Expression::Binary {
-                            lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                        left: Box::new(Expression::Binary {
+                            left: Box::new(Expression::Literal(Literal::Int(66))),
                             op: BinaryOperator::BitwiseXor,
-                            rhs: Box::new(Expression::Literal(Literal::Int(1))),
+                            right: Box::new(Expression::Literal(Literal::Int(1))),
                         }),
                         op: BinaryOperator::BitwiseOr,
-                        rhs: Box::new(Expression::Binary {
-                            lhs: Box::new(Expression::Literal(Literal::Int(2))),
+                        right: Box::new(Expression::Binary {
+                            left: Box::new(Expression::Literal(Literal::Int(2))),
                             op: BinaryOperator::BitwiseAnd,
-                            rhs: Box::new(Expression::Literal(Literal::Int(5))),
+                            right: Box::new(Expression::Literal(Literal::Int(5))),
                         }),
                     };
                     println!("{}", ast);
@@ -568,13 +568,13 @@ mod populators {
                     let result = result.next().unwrap().into_inner();
                     let ast = crate::parser::precedence::climb_expression(result);
                     let _expr = Expression::Binary {
-                        lhs: Box::new(Expression::Binary {
-                            lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                        left: Box::new(Expression::Binary {
+                            left: Box::new(Expression::Literal(Literal::Int(66))),
                             op: BinaryOperator::Multiplication,
-                            rhs: Box::new(Expression::Literal(Literal::Int(1))),
+                            right: Box::new(Expression::Literal(Literal::Int(1))),
                         }),
                         op: BinaryOperator::Addition,
-                        rhs: Box::new(Expression::Literal(Literal::Int(5))),
+                        right: Box::new(Expression::Literal(Literal::Int(5))),
                     };
                     println!("{}", ast);
                     assert_eq!(ast, _expr);
@@ -587,17 +587,17 @@ mod populators {
                     let result = result.next().unwrap().into_inner();
                     let ast = crate::parser::precedence::climb_expression(result);
                     let _expr = Expression::Binary {
-                        lhs: Box::new(Expression::Binary {
-                            lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                        left: Box::new(Expression::Binary {
+                            left: Box::new(Expression::Literal(Literal::Int(66))),
                             op: BinaryOperator::Addition,
-                            rhs: Box::new(Expression::Binary {
-                                lhs: Box::new(Expression::Literal(Literal::Int(1))),
+                            right: Box::new(Expression::Binary {
+                                left: Box::new(Expression::Literal(Literal::Int(1))),
                                 op: BinaryOperator::Multiplication,
-                                rhs: Box::new(Expression::Literal(Literal::Int(5))),
+                                right: Box::new(Expression::Literal(Literal::Int(5))),
                             }),
                         }),
                         op: BinaryOperator::Addition,
-                        rhs: Box::new(Expression::Literal(Literal::Int(2))),
+                        right: Box::new(Expression::Literal(Literal::Int(2))),
                     };
                     println!("{}", ast);
                     assert_eq!(ast, _expr);
@@ -610,17 +610,17 @@ mod populators {
                     let result = result.next().unwrap().into_inner();
                     let ast = crate::parser::precedence::climb_expression(result);
                     let _expr = Expression::Binary {
-                        lhs: Box::new(Expression::Binary {
-                            lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                        left: Box::new(Expression::Binary {
+                            left: Box::new(Expression::Literal(Literal::Int(66))),
                             op: BinaryOperator::Addition,
-                            rhs: Box::new(Expression::Binary {
-                                lhs: Box::new(Expression::Literal(Literal::Int(1))),
+                            right: Box::new(Expression::Binary {
+                                left: Box::new(Expression::Literal(Literal::Int(1))),
                                 op: BinaryOperator::Division,
-                                rhs: Box::new(Expression::Literal(Literal::Int(5))),
+                                right: Box::new(Expression::Literal(Literal::Int(5))),
                             }),
                         }),
                         op: BinaryOperator::Addition,
-                        rhs: Box::new(Expression::Literal(Literal::Int(2))),
+                        right: Box::new(Expression::Literal(Literal::Int(2))),
                     };
                     println!("{}", ast);
                     assert_eq!(ast, _expr);
@@ -633,17 +633,17 @@ mod populators {
                     let result = result.next().unwrap().into_inner();
                     let ast = crate::parser::precedence::climb_expression(result);
                     let _expr = Expression::Binary {
-                        lhs: Box::new(Expression::Binary {
-                            lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                        left: Box::new(Expression::Binary {
+                            left: Box::new(Expression::Literal(Literal::Int(66))),
                             op: BinaryOperator::Addition,
-                            rhs: Box::new(Expression::Binary {
-                                lhs: Box::new(Expression::Literal(Literal::Int(1))),
+                            right: Box::new(Expression::Binary {
+                                left: Box::new(Expression::Literal(Literal::Int(1))),
                                 op: BinaryOperator::Modulo,
-                                rhs: Box::new(Expression::Literal(Literal::Int(5))),
+                                right: Box::new(Expression::Literal(Literal::Int(5))),
                             }),
                         }),
                         op: BinaryOperator::Addition,
-                        rhs: Box::new(Expression::Literal(Literal::Int(2))),
+                        right: Box::new(Expression::Literal(Literal::Int(2))),
                     };
                     println!("{}", ast);
                     assert_eq!(ast, _expr);
@@ -655,12 +655,12 @@ mod populators {
                     let result = result.next().unwrap().into_inner();
                     let ast = crate::parser::precedence::climb_expression(result);
                     let _expr = Expression::Binary {
-                        lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                        left: Box::new(Expression::Literal(Literal::Int(66))),
                         op: BinaryOperator::Subtraction,
-                        rhs: Box::new(Expression::Binary {
-                            lhs: Box::new(Expression::Literal(Literal::Int(1))),
+                        right: Box::new(Expression::Binary {
+                            left: Box::new(Expression::Literal(Literal::Int(1))),
                             op: BinaryOperator::Multiplication,
-                            rhs: Box::new(Expression::Literal(Literal::Int(5))),
+                            right: Box::new(Expression::Literal(Literal::Int(5))),
                         }),
                     };
                     println!("{}", ast);
@@ -673,13 +673,13 @@ mod populators {
                     let result = result.next().unwrap().into_inner();
                     let ast = crate::parser::precedence::climb_expression(result);
                     let _expr = Expression::Binary {
-                        lhs: Box::new(Expression::Binary {
-                            lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                        left: Box::new(Expression::Binary {
+                            left: Box::new(Expression::Literal(Literal::Int(66))),
                             op: BinaryOperator::Multiplication,
-                            rhs: Box::new(Expression::Literal(Literal::Int(1))),
+                            right: Box::new(Expression::Literal(Literal::Int(1))),
                         }),
                         op: BinaryOperator::Subtraction,
-                        rhs: Box::new(Expression::Literal(Literal::Int(5))),
+                        right: Box::new(Expression::Literal(Literal::Int(5))),
                     };
                     println!("{}", ast);
                     assert_eq!(ast, _expr);
@@ -692,17 +692,17 @@ mod populators {
                     let result = result.next().unwrap().into_inner();
                     let ast = crate::parser::precedence::climb_expression(result);
                     let _expr = Expression::Binary {
-                        lhs: Box::new(Expression::Binary {
-                            lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                        left: Box::new(Expression::Binary {
+                            left: Box::new(Expression::Literal(Literal::Int(66))),
                             op: BinaryOperator::Subtraction,
-                            rhs: Box::new(Expression::Binary {
-                                lhs: Box::new(Expression::Literal(Literal::Int(1))),
+                            right: Box::new(Expression::Binary {
+                                left: Box::new(Expression::Literal(Literal::Int(1))),
                                 op: BinaryOperator::Multiplication,
-                                rhs: Box::new(Expression::Literal(Literal::Int(5))),
+                                right: Box::new(Expression::Literal(Literal::Int(5))),
                             }),
                         }),
                         op: BinaryOperator::Subtraction,
-                        rhs: Box::new(Expression::Literal(Literal::Int(2))),
+                        right: Box::new(Expression::Literal(Literal::Int(2))),
                     };
                     println!("{}", ast);
                     assert_eq!(ast, _expr);
@@ -715,17 +715,17 @@ mod populators {
                     let result = result.next().unwrap().into_inner();
                     let ast = crate::parser::precedence::climb_expression(result);
                     let _expr = Expression::Binary {
-                        lhs: Box::new(Expression::Binary {
-                            lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                        left: Box::new(Expression::Binary {
+                            left: Box::new(Expression::Literal(Literal::Int(66))),
                             op: BinaryOperator::Subtraction,
-                            rhs: Box::new(Expression::Binary {
-                                lhs: Box::new(Expression::Literal(Literal::Int(1))),
+                            right: Box::new(Expression::Binary {
+                                left: Box::new(Expression::Literal(Literal::Int(1))),
                                 op: BinaryOperator::Division,
-                                rhs: Box::new(Expression::Literal(Literal::Int(5))),
+                                right: Box::new(Expression::Literal(Literal::Int(5))),
                             }),
                         }),
                         op: BinaryOperator::Subtraction,
-                        rhs: Box::new(Expression::Literal(Literal::Int(2))),
+                        right: Box::new(Expression::Literal(Literal::Int(2))),
                     };
                     println!("{}", ast);
                     assert_eq!(ast, _expr);
@@ -738,17 +738,17 @@ mod populators {
                     let result = result.next().unwrap().into_inner();
                     let ast = crate::parser::precedence::climb_expression(result);
                     let _expr = Expression::Binary {
-                        lhs: Box::new(Expression::Binary {
-                            lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                        left: Box::new(Expression::Binary {
+                            left: Box::new(Expression::Literal(Literal::Int(66))),
                             op: BinaryOperator::Subtraction,
-                            rhs: Box::new(Expression::Binary {
-                                lhs: Box::new(Expression::Literal(Literal::Int(1))),
+                            right: Box::new(Expression::Binary {
+                                left: Box::new(Expression::Literal(Literal::Int(1))),
                                 op: BinaryOperator::Modulo,
-                                rhs: Box::new(Expression::Literal(Literal::Int(5))),
+                                right: Box::new(Expression::Literal(Literal::Int(5))),
                             }),
                         }),
                         op: BinaryOperator::Subtraction,
-                        rhs: Box::new(Expression::Literal(Literal::Int(2))),
+                        right: Box::new(Expression::Literal(Literal::Int(2))),
                     };
                     println!("{}", ast);
                     assert_eq!(ast, _expr);
@@ -760,12 +760,12 @@ mod populators {
                     let result = result.next().unwrap().into_inner();
                     let ast = crate::parser::precedence::climb_expression(result);
                     let _expr = Expression::Binary {
-                        lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                        left: Box::new(Expression::Literal(Literal::Int(66))),
                         op: BinaryOperator::BitwiseShiftLeft,
-                        rhs: Box::new(Expression::Binary {
-                            lhs: Box::new(Expression::Literal(Literal::Int(1))),
+                        right: Box::new(Expression::Binary {
+                            left: Box::new(Expression::Literal(Literal::Int(1))),
                             op: BinaryOperator::Addition,
-                            rhs: Box::new(Expression::Literal(Literal::Int(5))),
+                            right: Box::new(Expression::Literal(Literal::Int(5))),
                         }),
                     };
                     println!("{}", ast);
@@ -778,12 +778,12 @@ mod populators {
                     let result = result.next().unwrap().into_inner();
                     let ast = crate::parser::precedence::climb_expression(result);
                     let _expr = Expression::Binary {
-                        lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                        left: Box::new(Expression::Literal(Literal::Int(66))),
                         op: BinaryOperator::BitwiseShiftRight,
-                        rhs: Box::new(Expression::Binary {
-                            lhs: Box::new(Expression::Literal(Literal::Int(1))),
+                        right: Box::new(Expression::Binary {
+                            left: Box::new(Expression::Literal(Literal::Int(1))),
                             op: BinaryOperator::Multiplication,
-                            rhs: Box::new(Expression::Literal(Literal::Int(5))),
+                            right: Box::new(Expression::Literal(Literal::Int(5))),
                         }),
                     };
                     println!("{}", ast);
@@ -796,12 +796,12 @@ mod populators {
                     let result = result.next().unwrap().into_inner();
                     let ast = crate::parser::precedence::climb_expression(result);
                     let _expr = Expression::Binary {
-                        lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                        left: Box::new(Expression::Literal(Literal::Int(66))),
                         op: BinaryOperator::BitwiseRotationLeft,
-                        rhs: Box::new(Expression::Binary {
-                            lhs: Box::new(Expression::Literal(Literal::Int(1))),
+                        right: Box::new(Expression::Binary {
+                            left: Box::new(Expression::Literal(Literal::Int(1))),
                             op: BinaryOperator::Division,
-                            rhs: Box::new(Expression::Literal(Literal::Int(5))),
+                            right: Box::new(Expression::Literal(Literal::Int(5))),
                         }),
                     };
                     println!("{}", ast);
@@ -814,12 +814,12 @@ mod populators {
                     let result = result.next().unwrap().into_inner();
                     let ast = crate::parser::precedence::climb_expression(result);
                     let _expr = Expression::Binary {
-                        lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                        left: Box::new(Expression::Literal(Literal::Int(66))),
                         op: BinaryOperator::BitwiseRotationRight,
-                        rhs: Box::new(Expression::Binary {
-                            lhs: Box::new(Expression::Literal(Literal::Int(1))),
+                        right: Box::new(Expression::Binary {
+                            left: Box::new(Expression::Literal(Literal::Int(1))),
                             op: BinaryOperator::Modulo,
-                            rhs: Box::new(Expression::Literal(Literal::Int(5))),
+                            right: Box::new(Expression::Literal(Literal::Int(5))),
                         }),
                     };
                     println!("{}", ast);
@@ -832,12 +832,12 @@ mod populators {
                     let result = result.next().unwrap().into_inner();
                     let ast = crate::parser::precedence::climb_expression(result);
                     let _expr = Expression::Binary {
-                        lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                        left: Box::new(Expression::Literal(Literal::Int(66))),
                         op: BinaryOperator::BitwiseXor,
-                        rhs: Box::new(Expression::Binary {
-                            lhs: Box::new(Expression::Literal(Literal::Int(1))),
+                        right: Box::new(Expression::Binary {
+                            left: Box::new(Expression::Literal(Literal::Int(1))),
                             op: BinaryOperator::BitwiseAnd,
-                            rhs: Box::new(Expression::Literal(Literal::Int(5))),
+                            right: Box::new(Expression::Literal(Literal::Int(5))),
                         }),
                     };
                     println!("{}", ast);
@@ -850,12 +850,12 @@ mod populators {
                     let result = result.next().unwrap().into_inner();
                     let ast = crate::parser::precedence::climb_expression(result);
                     let _expr = Expression::Binary {
-                        lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                        left: Box::new(Expression::Literal(Literal::Int(66))),
                         op: BinaryOperator::BitwiseOr,
-                        rhs: Box::new(Expression::Binary {
-                            lhs: Box::new(Expression::Literal(Literal::Int(1))),
+                        right: Box::new(Expression::Binary {
+                            left: Box::new(Expression::Literal(Literal::Int(1))),
                             op: BinaryOperator::BitwiseXor,
-                            rhs: Box::new(Expression::Literal(Literal::Int(5))),
+                            right: Box::new(Expression::Literal(Literal::Int(5))),
                         }),
                     };
                     println!("{}", ast);
@@ -868,12 +868,12 @@ mod populators {
                     let result = result.next().unwrap().into_inner();
                     let ast = crate::parser::precedence::climb_expression(result);
                     let _expr = Expression::Binary {
-                        lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                        left: Box::new(Expression::Literal(Literal::Int(66))),
                         op: BinaryOperator::LogicalAnd,
-                        rhs: Box::new(Expression::Binary {
-                            lhs: Box::new(Expression::Literal(Literal::Int(1))),
+                        right: Box::new(Expression::Binary {
+                            left: Box::new(Expression::Literal(Literal::Int(1))),
                             op: BinaryOperator::BitwiseOr,
-                            rhs: Box::new(Expression::Literal(Literal::Int(5))),
+                            right: Box::new(Expression::Literal(Literal::Int(5))),
                         }),
                     };
                     println!("{}", ast);
@@ -887,12 +887,12 @@ mod populators {
                     let result = result.next().unwrap().into_inner();
                     let ast = crate::parser::precedence::climb_expression(result);
                     let _expr = Expression::Binary {
-                        lhs: Box::new(Expression::Literal(Literal::Int(66))),
+                        left: Box::new(Expression::Literal(Literal::Int(66))),
                         op: BinaryOperator::LogicalOr,
-                        rhs: Box::new(Expression::Binary {
-                            lhs: Box::new(Expression::Literal(Literal::Int(1))),
+                        right: Box::new(Expression::Binary {
+                            left: Box::new(Expression::Literal(Literal::Int(1))),
                             op: BinaryOperator::LogicalAnd,
-                            rhs: Box::new(Expression::Literal(Literal::Int(5))),
+                            right: Box::new(Expression::Literal(Literal::Int(5))),
                         }),
                     };
                     println!("{}", ast);
@@ -906,12 +906,12 @@ mod populators {
                     let result = result.next().unwrap().into_inner();
                     let ast = crate::parser::precedence::climb_expression(result);
                     let _expr = Expression::Binary {
-                        lhs: Box::new(Expression::Literal(Literal::Bool(true))),
+                        left: Box::new(Expression::Literal(Literal::Bool(true))),
                         op: BinaryOperator::LogicalOr,
-                        rhs: Box::new(Expression::Binary {
-                            lhs: Box::new(Expression::Literal(Literal::Int(1))),
+                        right: Box::new(Expression::Binary {
+                            left: Box::new(Expression::Literal(Literal::Int(1))),
                             op: BinaryOperator::Addition,
-                            rhs: Box::new(Expression::Literal(Literal::Int(5))),
+                            right: Box::new(Expression::Literal(Literal::Int(5))),
                         }),
                     };
                     println!("{}", ast);
@@ -2337,9 +2337,9 @@ mod populators {
                 },
                 block: Block(vec![LocalStatement::ReturnStatement(ReturnStatement(
                     Some(Expression::Binary {
-                        lhs: Box::new(Expression::Identifier(Identifier::new("x"))),
+                        left: Box::new(Expression::Identifier(Identifier::new("x"))),
                         op: BinaryOperator::Multiplication,
-                        rhs: Box::new(Expression::Identifier(Identifier::new("y"))),
+                        right: Box::new(Expression::Identifier(Identifier::new("y"))),
                     }),
                 ))]),
             })

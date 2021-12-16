@@ -231,7 +231,7 @@ pub fn evaluate<'ast>(
             symbol_table::populate(errors, function, global, &mut symbol_table);
 
             // Run analysis
-            validate_identifiers::validate(errors, &global, &symbol_table);
+            validate_identifiers::validate(errors, global, &symbol_table);
 
             i += 1;
         }

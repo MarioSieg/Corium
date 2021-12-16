@@ -230,9 +230,9 @@ pub enum Expression<'ast> {
 
     /// Binary expression.
     Binary {
-        lhs: Box<Expression<'ast>>,
+        left: Box<Expression<'ast>>,
         op: BinaryOperator,
-        rhs: Box<Expression<'ast>>,
+        right: Box<Expression<'ast>>,
     },
 }
 
@@ -249,7 +249,11 @@ impl<'ast> fmt::Display for Expression<'ast> {
             Self::Unary { op, expr } => {
                 write!(f, "({} {})", op, expr)
             }
-            Self::Binary { lhs, op, rhs } => {
+            Self::Binary {
+                left: lhs,
+                op,
+                right: rhs,
+            } => {
                 write!(f, "({} {} {})", lhs, op, rhs)
             }
         }

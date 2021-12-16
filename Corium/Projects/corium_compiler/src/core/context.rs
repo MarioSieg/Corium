@@ -203,6 +203,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+use crate::codegen::bytecode::bundle::Bundle;
 use crate::core::job::CompilationJob;
 use crate::core::unit::{CompilationResult, CompileDescriptor, FileCompilationUnit};
 use std::env;
@@ -300,9 +301,10 @@ impl CompilerContext {
                 callback();
             }
             if let Ok((_, bytecode)) = &result {
-                self.post_process_bytecode(bytecode);
+                self.on_compilation_success(bytecode);
             } else {
                 self.failed_compilations += 1;
+                self.on_compilation_fail();
             }
             errors.extend(self.format_compilation_status(result, unit.file_name()));
             received += 1;
@@ -316,7 +318,11 @@ impl CompilerContext {
         errors
     }
 
-    fn post_process_bytecode(&self, _bundle: &()) {}
+    fn on_compilation_success(&self, bundle: &Bundle) {
+        bundle.write_to_file(std::env::current_dir().unwrap());
+    }
+
+    fn on_compilation_fail(&self) {}
 
     fn format_compilation_status(&mut self, result: CompilationResult, file: &str) -> Vec<String> {
         if let Err((time, errors)) = result {

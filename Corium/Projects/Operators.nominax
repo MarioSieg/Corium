@@ -1,0 +1,6 @@
+.COMPILE
+.NOMINAX *
+.SOURCE Operators.cor
+.SECTION EXEC
+
+.END

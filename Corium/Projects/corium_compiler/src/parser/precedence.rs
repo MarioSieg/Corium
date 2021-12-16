@@ -221,9 +221,9 @@ pub fn climb_expression<'a>(rule: Pairs<'a, Rule>) -> Expression<'a> {
         |expr: Pair<'a, Rule>| -> Expression<'a> { Expression::populate(expr.into_inner()) };
     let infix = |lhs: Expression<'a>, op: Pair<'a, Rule>, rhs: Expression<'a>| -> Expression<'a> {
         Expression::Binary {
-            lhs: Box::new(lhs),
+            left: Box::new(lhs),
             op: BinaryOperator::merge(op.as_str()),
-            rhs: Box::new(rhs),
+            right: Box::new(rhs),
         }
     };
     PRECEDENCE_CLIMBER.climb(rule, primary, infix)

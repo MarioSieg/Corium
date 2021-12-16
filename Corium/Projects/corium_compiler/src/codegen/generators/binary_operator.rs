@@ -203,96 +203,19 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::codegen::bytecode::bundle::Bundle;
-use crate::core::compiler::compile_source;
-use crate::core::source_code::SourceCode;
-use crate::error::list::ErrorList;
-use std::path::{Path, PathBuf};
-use std::time::{Duration, Instant};
+use crate::ast::tree::binary_operator::BinaryOperator;
+use crate::ast::tree::Operator;
+use crate::codegen::bytecode::instruction::Instruction;
+use crate::codegen::bytecode::instruction::Instruction::*;
+use crate::codegen::bytecode::subroutine::Subroutine;
+use crate::codegen::CodeGenerator;
 
-/// FileCompilationUnitDescriptor
-#[derive(Clone, Debug, Default)]
-pub struct CompileDescriptor {
-    pub dump_ast: bool,
-    pub dump_asm: bool,
-    pub opt_level: u8,
-    pub verbose: bool,
-    pub pass_timer: bool,
-}
-
-pub type CompilationResult = Result<(Duration, Bundle), (Duration, ErrorList)>;
-
-/// Represents a compilation unit.
-/// Each file contains a single compilation unit.
-pub struct FileCompilationUnit {
-    source_code: SourceCode,
-    file: PathBuf,
-    file_name: String,
-    id: u32,
-    file_load_time: Duration,
-    pub descriptor: CompileDescriptor,
-}
-
-impl FileCompilationUnit {
-    pub fn load(file: PathBuf, id: u32, descriptor: CompileDescriptor) -> Self {
-        let clock = Instant::now();
-        let source_code = SourceCode::read(&file);
-        let file_name = Self::extract_file_name(&file);
-        let file_load_time = clock.elapsed();
-        Self {
-            source_code,
-            file,
-            file_name,
-            id,
-            file_load_time,
-            descriptor,
-        }
-    }
-
-    pub fn compile(&mut self) -> CompilationResult {
-        let clock = Instant::now();
-        if self.descriptor.pass_timer {
-            println!("File load time: {}s", self.file_load_time.as_secs_f32());
-        }
-        let result = compile_source(&self.source_code, &self.file_name, &self.descriptor);
-        let time = self.compute_compile_time(clock);
-        match result {
-            Ok(code) => Ok((time, code)),
-            Err(errors) => Err((time, errors)),
-        }
-    }
-
-    fn compute_compile_time(&self, clock: Instant) -> Duration {
-        self.file_load_time
-            .checked_add(clock.elapsed())
-            .unwrap_or_else(|| Duration::from_secs(0))
-    }
-
-    fn extract_file_name(file: &Path) -> String {
-        file.file_name()
-            .unwrap_or_else(|| panic!("Missing file name: {:?}", file))
-            .to_str()
-            .unwrap_or_else(|| panic!("Failed to convert path: {:?}", file))
-            .into()
-    }
-
-    #[inline]
-    pub fn source_code(&self) -> &SourceCode {
-        &self.source_code
-    }
-
-    #[inline]
-    pub fn file_name(&self) -> &String {
-        &self.file_name
-    }
-
-    #[inline]
-    pub fn id(&self) -> u32 {
-        self.id
-    }
-
-    #[inline]
-    pub fn full_file_path(&self) -> &PathBuf {
-        &self.file
+impl CodeGenerator for BinaryOperator {
+    fn generate(&self, out: &mut Subroutine) {
+        out.instruct(MAPPING[*self as usize])
     }
 }
+
+const MAPPING: [Instruction; BinaryOperator::COUNT] = [
+    IADD, ISUB, IMUL, IDIV, IMOD, IAND, IOR, IXOR, ISAL, ISAR, IROL, IROR, IAND, IOR,
+];

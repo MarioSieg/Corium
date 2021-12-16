@@ -232,5 +232,5 @@ command = corium + " compile -i"
 for file in source_files:
     command += " "
     command += os.path.realpath(file)
-command += " -o Bundle.nxb"
+command += " -o Bundle.nominax"
 os.system(command)

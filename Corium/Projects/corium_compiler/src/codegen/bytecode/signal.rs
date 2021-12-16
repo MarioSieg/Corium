@@ -203,17 +203,19 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::tree::builtin_types::{Float, Int};
 use super::instruction::{
     FieldOffset, Instruction, Intrinsic, JumpAddress, MemoryOffset, Syscall, TypeID,
 };
+use crate::ast::tree::builtin_types::{Char, Float, Int};
 use std::fmt;
+use std::fmt::Formatter;
 
 /// Represents a single byte code signal.
-#[derive(Copy, Clone, PartialEq, Debug)]
+#[derive(Copy, Clone, PartialEq)]
 pub enum Signal {
     Int(Int),
     Float(Float),
+    Char(Char),
     Instruction(Instruction),
     SysCall(Syscall),
     Intrinsic(Intrinsic),
@@ -228,6 +230,7 @@ impl Signal {
         match self {
             Self::Int(_) => "imm",
             Self::Float(_) => "fmm",
+            Self::Char(_) => "cmm",
             Self::Instruction(_) => "instr",
             Self::SysCall(_) => "sys",
             Self::Intrinsic(_) => "int",
@@ -242,15 +245,33 @@ impl Signal {
 impl fmt::Display for Signal {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Int(x) => write!(f, "[{}] {}", self.name(), *x),
-            Self::Float(x) => write!(f, "[{}] {}", self.name(), *x),
+            Self::Int(x) => write!(f, "[{}] #{:#X}", self.name(), *x),
+            Self::Float(x) => write!(f, "[{}] #{:#X}", self.name(), x.to_bits()),
+            Self::Char(x) => write!(f, "[{}] #{:#X}", self.name(), *x as u32),
             Self::Instruction(x) => write!(f, "{}", x.mnemonic()),
-            Self::SysCall(x) => write!(f, "[{}] {:X}", self.name(), *x as u64),
-            Self::Intrinsic(x) => write!(f, "[{}] {:X}", self.name(), *x),
-            Self::MemoryOffset(x) => write!(f, "[{}] {:X}", self.name(), *x),
-            Self::JumpAddress(x) => write!(f, "[{}] {:X}", self.name(), *x),
-            Self::TypeID(x) => write!(f, "[{}] {:X}", self.name(), *x),
-            Self::FieldOffset(x) => write!(f, "[{}] {:X}", self.name(), *x),
+            Self::SysCall(x) => write!(f, "[{}] #{:X}", self.name(), *x as u64),
+            Self::Intrinsic(x) => write!(f, "[{}] #{:X}", self.name(), *x),
+            Self::MemoryOffset(x) => write!(f, "[{}] #{:X}", self.name(), *x),
+            Self::JumpAddress(x) => write!(f, "[{}] #{:X}", self.name(), *x),
+            Self::TypeID(x) => write!(f, "[{}] #{:X}", self.name(), *x),
+            Self::FieldOffset(x) => write!(f, "[{}] #{:X}", self.name(), *x),
+        }
+    }
+}
+
+impl fmt::Debug for Signal {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Int(x) => write!(f, "{:?}", *x),
+            Self::Float(x) => write!(f, "{:?}", *x),
+            Self::Char(x) => write!(f, "{:?}", *x),
+            Self::Instruction(x) => write!(f, "{}", x.mnemonic()),
+            Self::SysCall(x) => write!(f, "{}", *x as u64),
+            Self::Intrinsic(x) => write!(f, "{}", *x as u64),
+            Self::MemoryOffset(x) => write!(f, "{}", *x as u64),
+            Self::JumpAddress(x) => write!(f, "{}", *x as u64),
+            Self::TypeID(x) => write!(f, "{}", *x as u64),
+            Self::FieldOffset(x) => write!(f, "{}", *x as u64),
         }
     }
 }

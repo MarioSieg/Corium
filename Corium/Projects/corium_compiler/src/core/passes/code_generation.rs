@@ -205,18 +205,20 @@
 
 use super::Pass;
 use crate::ast::tree::compilation_unit::CompilationUnit;
+use crate::codegen;
+use crate::codegen::bytecode::bundle::Bundle;
 use crate::error::list::ErrorList;
 
 pub struct CodeGenerationPass;
 
-impl<'ast> Pass<'ast, CompilationUnit<'ast>, ()> for CodeGenerationPass {
+impl<'ast> Pass<'ast, CompilationUnit<'ast>, Bundle> for CodeGenerationPass {
     const NAME: &'static str = "CodeGeneration";
 
     fn execute(
-        _input: CompilationUnit<'ast>,
+        input: CompilationUnit<'ast>,
         _verbose: bool,
-        _file: &str,
-    ) -> Result<(), ErrorList> {
-        Ok(())
+        file: &str,
+    ) -> Result<Bundle, ErrorList> {
+        codegen::compile_to_bundle(&input, file)
     }
 }

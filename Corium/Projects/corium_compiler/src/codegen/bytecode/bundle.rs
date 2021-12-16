@@ -203,25 +203,27 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use std::path::{Path, PathBuf};
+use crate::codegen::bytecode::subroutine::Subroutine;
 use std::fmt;
 use std::fmt::Formatter;
-use crate::codegen::bytecode::subroutine::Subroutine;
+use std::path::PathBuf;
 
+#[derive(Debug, Clone)]
 pub struct Bundle {
     pub nominax_version: String,
     pub module_name: String,
-    pub subroutines: Vec<Subroutine>
+    pub subroutines: Vec<Subroutine>,
 }
 
 impl Bundle {
     pub const FILE_EXTENSION: &'static str = "nominax";
 
     pub fn write_to_file(&self, out_dir: PathBuf) {
-        let p,p+mut content = self.to_string();
+        let content = self.to_string();
         let mut path = out_dir.join(&self.module_name);
+        path.set_extension(Self::FILE_EXTENSION);
         std::fs::write(&path, content).unwrap_or_else(|_| {
-           panic!("Failed to write bytecode file to disk: {:?}", path);
+            panic!("Failed to write bytecode file to disk: {:?}", path);
         });
     }
 }
@@ -230,10 +232,12 @@ impl fmt::Display for Bundle {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         writeln!(f, ".COMPILE")?;
         writeln!(f, ".NOMINAX {}", self.nominax_version)?;
-        writeln!(f, ".EXEC")?;
+        writeln!(f, ".SOURCE {}", self.module_name)?;
+        writeln!(f, ".SECTION EXEC")?;
+        writeln!(f)?;
         for subroutine in &self.subroutines {
             writeln!(f, "{}", subroutine)?;
         }
-        writeln!(f, ".ENDSEC")
+        writeln!(f, ".END")
     }
 }

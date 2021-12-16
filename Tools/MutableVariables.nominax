@@ -1,0 +1,6 @@
+.COMPILE
+.NOMINAX *
+.SOURCE MutableVariables.cor
+.SECTION EXEC
+
+.END

@@ -203,4 +203,24 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+use crate::ast::tree::compilation_unit::CompilationUnit;
+use crate::codegen::bytecode::bundle::Bundle;
+use crate::codegen::bytecode::subroutine::Subroutine;
+use crate::error::list::ErrorList;
+
 pub mod bytecode;
+pub mod generator;
+pub mod generators;
+
+pub trait CodeGenerator {
+    fn generate(&self, out: &mut Subroutine);
+}
+
+pub fn compile_to_bundle(input: &CompilationUnit, file: &str) -> Result<Bundle, ErrorList> {
+    let bundle = Bundle {
+        nominax_version: "*".to_string(),
+        module_name: file.to_string(),
+        subroutines: generator::generate(&input.statements),
+    };
+    Ok(bundle)
+}

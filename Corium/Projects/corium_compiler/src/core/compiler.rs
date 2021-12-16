@@ -204,6 +204,7 @@
 //    limitations under the License.
 
 use crate::ast::tree::compilation_unit::CompilationUnit;
+use crate::codegen::bytecode::bundle::Bundle;
 use crate::core::passes::optimization::OptimizationPass;
 use crate::core::passes::prelude::*;
 use crate::core::source_code::SourceCode;
@@ -215,7 +216,7 @@ pub fn compile_source(
     src: &SourceCode,
     file: &str,
     desc: &CompileDescriptor,
-) -> Result<(), ErrorList> {
+) -> Result<Bundle, ErrorList> {
     let src = &src.0;
     let verbose = desc.verbose;
     let pass_timer = desc.pass_timer;

@@ -227,7 +227,11 @@ pub fn validate_identifiers(
         }
         Expression::Parenthesis(nested) => validate_identifiers(errors, nested, global, local),
         Expression::Unary { op: _, expr } => validate_identifiers(errors, expr, global, local),
-        Expression::Binary { lhs, op: _, rhs } => {
+        Expression::Binary {
+            left: lhs,
+            op: _,
+            right: rhs,
+        } => {
             validate_identifiers(errors, lhs, global, local);
             validate_identifiers(errors, rhs, global, local);
         }
