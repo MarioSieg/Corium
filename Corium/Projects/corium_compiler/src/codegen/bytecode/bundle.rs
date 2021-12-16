@@ -203,153 +203,37 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::nominax::bytecode::instruction::JumpAddress;
-use crate::nominax::bytecode::signal::Signal;
+use std::path::{Path, PathBuf};
 use std::fmt;
+use std::fmt::Formatter;
+use crate::codegen::bytecode::subroutine::Subroutine;
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
-pub struct Label {
-    pub id: u64,
-    pub address: JumpAddress,
-    pub is_param: bool,
+pub struct Bundle {
+    pub nominax_version: String,
+    pub module_name: String,
+    pub subroutines: Vec<Subroutine>
 }
 
-impl fmt::Display for Label {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, ".L{}", self.id)
+impl Bundle {
+    pub const FILE_EXTENSION: &'static str = "nominax";
+
+    pub fn write_to_file(&self, out_dir: PathBuf) {
+        let p,p+mut content = self.to_string();
+        let mut path = out_dir.join(&self.module_name);
+        std::fs::write(&path, content).unwrap_or_else(|_| {
+           panic!("Failed to write bytecode file to disk: {:?}", path);
+        });
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
-pub enum Entry {
-    Signal(Signal),
-    Label(Label),
-}
-
-impl fmt::Display for Entry {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Self::Signal(signal) => {
-                let sep = if matches!(signal, Signal::Instruction(_)) {
-                    "\n"
-                } else {
-                    ""
-                };
-                write!(f, "{}\t{}", sep, signal)
-            }
-            Self::Label(label) => {
-                if label.is_param {
-                    write!(f, "{}", label)
-                } else {
-                    write!(f, "\n{}:", label)
-                }
-            }
+impl fmt::Display for Bundle {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        writeln!(f, ".COMPILE")?;
+        writeln!(f, ".NOMINAX {}", self.nominax_version)?;
+        writeln!(f, ".EXEC")?;
+        for subroutine in &self.subroutines {
+            writeln!(f, "{}", subroutine)?;
         }
-    }
-}
-
-/// Represents a stream of byte code signals.
-#[derive(Clone, Debug, PartialEq)]
-pub struct Subroutine {
-    rel_offset: u64,
-    label_accumulator: u64,
-    entries: Vec<Entry>,
-}
-
-impl Subroutine {
-    #[inline]
-    pub fn new(rel_offset: u64) -> Self {
-        Self {
-            rel_offset,
-            label_accumulator: 0,
-            entries: Vec::new(),
-        }
-    }
-
-    #[inline]
-    pub fn len(&self) -> usize {
-        self.entries.len()
-    }
-
-    #[inline]
-    pub fn capacity(&self) -> usize {
-        self.entries.capacity()
-    }
-
-    #[inline]
-    pub fn is_empty(&self) -> bool {
-        self.entries.is_empty()
-    }
-
-    #[inline]
-    pub fn push(&mut self, entry: Entry) {
-        self.entries.push(entry);
-    }
-
-    #[inline]
-    pub fn reserve(&mut self, additional: usize) {
-        self.entries.reserve(additional);
-    }
-
-    pub fn insert_label(&mut self) -> Label {
-        let id: u64 = self.label_accumulator as _;
-        self.label_accumulator += 1;
-        let address: JumpAddress = self.rel_offset + id;
-        let label = Label {
-            id,
-            address,
-            is_param: false,
-        };
-        self.entries.push(Entry::Label(label));
-        label
-    }
-
-    pub fn join_label(&mut self, mut label: Label) {
-        label.is_param = true;
-        self.entries.push(Entry::Label(label));
-    }
-}
-
-impl fmt::Display for Subroutine {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        for entry in &self.entries {
-            write!(f, "{} ", entry)?
-        }
-        Ok(())
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::nominax::bytecode::instruction::Instruction;
-
-    fn generate_random() -> Subroutine {
-        let mut s = Subroutine::new(0);
-        s.push(Entry::Signal(Signal::Instruction(Instruction::INT)));
-        s.push(Entry::Signal(Signal::Int(5)));
-        for i in 0..16 {
-            let mut l = None;
-            if i % 5 == 0 {
-                l = Some(s.insert_label());
-            }
-            s.push(Entry::Signal(Signal::Instruction(Instruction::PUSH)));
-            if i % 5 == 0 {
-                s.join_label(l.unwrap());
-            } else if i % 2 == 0 {
-                s.push(Entry::Signal(Signal::Int(i << i)));
-            } else {
-                s.push(Entry::Signal(Signal::Float(
-                    (i << i ^ 0xFEFEFE) as f64 + (i as f64 * 0.25),
-                )));
-            };
-        }
-        s
-    }
-
-    #[test]
-    fn build() {
-        let s = generate_random();
-        println!("{}", s);
+        writeln!(f, ".ENDSEC")
     }
 }

@@ -203,271 +203,153 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::tree::builtin_types::BuiltinType;
-use crate::codegen::bytecode::instruction::Syscall;
+use super::instruction::JumpAddress;
+use super::signal::Signal;
 use std::fmt;
 
-pub struct Intrinsic<'a> {
-    pub fn_name: &'a str,
-    pub fn_param_types: &'a [BuiltinType],
-    pub fn_ret: Option<BuiltinType>,
-    pub sys_call: Syscall,
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+pub struct Label {
+    pub id: u64,
+    pub address: JumpAddress,
+    pub is_param: bool,
 }
 
-// function name, return type, syscall, params...
-macro_rules! intrinsic {
-        ($fname:expr, $fret:expr, $call:expr, $($ptype:expr), +) => {
-        Intrinsic {
-            fn_name: $fname,
-            fn_param_types: &[$($ptype), +],
-            fn_ret: Some($fret),
-            sys_call: $call,
-        }
-    };
-        ($fname:expr,  $call:expr, $($ptype:expr), +) => {
-        Intrinsic {
-            fn_name: $fname,
-            fn_param_types: &[$($ptype), +],
-            fn_ret: None,
-            sys_call: $call,
-        }
-    };
-        ($fname:expr, $fret:expr, $call:expr) => {
-        Intrinsic {
-            fn_name: $fname,
-            fn_param_types: &[],
-            fn_ret: Some($fret),
-            sys_call: $call,
-        }
-    };
-    ($fname:expr, $call:expr) => {
-        Intrinsic {
-            fn_name: $fname,
-            fn_param_types: &[],
-            fn_ret: None,
-            sys_call: $call,
-        }
-    };
+impl fmt::Display for Label {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, ".L{}", self.id)
+    }
 }
 
-impl<'a> Intrinsic<'a> {
-    pub const INTRINSICS: [Self; Syscall::Count_ as _] = [
-        intrinsic!("cos", BuiltinType::Float, Syscall::COS, BuiltinType::Float),
-        intrinsic!("sin", BuiltinType::Float, Syscall::SIN, BuiltinType::Float),
-        intrinsic!("tan", BuiltinType::Float, Syscall::TAN, BuiltinType::Float),
-        intrinsic!(
-            "acos",
-            BuiltinType::Float,
-            Syscall::ACOS,
-            BuiltinType::Float
-        ),
-        intrinsic!(
-            "asin",
-            BuiltinType::Float,
-            Syscall::ASIN,
-            BuiltinType::Float
-        ),
-        intrinsic!(
-            "atan",
-            BuiltinType::Float,
-            Syscall::ATAN,
-            BuiltinType::Float
-        ),
-        intrinsic!(
-            "atan2",
-            BuiltinType::Float,
-            Syscall::ATAN2,
-            BuiltinType::Float,
-            BuiltinType::Float
-        ),
-        intrinsic!(
-            "cosh",
-            BuiltinType::Float,
-            Syscall::COSH,
-            BuiltinType::Float
-        ),
-        intrinsic!(
-            "sinh",
-            BuiltinType::Float,
-            Syscall::SINH,
-            BuiltinType::Float
-        ),
-        intrinsic!(
-            "tanh",
-            BuiltinType::Float,
-            Syscall::TANH,
-            BuiltinType::Float
-        ),
-        intrinsic!(
-            "acosh",
-            BuiltinType::Float,
-            Syscall::ACOSH,
-            BuiltinType::Float
-        ),
-        intrinsic!(
-            "asinh",
-            BuiltinType::Float,
-            Syscall::ASINH,
-            BuiltinType::Float
-        ),
-        intrinsic!(
-            "atanh",
-            BuiltinType::Float,
-            Syscall::ATANH,
-            BuiltinType::Float
-        ),
-        intrinsic!("exp", BuiltinType::Float, Syscall::EXP, BuiltinType::Float),
-        intrinsic!("log", BuiltinType::Float, Syscall::LOG, BuiltinType::Float),
-        intrinsic!(
-            "log10",
-            BuiltinType::Float,
-            Syscall::LOG10,
-            BuiltinType::Float
-        ),
-        intrinsic!(
-            "exp2",
-            BuiltinType::Float,
-            Syscall::EXP2,
-            BuiltinType::Float
-        ),
-        intrinsic!(
-            "ilogb",
-            BuiltinType::Float,
-            Syscall::ILOGB,
-            BuiltinType::Float
-        ),
-        intrinsic!(
-            "log2",
-            BuiltinType::Float,
-            Syscall::LOG2,
-            BuiltinType::Float
-        ),
-        intrinsic!(
-            "pow",
-            BuiltinType::Float,
-            Syscall::POW,
-            BuiltinType::Float,
-            BuiltinType::Float
-        ),
-        intrinsic!(
-            "sqrt",
-            BuiltinType::Float,
-            Syscall::SQRT,
-            BuiltinType::Float
-        ),
-        intrinsic!(
-            "cbrt",
-            BuiltinType::Float,
-            Syscall::CBRT,
-            BuiltinType::Float
-        ),
-        intrinsic!(
-            "hypot",
-            BuiltinType::Float,
-            Syscall::HYPOT,
-            BuiltinType::Float,
-            BuiltinType::Float
-        ),
-        intrinsic!(
-            "ceil",
-            BuiltinType::Float,
-            Syscall::CEIL,
-            BuiltinType::Float
-        ),
-        intrinsic!(
-            "floor",
-            BuiltinType::Float,
-            Syscall::FLOOR,
-            BuiltinType::Float
-        ),
-        intrinsic!(
-            "round",
-            BuiltinType::Float,
-            Syscall::ROUND,
-            BuiltinType::Float
-        ),
-        intrinsic!(
-            "rint",
-            BuiltinType::Float,
-            Syscall::RINT,
-            BuiltinType::Float
-        ),
-        intrinsic!(
-            "imax",
-            BuiltinType::Int,
-            Syscall::IMAX,
-            BuiltinType::Int,
-            BuiltinType::Int
-        ),
-        intrinsic!(
-            "imin",
-            BuiltinType::Int,
-            Syscall::IMIN,
-            BuiltinType::Int,
-            BuiltinType::Int
-        ),
-        intrinsic!(
-            "fmax",
-            BuiltinType::Float,
-            Syscall::FMAX,
-            BuiltinType::Float,
-            BuiltinType::Float
-        ),
-        intrinsic!(
-            "fmin",
-            BuiltinType::Float,
-            Syscall::FMIN,
-            BuiltinType::Float,
-            BuiltinType::Float
-        ),
-        intrinsic!(
-            "fdim",
-            BuiltinType::Float,
-            Syscall::FDIM,
-            BuiltinType::Float,
-            BuiltinType::Float
-        ),
-        intrinsic!("iabs", BuiltinType::Int, Syscall::IABS, BuiltinType::Int),
-        intrinsic!(
-            "fabs",
-            BuiltinType::Float,
-            Syscall::FABS,
-            BuiltinType::Float
-        ),
-        intrinsic!("print_int", Syscall::PRINT_INT, BuiltinType::Int),
-        intrinsic!("print_float", Syscall::PRINT_FLOAT, BuiltinType::Float),
-        intrinsic!("print_char", Syscall::PRINT_CHAR, BuiltinType::Char),
-        intrinsic!("print_bool", Syscall::PRINT_BOOL, BuiltinType::Bool),
-        intrinsic!("flush", Syscall::FLUSH),
-        intrinsic!("newline", Syscall::FLUSH),
-    ];
+#[derive(Clone, Debug, PartialEq)]
+pub enum Entry {
+    Signal(Signal),
+    Label(Label),
+}
 
-    pub fn dump_all() {
-        for intrinsic in Self::INTRINSICS.iter() {
-            println!("{}", intrinsic);
+impl fmt::Display for Entry {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Self::Signal(signal) => {
+                let sep = if matches!(signal, Signal::Instruction(_)) {
+                    "\n"
+                } else {
+                    ""
+                };
+                write!(f, "{}\t{}", sep, signal)
+            }
+            Self::Label(label) => {
+                if label.is_param {
+                    write!(f, "{}", label)
+                } else {
+                    write!(f, "\n{}:", label)
+                }
+            }
         }
     }
 }
 
-impl<'a> fmt::Display for Intrinsic<'a> {
+/// Represents a stream of byte code signals.
+#[derive(Clone, Debug, PartialEq)]
+pub struct Subroutine {
+    rel_offset: u64,
+    label_accumulator: u64,
+    entries: Vec<Entry>,
+}
+
+impl Subroutine {
+    #[inline]
+    pub fn new(rel_offset: u64) -> Self {
+        Self {
+            rel_offset,
+            label_accumulator: 0,
+            entries: Vec::new(),
+        }
+    }
+
+    #[inline]
+    pub fn len(&self) -> usize {
+        self.entries.len()
+    }
+
+    #[inline]
+    pub fn capacity(&self) -> usize {
+        self.entries.capacity()
+    }
+
+    #[inline]
+    pub fn is_empty(&self) -> bool {
+        self.entries.is_empty()
+    }
+
+    #[inline]
+    pub fn push(&mut self, entry: Entry) {
+        self.entries.push(entry);
+    }
+
+    #[inline]
+    pub fn reserve(&mut self, additional: usize) {
+        self.entries.reserve(additional);
+    }
+
+    pub fn insert_label(&mut self) -> Label {
+        let id: u64 = self.label_accumulator as _;
+        self.label_accumulator += 1;
+        let address: JumpAddress = self.rel_offset + id;
+        let label = Label {
+            id,
+            address,
+            is_param: false,
+        };
+        self.entries.push(Entry::Label(label));
+        label
+    }
+
+    pub fn join_label(&mut self, mut label: Label) {
+        label.is_param = true;
+        self.entries.push(Entry::Label(label));
+    }
+}
+
+impl fmt::Display for Subroutine {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "native function {} (", self.fn_name)?;
-        if !self.fn_param_types.is_empty() {
-            let last = self.fn_param_types.len() - 1;
-            for (i, param) in self.fn_param_types.iter().enumerate() {
-                let spacing = if i != last { ", " } else { "" };
-                write!(
-                    f,
-                    "{}{}",
-                    format!("{:?}", param).to_ascii_lowercase(),
-                    spacing
-                )?;
+        for entry in &self.entries {
+            write!(f, "{} ", entry)?
+        }
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::codegen::bytecode::instruction::Instruction;
+    use super::*;
+
+    fn generate_random() -> Subroutine {
+        let mut s = Subroutine::new(0);
+        s.push(Entry::Signal(Signal::Instruction(Instruction::INT)));
+        s.push(Entry::Signal(Signal::Int(5)));
+        for i in 0..16 {
+            let mut l = None;
+            if i % 5 == 0 {
+                l = Some(s.insert_label());
             }
+            s.push(Entry::Signal(Signal::Instruction(Instruction::PUSH)));
+            if i % 5 == 0 {
+                s.join_label(l.unwrap());
+            } else if i % 2 == 0 {
+                s.push(Entry::Signal(Signal::Int(i << i)));
+            } else {
+                s.push(Entry::Signal(Signal::Float(
+                    (i << i ^ 0xFEFEFE) as f64 + (i as f64 * 0.25),
+                )));
+            };
         }
-        write!(f, ")")?;
-        if let Some(ret) = &self.fn_ret {
-            write!(f, " {}", format!("{:?}", ret).to_ascii_lowercase())?;
-        }
-        write!(f, " <- Nominax Syscall: {:#X}", self.sys_call as u64)
+        s
+    }
+
+    #[test]
+    fn build() {
+        let s = generate_random();
+        println!("{}", s);
     }
 }

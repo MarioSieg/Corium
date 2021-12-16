@@ -203,26 +203,54 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use std::process::Command;
-
-pub mod bytecode;
-
-const NOMINAX_EXE_NAME: &str = if cfg!(windows) {
-    "Nominax.exe"
-} else {
-    "Nominax"
+use crate::ast::tree::builtin_types::{Float, Int};
+use super::instruction::{
+    FieldOffset, Instruction, Intrinsic, JumpAddress, MemoryOffset, Syscall, TypeID,
 };
+use std::fmt;
 
-pub fn exec_nominax(args: &[&str]) {
-    let mut nominax = Command::new(NOMINAX_EXE_NAME);
-    for arg in args {
-        nominax.arg(arg);
+/// Represents a single byte code signal.
+#[derive(Copy, Clone, PartialEq, Debug)]
+pub enum Signal {
+    Int(Int),
+    Float(Float),
+    Instruction(Instruction),
+    SysCall(Syscall),
+    Intrinsic(Intrinsic),
+    MemoryOffset(MemoryOffset),
+    JumpAddress(JumpAddress),
+    TypeID(TypeID),
+    FieldOffset(FieldOffset),
+}
+
+impl Signal {
+    pub fn name(&self) -> &'static str {
+        match self {
+            Self::Int(_) => "imm",
+            Self::Float(_) => "fmm",
+            Self::Instruction(_) => "instr",
+            Self::SysCall(_) => "sys",
+            Self::Intrinsic(_) => "int",
+            Self::MemoryOffset(_) => "mof",
+            Self::JumpAddress(_) => "rel",
+            Self::TypeID(_) => "tyd",
+            Self::FieldOffset(_) => "fof",
+        }
     }
-    if let Err(e) = nominax.spawn() {
-        let message = format!(
-            "{} not found!\nMake sure Nominax is installed and inside $PATH!\nDetailed error: {:?}",
-            NOMINAX_EXE_NAME, e
-        );
-        panic!("{}", message);
+}
+
+impl fmt::Display for Signal {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Int(x) => write!(f, "[{}] {}", self.name(), *x),
+            Self::Float(x) => write!(f, "[{}] {}", self.name(), *x),
+            Self::Instruction(x) => write!(f, "{}", x.mnemonic()),
+            Self::SysCall(x) => write!(f, "[{}] {:X}", self.name(), *x as u64),
+            Self::Intrinsic(x) => write!(f, "[{}] {:X}", self.name(), *x),
+            Self::MemoryOffset(x) => write!(f, "[{}] {:X}", self.name(), *x),
+            Self::JumpAddress(x) => write!(f, "[{}] {:X}", self.name(), *x),
+            Self::TypeID(x) => write!(f, "[{}] {:X}", self.name(), *x),
+            Self::FieldOffset(x) => write!(f, "[{}] {:X}", self.name(), *x),
+        }
     }
 }

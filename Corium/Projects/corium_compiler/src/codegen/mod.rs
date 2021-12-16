@@ -203,6 +203,4 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-pub mod instruction;
-pub mod signal;
-pub mod subroutine;
+pub mod bytecode;

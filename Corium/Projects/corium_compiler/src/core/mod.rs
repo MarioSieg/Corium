@@ -211,6 +211,7 @@ pub mod pass;
 pub mod passes;
 pub mod source_code;
 pub mod unit;
+pub mod exec_nominax;
 
 #[cfg(test)]
 mod tests;
