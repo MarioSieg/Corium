@@ -209,9 +209,9 @@ use crate::codegen::CodeGenerator;
 
 pub fn generate(input: &[GlobalStatement]) -> Vec<Subroutine> {
     let mut result = Vec::new();
-    for statement in input {
+    for (i, statement) in input.iter().enumerate() {
         if let GlobalStatement::Function(function) = statement {
-            let mut out = Subroutine::new(function.signature.to_string(), 0, true);
+            let mut out = Subroutine::new(function.signature.to_string(), i as u64, false);
             function.generate(&mut out);
             result.push(out);
         }
