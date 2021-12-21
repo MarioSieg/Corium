@@ -213,7 +213,10 @@ impl<'ast> CodeGenerator for Expression<'ast> {
             Self::Literal(literal) => {
                 literal.generate(out);
             }
-            Self::Unary { op, expr } => {
+            Self::Unary {
+                op,
+                expression: expr,
+            } => {
                 op.generate(out);
                 expr.generate(out);
             }

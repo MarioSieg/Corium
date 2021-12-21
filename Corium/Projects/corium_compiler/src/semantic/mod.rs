@@ -210,12 +210,19 @@ use std::fmt::Debug;
 
 pub mod core;
 pub mod global;
+pub mod infer_expr;
 pub mod local;
 pub mod table;
 pub mod validate;
 
+/// Base traits for all buckets inside the symbol table.
 pub trait SymbolBucket<'ast>: Debug + Clone {
     fn extract_expression(&'ast self) -> Option<&'ast Expression<'ast>>;
+}
+
+/// Base traits for statement local type inference
+pub trait InferTypes<'ast> {
+    fn infer_types(&mut self, errors: &mut ErrorList);
 }
 
 pub fn analyze_full(input: &CompilationUnit) -> Result<u64, ErrorList> {

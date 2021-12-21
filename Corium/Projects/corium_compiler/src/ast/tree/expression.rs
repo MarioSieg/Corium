@@ -225,7 +225,7 @@ pub enum Expression<'ast> {
     /// Unary expression.
     Unary {
         op: UnaryOperator,
-        expr: Box<Expression<'ast>>,
+        expression: Box<Expression<'ast>>,
     },
 
     /// Binary expression.
@@ -246,7 +246,10 @@ impl<'ast> fmt::Display for Expression<'ast> {
             Self::Literal(x) => write!(f, "{}", x),
             Self::Identifier(x) => write!(f, "{}", x),
             Self::Parenthesis(x) => write!(f, "{}", x),
-            Self::Unary { op, expr } => {
+            Self::Unary {
+                op,
+                expression: expr,
+            } => {
                 write!(f, "({} {})", op, expr)
             }
             Self::Binary {

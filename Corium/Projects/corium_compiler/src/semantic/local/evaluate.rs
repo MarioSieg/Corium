@@ -212,7 +212,7 @@ use crate::semantic::local::validate_identifiers;
 pub fn evaluate<'ast>(
     errors: &mut ErrorList,
     input: &'ast [GlobalStatement<'ast>],
-    global: &GlobalSymbolTable,
+    global_symbol_table: &GlobalSymbolTable,
 ) -> u64 {
     // Counts the amount of local analyze iterations
     let mut i: u64 = 0;
@@ -228,10 +228,10 @@ pub fn evaluate<'ast>(
             symbol_table.clear();
 
             // Build new local symbol table from function info
-            symbol_table::populate(errors, function, global, &mut symbol_table);
+            symbol_table::populate(errors, function, global_symbol_table, &mut symbol_table);
 
             // Run analysis
-            validate_identifiers::validate(errors, global, &symbol_table);
+            validate_identifiers::validate(errors, global_symbol_table, &symbol_table);
 
             i += 1;
         }

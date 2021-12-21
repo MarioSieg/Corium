@@ -228,18 +228,21 @@ impl<'ast> SymbolBucket<'ast> for Bucket<'ast> {
 }
 
 impl<'ast> From<&'ast MutableVariable<'ast>> for Bucket<'ast> {
+    #[inline]
     fn from(x: &'ast MutableVariable<'ast>) -> Self {
         Self::MutableVariable(x)
     }
 }
 
 impl<'ast> From<&'ast ImmutableVariable<'ast>> for Bucket<'ast> {
+    #[inline]
     fn from(x: &'ast ImmutableVariable<'ast>) -> Self {
         Self::ImmutableVariable(x)
     }
 }
 
 impl<'ast> From<&'ast Parameter<'ast>> for Bucket<'ast> {
+    #[inline]
     fn from(x: &'ast Parameter<'ast>) -> Self {
         Self::Parameter(x)
     }

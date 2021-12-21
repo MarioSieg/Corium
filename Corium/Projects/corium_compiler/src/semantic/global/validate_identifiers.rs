@@ -205,8 +205,7 @@
 
 use crate::error::list::ErrorList;
 use crate::semantic::global::symbol_table::GlobalSymbolTable;
-use crate::semantic::validate;
-use crate::semantic::SymbolBucket;
+use crate::semantic::{validate, SymbolBucket};
 
 pub fn validate(errors: &mut ErrorList, input: &GlobalSymbolTable) {
     for bucket in input.values() {

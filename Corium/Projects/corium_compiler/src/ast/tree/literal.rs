@@ -203,7 +203,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::tree::builtin_types::{Bool, Char, Float, Int};
+use crate::ast::tree::builtin_types::{Bool, BuiltinType, Char, Float, Int};
 use crate::ast::tree::{AstComponent, Rule};
 use std::fmt;
 
@@ -228,6 +228,18 @@ pub enum Literal<'ast> {
 
 impl<'ast> AstComponent for Literal<'ast> {
     const CORRESPONDING_RULE: Rule = Rule::Literal;
+}
+
+impl<'ast> Literal<'ast> {
+    pub fn builtin_type(&self) -> BuiltinType {
+        match self {
+            Self::Int(_) => BuiltinType::Int,
+            Self::Float(_) => BuiltinType::Float,
+            Self::Char(_) => BuiltinType::Char,
+            Self::Bool(_) => BuiltinType::Bool,
+            Self::String(_) => BuiltinType::String,
+        }
+    }
 }
 
 impl<'ast> fmt::Display for Literal<'ast> {

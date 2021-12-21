@@ -204,8 +204,7 @@
 //    limitations under the License.
 
 use crate::ast::tree::identifier::Identifier;
-use crate::ast::tree::literal::Literal;
-use std::convert::From;
+use lazy_static::lazy_static;
 
 /// Represents a Corium "int".
 pub type Int = i64;
@@ -219,8 +218,8 @@ pub type Bool = bool;
 /// Represents a Corium "char".
 pub type Char = char;
 
-#[derive(Copy, Clone, Eq, PartialEq, Debug)]
 #[repr(u8)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum BuiltinType {
     Int,
     Float,
@@ -230,28 +229,24 @@ pub enum BuiltinType {
     Object,
 }
 
-impl<'ast> From<&Identifier<'ast>> for Option<BuiltinType> {
-    fn from(x: &Identifier<'ast>) -> Self {
-        match x.full {
-            "int" => Some(BuiltinType::Int),
-            "float" => Some(BuiltinType::Float),
-            "bool" => Some(BuiltinType::Bool),
-            "char" => Some(BuiltinType::Char),
-            "string" => Some(BuiltinType::String),
-            "object" => Some(BuiltinType::Object),
-            _ => None,
-        }
-    }
+lazy_static! {
+    static ref INT: Identifier<'static> = Identifier::new("int");
+    static ref FLOAT: Identifier<'static> = Identifier::new("float");
+    static ref BOOL: Identifier<'static> = Identifier::new("bool");
+    static ref CHAR: Identifier<'static> = Identifier::new("char");
+    static ref STRING: Identifier<'static> = Identifier::new("string");
+    static ref OBJECT: Identifier<'static> = Identifier::new("object");
 }
 
-impl<'ast> From<&Literal<'ast>> for BuiltinType {
-    fn from(x: &Literal<'ast>) -> Self {
-        match x {
-            Literal::Int(_) => Self::Int,
-            Literal::Float(_) => Self::Float,
-            Literal::Bool(_) => Self::Bool,
-            Literal::Char(_) => Self::Char,
-            Literal::String(_) => Self::String,
+impl BuiltinType {
+    pub fn identifier(&self) -> &'static Identifier<'static> {
+        match self {
+            Self::Int => &INT,
+            Self::Float => &FLOAT,
+            Self::Bool => &BOOL,
+            Self::Char => &CHAR,
+            Self::String => &STRING,
+            Self::Object => &OBJECT,
         }
     }
 }
