@@ -357,22 +357,22 @@ mod tests {
 
     fn generate_random() -> Subroutine {
         let mut s = Subroutine::new(String::new(), 0, false);
-        s.push(Entry::Signal(Signal::Instruction(Instruction::INT)));
-        s.push(Entry::Signal(Signal::Int(5)));
+        s.push(Signal::Instruction(Instruction::INT));
+        s.push(Signal::Int(5));
         for i in 0..16 {
             let mut l = None;
             if i % 5 == 0 {
                 l = Some(s.insert_label());
             }
-            s.push(Entry::Signal(Signal::Instruction(Instruction::PUSH)));
+            s.push(Signal::Instruction(Instruction::PUSH));
             if i % 5 == 0 {
                 s.join_label(l.unwrap());
             } else if i % 2 == 0 {
-                s.push(Entry::Signal(Signal::Int(i << i)));
+                s.push(Signal::Int(i << i));
             } else {
-                s.push(Entry::Signal(Signal::Float(
+                s.push(Signal::Float(
                     (i << i ^ 0xFEFEFE) as f64 + (i as f64 * 0.25),
-                )));
+                ));
             };
         }
         s
