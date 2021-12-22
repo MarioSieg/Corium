@@ -213,3 +213,27 @@ pub enum Error {
     Syntax(String),
     Semantic(String),
 }
+
+#[macro_export]
+macro_rules! io_error {
+    ($($arg:tt)*) => {{
+        let res = crate::error::Error::Io(format!($($arg)*));
+        res
+    }}
+}
+
+#[macro_export]
+macro_rules! semantic_error {
+    ($($arg:tt)*) => {{
+        let res = crate::error::Error::Semantic(format!($($arg)*));
+        res
+    }}
+}
+
+#[macro_export]
+macro_rules! syntax_error {
+    ($($arg:tt)*) => {{
+        let res = crate::error::Error::Syntax(format!($($arg)*));
+        res
+    }}
+}

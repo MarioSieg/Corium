@@ -210,9 +210,9 @@ use std::fmt::Debug;
 
 pub mod core;
 pub mod global;
-pub mod infer_expr;
 pub mod local;
 pub mod table;
+pub mod type_of;
 pub mod validate;
 
 /// Base traits for all buckets inside the symbol table.

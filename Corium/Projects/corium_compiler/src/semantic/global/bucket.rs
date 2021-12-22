@@ -210,6 +210,7 @@ use crate::ast::tree::immutable_variable::ImmutableVariable;
 use crate::ast::tree::mutable_variable::MutableVariable;
 use crate::ast::tree::native_function::NativeFunction;
 use crate::semantic::SymbolBucket;
+use std::fmt;
 
 #[derive(Debug, Clone)]
 pub enum Bucket<'ast> {
@@ -267,6 +268,17 @@ impl<'ast> From<&'ast GlobalStatement<'ast>> for Option<Bucket<'ast>> {
                 Bucket::from(immutable_variable)
             }
         })
+    }
+}
+
+impl<'ast> fmt::Display for Bucket<'ast> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Function(_) => write!(f, "function"),
+            Self::NativeFunction(_) => write!(f, "native function"),
+            Self::MutableVariable(_) => write!(f, "variable"),
+            Self::ImmutableVariable(_) => write!(f, "const variable"),
+        }
     }
 }
 

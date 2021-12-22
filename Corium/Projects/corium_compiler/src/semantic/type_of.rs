@@ -207,9 +207,10 @@ use crate::ast::tree::builtin_types::BuiltinType;
 use crate::ast::tree::expression::Expression;
 use crate::ast::tree::identifier::Identifier;
 use crate::error::list::ErrorList;
-use crate::error::Error;
 use crate::semantic::global::symbol_table::GlobalSymbolTable;
 use crate::semantic::local::symbol_table::LocalSymbolTable;
+use crate::semantic::{global, local};
+use crate::semantic_error;
 
 impl<'ast> Expression<'ast> {
     pub fn type_of(
@@ -217,27 +218,66 @@ impl<'ast> Expression<'ast> {
         errors: &mut ErrorList,
         local: &'ast LocalSymbolTable<'ast>,
         global: &'ast GlobalSymbolTable<'ast>,
-    ) -> &'ast Identifier<'ast> {
+    ) -> Result<&'ast Identifier<'ast>, ()> {
         match self {
             Expression::Literal(literal) => {
                 let builtin: BuiltinType = literal.builtin_type();
-                builtin.identifier()
+                Ok(builtin.identifier())
             }
-            Expression::Identifier(_identifier) => {
-                todo!()
+            Expression::Identifier(identifier) => {
+                if let Some(bucket) = global.get(identifier) {
+                    use global::bucket::Bucket;
+
+                    match bucket {
+                        Bucket::MutableVariable(mutable_variable) => Ok(mutable_variable
+                            .type_hint
+                            .as_ref()
+                            .unwrap_or(mutable_variable.value.type_of(errors, local, global)?)),
+                        Bucket::ImmutableVariable(immutable_variable) => Ok(immutable_variable
+                            .type_hint
+                            .as_ref()
+                            .unwrap_or(immutable_variable.value.type_of(errors, local, global)?)),
+                        _ => {
+                            errors
+                                .push(semantic_error!("Cannot bind {} to an expression!", bucket));
+                            Err(())
+                        }
+                    }
+                } else if let Some(bucket) = local.get(identifier) {
+                    use local::bucket::Bucket;
+
+                    match bucket {
+                        Bucket::MutableVariable(mutable_variable) => Ok(mutable_variable
+                            .type_hint
+                            .as_ref()
+                            .unwrap_or(mutable_variable.value.type_of(errors, local, global)?)),
+                        Bucket::ImmutableVariable(immutable_variable) => Ok(immutable_variable
+                            .type_hint
+                            .as_ref()
+                            .unwrap_or(immutable_variable.value.type_of(errors, local, global)?)),
+                        Bucket::Parameter(parameter) => Ok(&parameter.type_hint),
+                    }
+                } else {
+                    errors.push(semantic_error!("Undefined symbol: {}", identifier));
+                    Err(())
+                }
             }
             Expression::Parenthesis(expression) => expression.type_of(errors, local, global),
             Expression::Unary { op: _, expression } => expression.type_of(errors, local, global),
             Expression::Binary { left, op, right } => {
-                let type_left = left.type_of(errors, local, global);
-                let type_right = right.type_of(errors, local, global);
+                let type_left = left.type_of(errors, local, global)?;
+                let type_right = right.type_of(errors, local, global)?;
                 if type_left != type_right {
-                    errors.push(Error::Semantic(format!(
-                        "Invalid expression: {} {} {}",
-                        left, op, right
-                    )));
+                    errors.push(semantic_error!(
+                        "Expression type mismatch: {} {} {} - left {}, right {}",
+                        left,
+                        op,
+                        right,
+                        type_left,
+                        type_right
+                    ));
                 }
-                type_left
+                Ok(type_left)
             }
         }
     }

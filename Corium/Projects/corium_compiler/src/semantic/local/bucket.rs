@@ -209,6 +209,7 @@ use crate::ast::tree::local_statement::LocalStatement;
 use crate::ast::tree::mutable_variable::MutableVariable;
 use crate::ast::tree::parameter::Parameter;
 use crate::semantic::SymbolBucket;
+use std::fmt;
 
 #[derive(Debug, Clone)]
 pub enum Bucket<'ast> {
@@ -258,6 +259,16 @@ impl<'ast> From<&'ast LocalStatement<'ast>> for Option<Bucket<'ast>> {
                 Some(Bucket::from(immutable_variable))
             }
             _ => None,
+        }
+    }
+}
+
+impl<'ast> fmt::Display for Bucket<'ast> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::MutableVariable(_) => write!(f, "variable"),
+            Self::ImmutableVariable(_) => write!(f, "const variable"),
+            Self::Parameter(_) => write!(f, "parameter"),
         }
     }
 }
