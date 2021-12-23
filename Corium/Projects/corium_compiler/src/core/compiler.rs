@@ -203,29 +203,26 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::ast::tree::compilation_unit::CompilationUnit;
 use crate::codegen::bytecode::bundle::Bundle;
+use crate::core::descriptor::CompileDescriptor;
 use crate::core::passes::optimization::OptimizationPass;
 use crate::core::passes::prelude::*;
-use crate::core::source_code::SourceCode;
-use crate::core::unit::CompileDescriptor;
+use crate::misc::source_code::SourceCode;
 use crate::error::list::ErrorList;
-use crate::parser::RulePairs;
 
 pub fn compile_source(
     src: &SourceCode,
     file: &str,
-    desc: &CompileDescriptor,
+    descriptor: &CompileDescriptor,
 ) -> Result<Bundle, ErrorList> {
     let src = &src.0;
-    let verbose = desc.verbose;
-    let pass_timer = desc.pass_timer;
+    let flags = descriptor.flags;
 
-    let result: RulePairs = ParsePass::run(src, verbose, pass_timer, file)?;
-    let ast: CompilationUnit = AstPopulationPass::run(result, verbose, pass_timer, file)?;
-    SemanticPass::run(&ast, verbose, pass_timer, file)?;
-    let optimized_ast: CompilationUnit = OptimizationPass::run(ast, verbose, pass_timer, file)?;
-    let bytecode = CodeGenerationPass::run(optimized_ast, verbose, pass_timer, file)?;
+    let pst = ParsePass::run(src, flags, file)?; // parse and build parse tree (PST)
+    let ast = AstPopulationPass::run(pst, flags, file)?; // populate abstract syntax tree (AST)
+    let ast = SemanticPass::run(ast, flags, file)?; // perform semantic analysis on AST
+    let ast = OptimizationPass::run(ast, flags, file)?; // optimize AST
+    let bin = CodeGenerationPass::run(ast, flags, file)?; // generate binary byte code image
 
-    Ok(bytecode)
+    Ok(bin)
 }

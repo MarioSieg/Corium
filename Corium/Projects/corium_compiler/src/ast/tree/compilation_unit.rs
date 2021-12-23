@@ -205,15 +205,19 @@
 
 use super::{global_statement::GlobalStatement, module::Module};
 use crate::ast::tree::{AstComponent, Rule};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct CompilationUnit<'ast> {
+    #[serde(borrow)]
     pub module: Module<'ast>,
+
+    #[serde(borrow)]
     pub statements: Vec<GlobalStatement<'ast>>,
 }
 
-impl<'ast> AstComponent for CompilationUnit<'ast> {
+impl<'ast> AstComponent<'ast> for CompilationUnit<'ast> {
     const CORRESPONDING_RULE: Rule = Rule::CompilationUnit;
 }
 

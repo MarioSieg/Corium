@@ -213,7 +213,10 @@ pub mod global;
 pub mod local;
 pub mod table;
 pub mod type_of;
-pub mod validate;
+pub mod validate_identifier;
+
+#[cfg(test)]
+mod tests;
 
 /// Base traits for all buckets inside the symbol table.
 pub trait SymbolBucket<'ast>: Debug + Clone {
@@ -227,33 +230,4 @@ pub trait InferTypes<'ast> {
 
 pub fn analyze_full(input: &CompilationUnit) -> Result<u64, ErrorList> {
     core::evaluate(input)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::ast::populator::NestedAstPopulator;
-    use crate::ast::tree::compilation_unit::CompilationUnit;
-    use crate::include_corium_source;
-    use crate::parser::parse_source;
-
-    #[test]
-    fn correct() {
-        let src = include_corium_source!("../../../../ValidationSource/Functions.cor");
-        let result = CompilationUnit::populate(parse_source(&src.0).unwrap());
-        let result = analyze_full(&result);
-        assert!(result.is_ok());
-        let amount = result.unwrap();
-        assert_eq!(amount, 2);
-    }
-
-    #[test]
-    fn definition_errors() {
-        let src = include_corium_source!("../../../../ValidationSource/DefinitionErrors.cor");
-        let result = CompilationUnit::populate(parse_source(&src.0).unwrap());
-        let result = analyze_full(&result);
-        assert!(result.is_err());
-        let errors = result.unwrap_err();
-        assert_eq!(errors.len(), 10);
-    }
 }

@@ -205,16 +205,23 @@
 
 use super::{expression::Expression, identifier::Identifier};
 use crate::ast::tree::{AstComponent, Rule};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
+
 pub struct Parameter<'ast> {
+    #[serde(borrow)]
     pub name: Identifier<'ast>,
+
+    #[serde(borrow)]
     pub type_hint: Identifier<'ast>,
+
+    #[serde(borrow)]
     pub value: Option<Expression<'ast>>,
 }
 
-impl<'ast> AstComponent for Parameter<'ast> {
+impl<'ast> AstComponent<'ast> for Parameter<'ast> {
     const CORRESPONDING_RULE: Rule = Rule::Parameter;
 }
 

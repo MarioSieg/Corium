@@ -203,50 +203,29 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use super::{identifier::Identifier, parameter_list::ParameterList};
-use crate::ast::tree::{AstComponent, Rule};
-use serde::{Deserialize, Serialize};
-use std::fmt;
+use bitflags::bitflags;
 
-const PARAM_MANGLE_SEPARATOR: char = '_';
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-
-pub struct FunctionSignature<'ast> {
-    #[serde(borrow)]
-    pub name: Identifier<'ast>,
-    pub parameters: Option<ParameterList<'ast>>,
-    pub return_type: Option<Identifier<'ast>>,
-}
-
-impl<'ast> AstComponent<'ast> for FunctionSignature<'ast> {
-    const CORRESPONDING_RULE: Rule = Rule::FunctionSignature;
-}
-
-impl<'ast> fmt::Display for FunctionSignature<'ast> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "function {}", self.name)?;
-        if let Some(params) = &self.parameters {
-            write!(f, "{}", params)?;
-        } else {
-            write!(f, "()")?;
-        }
-        if let Some(ret) = &self.return_type {
-            write!(f, " {}", ret)?;
-        }
-        Ok(())
+bitflags! {
+    pub struct CompileFlags: u32 {
+        const DUMP_AST = 1 << 0;
+        const DUMP_ASM = 1 << 1;
+        const VERBOSE = 1 << 2;
+        const PASS_INFOS = 1 << 3;
     }
 }
 
-impl<'ast> FunctionSignature<'ast> {
-    pub fn overloaded_mangled_name(&self) -> String {
-        let mut result = self.name.to_string();
-        if let Some(params) = &self.parameters {
-            for param in &params.0 {
-                result.push(PARAM_MANGLE_SEPARATOR);
-                result.push_str(param.type_hint.0);
-            }
+/// FileCompilationUnitDescriptor
+#[derive(Clone, Debug)]
+pub struct CompileDescriptor {
+    pub opt_level: u8,
+    pub flags: CompileFlags,
+}
+
+impl Default for CompileDescriptor {
+    fn default() -> Self {
+        Self {
+            opt_level: 0,
+            flags: CompileFlags::empty(),
         }
-        result
     }
 }

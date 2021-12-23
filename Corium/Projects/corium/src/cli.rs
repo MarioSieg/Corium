@@ -280,7 +280,7 @@ impl Options {
                     verbose,
                     dump_ast,
                     dump_asm,
-                    pass_timer,
+                    pass_infos: pass_timer,
                 };
                 commands::compile(options)
             }

@@ -205,19 +205,21 @@
 
 use super::identifier::Identifier;
 use crate::ast::tree::{AstComponent, Rule};
+use serde::{Deserialize, Serialize};
 use std::{default, fmt};
 
 /// Represents a module definition.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub enum Module<'ast> {
     /// Module name is derived from file.
     Derived(String),
 
     /// Module name is explicitly defined in the source code.
+    #[serde(borrow)]
     Explicit(Identifier<'ast>),
 }
 
-impl<'ast> AstComponent for Module<'ast> {
+impl<'ast> AstComponent<'ast> for Module<'ast> {
     const CORRESPONDING_RULE: Rule = Rule::Module;
 }
 
@@ -225,7 +227,7 @@ impl<'ast> Module<'ast> {
     #[inline]
     pub fn qualified_name(&self) -> &str {
         match self {
-            Self::Explicit(name) => name.full,
+            Self::Explicit(name) => name.0,
             Self::Derived(name) => name,
         }
     }
@@ -233,7 +235,7 @@ impl<'ast> Module<'ast> {
     #[inline]
     pub fn split_name(&self) -> Vec<&str> {
         match self {
-            Self::Explicit(name) => name.split.clone(),
+            Self::Explicit(name) => name.split().collect(),
             Self::Derived(name) => vec![name.as_str()],
         }
     }

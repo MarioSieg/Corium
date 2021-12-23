@@ -203,111 +203,33 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::error::list::ErrorList;
-use crate::semantic::global::symbol_table::GlobalSymbolTable;
-use crate::semantic::{validate, SymbolBucket};
+use quick_xml::events::Event;
+use quick_xml::{Reader, Writer};
 
-pub fn validate(errors: &mut ErrorList, input: &GlobalSymbolTable) {
-    for bucket in input.values() {
-        if let Some(expr) = bucket.extract_expression() {
-            validate::validate_identifiers(errors, expr, input, None);
+pub fn prettify_xml(xml: &str) -> String {
+    let mut buf = Vec::new();
+
+    let mut reader = Reader::from_str(xml);
+    reader.trim_text(true);
+
+    let mut writer = Writer::new_with_indent(Vec::new(), b' ', 2);
+
+    loop {
+        let ev = reader.read_event(&mut buf);
+
+        match ev {
+            Ok(Event::Eof) => break,
+            Ok(event) => writer.write_event(event),
+            Err(e) => panic!("Error at position {}: {:?}", reader.buffer_position(), e),
         }
-    }
-}
+        .expect("Failed to parse XML");
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::ast::tree::block::Block;
-    use crate::ast::tree::expression::Expression;
-    use crate::ast::tree::function::Function;
-    use crate::ast::tree::function_signature::FunctionSignature;
-    use crate::ast::tree::global_statement::GlobalStatement;
-    use crate::ast::tree::identifier::Identifier;
-    use crate::ast::tree::immutable_variable::ImmutableVariable;
-    use crate::ast::tree::literal::Literal;
-    use crate::ast::tree::mutable_variable::MutableVariable;
-    use crate::ast::tree::native_function::NativeFunction;
-    use crate::semantic::global::symbol_table::populate;
-
-    #[test]
-    fn valid() {
-        let mutable_variable = GlobalStatement::MutableVariable(MutableVariable {
-            name: Identifier::new("x"),
-            value: Expression::Literal(Literal::Int(3)),
-            type_hint: None,
-        });
-        let immutable_variable = GlobalStatement::ImmutableVariable(ImmutableVariable {
-            name: Identifier::new("y"),
-            value: Expression::Identifier(Identifier::new("x")),
-            type_hint: None,
-        });
-        let function = GlobalStatement::Function(Function {
-            signature: FunctionSignature {
-                name: Identifier::new("fx"),
-                parameters: None,
-                return_type: None,
-            },
-            block: Block::new(),
-        });
-        let native_function = GlobalStatement::NativeFunction(NativeFunction {
-            signature: FunctionSignature {
-                name: Identifier::new("fy"),
-                parameters: None,
-                return_type: None,
-            },
-        });
-        let items: &[GlobalStatement] = &[
-            mutable_variable,
-            immutable_variable,
-            function,
-            native_function,
-        ];
-        let mut errors = ErrorList::new();
-        let table = populate(&mut errors, items);
-        validate(&mut errors, &table);
-        assert!(errors.is_empty());
-        assert_eq!(table.len(), 4);
+        buf.clear();
     }
 
-    #[test]
-    fn undefined() {
-        let mutable_variable = GlobalStatement::MutableVariable(MutableVariable {
-            name: Identifier::new("x"),
-            value: Expression::Literal(Literal::Int(3)),
-            type_hint: None,
-        });
-        let immutable_variable = GlobalStatement::ImmutableVariable(ImmutableVariable {
-            name: Identifier::new("y"),
-            value: Expression::Identifier(Identifier::new("ymm")),
-            type_hint: None,
-        });
-        let function = GlobalStatement::Function(Function {
-            signature: FunctionSignature {
-                name: Identifier::new("fx"),
-                parameters: None,
-                return_type: None,
-            },
-            block: Block::new(),
-        });
-        let native_function = GlobalStatement::NativeFunction(NativeFunction {
-            signature: FunctionSignature {
-                name: Identifier::new("fy"),
-                parameters: None,
-                return_type: None,
-            },
-        });
-        let items: &[GlobalStatement] = &[
-            mutable_variable,
-            immutable_variable,
-            function,
-            native_function,
-        ];
-        let mut errors = ErrorList::new();
-        let table = populate(&mut errors, items);
-        validate(&mut errors, &table);
-        assert!(!errors.is_empty());
-        assert_eq!(errors.len(), 1);
-        assert_eq!(table.len(), 4);
-    }
+    let result = std::str::from_utf8(&*writer.into_inner())
+        .unwrap()
+        .to_string();
+
+    result
 }

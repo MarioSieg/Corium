@@ -204,8 +204,9 @@
 //    limitations under the License.
 
 use crate::codegen::bytecode::bundle::Bundle;
+use crate::core::descriptor::CompileDescriptor;
 use crate::core::job::CompilationJob;
-use crate::core::unit::{CompilationResult, CompileDescriptor, FileCompilationUnit};
+use crate::core::unit::{CompilationResult, FileCompilationUnit};
 use std::env;
 use std::path::PathBuf;
 use std::sync::mpsc::{channel, Receiver, Sender};

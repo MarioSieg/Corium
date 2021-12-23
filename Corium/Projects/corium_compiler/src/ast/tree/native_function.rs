@@ -205,14 +205,17 @@
 
 use super::function_signature::FunctionSignature;
 use crate::ast::tree::{AstComponent, Rule};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
+
 pub struct NativeFunction<'ast> {
+    #[serde(borrow)]
     pub signature: FunctionSignature<'ast>,
 }
 
-impl<'ast> AstComponent for NativeFunction<'ast> {
+impl<'ast> AstComponent<'ast> for NativeFunction<'ast> {
     const CORRESPONDING_RULE: Rule = Rule::NativeFunction;
 }
 

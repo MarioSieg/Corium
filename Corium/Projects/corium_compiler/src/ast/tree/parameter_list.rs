@@ -205,11 +205,13 @@
 
 use super::parameter::Parameter;
 use crate::ast::tree::{AstComponent, Rule};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::ops::Deref;
 
-#[derive(Clone, Debug, Default)]
-pub struct ParameterList<'ast>(pub Vec<Parameter<'ast>>);
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+
+pub struct ParameterList<'ast>(#[serde(borrow)] pub Vec<Parameter<'ast>>);
 
 impl<'ast> ParameterList<'ast> {
     pub fn new() -> Self {
@@ -217,7 +219,7 @@ impl<'ast> ParameterList<'ast> {
     }
 }
 
-impl<'ast> AstComponent for ParameterList<'ast> {
+impl<'ast> AstComponent<'ast> for ParameterList<'ast> {
     const CORRESPONDING_RULE: Rule = Rule::ParameterList;
 }
 

@@ -205,16 +205,21 @@
 
 use super::{block::Block, function_signature::FunctionSignature};
 use crate::ast::tree::{AstComponent, Rule};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Represents a function.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
+
 pub struct Function<'ast> {
+    #[serde(borrow)]
     pub signature: FunctionSignature<'ast>,
+
+    #[serde(borrow)]
     pub block: Block<'ast>,
 }
 
-impl<'ast> AstComponent for Function<'ast> {
+impl<'ast> AstComponent<'ast> for Function<'ast> {
     const CORRESPONDING_RULE: Rule = Rule::Function;
 }
 

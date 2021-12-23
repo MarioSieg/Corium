@@ -203,50 +203,28 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use super::{identifier::Identifier, parameter_list::ParameterList};
-use crate::ast::tree::{AstComponent, Rule};
-use serde::{Deserialize, Serialize};
-use std::fmt;
+use crate::ast::populator::NestedAstPopulator;
+use crate::ast::tree::compilation_unit::CompilationUnit;
+use crate::include_corium_source;
+use crate::parser::parse_source;
+use crate::semantic::analyze_full;
 
-const PARAM_MANGLE_SEPARATOR: char = '_';
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-
-pub struct FunctionSignature<'ast> {
-    #[serde(borrow)]
-    pub name: Identifier<'ast>,
-    pub parameters: Option<ParameterList<'ast>>,
-    pub return_type: Option<Identifier<'ast>>,
+#[test]
+fn correct() {
+    let src = include_corium_source!("../../../../ValidationSource/Functions.cor");
+    let result = CompilationUnit::populate(parse_source(&src.0).unwrap());
+    let result = analyze_full(&result);
+    assert!(result.is_ok());
+    let amount = result.unwrap();
+    assert_eq!(amount, 2);
 }
 
-impl<'ast> AstComponent<'ast> for FunctionSignature<'ast> {
-    const CORRESPONDING_RULE: Rule = Rule::FunctionSignature;
-}
-
-impl<'ast> fmt::Display for FunctionSignature<'ast> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "function {}", self.name)?;
-        if let Some(params) = &self.parameters {
-            write!(f, "{}", params)?;
-        } else {
-            write!(f, "()")?;
-        }
-        if let Some(ret) = &self.return_type {
-            write!(f, " {}", ret)?;
-        }
-        Ok(())
-    }
-}
-
-impl<'ast> FunctionSignature<'ast> {
-    pub fn overloaded_mangled_name(&self) -> String {
-        let mut result = self.name.to_string();
-        if let Some(params) = &self.parameters {
-            for param in &params.0 {
-                result.push(PARAM_MANGLE_SEPARATOR);
-                result.push_str(param.type_hint.0);
-            }
-        }
-        result
-    }
+#[test]
+fn definition_errors() {
+    let src = include_corium_source!("../../../../ValidationSource/DefinitionErrors.cor");
+    let result = CompilationUnit::populate(parse_source(&src.0).unwrap());
+    let result = analyze_full(&result);
+    assert!(result.is_err());
+    let errors = result.unwrap_err();
+    assert_eq!(errors.len(), 10);
 }

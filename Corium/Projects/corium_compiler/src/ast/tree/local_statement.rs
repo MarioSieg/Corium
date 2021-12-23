@@ -208,16 +208,22 @@ use super::{
     mutable_variable::MutableVariable, return_statement::ReturnStatement,
 };
 use crate::ast::tree::{AstComponent, Rule, Statement};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum LocalStatement<'ast> {
+    #[serde(borrow)]
     MutableVariable(MutableVariable<'ast>),
+
+    #[serde(borrow)]
     ImmutableVariable(ImmutableVariable<'ast>),
+
+    #[serde(borrow)]
     ReturnStatement(ReturnStatement<'ast>),
 }
 
-impl<'ast> AstComponent for LocalStatement<'ast> {
+impl<'ast> AstComponent<'ast> for LocalStatement<'ast> {
     const CORRESPONDING_RULE: Rule = Rule::LocalStatement;
 }
 
@@ -270,7 +276,7 @@ mod tests {
                 value: Expression::Literal(Literal::Int(3)),
                 type_hint: None,
             });
-            assert_eq!(smt.extract_identifier().unwrap().full, "myName");
+            assert_eq!(smt.extract_identifier().unwrap().0, "myName");
         }
 
         #[test]
@@ -280,7 +286,7 @@ mod tests {
                 value: Expression::Literal(Literal::Int(3)),
                 type_hint: None,
             });
-            assert_eq!(smt.extract_identifier().unwrap().full, "myName3");
+            assert_eq!(smt.extract_identifier().unwrap().0, "myName3");
         }
 
         #[test]

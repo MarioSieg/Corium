@@ -207,8 +207,11 @@ use super::Pass;
 use crate::ast::populator::NestedAstPopulator;
 use crate::ast::tree::compilation_unit::CompilationUnit;
 use crate::ast::tree::module::Module;
+use crate::core::descriptor::CompileFlags;
 use crate::error::{list::ErrorList, Error};
+use crate::misc::pretty_xml::prettify_xml;
 use crate::parser::RulePairs;
+use std::fs;
 use std::path::Path;
 
 pub struct AstPopulationPass;
@@ -218,7 +221,7 @@ impl<'ast> Pass<'ast, RulePairs<'ast>, CompilationUnit<'ast>> for AstPopulationP
 
     fn execute(
         input: RulePairs<'ast>,
-        _verbose: bool,
+        _flags: CompileFlags,
         file: &'ast str,
     ) -> Result<CompilationUnit<'ast>, ErrorList> {
         let mut result = CompilationUnit::populate(input);
@@ -226,6 +229,22 @@ impl<'ast> Pass<'ast, RulePairs<'ast>, CompilationUnit<'ast>> for AstPopulationP
             file_name_to_module(file, &mut result.module)?;
         }
         Ok(result)
+    }
+
+    fn on_post_execute(
+        output: &Result<CompilationUnit<'ast>, ErrorList>,
+        flags: CompileFlags,
+        file: &'ast str,
+    ) {
+        if let Ok(unit) = output {
+            if flags & CompileFlags::DUMP_AST != CompileFlags::empty() {
+                let ast_file = format!("{}_ast.xml", file);
+                let xml_string = quick_xml::se::to_string(unit).unwrap();
+                let xml_string = prettify_xml(&xml_string);
+                let result = fs::write(&ast_file, xml_string);
+                result.unwrap_or_else(|_| panic!("Failed to write AST dump to file: {}", ast_file));
+            }
+        }
     }
 }
 
@@ -356,9 +375,13 @@ mod tests {
             let x float = 0.2
         "#;
         let file = "ParseTest.cor";
-        let mut result = ParsePass::execute(src, true, file).unwrap();
-        let result: CompilationUnit =
-            AstPopulationPass::execute(result.next().unwrap().into_inner(), true, file).unwrap();
+        let mut result = ParsePass::execute(src, CompileFlags::all(), file).unwrap();
+        let result: CompilationUnit = AstPopulationPass::execute(
+            result.next().unwrap().into_inner(),
+            CompileFlags::all(),
+            file,
+        )
+        .unwrap();
         let _str = String::from("ParseTest");
         assert!(matches!(result.module, Module::Derived(_str)));
     }
@@ -367,8 +390,9 @@ mod tests {
     fn with_module_decl() {
         let src = concat!("module myModule\n", "let x = 10\n");
         let file = "ParseTest2.cor";
-        let result = ParsePass::execute(src, true, file).unwrap();
-        let result: CompilationUnit = AstPopulationPass::execute(result, true, file).unwrap();
+        let result = ParsePass::execute(src, CompileFlags::all(), file).unwrap();
+        let result: CompilationUnit =
+            AstPopulationPass::execute(result, CompileFlags::all(), file).unwrap();
         let _str = Identifier::new("myModule");
         if let Module::Explicit(name) = result.module {
             assert_eq!(name, _str);

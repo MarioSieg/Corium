@@ -205,19 +205,21 @@
 
 use super::Pass;
 use crate::ast::tree::compilation_unit::CompilationUnit;
+use crate::core::descriptor::CompileFlags;
 use crate::error::list::ErrorList;
 use crate::semantic::analyze_full;
 
 pub struct SemanticPass;
 
-impl<'ast> Pass<'ast, &CompilationUnit<'ast>, u64> for SemanticPass {
+impl<'ast> Pass<'ast, CompilationUnit<'ast>, CompilationUnit<'ast>> for SemanticPass {
     const NAME: &'static str = "Semantic Analysis";
 
     fn execute(
-        input: &CompilationUnit<'ast>,
-        _verbose: bool,
+        input: CompilationUnit<'ast>,
+        _flags: CompileFlags,
         _file: &str,
-    ) -> Result<u64, ErrorList> {
-        analyze_full(input)
+    ) -> Result<CompilationUnit<'ast>, ErrorList> {
+        analyze_full(&input)?;
+        Ok(input)
     }
 }

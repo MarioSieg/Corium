@@ -204,19 +204,18 @@
 //    limitations under the License.
 
 use crate::ast::tree::{AstComponent, Rule};
+use core::str::Split;
+use serde::{Deserialize, Serialize};
 use std::cmp::{Eq, PartialEq};
 use std::fmt;
 
-#[derive(Clone, Debug, Hash)]
-pub struct Identifier<'ast> {
-    pub full: &'ast str,
-    pub split: Vec<&'ast str>,
-}
+#[derive(Clone, Debug, Hash, Serialize, Deserialize)]
+pub struct Identifier<'ast>(pub &'ast str);
 
 impl<'ast> PartialEq<Self> for Identifier<'ast> {
     #[inline]
     fn eq(&self, other: &Self) -> bool {
-        self.full == other.full
+        self.0 == other.0
     }
 }
 
@@ -224,18 +223,22 @@ impl<'ast> Eq for Identifier<'ast> {}
 
 impl<'ast> fmt::Display for Identifier<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.full)
+        write!(f, "{}", self.0)
     }
 }
 
-impl<'ast> AstComponent for Identifier<'ast> {
+impl<'ast> AstComponent<'ast> for Identifier<'ast> {
     const CORRESPONDING_RULE: Rule = Rule::Identifier;
 }
 
 impl<'ast> Identifier<'ast> {
     #[inline]
     pub fn new(full: &'ast str) -> Self {
-        let split = full.split('.').collect();
-        Self { full, split }
+        Self(full)
+    }
+
+    #[inline]
+    pub fn split(&self) -> Split<'ast, char> {
+        self.0.split('.')
     }
 }

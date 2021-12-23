@@ -205,10 +205,11 @@
 
 use crate::ast::tree::builtin_types::{Bool, BuiltinType, Char, Float, Int};
 use crate::ast::tree::{AstComponent, Rule};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Represents a literal.
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
 pub enum Literal<'ast> {
     /// An integer literal. E.g. 5
     Int(Int),
@@ -226,7 +227,7 @@ pub enum Literal<'ast> {
     String(&'ast str),
 }
 
-impl<'ast> AstComponent for Literal<'ast> {
+impl<'ast> AstComponent<'ast> for Literal<'ast> {
     const CORRESPONDING_RULE: Rule = Rule::Literal;
 }
 

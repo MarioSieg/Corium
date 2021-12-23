@@ -203,14 +203,11 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::core::unit::CompileDescriptor;
+use crate::core::descriptor::{CompileDescriptor, CompileFlags};
 
 const DESC: CompileDescriptor = CompileDescriptor {
-    dump_ast: true,
-    pass_timer: true,
-    dump_asm: true,
-    verbose: true,
     opt_level: 0,
+    flags: CompileFlags::all(),
 };
 
 mod global {

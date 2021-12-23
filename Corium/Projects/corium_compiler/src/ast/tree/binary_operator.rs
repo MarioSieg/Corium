@@ -204,11 +204,12 @@
 //    limitations under the License.
 
 use crate::ast::tree::{AstComponent, Operator, OperatorAssociativity, Rule};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Represents an unary operator having one operand. E.g. +10 or -0.5 or !x
 #[repr(u8)]
-#[derive(Copy, Clone, Eq, PartialEq, Debug, Hash, Ord, PartialOrd)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Hash, Ord, PartialOrd, Serialize, Deserialize)]
 pub enum BinaryOperator {
     // Arithmetic
     /// +
@@ -255,7 +256,7 @@ pub enum BinaryOperator {
     LogicalOr,
 }
 
-impl Operator for BinaryOperator {
+impl<'ast> Operator<'ast> for BinaryOperator {
     const COUNT: usize = Self::LogicalOr as usize + 1;
 
     const TOKENS: &'static [&'static str] = &[
@@ -335,7 +336,7 @@ impl Operator for BinaryOperator {
     }
 }
 
-impl AstComponent for BinaryOperator {
+impl<'ast> AstComponent<'ast> for BinaryOperator {
     const CORRESPONDING_RULE: Rule = Rule::BinaryOperator;
 }
 

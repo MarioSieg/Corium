@@ -1,3 +1,4 @@
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::fmt::Debug;
 use std::hash::Hash;
@@ -24,11 +25,13 @@ pub mod unary_operator;
 
 pub type Rule = crate::parser::Rule;
 
-pub trait AstComponent: Clone + fmt::Display + fmt::Debug {
+pub trait AstComponent<'ast>:
+    Clone + fmt::Display + fmt::Debug + Serialize + Deserialize<'ast>
+{
     const CORRESPONDING_RULE: Rule;
 }
 
-pub trait Statement<'ast>: AstComponent {
+pub trait Statement<'ast>: AstComponent<'ast> {
     fn descriptive_name(&self) -> &'static str;
     fn extract_identifier(&self) -> Option<&identifier::Identifier>;
     fn is_symbol_table_entry(&self) -> bool;
@@ -41,8 +44,8 @@ pub enum OperatorAssociativity {
     RightToLeft,
 }
 
-pub trait Operator:
-    Sized + AstComponent + Copy + Clone + Eq + PartialEq + Debug + Hash + Ord + PartialOrd
+pub trait Operator<'ast>:
+    Sized + AstComponent<'ast> + Copy + Clone + Eq + PartialEq + Debug + Hash + Ord + PartialOrd
 {
     const COUNT: usize;
     const TOKENS: &'static [&'static str];

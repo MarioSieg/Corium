@@ -205,12 +205,13 @@
 
 use super::expression::Expression;
 use crate::ast::tree::{AstComponent, Rule};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, Debug)]
-pub struct ReturnStatement<'ast>(pub Option<Expression<'ast>>);
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct ReturnStatement<'ast>(#[serde(borrow)] pub Option<Expression<'ast>>);
 
-impl<'ast> AstComponent for ReturnStatement<'ast> {
+impl<'ast> AstComponent<'ast> for ReturnStatement<'ast> {
     const CORRESPONDING_RULE: Rule = Rule::ReturnStatement;
 }
 

@@ -205,16 +205,22 @@
 
 use super::{expression::Expression, identifier::Identifier};
 use crate::ast::tree::{AstComponent, Rule};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ImmutableVariable<'ast> {
+    #[serde(borrow)]
     pub name: Identifier<'ast>,
+
+    #[serde(borrow)]
     pub type_hint: Option<Identifier<'ast>>,
+
+    #[serde(borrow)]
     pub value: Expression<'ast>,
 }
 
-impl<'ast> AstComponent for ImmutableVariable<'ast> {
+impl<'ast> AstComponent<'ast> for ImmutableVariable<'ast> {
     const CORRESPONDING_RULE: Rule = Rule::ImmutableVariable;
 }
 

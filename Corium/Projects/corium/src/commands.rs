@@ -206,6 +206,7 @@
 use crate::project::Project;
 use colored::Colorize;
 use corium_compiler::core::context::CompilerContext;
+use corium_compiler::core::descriptor::{CompileDescriptor, CompileFlags};
 use indicatif::{ProgressBar, ProgressStyle};
 use std::env;
 use std::path::PathBuf;
@@ -244,10 +245,29 @@ pub struct CompileOptions {
     pub input_files: Vec<PathBuf>,
     pub output_file: Option<PathBuf>,
     pub opt_level: u8,
-    pub verbose: bool,
     pub dump_ast: bool,
     pub dump_asm: bool,
-    pub pass_timer: bool,
+    pub verbose: bool,
+    pub pass_infos: bool,
+}
+
+impl CompileOptions {
+    pub fn get_flags(&self) -> CompileFlags {
+        let mut flags = CompileFlags::empty();
+        if self.dump_ast {
+            flags |= CompileFlags::DUMP_AST;
+        }
+        if self.dump_asm {
+            flags |= CompileFlags::DUMP_ASM;
+        }
+        if self.verbose {
+            flags |= CompileFlags::VERBOSE | CompileFlags::PASS_INFOS;
+        }
+        if self.verbose {
+            flags |= CompileFlags::PASS_INFOS;
+        }
+        flags
+    }
 }
 
 pub fn compile(options: CompileOptions) {
@@ -264,15 +284,13 @@ pub fn compile(options: CompileOptions) {
     progress_bar.set_message("[0 %]");
     progress_bar.enable_steady_tick(100);
 
+    let opt_level = options.opt_level;
+    let flags = options.get_flags();
+
+    let descriptor = CompileDescriptor { opt_level, flags };
+
     for file in options.input_files.into_iter() {
-        let descriptor = corium_compiler::core::unit::CompileDescriptor {
-            dump_ast: options.dump_ast,
-            dump_asm: options.dump_ast,
-            opt_level: options.opt_level,
-            verbose: options.verbose,
-            pass_timer: options.pass_timer,
-        };
-        context.enqueue_file(file, descriptor);
+        context.enqueue_file(file, descriptor.clone());
     }
 
     let one_percent = 100.0 / num_files as f64;

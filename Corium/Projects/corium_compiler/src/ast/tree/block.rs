@@ -205,13 +205,14 @@
 
 use super::local_statement::LocalStatement;
 use crate::ast::tree::{AstComponent, Rule};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::ops::Deref;
 
-#[derive(Clone, Debug, Default)]
-pub struct Block<'ast>(pub Vec<LocalStatement<'ast>>);
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+pub struct Block<'ast>(#[serde(borrow)] pub Vec<LocalStatement<'ast>>);
 
-impl<'ast> AstComponent for Block<'ast> {
+impl<'ast> AstComponent<'ast> for Block<'ast> {
     const CORRESPONDING_RULE: Rule = Rule::Block;
 }
 

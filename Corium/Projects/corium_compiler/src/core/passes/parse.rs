@@ -204,6 +204,7 @@
 //    limitations under the License.
 
 use super::Pass;
+use crate::core::descriptor::CompileFlags;
 use crate::error::list::ErrorList;
 use crate::parser::parse_source;
 use crate::parser::RulePairs;
@@ -215,7 +216,7 @@ impl<'ast> Pass<'ast, &'ast str, RulePairs<'ast>> for ParsePass {
 
     fn execute(
         input: &'ast str,
-        _verbose: bool,
+        _flags: CompileFlags,
         _file: &str,
     ) -> Result<RulePairs<'ast>, ErrorList> {
         parse_source(input)

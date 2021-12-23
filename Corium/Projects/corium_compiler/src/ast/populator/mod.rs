@@ -228,11 +228,11 @@ pub mod unary_operator;
 #[cfg(test)]
 mod tests;
 
-pub trait NestedAstPopulator<'ast>: AstComponent {
+pub trait NestedAstPopulator<'ast>: AstComponent<'ast> {
     fn populate(rule: RulePairs<'ast>) -> Self;
 }
 
-pub trait AtomicAstPopulator<'ast>: AstComponent {
+pub trait AtomicAstPopulator<'ast>: AstComponent<'ast> {
     fn merge(span: &'ast str) -> Self;
 }
 

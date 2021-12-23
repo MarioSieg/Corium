@@ -208,15 +208,18 @@ use super::{
     unary_operator::UnaryOperator,
 };
 use crate::ast::tree::{AstComponent, Rule};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Represents an expression.
-#[derive(PartialEq, Clone, Debug)]
+#[derive(PartialEq, Clone, Debug, Serialize, Deserialize)]
 pub enum Expression<'ast> {
     /// Constant literal.
+    #[serde(borrow)]
     Literal(Literal<'ast>),
 
     /// Some identifier.
+    #[serde(borrow)]
     Identifier(Identifier<'ast>),
 
     /// Sub-expression inside parenthesis.
@@ -236,7 +239,7 @@ pub enum Expression<'ast> {
     },
 }
 
-impl<'ast> AstComponent for Expression<'ast> {
+impl<'ast> AstComponent<'ast> for Expression<'ast> {
     const CORRESPONDING_RULE: Rule = Rule::Expression;
 }
 

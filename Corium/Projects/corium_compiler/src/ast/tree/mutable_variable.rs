@@ -205,17 +205,23 @@
 
 use super::{expression::Expression, identifier::Identifier};
 use crate::ast::tree::{AstComponent, Rule};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Represents a local variable
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct MutableVariable<'ast> {
+    #[serde(borrow)]
     pub name: Identifier<'ast>,
+
+    #[serde(borrow)]
     pub type_hint: Option<Identifier<'ast>>,
+
+    #[serde(borrow)]
     pub value: Expression<'ast>,
 }
 
-impl<'ast> AstComponent for MutableVariable<'ast> {
+impl<'ast> AstComponent<'ast> for MutableVariable<'ast> {
     const CORRESPONDING_RULE: Rule = Rule::MutableVariable;
 }
 

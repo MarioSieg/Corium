@@ -204,11 +204,12 @@
 //    limitations under the License.
 
 use crate::ast::tree::{AstComponent, Operator, OperatorAssociativity, Rule};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Represents an unary operator having one operand. E.g. +10 or -0.5 or !x
 #[repr(u8)]
-#[derive(Copy, Clone, Eq, PartialEq, Debug, Hash, Ord, PartialOrd)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Hash, Ord, PartialOrd, Serialize, Deserialize)]
 pub enum UnaryOperator {
     Plus,              // +
     Minus,             // -
@@ -216,7 +217,7 @@ pub enum UnaryOperator {
     LogicalNot,        // not
 }
 
-impl Operator for UnaryOperator {
+impl<'ast> Operator<'ast> for UnaryOperator {
     const COUNT: usize = Self::LogicalNot as usize + 1;
 
     const TOKENS: &'static [&'static str] = &["+", "-", "~", "not"];
@@ -263,7 +264,7 @@ impl Operator for UnaryOperator {
     }
 }
 
-impl AstComponent for UnaryOperator {
+impl<'ast> AstComponent<'ast> for UnaryOperator {
     const CORRESPONDING_RULE: Rule = Rule::UnaryOperator;
 }
 

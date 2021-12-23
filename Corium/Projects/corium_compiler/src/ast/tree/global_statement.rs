@@ -208,18 +208,26 @@ use super::{
     mutable_variable::MutableVariable, native_function::NativeFunction,
 };
 use crate::ast::tree::{AstComponent, Rule, Statement};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Represents a file scope statement.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum GlobalStatement<'ast> {
+    #[serde(borrow)]
     MutableVariable(MutableVariable<'ast>),
+
+    #[serde(borrow)]
     ImmutableVariable(ImmutableVariable<'ast>),
+
+    #[serde(borrow)]
     Function(Function<'ast>),
+
+    #[serde(borrow)]
     NativeFunction(NativeFunction<'ast>),
 }
 
-impl<'ast> AstComponent for GlobalStatement<'ast> {
+impl<'ast> AstComponent<'ast> for GlobalStatement<'ast> {
     const CORRESPONDING_RULE: Rule = Rule::GlobalStatement;
 }
 
@@ -278,7 +286,7 @@ mod tests {
                 value: Expression::Literal(Literal::Int(3)),
                 type_hint: None,
             });
-            assert_eq!(smt.extract_identifier().unwrap().full, "myName");
+            assert_eq!(smt.extract_identifier().unwrap().0, "myName");
         }
 
         #[test]
@@ -288,7 +296,7 @@ mod tests {
                 value: Expression::Literal(Literal::Int(3)),
                 type_hint: None,
             });
-            assert_eq!(smt.extract_identifier().unwrap().full, "myName3");
+            assert_eq!(smt.extract_identifier().unwrap().0, "myName3");
         }
 
         #[test]
@@ -301,7 +309,7 @@ mod tests {
                 },
                 block: Block::new(),
             });
-            assert_eq!(smt.extract_identifier().unwrap().full, "myFunc");
+            assert_eq!(smt.extract_identifier().unwrap().0, "myFunc");
         }
 
         #[test]
@@ -313,7 +321,7 @@ mod tests {
                     return_type: None,
                 },
             });
-            assert_eq!(smt.extract_identifier().unwrap().full, "ymmmym");
+            assert_eq!(smt.extract_identifier().unwrap().0, "ymmmym");
         }
     }
 }

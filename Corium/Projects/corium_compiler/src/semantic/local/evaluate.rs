@@ -207,7 +207,7 @@ use crate::ast::tree::global_statement::GlobalStatement;
 use crate::error::list::ErrorList;
 use crate::semantic::global::symbol_table::GlobalSymbolTable;
 use crate::semantic::local::symbol_table::{self, LocalSymbolTable};
-use crate::semantic::local::validate_identifiers;
+use crate::semantic::local::validate_identifier;
 
 pub fn evaluate<'ast>(
     errors: &mut ErrorList,
@@ -231,7 +231,7 @@ pub fn evaluate<'ast>(
             symbol_table::populate(errors, function, global_symbol_table, &mut symbol_table);
 
             // Run analysis
-            validate_identifiers::validate(errors, global_symbol_table, &symbol_table);
+            validate_identifier::validate(errors, global_symbol_table, &symbol_table);
 
             i += 1;
         }

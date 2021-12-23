@@ -206,4 +206,4 @@
 pub mod bucket;
 pub mod evaluate;
 pub mod symbol_table;
-pub mod validate_identifiers;
+pub mod validate_identifier;

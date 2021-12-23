@@ -208,5 +208,6 @@ pub mod ast;
 pub mod codegen;
 pub mod core;
 pub mod error;
+pub mod misc;
 pub mod parser;
 pub mod semantic;
