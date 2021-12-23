@@ -206,9 +206,9 @@
 use crate::ast::tree::global_statement::GlobalStatement;
 use crate::ast::tree::Statement;
 use crate::error::list::ErrorList;
-use crate::error::Error;
 use crate::semantic::global::bucket;
 use crate::semantic::table::SymbolTable;
+use crate::semantic_error;
 
 pub type GlobalSymbolTable<'ast> = SymbolTable<'ast, bucket::Bucket<'ast>>;
 
@@ -226,10 +226,8 @@ pub fn populate<'ast>(
                     result.insert(key, bucket);
                 }
             } else {
-                errors.push(Error::Semantic(format!(
-                    "Symbol {} already defined before!",
-                    key
-                ))); // if symbol is already defined, add error
+                *errors += semantic_error!("Symbol {} already defined before!", key);
+                // if symbol is already defined, add error
             }
         }
     }
@@ -248,6 +246,7 @@ mod tests {
     use crate::ast::tree::literal::Literal;
     use crate::ast::tree::mutable_variable::MutableVariable;
     use crate::ast::tree::native_function::NativeFunction;
+    use crate::error::Error;
     use crate::semantic::global::bucket::Bucket;
 
     #[test]

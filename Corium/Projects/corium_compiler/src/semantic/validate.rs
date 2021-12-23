@@ -205,9 +205,9 @@
 
 use crate::ast::tree::expression::Expression;
 use crate::error::list::ErrorList;
-use crate::error::Error;
 use crate::semantic::global::symbol_table::GlobalSymbolTable;
 use crate::semantic::local::symbol_table::LocalSymbolTable;
+use crate::semantic_error;
 
 pub fn validate_identifiers(
     errors: &mut ErrorList,
@@ -222,7 +222,7 @@ pub fn validate_identifiers(
                 found_symbol |= local.contains_key(identifier);
             }
             if !found_symbol {
-                errors.push(Error::Semantic(format!("Undefined symbol: {}", identifier)));
+                *errors += semantic_error!("Undefined symbol: {}", identifier);
             }
         }
         Expression::Parenthesis(nested) => validate_identifiers(errors, nested, global, local),

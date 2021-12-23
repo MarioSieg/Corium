@@ -218,66 +218,73 @@ impl<'ast> Expression<'ast> {
         errors: &mut ErrorList,
         local: &'ast LocalSymbolTable<'ast>,
         global: &'ast GlobalSymbolTable<'ast>,
-    ) -> Result<&'ast Identifier<'ast>, ()> {
+    ) -> Option<&'ast Identifier<'ast>> {
         match self {
-            Expression::Literal(literal) => {
+            Self::Literal(literal) => {
                 let builtin: BuiltinType = literal.builtin_type();
-                Ok(builtin.identifier())
+                Some(builtin.identifier())
             }
-            Expression::Identifier(identifier) => {
+            Self::Identifier(identifier) => {
                 if let Some(bucket) = global.get(identifier) {
                     use global::bucket::Bucket;
 
                     match bucket {
-                        Bucket::MutableVariable(mutable_variable) => Ok(mutable_variable
-                            .type_hint
-                            .as_ref()
-                            .unwrap_or(mutable_variable.value.type_of(errors, local, global)?)),
-                        Bucket::ImmutableVariable(immutable_variable) => Ok(immutable_variable
-                            .type_hint
-                            .as_ref()
-                            .unwrap_or(immutable_variable.value.type_of(errors, local, global)?)),
+                        Bucket::MutableVariable(mutable_variable) => {
+                            let type_hint = mutable_variable.type_hint.as_ref();
+                            let mut inner =
+                                || mutable_variable.value.type_of(errors, local, global);
+                            Some(type_hint.unwrap_or(inner()?))
+                        }
+                        Bucket::ImmutableVariable(immutable_variable) => {
+                            let type_hint = immutable_variable.type_hint.as_ref();
+                            let mut inner =
+                                || immutable_variable.value.type_of(errors, local, global);
+                            Some(type_hint.unwrap_or(inner()?))
+                        }
                         _ => {
-                            errors
-                                .push(semantic_error!("Cannot bind {} to an expression!", bucket));
-                            Err(())
+                            *errors += semantic_error!("Cannot bind {} to an expression!", bucket);
+                            None
                         }
                     }
                 } else if let Some(bucket) = local.get(identifier) {
                     use local::bucket::Bucket;
 
                     match bucket {
-                        Bucket::MutableVariable(mutable_variable) => Ok(mutable_variable
-                            .type_hint
-                            .as_ref()
-                            .unwrap_or(mutable_variable.value.type_of(errors, local, global)?)),
-                        Bucket::ImmutableVariable(immutable_variable) => Ok(immutable_variable
-                            .type_hint
-                            .as_ref()
-                            .unwrap_or(immutable_variable.value.type_of(errors, local, global)?)),
-                        Bucket::Parameter(parameter) => Ok(&parameter.type_hint),
+                        Bucket::MutableVariable(mutable_variable) => {
+                            let type_hint = mutable_variable.type_hint.as_ref();
+                            let mut inner =
+                                || mutable_variable.value.type_of(errors, local, global);
+                            Some(type_hint.unwrap_or(inner()?))
+                        }
+                        Bucket::ImmutableVariable(immutable_variable) => {
+                            let type_hint = immutable_variable.type_hint.as_ref();
+                            let mut inner =
+                                || immutable_variable.value.type_of(errors, local, global);
+                            Some(type_hint.unwrap_or(inner()?))
+                        }
+                        Bucket::Parameter(parameter) => Some(&parameter.type_hint),
                     }
                 } else {
-                    errors.push(semantic_error!("Undefined symbol: {}", identifier));
-                    Err(())
+                    *errors += semantic_error!("Undefined symbol: {}", identifier);
+                    None
                 }
             }
-            Expression::Parenthesis(expression) => expression.type_of(errors, local, global),
-            Expression::Unary { op: _, expression } => expression.type_of(errors, local, global),
-            Expression::Binary { left, op, right } => {
+            Self::Parenthesis(expression) => expression.type_of(errors, local, global),
+            Self::Unary { op: _, expression } => expression.type_of(errors, local, global),
+            Self::Binary { left, op, right } => {
                 let type_left = left.type_of(errors, local, global)?;
                 let type_right = right.type_of(errors, local, global)?;
                 if type_left != type_right {
-                    errors.push(semantic_error!(
+                    *errors += semantic_error!(
                         "Expression type mismatch: {} {} {} - left {}, right {}",
                         left,
                         op,
                         right,
                         type_left,
                         type_right
-                    ));
+                    );
                 }
-                Ok(type_left)
+                Some(type_left)
             }
         }
     }

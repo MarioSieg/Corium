@@ -206,10 +206,10 @@
 use crate::ast::tree::function::Function;
 use crate::ast::tree::Statement;
 use crate::error::list::ErrorList;
-use crate::error::Error;
 use crate::semantic::global::symbol_table::GlobalSymbolTable;
 use crate::semantic::local::bucket;
 use crate::semantic::table::SymbolTable;
+use crate::semantic_error;
 
 pub type LocalSymbolTable<'ast> = SymbolTable<'ast, bucket::Bucket<'ast>>;
 
@@ -226,10 +226,8 @@ pub fn populate<'ast>(
             if !output.contains_key(key) && !global.contains_key(key) {
                 output.insert(key, bucket::Bucket::Parameter(parameter));
             } else {
-                errors.push(Error::Semantic(format!(
-                    "Symbol {} already defined before!",
-                    key
-                ))); // if symbol is already defined, add error
+                *errors += semantic_error!("Symbol {} already defined before!", key);
+                // if symbol is already defined, add error
             }
         }
     } else {
@@ -243,10 +241,7 @@ pub fn populate<'ast>(
                     output.insert(key, bucket);
                 }
             } else {
-                errors.push(Error::Semantic(format!(
-                    "Symbol {} already defined before!",
-                    key
-                ))); // if symbol is already defined, add error
+                *errors += semantic_error!("Symbol {} already defined before!", key);
             }
         }
     }

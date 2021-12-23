@@ -205,7 +205,7 @@
 
 use crate::error::Error;
 use std::fmt;
-use std::ops::{Index, IndexMut};
+use std::ops::{AddAssign, Index, IndexMut};
 
 #[derive(Clone, Debug)]
 pub struct ErrorList(pub Vec<Error>);
@@ -220,21 +220,16 @@ impl ErrorList {
     }
 
     #[inline]
-    pub fn push(&mut self, item: Error) {
-        self.0.push(item)
-    }
-
-    #[inline]
     pub fn push_if_err<R>(&mut self, result: Result<R, Error>) {
         if let Err(error) = result {
-            self.0.push(error)
+            *self += error;
         }
     }
 
     pub fn merge(&mut self, errors: Self) {
         self.0.reserve(errors.len());
         for error in errors.0 {
-            self.0.push(error);
+            *self += error;
         }
     }
 
@@ -242,7 +237,7 @@ impl ErrorList {
         if let Err(errors) = result {
             self.0.reserve(errors.len());
             for error in errors.0 {
-                self.0.push(error);
+                *self += error;
             }
         }
     }
@@ -255,6 +250,13 @@ impl ErrorList {
     #[inline]
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()
+    }
+}
+
+impl AddAssign<Error> for ErrorList {
+    #[inline]
+    fn add_assign(&mut self, rhs: Error) {
+        self.0.push(rhs)
     }
 }
 
