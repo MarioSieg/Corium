@@ -204,13 +204,23 @@
 //    limitations under the License.
 
 use crate::ast::tree::{AstComponent, Rule};
+use std::cmp::{Eq, PartialEq};
 use std::fmt;
 
-#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(Clone, Debug, Hash)]
 pub struct Identifier<'ast> {
     pub full: &'ast str,
     pub split: Vec<&'ast str>,
 }
+
+impl<'ast> PartialEq<Self> for Identifier<'ast> {
+    #[inline]
+    fn eq(&self, other: &Self) -> bool {
+        self.full == other.full
+    }
+}
+
+impl<'ast> Eq for Identifier<'ast> {}
 
 impl<'ast> fmt::Display for Identifier<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

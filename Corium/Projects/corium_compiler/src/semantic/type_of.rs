@@ -274,7 +274,10 @@ impl<'ast> Expression<'ast> {
             Self::Binary { left, op, right } => {
                 let type_left = left.type_of(errors, local, global)?;
                 let type_right = right.type_of(errors, local, global)?;
-                if type_left != type_right {
+
+                if type_left == type_right {
+                    Some(type_left)
+                } else {
                     *errors += semantic_error!(
                         "Expression type mismatch: {} {} {} - left {}, right {}",
                         left,
@@ -283,9 +286,274 @@ impl<'ast> Expression<'ast> {
                         type_left,
                         type_right
                     );
+                    None
                 }
-                Some(type_left)
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::ast::tree::binary_operator::BinaryOperator;
+    use crate::ast::tree::function_signature::FunctionSignature;
+    use crate::ast::tree::immutable_variable::ImmutableVariable;
+    use crate::ast::tree::literal::Literal;
+    use crate::ast::tree::mutable_variable::MutableVariable;
+    use crate::ast::tree::native_function::NativeFunction;
+    use crate::ast::tree::parameter::Parameter;
+    use crate::ast::tree::unary_operator::UnaryOperator;
+
+    #[test]
+    fn literal() {
+        let mut errors = ErrorList::new();
+        let local = LocalSymbolTable::new();
+        let global = GlobalSymbolTable::new();
+
+        let ident = Expression::Literal(Literal::Int(3))
+            .type_of(&mut errors, &local, &global)
+            .unwrap();
+        assert_eq!(ident, BuiltinType::Int.identifier());
+
+        let ident = Expression::Literal(Literal::Float(3.5))
+            .type_of(&mut errors, &local, &global)
+            .unwrap();
+        assert_eq!(ident, BuiltinType::Float.identifier());
+
+        let ident = Expression::Literal(Literal::Char('X'))
+            .type_of(&mut errors, &local, &global)
+            .unwrap();
+        assert_eq!(ident, BuiltinType::Char.identifier());
+
+        let ident = Expression::Literal(Literal::Bool(true))
+            .type_of(&mut errors, &local, &global)
+            .unwrap();
+        assert_eq!(ident, BuiltinType::Bool.identifier());
+
+        let ident = Expression::Literal(Literal::String("Hey"))
+            .type_of(&mut errors, &local, &global)
+            .unwrap();
+        assert_eq!(ident, BuiltinType::String.identifier());
+    }
+
+    #[test]
+    fn infer_type_hint() {
+        use crate::semantic::global::bucket::Bucket;
+
+        let mut errors = ErrorList::new();
+        let local = LocalSymbolTable::new();
+        let mut global = GlobalSymbolTable::new();
+
+        let ident1 = Identifier::new("x");
+        let var1 = ImmutableVariable {
+            name: ident1.clone(),
+            value: Expression::Literal(Literal::Float(3.2)),
+            type_hint: None,
+        };
+
+        global.insert(&ident1, Bucket::ImmutableVariable(&var1));
+
+        let type_name = Expression::Identifier(ident1.clone())
+            .type_of(&mut errors, &local, &global)
+            .unwrap();
+        assert_eq!(type_name, BuiltinType::Float.identifier());
+        assert!(errors.is_empty());
+    }
+
+    #[test]
+    fn lookup_custom_type_hint() {
+        use crate::semantic::global::bucket::Bucket;
+
+        let mut errors = ErrorList::new();
+        let local = LocalSymbolTable::new();
+        let mut global = GlobalSymbolTable::new();
+
+        let ident1 = Identifier::new("x");
+        let var1 = ImmutableVariable {
+            name: ident1.clone(),
+            value: Expression::Literal(Literal::Float(3.2)),
+            type_hint: Some(Identifier::new("MyClass")),
+        };
+
+        global.insert(&ident1, Bucket::ImmutableVariable(&var1));
+
+        let type_name = Expression::Identifier(ident1.clone())
+            .type_of(&mut errors, &local, &global)
+            .unwrap();
+        assert_eq!(*type_name, Identifier::new("MyClass"));
+        assert!(errors.is_empty());
+    }
+
+    #[test]
+    fn identifier_global() {
+        use crate::semantic::global::bucket::Bucket;
+
+        let mut errors = ErrorList::new();
+        let local = LocalSymbolTable::new();
+        let mut global = GlobalSymbolTable::new();
+
+        let ident1 = Identifier::new("x");
+        let var1 = ImmutableVariable {
+            name: ident1.clone(),
+            value: Expression::Literal(Literal::Float(3.2)),
+            type_hint: None,
+        };
+
+        let ident2 = Identifier::new("y");
+        let var2 = MutableVariable {
+            name: ident2.clone(),
+            value: Expression::Identifier(ident1.clone()),
+            type_hint: None,
+        };
+
+        global.insert(&ident1, Bucket::ImmutableVariable(&var1));
+        global.insert(&ident2, Bucket::MutableVariable(&var2));
+
+        let type_name = Expression::Identifier(ident2.clone())
+            .type_of(&mut errors, &local, &global)
+            .unwrap();
+        assert_eq!(type_name, BuiltinType::Float.identifier());
+        assert!(errors.is_empty());
+    }
+
+    #[test]
+    fn identifier_global_invalid_statement() {
+        use crate::semantic::global::bucket::Bucket;
+
+        let mut errors = ErrorList::new();
+        let local = LocalSymbolTable::new();
+        let mut global = GlobalSymbolTable::new();
+
+        let ident1 = Identifier::new("x");
+        let var1 = NativeFunction {
+            signature: FunctionSignature {
+                name: ident1.clone(),
+                parameters: None,
+                return_type: None,
+            },
+        };
+
+        global.insert(&ident1, Bucket::NativeFunction(&var1));
+
+        let type_name =
+            Expression::Identifier(ident1.clone()).type_of(&mut errors, &local, &global);
+        assert!(type_name.is_none());
+        assert!(!errors.is_empty());
+    }
+
+    #[test]
+    fn identifier_local() {
+        use crate::semantic::local::bucket::Bucket;
+
+        let mut errors = ErrorList::new();
+        let mut local = LocalSymbolTable::new();
+        let global = GlobalSymbolTable::new();
+
+        let ident1 = Identifier::new("x");
+        let var1 = Parameter {
+            name: ident1.clone(),
+            value: Some(Expression::Literal(Literal::Float(3.2))),
+            type_hint: BuiltinType::Float.identifier().clone(),
+        };
+
+        let ident2 = Identifier::new("y");
+        let var2 = MutableVariable {
+            name: ident2.clone(),
+            value: Expression::Identifier(ident1.clone()),
+            type_hint: None,
+        };
+
+        let ident3 = Identifier::new("z");
+        let var3 = ImmutableVariable {
+            name: ident2.clone(),
+            value: Expression::Identifier(ident2.clone()),
+            type_hint: None,
+        };
+
+        local.insert(&ident1, Bucket::Parameter(&var1));
+        local.insert(&ident2, Bucket::MutableVariable(&var2));
+        local.insert(&ident3, Bucket::ImmutableVariable(&var3));
+
+        let type_name = Expression::Identifier(ident3.clone())
+            .type_of(&mut errors, &local, &global)
+            .unwrap();
+        assert_eq!(type_name, BuiltinType::Float.identifier());
+        assert!(errors.is_empty());
+    }
+
+    #[test]
+    fn undefined_symbol() {
+        let mut errors = ErrorList::new();
+        let local = LocalSymbolTable::new();
+        let global = GlobalSymbolTable::new();
+
+        let ident =
+            Expression::Identifier(Identifier::new("x")).type_of(&mut errors, &local, &global);
+        assert!(ident.is_none());
+        assert!(!errors.is_empty());
+    }
+
+    #[test]
+    fn parenthesis() {
+        let mut errors = ErrorList::new();
+        let local = LocalSymbolTable::new();
+        let global = GlobalSymbolTable::new();
+
+        let ident = Expression::Parenthesis(Box::new(Expression::Literal(Literal::Int(3))))
+            .type_of(&mut errors, &local, &global)
+            .unwrap();
+        assert_eq!(ident, BuiltinType::Int.identifier());
+        assert!(errors.is_empty());
+    }
+
+    #[test]
+    fn unary() {
+        let mut errors = ErrorList::new();
+        let local = LocalSymbolTable::new();
+        let global = GlobalSymbolTable::new();
+
+        let ident = Expression::Unary {
+            op: UnaryOperator::BitwiseComplement,
+            expression: Box::new(Expression::Literal(Literal::Int(3))),
+        }
+        .type_of(&mut errors, &local, &global)
+        .unwrap();
+        assert_eq!(ident, BuiltinType::Int.identifier());
+        assert!(errors.is_empty());
+    }
+
+    #[test]
+    fn binary() {
+        let mut errors = ErrorList::new();
+        let local = LocalSymbolTable::new();
+        let global = GlobalSymbolTable::new();
+
+        let ident = Expression::Binary {
+            left: Box::new(Expression::Literal(Literal::Int(3))),
+            op: BinaryOperator::Addition,
+            right: Box::new(Expression::Literal(Literal::Int(5))),
+        }
+        .type_of(&mut errors, &local, &global)
+        .unwrap();
+
+        assert_eq!(ident, BuiltinType::Int.identifier());
+        assert!(errors.is_empty());
+    }
+
+    #[test]
+    fn binary_mismatch() {
+        let mut errors = ErrorList::new();
+        let local = LocalSymbolTable::new();
+        let global = GlobalSymbolTable::new();
+
+        let ident = Expression::Binary {
+            left: Box::new(Expression::Literal(Literal::Int(3))),
+            op: BinaryOperator::Addition,
+            right: Box::new(Expression::Literal(Literal::Float(5.5))),
+        }
+        .type_of(&mut errors, &local, &global);
+        assert!(ident.is_none());
+        assert!(!errors.is_empty());
     }
 }
