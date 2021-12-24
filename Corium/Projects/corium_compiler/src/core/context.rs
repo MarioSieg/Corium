@@ -307,7 +307,7 @@ impl CompilerContext {
                 self.failed_compilations += 1;
                 self.on_compilation_fail();
             }
-            errors.extend(self.format_compilation_status(result, unit.file_name()));
+            errors.extend(self.format_compilation_status(result, &unit));
             received += 1;
         }
 
@@ -325,18 +325,28 @@ impl CompilerContext {
 
     fn on_compilation_fail(&self) {}
 
-    fn format_compilation_status(&mut self, result: CompilationResult, file: &str) -> Vec<String> {
+    fn format_compilation_status(
+        &mut self,
+        result: CompilationResult,
+        unit: &FileCompilationUnit,
+    ) -> Vec<String> {
         if let Err((time, errors)) = result {
             let suffix = if errors.len() > 1 { "s" } else { "" };
             let error_info = format!("{} error{}", errors.len(), suffix);
             let message = format!(
                 "\nFailed to compile `{}` because of {} in {:?}:",
-                file, error_info, time
+                unit.descriptor.short_file_name(),
+                error_info,
+                time
             );
             let mut result = Vec::with_capacity(errors.len() + 1);
             result.push(message);
-            for error in errors.0 {
-                result.push(format!("{:?}", error));
+            for (i, error) in errors.iter().enumerate() {
+                result.push(format!("{}", error));
+                if i > unit.descriptor.max_errors as _ {
+                    result.push(format!("Following {} errors...", errors.len() - i));
+                    break;
+                }
             }
             result
         } else {

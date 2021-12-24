@@ -210,6 +210,7 @@ use corium_compiler::core::descriptor::{CompileDescriptor, CompileFlags};
 use indicatif::{ProgressBar, ProgressStyle};
 use std::env;
 use std::path::PathBuf;
+use std::time::Instant;
 
 pub fn new(name: String) {
     let working_dir =
@@ -251,6 +252,7 @@ pub struct CompileOptions {
     pub pass_info: bool,
     pub output_descriptor: bool,
     pub output_symbols: bool,
+    pub max_errors: u32,
 }
 
 impl CompileOptions {
@@ -280,6 +282,7 @@ impl CompileOptions {
 
 pub fn compile(options: CompileOptions) {
     let num_files = options.input_files.len();
+    let clock = Instant::now();
     let mut context = CompilerContext::with_capacity(num_files);
     println!("{}", "Compiling...".yellow());
 
@@ -294,12 +297,14 @@ pub fn compile(options: CompileOptions) {
 
     let opt_level = options.opt_level;
     let flags = options.get_flags();
+    let max_errors = options.max_errors;
 
     for file in options.input_files.into_iter() {
         let descriptor = CompileDescriptor {
             opt_level,
             flags,
             file,
+            max_errors,
         };
         context.enqueue_file(descriptor);
     }
@@ -314,16 +319,25 @@ pub fn compile(options: CompileOptions) {
     }));
 
     progress_bar.finish_and_clear();
+    let suffix = if num_files > 1 { "s" } else { "" };
     let message = if errors.is_empty() {
-        format!("Compiled {} files", num_files).green().bold()
+        let duration = humantime::Duration::from(clock.elapsed());
+        let text = format!("Compiled {} file{} in {}", num_files, suffix, duration);
+        text.green().bold()
     } else {
         let failed = context.failed_compilations();
-        format!("Compiled {} files, {} failed", num_files - failed, failed)
-            .red()
-            .bold()
+        let successful = num_files - failed;
+        let duration = humantime::Duration::from(clock.elapsed());
+        let suffix2 = if failed > 1 { "s" } else { "" };
+        let text = format!(
+            "Compiled {} file{}, {} file{} failed in {}",
+            successful, suffix, failed, suffix2, duration
+        );
+        text.red().bold()
     };
 
     println!("{}", message);
+
     for error in errors {
         println!("{}", error.red().bold());
     }

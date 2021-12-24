@@ -211,7 +211,8 @@ lazy_static! {
     static ref DESC: CompileDescriptor = CompileDescriptor {
         file: PathBuf::from("DefinitionErrors.cor"),
         opt_level: 0,
-        flags: CompileFlags::all(),
+        flags: CompileFlags::empty(),
+        max_errors: 128
     };
 }
 

@@ -205,7 +205,7 @@
 
 use crate::error::Error;
 use std::fmt;
-use std::ops::{AddAssign, Index, IndexMut};
+use std::ops::{AddAssign, Deref, Index, IndexMut};
 
 #[derive(Clone, Debug)]
 pub struct ErrorList(pub Vec<Error>);
@@ -308,5 +308,14 @@ impl fmt::Display for ErrorList {
             writeln!(f, "{:?}", error)?
         }
         Ok(())
+    }
+}
+
+impl Deref for ErrorList {
+    type Target = Vec<Error>;
+
+    #[inline]
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }

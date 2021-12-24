@@ -251,6 +251,9 @@ pub enum Options {
 
         #[structopt(long, help = "enables all output files")]
         output_all: bool,
+
+        #[structopt(long, default_value = "64", help = "max amount of errors to print")]
+        max_errors: u32,
     },
     Build,
     Clean,
@@ -276,6 +279,7 @@ impl Options {
                 mut output_descriptor,
                 mut output_symbols,
                 output_all,
+                max_errors,
             } => {
                 if input_files.is_empty() {
                     println!("No input source files!");
@@ -322,6 +326,7 @@ impl Options {
                     pass_info,
                     output_descriptor,
                     output_symbols,
+                    max_errors,
                 };
 
                 commands::compile(options)

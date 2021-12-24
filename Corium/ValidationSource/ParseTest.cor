@@ -1,7 +1,7 @@
 const PI = 3.14
 const PI = 3.14
 
-native function test (x int, y int) float
+native function test (zz int, y int) float
 
 native function print (value string, end char = '\n')
 
@@ -25,7 +25,7 @@ function test2 () {
     const e2 string = "Hey"
 }
 
-function compute (x int, y int, normalize bool) int {
+function compute (zz int, y int, normalize bool) int {
     let result = x + y * 5
     return result
 }

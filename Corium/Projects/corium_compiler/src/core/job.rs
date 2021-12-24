@@ -219,12 +219,15 @@ impl CompilationJob {
         mut unit: FileCompilationUnit,
     ) -> Self {
         let file_name = unit.file_name().clone();
-        let handle = thread::spawn(move || {
-            let result = unit.compile();
-            sender
-                .send((result, unit))
-                .expect("Failed to send compilation result via MPSC queue!");
-        });
+        let handle = thread::Builder::new()
+            .name(format!("CompilationWorker{}", unit.file_name()))
+            .spawn(move || {
+                let result = unit.compile();
+                sender
+                    .send((result, unit))
+                    .expect("Failed to send compilation result via MPSC queue!");
+            })
+            .expect("Failed to create compilation worker thread!");
         Self { file_name, handle }
     }
 

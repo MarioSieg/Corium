@@ -244,6 +244,7 @@ impl<'ast> Block<'ast> {
 impl<'ast> Deref for Block<'ast> {
     type Target = Vec<LocalStatement<'ast>>;
 
+    #[inline]
     fn deref(&self) -> &Self::Target {
         &self.0
     }

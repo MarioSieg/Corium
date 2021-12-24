@@ -227,6 +227,7 @@ pub struct CompileDescriptor {
     pub file: PathBuf,
     pub opt_level: u8,
     pub flags: CompileFlags,
+    pub max_errors: u32,
 }
 
 impl CompileDescriptor {
@@ -235,6 +236,7 @@ impl CompileDescriptor {
             file,
             opt_level: 0,
             flags: CompileFlags::empty(),
+            max_errors: 128,
         }
     }
 

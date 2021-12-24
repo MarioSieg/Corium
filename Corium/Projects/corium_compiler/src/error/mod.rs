@@ -203,6 +203,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+use std::fmt;
 use std::path::PathBuf;
 
 pub mod list;
@@ -212,6 +213,16 @@ pub enum Error {
     Io(PathBuf),
     Syntax(String),
     Semantic(String),
+}
+
+impl fmt::Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Io(path) => write!(f, "IO-Error:\n{:?}", path),
+            Self::Syntax(message) => write!(f, "Syntax-Error:\n{}", message),
+            Self::Semantic(message) => write!(f, "Semantic-Error:\n{}", message),
+        }
+    }
 }
 
 #[macro_export]
