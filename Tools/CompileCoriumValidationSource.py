@@ -235,5 +235,5 @@ command = corium + f" compile {options} -i"
 for file in source_files:
     command += " "
     command += os.path.realpath(file)
-command += "-o Bundle.nominax"
+command += " -o Bundle.nominax"
 os.system(command)
