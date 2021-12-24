@@ -209,13 +209,14 @@ use crate::ast::tree::local_statement::LocalStatement;
 use crate::ast::tree::mutable_variable::MutableVariable;
 use crate::ast::tree::parameter::Parameter;
 use crate::semantic::SymbolBucket;
+use serde::Serialize;
 use std::fmt;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub enum Bucket<'ast> {
-    MutableVariable(&'ast MutableVariable<'ast>),
-    ImmutableVariable(&'ast ImmutableVariable<'ast>),
-    Parameter(&'ast Parameter<'ast>),
+    MutableVariable(#[serde(skip)] &'ast MutableVariable<'ast>),
+    ImmutableVariable(#[serde(skip)] &'ast ImmutableVariable<'ast>),
+    Parameter(#[serde(skip)] &'ast Parameter<'ast>),
 }
 
 impl<'ast> SymbolBucket<'ast> for Bucket<'ast> {

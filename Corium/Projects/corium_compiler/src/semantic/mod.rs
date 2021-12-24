@@ -206,6 +206,7 @@
 use crate::ast::tree::compilation_unit::CompilationUnit;
 use crate::ast::tree::expression::Expression;
 use crate::error::list::ErrorList;
+use crate::semantic::global::symbol_table::GlobalSymbolTable;
 use std::fmt::Debug;
 
 pub mod core;
@@ -228,6 +229,8 @@ pub trait InferTypes<'ast> {
     fn infer_types(&mut self, errors: &mut ErrorList);
 }
 
-pub fn analyze_full(input: &CompilationUnit) -> Result<u64, ErrorList> {
+pub fn analyze_full<'ast>(
+    input: &'ast CompilationUnit<'ast>,
+) -> Result<GlobalSymbolTable<'ast>, ErrorList> {
     core::evaluate(input)
 }

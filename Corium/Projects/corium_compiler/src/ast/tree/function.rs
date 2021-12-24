@@ -210,7 +210,7 @@ use std::fmt;
 
 /// Represents a function.
 #[derive(Clone, Debug, Serialize, Deserialize)]
-
+#[serde(rename_all = "PascalCase")]
 pub struct Function<'ast> {
     #[serde(borrow)]
     pub signature: FunctionSignature<'ast>,

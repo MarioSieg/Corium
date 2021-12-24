@@ -204,28 +204,41 @@
 //    limitations under the License.
 
 use bitflags::bitflags;
+use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
 
 bitflags! {
+    #[derive(Serialize, Deserialize)]
+    #[serde(rename_all = "PascalCase")]
     pub struct CompileFlags: u32 {
-        const DUMP_AST = 1 << 0;
-        const DUMP_ASM = 1 << 1;
+        const OUTPUT_AST = 1 << 0;
+        const OUTPUT_ASM = 1 << 1;
         const VERBOSE = 1 << 2;
         const PASS_INFOS = 1 << 3;
+        const OUTPUT_DESCRIPTOR = 1 << 4;
+        const OUTPUT_SYMBOLS = 1 << 5;
     }
 }
 
 /// FileCompilationUnitDescriptor
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "PascalCase")]
 pub struct CompileDescriptor {
+    pub file: PathBuf,
     pub opt_level: u8,
     pub flags: CompileFlags,
 }
 
-impl Default for CompileDescriptor {
-    fn default() -> Self {
+impl CompileDescriptor {
+    pub fn new(file: PathBuf) -> Self {
         Self {
+            file,
             opt_level: 0,
             flags: CompileFlags::empty(),
         }
+    }
+
+    pub fn short_file_name(&self) -> String {
+        self.file.file_name().unwrap().to_str().unwrap().to_string()
     }
 }

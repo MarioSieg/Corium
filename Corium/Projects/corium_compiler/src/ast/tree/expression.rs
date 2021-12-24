@@ -213,6 +213,7 @@ use std::fmt;
 
 /// Represents an expression.
 #[derive(PartialEq, Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "PascalCase")]
 pub enum Expression<'ast> {
     /// Constant literal.
     #[serde(borrow)]

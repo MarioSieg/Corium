@@ -210,14 +210,15 @@ use crate::ast::tree::immutable_variable::ImmutableVariable;
 use crate::ast::tree::mutable_variable::MutableVariable;
 use crate::ast::tree::native_function::NativeFunction;
 use crate::semantic::SymbolBucket;
+use serde::Serialize;
 use std::fmt;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub enum Bucket<'ast> {
-    Function(&'ast Function<'ast>),
-    NativeFunction(&'ast NativeFunction<'ast>),
-    MutableVariable(&'ast MutableVariable<'ast>),
-    ImmutableVariable(&'ast ImmutableVariable<'ast>),
+    Function(#[serde(skip)] &'ast Function<'ast>),
+    NativeFunction(#[serde(skip)] &'ast NativeFunction<'ast>),
+    MutableVariable(#[serde(skip)] &'ast MutableVariable<'ast>),
+    ImmutableVariable(#[serde(skip)] &'ast ImmutableVariable<'ast>),
 }
 
 impl<'ast> SymbolBucket<'ast> for Bucket<'ast> {

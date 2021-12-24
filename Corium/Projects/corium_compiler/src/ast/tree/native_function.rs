@@ -209,7 +209,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-
+#[serde(rename_all = "PascalCase")]
 pub struct NativeFunction<'ast> {
     #[serde(borrow)]
     pub signature: FunctionSignature<'ast>,

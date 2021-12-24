@@ -235,9 +235,9 @@ impl CompilerContext {
     }
 
     #[inline]
-    pub fn enqueue_file(&mut self, path: PathBuf, desc: CompileDescriptor) {
+    pub fn enqueue_file(&mut self, desc: CompileDescriptor) {
         self.file_queue
-            .push(FileCompilationUnit::load(path, self.id_accumulator, desc));
+            .push(FileCompilationUnit::load(self.id_accumulator, desc));
         self.id_accumulator += 1;
     }
 

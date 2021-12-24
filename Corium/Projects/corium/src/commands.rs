@@ -245,26 +245,34 @@ pub struct CompileOptions {
     pub input_files: Vec<PathBuf>,
     pub output_file: Option<PathBuf>,
     pub opt_level: u8,
-    pub dump_ast: bool,
-    pub dump_asm: bool,
+    pub output_ast: bool,
+    pub output_asm: bool,
     pub verbose: bool,
-    pub pass_infos: bool,
+    pub pass_info: bool,
+    pub output_descriptor: bool,
+    pub output_symbols: bool,
 }
 
 impl CompileOptions {
     pub fn get_flags(&self) -> CompileFlags {
         let mut flags = CompileFlags::empty();
-        if self.dump_ast {
-            flags |= CompileFlags::DUMP_AST;
+        if self.output_ast {
+            flags |= CompileFlags::OUTPUT_AST;
         }
-        if self.dump_asm {
-            flags |= CompileFlags::DUMP_ASM;
+        if self.output_asm {
+            flags |= CompileFlags::OUTPUT_ASM;
         }
         if self.verbose {
             flags |= CompileFlags::VERBOSE | CompileFlags::PASS_INFOS;
         }
-        if self.verbose {
+        if self.pass_info {
             flags |= CompileFlags::PASS_INFOS;
+        }
+        if self.output_descriptor {
+            flags |= CompileFlags::OUTPUT_DESCRIPTOR;
+        }
+        if self.output_symbols {
+            flags |= CompileFlags::OUTPUT_SYMBOLS;
         }
         flags
     }
@@ -287,10 +295,13 @@ pub fn compile(options: CompileOptions) {
     let opt_level = options.opt_level;
     let flags = options.get_flags();
 
-    let descriptor = CompileDescriptor { opt_level, flags };
-
     for file in options.input_files.into_iter() {
-        context.enqueue_file(file, descriptor.clone());
+        let descriptor = CompileDescriptor {
+            opt_level,
+            flags,
+            file,
+        };
+        context.enqueue_file(descriptor);
     }
 
     let one_percent = 100.0 / num_files as f64;

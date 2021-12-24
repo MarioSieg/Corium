@@ -211,8 +211,11 @@ import platform
 
 excludes = [
     "AllSemanticErrors.cor",
-    "ParseTest.cor"
+    "ParseTest.cor",
+    "DefinitionErrors.cor"
 ]
+
+options = ""
 
 def is_shell_tool_installed(cmd: str) -> bool:
     return shutil.which(cmd) is not None
@@ -228,9 +231,9 @@ for exclude in excludes:
     for file in source_files:
         if file.endswith(exclude):
             source_files.remove(file)
-command = corium + " compile -i"
+command = corium + " compile --output-all -i"
 for file in source_files:
     command += " "
     command += os.path.realpath(file)
-command += " -o Bundle.nominax"
+command += f"{options} -o Bundle.nominax"
 os.system(command)

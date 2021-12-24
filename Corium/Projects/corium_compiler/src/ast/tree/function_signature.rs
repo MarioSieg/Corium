@@ -211,7 +211,7 @@ use std::fmt;
 const PARAM_MANGLE_SEPARATOR: char = '_';
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-
+#[serde(rename_all = "PascalCase")]
 pub struct FunctionSignature<'ast> {
     #[serde(borrow)]
     pub name: Identifier<'ast>,

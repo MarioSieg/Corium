@@ -205,7 +205,9 @@
 
 use crate::commands;
 use crate::commands::CompileOptions;
+use corium_compiler::codegen::bytecode::bundle::Bundle;
 use std::path::PathBuf;
+use std::process::exit;
 use structopt::StructOpt;
 
 #[derive(StructOpt, Debug)]
@@ -215,41 +217,40 @@ pub enum Options {
         name: String,
     },
     Compile {
-        #[structopt(
-            short,
-            long,
-            parse(from_os_str),
-            help = "Corium source files to compile."
-        )]
+        #[structopt(short, long, parse(from_os_str), help = "corium source files")]
         input_files: Vec<PathBuf>,
 
-        #[structopt(
-            short,
-            long,
-            parse(from_os_str),
-            help = "The Nominax bytecode output file."
-        )]
+        #[structopt(short, long, parse(from_os_str), help = "nominax bytecode output file")]
         output_file: Option<PathBuf>,
 
         #[structopt(
             short = "O",
             long,
             default_value = "0",
-            help = "Optimization level from 0 (lowest) to 3 (highest)."
+            help = "optimization level from 0 (lowest) to 3 (highest)"
         )]
         opt_level: u8,
 
-        #[structopt(long, help = "Enables verbose printing.")]
+        #[structopt(long, help = "enable verbose logging")]
         verbose: bool,
 
-        #[structopt(long, help = "Enable AST dump per file.")]
-        dump_ast: bool,
+        #[structopt(long, help = "create abstract syntax tree output file")]
+        output_ast: bool,
 
-        #[structopt(long, help = "Enable Nominax bytecode dump per file.")]
-        dump_asm: bool,
+        #[structopt(long, help = "nominax text bytecode output file per source file")]
+        output_asm: bool,
 
-        #[structopt(long, help = "Enables pass time logging.")]
-        pass_timer: bool,
+        #[structopt(long, help = "enable pass information logging")]
+        pass_info: bool,
+
+        #[structopt(long, help = "create descriptor output file")]
+        output_descriptor: bool,
+
+        #[structopt(long, help = "create symbol table output file")]
+        output_symbols: bool,
+
+        #[structopt(long, help = "enables all output files")]
+        output_all: bool,
     },
     Build,
     Clean,
@@ -267,21 +268,62 @@ impl Options {
             Options::Compile {
                 input_files,
                 output_file,
-                opt_level,
+                mut opt_level,
                 verbose,
-                dump_ast,
-                dump_asm,
-                pass_timer,
+                mut output_ast,
+                mut output_asm,
+                pass_info,
+                mut output_descriptor,
+                mut output_symbols,
+                output_all,
             } => {
+                if input_files.is_empty() {
+                    println!("No input source files!");
+                    exit(0);
+                }
+
+                if output_all {
+                    output_ast = true;
+                    output_asm = true;
+                    output_descriptor = true;
+                    output_symbols = true;
+                }
+
+                if input_files.len() >= 64 {
+                    println!("Large amount of input files detected ({} files) - consider using a project for bulk compiling.", input_files.len());
+                }
+
+                if let Some(output_file) = &output_file {
+                    if output_file.extension().is_none()
+                        || output_file.extension().unwrap() != Bundle::FILE_EXTENSION
+                    {
+                        println!(
+                            "Output files should have the .{} file extension!",
+                            Bundle::FILE_EXTENSION
+                        );
+                    }
+                }
+
+                if opt_level > 3 {
+                    println!(
+                        "Invalid optimization level: {}! Valid values are from 0 to 3!",
+                        opt_level
+                    );
+                    opt_level = opt_level.clamp(0, 3);
+                }
+
                 let options = CompileOptions {
                     input_files,
                     output_file,
                     opt_level,
                     verbose,
-                    dump_ast,
-                    dump_asm,
-                    pass_infos: pass_timer,
+                    output_ast,
+                    output_asm,
+                    pass_info,
+                    output_descriptor,
+                    output_symbols,
                 };
+
                 commands::compile(options)
             }
             Options::Build => {

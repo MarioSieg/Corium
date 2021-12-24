@@ -212,7 +212,7 @@ use crate::error::{list::ErrorList, Error};
 use crate::misc::pretty_xml::prettify_xml;
 use crate::parser::RulePairs;
 use std::fs;
-use std::path::Path;
+use std::path::PathBuf;
 
 pub struct AstPopulationPass;
 
@@ -236,14 +236,19 @@ impl<'ast> Pass<'ast, RulePairs<'ast>, CompilationUnit<'ast>> for AstPopulationP
         flags: CompileFlags,
         file: &'ast str,
     ) {
+        if flags & CompileFlags::OUTPUT_AST == CompileFlags::empty() {
+            return;
+        }
         if let Ok(unit) = output {
-            if flags & CompileFlags::DUMP_AST != CompileFlags::empty() {
-                let ast_file = format!("{}_ast.xml", file);
-                let xml_string = quick_xml::se::to_string(unit).unwrap();
-                let xml_string = prettify_xml(&xml_string);
-                let result = fs::write(&ast_file, xml_string);
-                result.unwrap_or_else(|_| panic!("Failed to write AST dump to file: {}", ast_file));
-            }
+            let ast_file = format!("{}_AST.xml", file);
+            let xml_string = quick_xml::se::to_string(unit).unwrap();
+            let xml_string = format!(
+                "<!--AST (Abstract Syntax Tree) for {}-->\n{}",
+                file,
+                prettify_xml(&xml_string)
+            );
+            let result = fs::write(&ast_file, xml_string);
+            result.unwrap_or_else(|_| panic!("Failed to write AST to file: {}", ast_file));
         }
     }
 }
@@ -256,7 +261,10 @@ fn file_name_to_module<'a>(file: &'a str, out: &mut Module<'a>) -> Result<(), Er
         ))
         .into())
     };
-    let path = Path::new(file);
+    let mut path = PathBuf::from(file);
+    if path.extension().is_some() {
+        path.set_extension("");
+    }
     let file_name = path.file_name();
     if file_name.is_none() {
         return err();

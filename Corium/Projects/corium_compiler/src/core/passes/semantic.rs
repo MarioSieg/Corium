@@ -205,21 +205,64 @@
 
 use super::Pass;
 use crate::ast::tree::compilation_unit::CompilationUnit;
+use crate::ast::tree::identifier::Identifier;
 use crate::core::descriptor::CompileFlags;
 use crate::error::list::ErrorList;
+use crate::misc::pretty_xml::prettify_xml;
 use crate::semantic::analyze_full;
+use crate::semantic::global::bucket::Bucket;
+use crate::semantic::global::symbol_table::GlobalSymbolTable;
+use serde::Serialize;
+use std::fs;
 
 pub struct SemanticPass;
 
-impl<'ast> Pass<'ast, CompilationUnit<'ast>, CompilationUnit<'ast>> for SemanticPass {
+impl<'ast>
+    Pass<'ast, &'ast CompilationUnit<'ast>, (&'ast CompilationUnit<'ast>, GlobalSymbolTable<'ast>)>
+    for SemanticPass
+{
     const NAME: &'static str = "Semantic Analysis";
 
     fn execute(
-        input: CompilationUnit<'ast>,
+        input: &'ast CompilationUnit<'ast>,
         _flags: CompileFlags,
         _file: &str,
-    ) -> Result<CompilationUnit<'ast>, ErrorList> {
-        analyze_full(&input)?;
-        Ok(input)
+    ) -> Result<(&'ast CompilationUnit<'ast>, GlobalSymbolTable<'ast>), ErrorList> {
+        let symbol_table = analyze_full(input)?;
+        Ok((input, symbol_table))
+    }
+
+    fn on_post_execute(
+        output: &Result<(&'ast CompilationUnit<'ast>, GlobalSymbolTable<'ast>), ErrorList>,
+        flags: CompileFlags,
+        file: &'ast str,
+    ) {
+        if flags & CompileFlags::OUTPUT_SYMBOLS == CompileFlags::empty() {
+            return;
+        }
+        if let Ok((_, symbol_table)) = output {
+            #[derive(Serialize)]
+            #[serde(rename_all = "PascalCase")]
+            struct KVPair<'ast> {
+                key: Identifier<'ast>,
+                value: Bucket<'ast>,
+            }
+            let ast_file = format!("{}_GST.xml", file);
+            let symbols = symbol_table
+                .iter()
+                .map(|(key, value)| KVPair {
+                    key: (**key).clone(),
+                    value: (*value).clone(),
+                })
+                .collect::<Vec<_>>();
+            let xml_string = quick_xml::se::to_string(&symbols).unwrap();
+            let xml_string = format!(
+                "<!--GST (Global Symbol Table) for {}-->\n{}",
+                file,
+                prettify_xml(&xml_string)
+            );
+            let result = fs::write(&ast_file, xml_string);
+            result.unwrap_or_else(|_| panic!("Failed to write symbol table to file: {}", ast_file));
+        }
     }
 }

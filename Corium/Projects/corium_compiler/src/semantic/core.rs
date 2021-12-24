@@ -207,20 +207,22 @@ use super::global;
 use super::local;
 use crate::ast::tree::compilation_unit::CompilationUnit;
 use crate::error::list::ErrorList;
+use crate::semantic::global::symbol_table::GlobalSymbolTable;
 
 /// The entry point for the semantic analysis.
-pub fn evaluate(input: &CompilationUnit) -> Result<u64, ErrorList> {
+pub fn evaluate<'ast>(
+    input: &'ast CompilationUnit<'ast>,
+) -> Result<GlobalSymbolTable<'ast>, ErrorList> {
     let mut errors = ErrorList::new();
 
     // Build and evaluate the global symbol table
     let global_symbol_table = global::evaluate::evaluate(&mut errors, &input.statements);
 
     // Build and evaluate all local symbol tables
-    let local_count =
-        local::evaluate::evaluate(&mut errors, &input.statements, &global_symbol_table);
+    local::evaluate::evaluate(&mut errors, &input.statements, &global_symbol_table);
 
     if errors.is_empty() {
-        Ok(local_count)
+        Ok(global_symbol_table)
     } else {
         Err(errors)
     }

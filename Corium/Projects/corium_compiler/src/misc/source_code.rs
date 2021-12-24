@@ -214,7 +214,7 @@ use std::path::Path;
 #[macro_export]
 macro_rules! include_corium_source {
     ($file:expr $(,)?) => {
-        crate::core::source_code::SourceCode::new(String::from(include_str!($file)))
+        crate::misc::source_code::SourceCode::new(String::from(include_str!($file)))
     };
 }
 
@@ -222,6 +222,8 @@ macro_rules! include_corium_source {
 pub struct SourceCode(pub String);
 
 impl SourceCode {
+    pub const FILE_EXTENSION: &'static str = "cor";
+
     pub fn new(src: String) -> Self {
         let mut this = Self(src);
         this.post_process();

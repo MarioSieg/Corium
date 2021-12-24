@@ -203,6 +203,6 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-pub mod pretty_xml;
 pub mod exec_nominax;
+pub mod pretty_xml;
 pub mod source_code;

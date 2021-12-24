@@ -208,28 +208,24 @@ use quick_xml::{Reader, Writer};
 
 pub fn prettify_xml(xml: &str) -> String {
     let mut buf = Vec::new();
-
     let mut reader = Reader::from_str(xml);
     reader.trim_text(true);
-
     let mut writer = Writer::new_with_indent(Vec::new(), b' ', 2);
-
-    loop {
-        let ev = reader.read_event(&mut buf);
-
-        match ev {
-            Ok(Event::Eof) => break,
+    'prettify: loop {
+        match reader.read_event(&mut buf) {
+            Ok(Event::Eof) => break 'prettify,
             Ok(event) => writer.write_event(event),
-            Err(e) => panic!("Error at position {}: {:?}", reader.buffer_position(), e),
+            Err(e) => panic!(
+                "Buffer error at position {}: {:?}",
+                reader.buffer_position(),
+                e
+            ),
         }
-        .expect("Failed to parse XML");
-
+        .expect("Failed to parse XML!");
         buf.clear();
     }
-
     let result = std::str::from_utf8(&*writer.into_inner())
         .unwrap()
         .to_string();
-
     result
 }

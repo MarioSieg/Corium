@@ -209,6 +209,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "PascalCase")]
 pub struct CompilationUnit<'ast> {
     #[serde(borrow)]
     pub module: Module<'ast>,

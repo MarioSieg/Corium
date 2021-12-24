@@ -206,9 +206,9 @@
 use crate::codegen::bytecode::bundle::Bundle;
 use crate::core::compiler::compile_source;
 use crate::core::descriptor::{CompileDescriptor, CompileFlags};
-use crate::misc::source_code::SourceCode;
 use crate::error::list::ErrorList;
-use std::path::{Path, PathBuf};
+use crate::misc::source_code::SourceCode;
+use std::path::Path;
 use std::time::{Duration, Instant};
 
 pub type CompilationResult = Result<(Duration, Bundle), (Duration, ErrorList)>;
@@ -217,7 +217,6 @@ pub type CompilationResult = Result<(Duration, Bundle), (Duration, ErrorList)>;
 /// Each file contains a single compilation unit.
 pub struct FileCompilationUnit {
     source_code: SourceCode,
-    file: PathBuf,
     file_name: String,
     id: u32,
     file_load_time: Duration,
@@ -225,14 +224,13 @@ pub struct FileCompilationUnit {
 }
 
 impl FileCompilationUnit {
-    pub fn load(file: PathBuf, id: u32, descriptor: CompileDescriptor) -> Self {
+    pub fn load(id: u32, descriptor: CompileDescriptor) -> Self {
         let clock = Instant::now();
-        let source_code = SourceCode::read(&file);
-        let file_name = Self::extract_file_name(&file);
+        let source_code = SourceCode::read(&descriptor.file);
+        let file_name = Self::extract_file_name(&descriptor.file);
         let file_load_time = clock.elapsed();
         Self {
             source_code,
-            file,
             file_name,
             id,
             file_load_time,
@@ -245,7 +243,7 @@ impl FileCompilationUnit {
         if (self.descriptor.flags & CompileFlags::VERBOSE) != CompileFlags::empty() {
             println!("File load time: {}s", self.file_load_time.as_secs_f32());
         }
-        let result = compile_source(&self.source_code, &self.file_name, &self.descriptor);
+        let result = compile_source(&self.source_code, &self.descriptor);
         let time = self.compute_compile_time(clock);
         match result {
             Ok(code) => Ok((time, code)),
@@ -280,10 +278,5 @@ impl FileCompilationUnit {
     #[inline]
     pub fn id(&self) -> u32 {
         self.id
-    }
-
-    #[inline]
-    pub fn full_file_path(&self) -> &PathBuf {
-        &self.file
     }
 }
