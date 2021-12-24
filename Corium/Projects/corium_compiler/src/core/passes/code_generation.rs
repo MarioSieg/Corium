@@ -207,7 +207,7 @@ use super::Pass;
 use crate::ast::tree::compilation_unit::CompilationUnit;
 use crate::codegen;
 use crate::codegen::bytecode::bundle::Bundle;
-use crate::core::descriptor::CompileFlags;
+use crate::core::descriptor::CompileDescriptor;
 use crate::error::list::ErrorList;
 
 pub struct CodeGenerationPass;
@@ -217,9 +217,8 @@ impl<'ast> Pass<'ast, CompilationUnit<'ast>, Bundle> for CodeGenerationPass {
 
     fn execute(
         input: CompilationUnit<'ast>,
-        _flags: CompileFlags,
-        file: &str,
+        descriptor: &CompileDescriptor,
     ) -> Result<Bundle, ErrorList> {
-        codegen::compile_to_bundle(&input, file)
+        codegen::compile_to_bundle(&input, &descriptor.short_file_name())
     }
 }

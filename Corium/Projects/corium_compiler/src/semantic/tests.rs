@@ -216,7 +216,7 @@ fn correct() {
     let result = analyze_full(&result);
     assert!(result.is_ok());
     let amount = result.unwrap();
-    assert_eq!(amount, 2);
+    assert_eq!(amount.len(), 3);
 }
 
 #[test]

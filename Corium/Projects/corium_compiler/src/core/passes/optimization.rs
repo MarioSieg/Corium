@@ -205,7 +205,7 @@
 
 use super::Pass;
 use crate::ast::tree::compilation_unit::CompilationUnit;
-use crate::core::descriptor::CompileFlags;
+use crate::core::descriptor::CompileDescriptor;
 use crate::error::list::ErrorList;
 
 pub struct OptimizationPass;
@@ -215,8 +215,7 @@ impl<'ast> Pass<'ast, CompilationUnit<'ast>, CompilationUnit<'ast>> for Optimiza
 
     fn execute(
         input: CompilationUnit<'ast>,
-        _flags: CompileFlags,
-        _file: &str,
+        _descriptor: &CompileDescriptor,
     ) -> Result<CompilationUnit<'ast>, ErrorList> {
         Ok(input)
     }

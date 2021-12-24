@@ -217,16 +217,13 @@ pub fn compile_source(
     descriptor: &CompileDescriptor,
 ) -> Result<Bundle, ErrorList> {
     serialize_descriptor(descriptor);
+    let src = src.into();
 
-    let src = &src.0;
-    let flags = descriptor.flags;
-    let file = &descriptor.short_file_name();
-
-    let pst = ParsePass::run(src, flags, file)?; // parse and build parse tree (PST)
-    let ast = AstPopulationPass::run(pst, flags, file)?; // populate abstract syntax tree (AST)
-    let _ = SemanticPass::run(&ast, flags, file)?; // perform semantic analysis on AST
-    let ast = OptimizationPass::run(ast, flags, file)?; // optimize AST
-    let bin = CodeGenerationPass::run(ast, flags, file)?; // generate binary byte code image
+    let pst = ParsePass::run(src, descriptor)?; // parse and build parse tree (PST)
+    let ast = AstPopulationPass::run(pst, descriptor)?; // populate abstract syntax tree (AST)
+    let _ = SemanticPass::run(&ast, descriptor)?; // perform semantic analysis on AST
+    let ast = OptimizationPass::run(ast, descriptor)?; // optimize AST
+    let bin = CodeGenerationPass::run(ast, descriptor)?; // generate binary byte code image
 
     Ok(bin)
 }
@@ -238,7 +235,7 @@ fn serialize_descriptor(descriptor: &CompileDescriptor) {
     let ast_file = format!("{}_Descriptor.xml", descriptor.short_file_name());
     let xml_string = quick_xml::se::to_string(descriptor).unwrap();
     let xml_string = format!(
-        "<!--Compilation descriptor for {:?}-->\n{}",
+        "<?xml version = \"1.0\" encoding = \"UTF-8\" ?>\n<!--Compilation descriptor for {:?}-->\n{}",
         descriptor.file,
         prettify_xml(&xml_string)
     );

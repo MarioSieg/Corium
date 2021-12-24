@@ -377,7 +377,7 @@ mod tests {
     #[test]
     fn enqueue_file() {
         let mut ctx = CompilerContext::new();
-        ctx.enqueue_file(PathBuf::from(TEST_FILE_PATH), CompileDescriptor::default());
+        ctx.enqueue_file(CompileDescriptor::new(PathBuf::from(TEST_FILE_PATH)));
         assert_eq!(ctx.file_queue().len(), 1);
         assert!(ctx.has_compilation_units());
     }
@@ -385,6 +385,6 @@ mod tests {
     #[test]
     fn compile() {
         let mut ctx = CompilerContext::new();
-        ctx.enqueue_file(PathBuf::from(TEST_FILE_PATH), CompileDescriptor::default());
+        ctx.enqueue_file(CompileDescriptor::new(PathBuf::from(TEST_FILE_PATH)));
     }
 }

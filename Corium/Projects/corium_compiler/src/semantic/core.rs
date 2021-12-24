@@ -243,8 +243,8 @@ mod tests {
         let result = CompilationUnit::populate(parse_source(&src.0).unwrap());
         let result = evaluate(&result);
         assert!(result.is_ok());
-        let amount = result.unwrap();
-        assert_eq!(amount, 2);
+        let symbols = result.unwrap();
+        assert_eq!(symbols.len(), 3);
     }
 
     #[test]

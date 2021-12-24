@@ -1,0 +1,14 @@
+<?xml version = "1.0" encoding = "UTF-8" ?>
+<!--GST (Global Symbol Table) for DefinitionErrors.cor-->
+<KVPair>
+  <Key>square</Key>
+  <Function/>
+</KVPair>
+<KVPair>
+  <Key>sin</Key>
+  <NativeFunction/>
+</KVPair>
+<KVPair>
+  <Key>square2</Key>
+  <Function/>
+</KVPair>

@@ -204,11 +204,16 @@
 //    limitations under the License.
 
 use crate::core::descriptor::{CompileDescriptor, CompileFlags};
+use lazy_static::lazy_static;
+use std::path::PathBuf;
 
-const DESC: CompileDescriptor = CompileDescriptor {
-    opt_level: 0,
-    flags: CompileFlags::all(),
-};
+lazy_static! {
+    static ref DESC: CompileDescriptor = CompileDescriptor {
+        file: PathBuf::from("DefinitionErrors.cor"),
+        opt_level: 0,
+        flags: CompileFlags::all(),
+    };
+}
 
 mod global {
     use super::*;
@@ -218,7 +223,7 @@ mod global {
     #[test]
     fn definition_errors() {
         let src = include_corium_source!("../../../../ValidationSource/DefinitionErrors.cor");
-        let result = compile_source(&src, "DefinitionErrors.cor", &DESC);
+        let result = compile_source(&src, &DESC);
         assert!(result.is_err());
         let errors = result.unwrap_err();
         assert_eq!(errors.len(), 10);
@@ -227,7 +232,7 @@ mod global {
     #[test]
     fn mutable_variable() {
         let src = include_corium_source!("../../../../ValidationSource/MutableVariables.cor");
-        if let Err(e) = compile_source(&src, "MutableVariables.cor", &DESC) {
+        if let Err(e) = compile_source(&src, &DESC) {
             panic!("{}", e);
         }
     }
@@ -235,7 +240,7 @@ mod global {
     #[test]
     fn immutable_variable() {
         let src = include_corium_source!("../../../../ValidationSource/ImmutableVariables.cor");
-        if let Err(e) = compile_source(&src, "ImmutableVariables.cor", &DESC) {
+        if let Err(e) = compile_source(&src, &DESC) {
             panic!("{}", e);
         }
     }
@@ -243,7 +248,7 @@ mod global {
     #[test]
     fn all_operators() {
         let src = include_corium_source!("../../../../ValidationSource/Operators.cor");
-        if let Err(e) = compile_source(&src, "Operators.cor", &DESC) {
+        if let Err(e) = compile_source(&src, &DESC) {
             panic!("{}", e);
         }
     }
@@ -251,7 +256,7 @@ mod global {
     #[test]
     fn function() {
         let src = include_corium_source!("../../../../ValidationSource/Functions.cor");
-        if let Err(e) = compile_source(&src, "Functions.cor", &DESC) {
+        if let Err(e) = compile_source(&src, &DESC) {
             panic!("{}", e);
         }
     }
@@ -259,7 +264,7 @@ mod global {
     #[test]
     fn comments() {
         let src = include_corium_source!("../../../../ValidationSource/Comments.cor");
-        if let Err(e) = compile_source(&src, "Comments.cor", &DESC) {
+        if let Err(e) = compile_source(&src, &DESC) {
             panic!("{}", e);
         }
     }

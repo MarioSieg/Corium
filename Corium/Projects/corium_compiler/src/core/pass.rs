@@ -203,23 +203,23 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::core::descriptor::CompileFlags;
+use crate::core::descriptor::{CompileDescriptor, CompileFlags};
 use crate::error::list::ErrorList;
 use std::time::Instant;
 
 pub trait Pass<'a, Input, Output> {
     const NAME: &'static str;
 
-    fn execute(input: Input, flags: CompileFlags, file: &'a str) -> Result<Output, ErrorList>;
+    fn execute(input: Input, descriptor: &CompileDescriptor) -> Result<Output, ErrorList>;
 
-    fn run(input: Input, flags: CompileFlags, file: &'a str) -> Result<Output, ErrorList> {
+    fn run(input: Input, descriptor: &CompileDescriptor) -> Result<Output, ErrorList> {
         let clock = Instant::now();
 
-        Self::on_pre_execute(&input, flags, file);
-        let result = Self::execute(input, flags, file);
-        Self::on_post_execute(&result, flags, file);
+        Self::on_pre_execute(&input, descriptor);
+        let result = Self::execute(input, descriptor);
+        Self::on_post_execute(&result, descriptor);
 
-        Self::dump_info(flags, clock);
+        Self::dump_info(descriptor.flags, clock);
         result
     }
 
@@ -236,7 +236,7 @@ pub trait Pass<'a, Input, Output> {
         }
     }
 
-    fn on_pre_execute(_input: &Input, _flags: CompileFlags, _file: &'a str) {}
+    fn on_pre_execute(_input: &Input, _descriptor: &CompileDescriptor) {}
 
-    fn on_post_execute(_output: &Result<Output, ErrorList>, _flags: CompileFlags, _file: &'a str) {}
+    fn on_post_execute(_output: &Result<Output, ErrorList>, _descriptor: &CompileDescriptor) {}
 }

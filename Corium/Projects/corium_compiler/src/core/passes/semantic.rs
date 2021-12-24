@@ -206,7 +206,7 @@
 use super::Pass;
 use crate::ast::tree::compilation_unit::CompilationUnit;
 use crate::ast::tree::identifier::Identifier;
-use crate::core::descriptor::CompileFlags;
+use crate::core::descriptor::{CompileDescriptor, CompileFlags};
 use crate::error::list::ErrorList;
 use crate::misc::pretty_xml::prettify_xml;
 use crate::semantic::analyze_full;
@@ -225,8 +225,7 @@ impl<'ast>
 
     fn execute(
         input: &'ast CompilationUnit<'ast>,
-        _flags: CompileFlags,
-        _file: &str,
+        _descriptor: &CompileDescriptor,
     ) -> Result<(&'ast CompilationUnit<'ast>, GlobalSymbolTable<'ast>), ErrorList> {
         let symbol_table = analyze_full(input)?;
         Ok((input, symbol_table))
@@ -234,10 +233,9 @@ impl<'ast>
 
     fn on_post_execute(
         output: &Result<(&'ast CompilationUnit<'ast>, GlobalSymbolTable<'ast>), ErrorList>,
-        flags: CompileFlags,
-        file: &'ast str,
+        descriptor: &CompileDescriptor,
     ) {
-        if flags & CompileFlags::OUTPUT_SYMBOLS == CompileFlags::empty() {
+        if descriptor.flags & CompileFlags::OUTPUT_SYMBOLS == CompileFlags::empty() {
             return;
         }
         if let Ok((_, symbol_table)) = output {
@@ -247,6 +245,7 @@ impl<'ast>
                 key: Identifier<'ast>,
                 value: Bucket<'ast>,
             }
+            let file = descriptor.short_file_name();
             let ast_file = format!("{}_GST.xml", file);
             let symbols = symbol_table
                 .iter()
@@ -257,7 +256,7 @@ impl<'ast>
                 .collect::<Vec<_>>();
             let xml_string = quick_xml::se::to_string(&symbols).unwrap();
             let xml_string = format!(
-                "<!--GST (Global Symbol Table) for {}-->\n{}",
+                "<?xml version = \"1.0\" encoding = \"UTF-8\" ?>\n<!--GST (Global Symbol Table) for {}-->\n{}",
                 file,
                 prettify_xml(&xml_string)
             );
