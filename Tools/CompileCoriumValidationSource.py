@@ -215,7 +215,7 @@ excludes = [
     "DefinitionErrors.cor"
 ]
 
-options = ""
+options = "--output-all"
 
 def is_shell_tool_installed(cmd: str) -> bool:
     return shutil.which(cmd) is not None
@@ -231,9 +231,9 @@ for exclude in excludes:
     for file in source_files:
         if file.endswith(exclude):
             source_files.remove(file)
-command = corium + " compile --output-all -i"
+command = corium + f" compile {options} -i"
 for file in source_files:
     command += " "
     command += os.path.realpath(file)
-command += f"{options} -o Bundle.nominax"
+command += "-o Bundle.nominax"
 os.system(command)
