@@ -206,6 +206,7 @@
 pub mod compiler;
 pub mod context;
 pub mod descriptor;
+pub mod event_hook;
 pub mod intrinsics;
 pub mod job;
 pub mod pass;

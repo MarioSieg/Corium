@@ -203,58 +203,11 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use std::fmt;
-use std::path::PathBuf;
+use crate::codegen::bytecode::bundle::Bundle;
+use crate::error::list::ErrorList;
 
-pub mod list;
-
-#[derive(Clone, Debug)]
-pub enum Error {
-    Io(PathBuf),
-    Syntax(String),
-    Semantic(String),
-}
-
-impl Error {
-    pub fn format_message(&self, file_name: &str) -> String {
-        match self {
-            Self::Io(path) => format!("IO error in `{}`:\n{:?}", file_name, path),
-            Self::Syntax(message) => format!("Syntax error in `{}`:\n{}", file_name, message),
-            Self::Semantic(message) => format!("Semantic error in `{}`:\n{}", file_name, message),
-        }
-    }
-}
-
-impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::Io(path) => write!(f, "IO error:\n{:?}", path),
-            Self::Syntax(message) => write!(f, "Syntax error:\n{}", message),
-            Self::Semantic(message) => write!(f, "Semantic error:\n{}", message),
-        }
-    }
-}
-
-#[macro_export]
-macro_rules! io_error {
-    ($($arg:tt)*) => {{
-        let res = crate::error::Error::Io(format!($($arg)*));
-        res
-    }}
-}
-
-#[macro_export]
-macro_rules! semantic_error {
-    ($($arg:tt)*) => {{
-        let res = crate::error::Error::Semantic(format!($($arg)*));
-        res
-    }}
-}
-
-#[macro_export]
-macro_rules! syntax_error {
-    ($($arg:tt)*) => {{
-        let res = crate::error::Error::Syntax(format!($($arg)*));
-        res
-    }}
+pub trait EventHook {
+    fn on_compilation_success(&mut self, file_name: &str, result: Bundle);
+    fn on_compilation_failed(&mut self, file_name: &str, result: ErrorList);
+    fn on_compilation_complete(&mut self);
 }

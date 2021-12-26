@@ -203,14 +203,13 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+use crate::event_hook::EventHookImpl;
 use crate::project::Project;
 use colored::Colorize;
 use corium_compiler::core::context::CompilerContext;
 use corium_compiler::core::descriptor::{CompileDescriptor, CompileFlags};
-use indicatif::{ProgressBar, ProgressStyle};
 use std::env;
 use std::path::PathBuf;
-use std::time::Instant;
 
 pub fn new(name: String) {
     let working_dir =
@@ -256,7 +255,7 @@ pub struct CompileOptions {
 }
 
 impl CompileOptions {
-    pub fn get_flags(&self) -> CompileFlags {
+    pub fn build_flags(&self) -> CompileFlags {
         let mut flags = CompileFlags::empty();
         if self.output_ast {
             flags |= CompileFlags::OUTPUT_AST;
@@ -281,64 +280,25 @@ impl CompileOptions {
 }
 
 pub fn compile(options: CompileOptions) {
-    let num_files = options.input_files.len();
-    let clock = Instant::now();
-    let mut context = CompilerContext::with_capacity(num_files);
-    println!("{}", "Compiling...".yellow());
+    let file_count = options.input_files.len();
 
-    let progress_bar = ProgressBar::new(num_files as u64);
-    progress_bar.set_style(
-        ProgressStyle::default_bar()
-            .template("{spinner:.green} [{elapsed_precise}] {msg} {wide_bar:.cyan/blue}")
-            .tick_chars("⠁⠂⠄⡀⢀⠠⠐⠈"),
-    );
-    progress_bar.set_message("[0 %]");
-    progress_bar.enable_steady_tick(100);
+    {
+        let mut context =
+            CompilerContext::with_capacity(EventHookImpl::new(file_count), file_count);
 
-    let opt_level = options.opt_level;
-    let flags = options.get_flags();
-    let max_errors = options.max_errors;
+        let opt_level = options.opt_level;
+        let flags = options.build_flags();
+        let max_errors = options.max_errors;
 
-    for file in options.input_files.into_iter() {
-        let descriptor = CompileDescriptor {
-            opt_level,
-            flags,
-            file,
-            max_errors,
-        };
-        context.enqueue_file(descriptor);
-    }
-
-    let one_percent = 100.0 / num_files as f64;
-    let mut progress = 0.0;
-
-    let errors = context.compile(Some(|| {
-        progress_bar.inc(1);
-        progress += one_percent;
-        progress_bar.set_message(format!("[{} %]", progress as u64));
-    }));
-
-    progress_bar.finish_and_clear();
-    let suffix = if num_files > 1 { "s" } else { "" };
-    let message = if errors.is_empty() {
-        let duration = humantime::Duration::from(clock.elapsed());
-        let text = format!("Compiled {} file{} in {}", num_files, suffix, duration);
-        text.green().bold()
-    } else {
-        let failed = context.failed_compilations();
-        let successful = num_files - failed;
-        let duration = humantime::Duration::from(clock.elapsed());
-        let suffix2 = if failed > 1 { "s" } else { "" };
-        let text = format!(
-            "Compiled {} file{}, {} file{} failed in {}",
-            successful, suffix, failed, suffix2, duration
-        );
-        text.red().bold()
-    };
-
-    println!("{}", message);
-
-    for error in errors {
-        println!("{}", error.red().bold());
+        for file in options.input_files.into_iter() {
+            let descriptor = CompileDescriptor {
+                opt_level,
+                flags,
+                file,
+                max_errors,
+            };
+            context.enqueue_file(descriptor);
+        }
+        context.compile();
     }
 }

@@ -12,4 +12,3 @@ indicatif = { version = "0.16.2", features = ["improved_unicode"] }     # Comman
 serde = { version = "1.0.130", features = ["derive"] }                  # Data de/serialization
 toml = "0.5.8"                                                          # TOML file de/serialization
 walkdir = "2.3.2"                                                       # Recursive directory iteration
-humantime = "2.1.0"                                                     # Pretty time formatting

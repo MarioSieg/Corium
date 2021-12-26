@@ -242,6 +242,12 @@ impl ErrorList {
         }
     }
 
+    pub fn pretty_print(&self, file_name: &str) {
+        for error in &self.0 {
+            println!("{}", error.format_message(file_name));
+        }
+    }
+
     #[inline]
     pub fn len(&self) -> usize {
         self.0.len()

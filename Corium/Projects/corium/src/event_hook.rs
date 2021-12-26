@@ -203,58 +203,60 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use std::fmt;
-use std::path::PathBuf;
+use corium_compiler::codegen::bytecode::bundle::Bundle;
+use corium_compiler::core::event_hook::EventHook;
+use corium_compiler::error::list::ErrorList;
+use indicatif::{ProgressBar, ProgressStyle};
 
-pub mod list;
-
-#[derive(Clone, Debug)]
-pub enum Error {
-    Io(PathBuf),
-    Syntax(String),
-    Semantic(String),
+pub struct EventHookImpl {
+    one_percent: f32,
+    progress_bar: ProgressBar,
+    progress: f32,
+    counter: u32,
+    file_count: u32,
 }
 
-impl Error {
-    pub fn format_message(&self, file_name: &str) -> String {
-        match self {
-            Self::Io(path) => format!("IO error in `{}`:\n{:?}", file_name, path),
-            Self::Syntax(message) => format!("Syntax error in `{}`:\n{}", file_name, message),
-            Self::Semantic(message) => format!("Semantic error in `{}`:\n{}", file_name, message),
-        }
+impl EventHook for EventHookImpl {
+    fn on_compilation_success(&mut self, _file_name: &str, _result: Bundle) {}
+
+    fn on_compilation_failed(&mut self, file_name: &str, errors: ErrorList) {
+        errors.pretty_print(file_name);
+    }
+
+    fn on_compilation_complete(&mut self) {
+        self.progress_bar.inc(1);
+        self.progress += self.one_percent;
+        self.counter += 1;
+        self.progress_bar.set_message(format!(
+            "Compiling [{}% {}/{}]",
+            self.progress as u32, self.counter, self.file_count
+        ));
     }
 }
 
-impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::Io(path) => write!(f, "IO error:\n{:?}", path),
-            Self::Syntax(message) => write!(f, "Syntax error:\n{}", message),
-            Self::Semantic(message) => write!(f, "Semantic error:\n{}", message),
-        }
+impl Drop for EventHookImpl {
+    #[inline]
+    fn drop(&mut self) {
+        self.progress_bar.finish_and_clear();
     }
 }
 
-#[macro_export]
-macro_rules! io_error {
-    ($($arg:tt)*) => {{
-        let res = crate::error::Error::Io(format!($($arg)*));
-        res
-    }}
-}
-
-#[macro_export]
-macro_rules! semantic_error {
-    ($($arg:tt)*) => {{
-        let res = crate::error::Error::Semantic(format!($($arg)*));
-        res
-    }}
-}
-
-#[macro_export]
-macro_rules! syntax_error {
-    ($($arg:tt)*) => {{
-        let res = crate::error::Error::Syntax(format!($($arg)*));
-        res
-    }}
+impl EventHookImpl {
+    pub fn new(file_count: usize) -> Box<Self> {
+        let progress_bar = ProgressBar::new(file_count as u64);
+        progress_bar.set_style(
+            ProgressStyle::default_bar()
+                .template("{spinner:.green} [{elapsed_precise}] {msg} {wide_bar:.cyan/blue}")
+                .tick_chars("-/|\\"),
+        );
+        progress_bar.set_message("[0 %]");
+        progress_bar.enable_steady_tick(100);
+        Box::new(Self {
+            one_percent: 100.0_f32 / file_count as f32,
+            progress_bar,
+            progress: 0.0_f32,
+            counter: 0,
+            file_count: file_count as u32,
+        })
+    }
 }

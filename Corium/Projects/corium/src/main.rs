@@ -208,6 +208,7 @@ use structopt::StructOpt;
 
 mod cli;
 mod commands;
+mod event_hook;
 mod project;
 
 fn main() {

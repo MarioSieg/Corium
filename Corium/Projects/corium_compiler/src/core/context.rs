@@ -203,8 +203,8 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-use crate::codegen::bytecode::bundle::Bundle;
 use crate::core::descriptor::CompileDescriptor;
+use crate::core::event_hook::EventHook;
 use crate::core::job::CompilationJob;
 use crate::core::unit::{CompilationResult, FileCompilationUnit};
 use std::env;
@@ -217,34 +217,38 @@ pub struct CompilerContext {
     job_queue: Vec<CompilationJob>,
     job_status_sender: Sender<(CompilationResult, FileCompilationUnit)>,
     job_status_receiver: Receiver<(CompilationResult, FileCompilationUnit)>,
-    id_accumulator: u32,
-    failed_compilations: usize,
+    hook: Box<dyn EventHook>,
 }
 
 impl CompilerContext {
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    pub fn with_capacity(capacity: usize) -> Self {
+    pub fn new(hook: Box<dyn EventHook>) -> Self {
+        let (job_status_sender, job_status_receiver) =
+            channel::<(CompilationResult, FileCompilationUnit)>();
         Self {
-            file_queue: Vec::with_capacity(capacity),
-            job_queue: Vec::with_capacity(capacity),
-            ..Default::default()
+            output_dir: env::current_dir().unwrap().join("Output"),
+            file_queue: Vec::new(),
+            job_queue: Vec::new(),
+            job_status_receiver,
+            job_status_sender,
+            hook,
         }
     }
 
-    #[inline]
-    pub fn enqueue_file(&mut self, desc: CompileDescriptor) {
-        self.file_queue
-            .push(FileCompilationUnit::load(self.id_accumulator, desc));
-        self.id_accumulator += 1;
+    pub fn with_capacity(hook: Box<dyn EventHook>, capacity: usize) -> Self {
+        let mut instance = Self::new(hook);
+        instance.reserve(capacity);
+        instance
     }
 
-    #[inline]
-    pub fn prepare_for_n_files(&mut self, n: usize) {
-        self.file_queue.reserve(n);
-        self.job_queue.reserve(n)
+    pub fn enqueue_file(&mut self, desc: CompileDescriptor) {
+        let id = self.file_queue.len() as u32;
+        let unit = FileCompilationUnit::load(id, desc);
+        self.file_queue.push(unit);
+    }
+
+    pub fn reserve(&mut self, capacity: usize) {
+        self.file_queue.reserve(capacity);
+        self.job_queue.reserve(capacity)
     }
 
     #[inline]
@@ -258,13 +262,8 @@ impl CompilerContext {
     }
 
     #[inline]
-    pub fn has_compilation_units(&self) -> bool {
-        !self.file_queue.is_empty()
-    }
-
-    #[inline]
-    pub fn failed_compilations(&self) -> usize {
-        self.failed_compilations
+    pub fn event_hook(&self) -> &dyn EventHook {
+        &*self.hook
     }
 
     #[inline]
@@ -272,101 +271,43 @@ impl CompilerContext {
         &self.output_dir
     }
 
-    pub fn compile<F>(&mut self, callback: Option<F>) -> Vec<String>
-    where
-        F: FnMut(),
-    {
+    pub fn compile(&mut self) {
         while let Some(unit) = self.file_queue.pop() {
-            self.job_queue
-                .push(CompilationJob::launch(self.job_status_sender.clone(), unit));
+            let job = CompilationJob::launch(self.job_status_sender.clone(), unit);
+            self.job_queue.push(job);
         }
-        self.finalize_compilation_jobs(callback)
+        self.await_jobs();
     }
 
-    fn finalize_compilation_jobs<F>(&mut self, mut callback: Option<F>) -> Vec<String>
-    where
-        F: FnMut(),
-    {
-        let mut errors = Vec::new();
-
-        // wait for compilation job end messages in the MPSC queue
+    fn await_jobs(&mut self) {
         let mut received: usize = 0;
         let expected = self.job_queue.len();
-        'busy_wait: while received < expected {
+
+        let mut process_job = || -> usize {
             let result = self.job_status_receiver.try_recv();
             if result.is_err() {
-                continue 'busy_wait;
+                return 0;
             }
             let (result, unit) = result.unwrap();
-            if let Some(ref mut callback) = callback {
-                callback();
+            self.hook.on_compilation_complete();
+            match result {
+                Ok((_, bundle)) => {
+                    self.hook.on_compilation_success(unit.file_name(), bundle);
+                }
+                Err((_, errors)) => {
+                    self.hook.on_compilation_failed(unit.file_name(), errors);
+                }
             }
-            if let Ok((_, bytecode)) = &result {
-                self.on_compilation_success(bytecode);
-            } else {
-                self.failed_compilations += 1;
-                self.on_compilation_fail();
-            }
-            errors.extend(self.format_compilation_status(result, &unit));
-            received += 1;
+            1
+        };
+
+        while received < expected {
+            received += process_job();
         }
 
         // join all jobs
         while let Some(unit) = self.job_queue.pop() {
             unit.join();
-        }
-
-        errors
-    }
-
-    fn on_compilation_success(&self, bundle: &Bundle) {
-        bundle.write_to_file(std::env::current_dir().unwrap());
-    }
-
-    fn on_compilation_fail(&self) {}
-
-    fn format_compilation_status(
-        &mut self,
-        result: CompilationResult,
-        unit: &FileCompilationUnit,
-    ) -> Vec<String> {
-        if let Err((time, errors)) = result {
-            let suffix = if errors.len() > 1 { "s" } else { "" };
-            let error_info = format!("{} error{}", errors.len(), suffix);
-            let message = format!(
-                "\nFailed to compile `{}` because of {} in {:?}:",
-                unit.descriptor.short_file_name(),
-                error_info,
-                time
-            );
-            let mut result = Vec::with_capacity(errors.len() + 1);
-            result.push(message);
-            for (i, error) in errors.iter().enumerate() {
-                result.push(format!("{}", error));
-                if i > unit.descriptor.max_errors as _ {
-                    result.push(format!("Following {} errors...", errors.len() - i));
-                    break;
-                }
-            }
-            result
-        } else {
-            Vec::new()
-        }
-    }
-}
-
-impl Default for CompilerContext {
-    fn default() -> Self {
-        let (job_status_sender, job_status_receiver) =
-            channel::<(CompilationResult, FileCompilationUnit)>();
-        Self {
-            output_dir: env::current_dir().unwrap().join("Output"),
-            file_queue: Vec::new(),
-            job_queue: Vec::new(),
-            job_status_receiver,
-            job_status_sender,
-            id_accumulator: 0,
-            failed_compilations: 0,
         }
     }
 }
@@ -374,27 +315,37 @@ impl Default for CompilerContext {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::codegen::bytecode::bundle::Bundle;
+    use crate::error::list::ErrorList;
 
     const TEST_FILE_PATH: &str = "../../ValidationSource/ParseTest.cor";
 
+    struct DummyEventHook;
+
+    impl EventHook for DummyEventHook {
+        fn on_compilation_success(&mut self, _file_name: &str, _result: Bundle) {}
+
+        fn on_compilation_failed(&mut self, _file_name: &str, _result: ErrorList) {}
+
+        fn on_compilation_complete(&mut self) {}
+    }
+
     #[test]
     fn new() {
-        let ctx = CompilerContext::new();
+        let ctx = CompilerContext::new(Box::new(DummyEventHook));
         assert!(ctx.file_queue().is_empty());
-        assert!(!ctx.has_compilation_units());
     }
 
     #[test]
     fn enqueue_file() {
-        let mut ctx = CompilerContext::new();
+        let mut ctx = CompilerContext::new(Box::new(DummyEventHook));
         ctx.enqueue_file(CompileDescriptor::new(PathBuf::from(TEST_FILE_PATH)));
         assert_eq!(ctx.file_queue().len(), 1);
-        assert!(ctx.has_compilation_units());
     }
 
     #[test]
     fn compile() {
-        let mut ctx = CompilerContext::new();
+        let mut ctx = CompilerContext::new(Box::new(DummyEventHook));
         ctx.enqueue_file(CompileDescriptor::new(PathBuf::from(TEST_FILE_PATH)));
     }
 }
