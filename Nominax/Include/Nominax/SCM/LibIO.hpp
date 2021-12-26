@@ -214,19 +214,33 @@
 
 namespace Nominax::SCM
 {
-    NOX_SYSCALL_LIB_ATTRIBS auto NativeOutputStream() noexcept -> std::FILE*
+    NOX_FLATTEN inline auto NativeOutputStream() noexcept -> std::FILE*
     {
         return stdout;
     }
 
-    NOX_SYSCALL_LIB_ATTRIBS auto PrintNativeASCII(const char* const data, const std::uint64_t len) noexcept -> void
+    NOX_FLATTEN inline auto PrintNativeASCII(const char* const terminatedData) noexcept -> void
+    {
+        std::fputs(terminatedData, NativeOutputStream());
+    }
+
+    NOX_FLATTEN inline auto PrintNativeASCII(const char* const data, const std::uint64_t len) noexcept -> void
     {
         std::fwrite(data, len, 1, NativeOutputStream());
     }
 
-    NOX_SYSCALL_LIB_ATTRIBS auto PrintNativeASCII(const char chr) noexcept -> void
+    NOX_FLATTEN inline auto PrintNativeASCII(const char chr) noexcept -> void
     {
         std::putc(chr, NativeOutputStream());
+    }
+
+    NOX_FLATTEN inline auto PrintNative(const char32_t* const data, const std::uint64_t len) noexcept -> void
+    {
+        const char32_t* i { data }, *const end { data + len };
+        while (i < end)
+        {
+            PrintNativeASCII(static_cast<char>(*i++));
+        }
     }
 
     /// <summary>
@@ -246,13 +260,17 @@ namespace Nominax::SCM
     /// </summary>
     /// <param name="sp">Stack pointer of the current VM reactor.</param>
     /// <returns>None.</returns>
-    NOX_SYSCALL_PROXY(PRINT_INT)
+    IMPL_SYSCALL(PrintInt)
     {
-        std::array<char, std::numeric_limits<std::int64_t>::digits10> scratchBuf { };
-        char* const bufBegin { &*std::begin(scratchBuf) };
-        char* const bufEnd { &*std::end(scratchBuf) };
-        const char* const end { std::to_chars(bufBegin, bufEnd, ARG1.AsI64).ptr };
+        PROLOGUE();
+
+        std::array<char, std::numeric_limits<std::int64_t>::digits10> scratchBuf{ };
+        char* const bufBegin{ &*std::begin(scratchBuf) };
+        char* const bufEnd{ &*std::end(scratchBuf) };
+        const char* const end{ std::to_chars(bufBegin, bufEnd, ARG1.AsI64).ptr };
         PrintNativeASCII(bufBegin, end - bufBegin);
+
+        EPILOGUE();
     }
 
     /// <summary>
@@ -272,13 +290,17 @@ namespace Nominax::SCM
     /// </summary>
     /// <param name="sp">Stack pointer of the current VM reactor.</param>
     /// <returns>None.</returns>
-    NOX_SYSCALL_PROXY(PRINT_FLOAT)
+    IMPL_SYSCALL(PrintFloat)
     {
-        std::array<char, std::numeric_limits<std::int64_t>::digits10> scratchBuf { };
+        PROLOGUE();
+
+        std::array<char, std::numeric_limits<std::int64_t>::digits10> scratchBuf{ };
         char* const bufBegin { &*std::begin(scratchBuf) };
         char* const bufEnd { &*std::end(scratchBuf) };
         const char* const end { std::to_chars(bufBegin, bufEnd, ARG1.AsF64).ptr };
         PrintNativeASCII(bufBegin, end - bufBegin);
+
+        EPILOGUE();
     }
 
     /// <summary>
@@ -298,13 +320,17 @@ namespace Nominax::SCM
     /// </summary>
     /// <param name="sp">Stack pointer of the current VM reactor.</param>
     /// <returns>None.</returns>
-    NOX_SYSCALL_PROXY(PRINT_CHAR)
+    IMPL_SYSCALL(PrintChar)
     {
+        PROLOGUE();
+
         std::array<char, std::numeric_limits<std::int64_t>::digits10> scratchBuf { };
         char* const bufBegin { &*std::begin(scratchBuf) };
         char* const bufEnd { &*std::end(scratchBuf) };
         const char* const end { std::to_chars(bufBegin, bufEnd, ARG1.AsU64).ptr };
         PrintNativeASCII(bufBegin, end - bufBegin);
+
+        EPILOGUE();
     }
 
     /// <summary>
@@ -324,10 +350,16 @@ namespace Nominax::SCM
     /// </summary>
     /// <param name="sp">Stack pointer of the current VM reactor.</param>
     /// <returns>None.</returns>
-    NOX_SYSCALL_PROXY(PRINT_BOOL)
+    IMPL_SYSCALL(PrintBool)
     {
-        const std::string_view scratchBuf { ARG1.AsBool ? "true" : "false" };
-        PrintNativeASCII(std::data(scratchBuf), std::size(scratchBuf));
+        PROLOGUE();
+
+        constexpr const char* const trueString { "true" };
+        constexpr const char* const falseString { "true" };
+        const char* const status { ARG1.AsBool ? trueString : falseString };
+        PrintNativeASCII(status);
+
+        EPILOGUE();
     }
 
     /// <summary>
@@ -347,9 +379,13 @@ namespace Nominax::SCM
     /// </summary>
     /// <param name="sp">Stack pointer of the current VM reactor.</param>
     /// <returns>None.</returns>
-    NOX_SYSCALL_PROXY(FLUSH)
+    IMPL_SYSCALL(Flush)
     {
+        PROLOGUE();
+
         std::fflush(NativeOutputStream());
+
+        EPILOGUE();
     }
 
     /// <summary>
@@ -369,8 +405,12 @@ namespace Nominax::SCM
     /// </summary>
     /// <param name="sp">Stack pointer of the current VM reactor.</param>
     /// <returns>None.</returns>
-    NOX_SYSCALL_PROXY(NEWLINE)
+    IMPL_SYSCALL(PrintNewline)
     {
+        PROLOGUE();
+
         PrintNativeASCII('\n');
+
+        EPILOGUE();
     }
 }

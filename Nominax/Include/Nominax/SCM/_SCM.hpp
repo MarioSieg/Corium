@@ -205,5 +205,6 @@
 
 #pragma once
 
+#include "LibChrono.hpp"
 #include "LibIO.hpp"
 #include "LibMath.hpp"

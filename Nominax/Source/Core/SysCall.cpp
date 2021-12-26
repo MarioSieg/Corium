@@ -203,16 +203,14 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include <cmath>
-
-#include "SysCall.hpp"
-#include "../../Include/Nominax/SCM/_SCM.hpp"
-#include "../../Include/Nominax/Foundation/Algorithm/Enum.hpp"
+#include "../../../Include/Nominax/Core/VM/Syscall.hpp"
+#include "../../../Include/Nominax/SCM/_SCM.hpp"
+#include "../../../Include/Nominax/Foundation/Algorithm/Enum.hpp"
 
 namespace Nominax::Core
 {
     using namespace SCM;
-    
+
     /// <summary>
     /// Implementation for the "syscall" instruction.
     /// This contains a jump table with the implementation of all system intrinsic routines.
@@ -238,336 +236,336 @@ namespace Nominax::Core
     /// So stack[-1] will be overwritten and contains the result.
     /// stack[0] will still contain arg2.
     /// </summary>
-    NOX_HOT auto SysCallIntrin(Foundation::Record* NOX_RESTRICT const sp, uint64_t gate) -> void
+    NOX_HOT auto SysCallIntrin(Foundation::Record* NOX_RESTRICT sp, uint64_t gate) -> Foundation::Record*
     {
         static constexpr std::array<const void* NOX_RESTRICT const, Foundation::Algorithm::ToUnderlying(ByteCode::Syscall::Count_)> JUMP_TABLE
         {
-            &&NOX_SYSCALL_GATE_ID(cos),
-            &&NOX_SYSCALL_GATE_ID(sin),
-            &&NOX_SYSCALL_GATE_ID(tan),
-            &&NOX_SYSCALL_GATE_ID(acos),
-            &&NOX_SYSCALL_GATE_ID(asin),
-            &&NOX_SYSCALL_GATE_ID(atan),
-            &&NOX_SYSCALL_GATE_ID(atan2),
-            &&NOX_SYSCALL_GATE_ID(cosh),
-            &&NOX_SYSCALL_GATE_ID(sinh),
-            &&NOX_SYSCALL_GATE_ID(tanh),
-            &&NOX_SYSCALL_GATE_ID(acosh),
-            &&NOX_SYSCALL_GATE_ID(asinh),
-            &&NOX_SYSCALL_GATE_ID(atanh),
-            &&NOX_SYSCALL_GATE_ID(exp),
-            &&NOX_SYSCALL_GATE_ID(log),
-            &&NOX_SYSCALL_GATE_ID(log10),
-            &&NOX_SYSCALL_GATE_ID(exp2),
-            &&NOX_SYSCALL_GATE_ID(ilogb),
-            &&NOX_SYSCALL_GATE_ID(log2),
-            &&NOX_SYSCALL_GATE_ID(pow),
-            &&NOX_SYSCALL_GATE_ID(sqrt),
-            &&NOX_SYSCALL_GATE_ID(cbrt),
-            &&NOX_SYSCALL_GATE_ID(hypot),
-            &&NOX_SYSCALL_GATE_ID(ceil),
-            &&NOX_SYSCALL_GATE_ID(floor),
-            &&NOX_SYSCALL_GATE_ID(round),
-            &&NOX_SYSCALL_GATE_ID(rint),
-            &&NOX_SYSCALL_GATE_ID(imax),
-            &&NOX_SYSCALL_GATE_ID(imin),
-            &&NOX_SYSCALL_GATE_ID(fmax),
-            &&NOX_SYSCALL_GATE_ID(fmin),
-            &&NOX_SYSCALL_GATE_ID(fdim),
-            &&NOX_SYSCALL_GATE_ID(iabs),
-            &&NOX_SYSCALL_GATE_ID(fabs),
-            &&NOX_SYSCALL_GATE_ID(print_int),
-            &&NOX_SYSCALL_GATE_ID(print_float),
-            &&NOX_SYSCALL_GATE_ID(print_char),
-            &&NOX_SYSCALL_GATE_ID(print_bool),
-            &&NOX_SYSCALL_GATE_ID(flush),
-            &&NOX_SYSCALL_GATE_ID(newline)
+            && NOX_SYSCALL_GATE_ID(cos),
+            && NOX_SYSCALL_GATE_ID(sin),
+            && NOX_SYSCALL_GATE_ID(tan),
+            && NOX_SYSCALL_GATE_ID(acos),
+            && NOX_SYSCALL_GATE_ID(asin),
+            && NOX_SYSCALL_GATE_ID(atan),
+            && NOX_SYSCALL_GATE_ID(atan2),
+            && NOX_SYSCALL_GATE_ID(cosh),
+            && NOX_SYSCALL_GATE_ID(sinh),
+            && NOX_SYSCALL_GATE_ID(tanh),
+            && NOX_SYSCALL_GATE_ID(acosh),
+            && NOX_SYSCALL_GATE_ID(asinh),
+            && NOX_SYSCALL_GATE_ID(atanh),
+            && NOX_SYSCALL_GATE_ID(exp),
+            && NOX_SYSCALL_GATE_ID(log),
+            && NOX_SYSCALL_GATE_ID(log10),
+            && NOX_SYSCALL_GATE_ID(exp2),
+            && NOX_SYSCALL_GATE_ID(ilogb),
+            && NOX_SYSCALL_GATE_ID(log2),
+            && NOX_SYSCALL_GATE_ID(pow),
+            && NOX_SYSCALL_GATE_ID(sqrt),
+            && NOX_SYSCALL_GATE_ID(cbrt),
+            && NOX_SYSCALL_GATE_ID(hypot),
+            && NOX_SYSCALL_GATE_ID(ceil),
+            && NOX_SYSCALL_GATE_ID(floor),
+            && NOX_SYSCALL_GATE_ID(round),
+            && NOX_SYSCALL_GATE_ID(rint),
+            && NOX_SYSCALL_GATE_ID(imax),
+            && NOX_SYSCALL_GATE_ID(imin),
+            && NOX_SYSCALL_GATE_ID(fmax),
+            && NOX_SYSCALL_GATE_ID(fmin),
+            && NOX_SYSCALL_GATE_ID(fdim),
+            && NOX_SYSCALL_GATE_ID(iabs),
+            && NOX_SYSCALL_GATE_ID(fabs),
+            && NOX_SYSCALL_GATE_ID(print_int),
+            && NOX_SYSCALL_GATE_ID(print_float),
+            && NOX_SYSCALL_GATE_ID(print_char),
+            && NOX_SYSCALL_GATE_ID(print_bool),
+            && NOX_SYSCALL_GATE_ID(flush),
+            && NOX_SYSCALL_GATE_ID(newline)
         };
 
         static_assert(ValidateJumpTable(std::data(JUMP_TABLE), std::size(JUMP_TABLE)), "Instruction count in enum does not match jump table entry count!");
 
-        const void* NOX_RESTRICT const* const jumpTable { std::data(JUMP_TABLE) };
+        const void* NOX_RESTRICT const* const jumpTable{ std::data(JUMP_TABLE) };
 
-        goto **(jumpTable+gate);
+        goto** (jumpTable + gate);
 
         NOX_SYSCALL_GATE
         (
             cos,
             NOX_HOT_LABEL,
-            COS
+            Cos
         );
 
         NOX_SYSCALL_GATE
         (
             sin,
             NOX_HOT_LABEL,
-            SIN
+            Sin
         );
 
         NOX_SYSCALL_GATE
         (
             tan,
             NOX_HOT_LABEL,
-            TAN
+            Tan
         );
 
         NOX_SYSCALL_GATE
         (
             acos,
             NOX_HOT_LABEL,
-            ACOS
+            Acos
         );
 
         NOX_SYSCALL_GATE
         (
             asin,
             NOX_HOT_LABEL,
-            ASIN
+            Asin
         );
 
         NOX_SYSCALL_GATE
         (
             atan,
             NOX_HOT_LABEL,
-            ATAN
+            Atan
         );
 
         NOX_SYSCALL_GATE
         (
             atan2,
             NOX_HOT_LABEL,
-            ATAN2
+            Atan2
         );
 
         NOX_SYSCALL_GATE
         (
             cosh,
             NOX_HOT_LABEL,
-            COSH
+            Cosh
         );
 
         NOX_SYSCALL_GATE
         (
             sinh,
             NOX_HOT_LABEL,
-            SINH
+            Sinh
         );
 
         NOX_SYSCALL_GATE
         (
             tanh,
             NOX_HOT_LABEL,
-            TANH
+            Tanh
         );
 
         NOX_SYSCALL_GATE
         (
             acosh,
             NOX_HOT_LABEL,
-            ACOSH
+            Acosh
         );
 
         NOX_SYSCALL_GATE
         (
             asinh,
             NOX_HOT_LABEL,
-            ASINH
+            Asinh
         );
 
         NOX_SYSCALL_GATE
         (
             atanh,
             NOX_HOT_LABEL,
-            ATANH
+            Atanh
         );
 
         NOX_SYSCALL_GATE
         (
             exp,
             NOX_HOT_LABEL,
-            EXP
+            Exp
         );
 
         NOX_SYSCALL_GATE
         (
             log,
             NOX_HOT_LABEL,
-            LOG
+            Log
         );
 
         NOX_SYSCALL_GATE
         (
             log10,
             NOX_HOT_LABEL,
-            LOG10
+            Log10
         );
 
         NOX_SYSCALL_GATE
         (
             exp2,
             NOX_HOT_LABEL,
-            EXP2
+            Exp2
         );
 
         NOX_SYSCALL_GATE
         (
             ilogb,
             NOX_HOT_LABEL,
-            ILOGB
+            Ilogb
         );
 
         NOX_SYSCALL_GATE
         (
             log2,
             NOX_HOT_LABEL,
-            LOG2
+            Log2
         );
-        
+
         NOX_SYSCALL_GATE
         (
             pow,
             NOX_HOT_LABEL,
-            POW
+            Pow
         );
 
         NOX_SYSCALL_GATE
         (
             sqrt,
             NOX_HOT_LABEL,
-            SQRT
+            Sqrt
         );
 
         NOX_SYSCALL_GATE
         (
             cbrt,
             NOX_HOT_LABEL,
-            CBRT
+            Cbrt
         );
 
         NOX_SYSCALL_GATE
         (
             hypot,
             NOX_HOT_LABEL,
-            HYPOT
+            Hypot
         );
 
         NOX_SYSCALL_GATE
         (
             ceil,
             NOX_HOT_LABEL,
-            CEIL
+            Ceil
         );
 
-       NOX_SYSCALL_GATE
+        NOX_SYSCALL_GATE
         (
             floor,
             NOX_HOT_LABEL,
-            FLOOR
+            Floor
         );
 
-       NOX_SYSCALL_GATE
+        NOX_SYSCALL_GATE
         (
             round,
             NOX_HOT_LABEL,
-            ROUND
+            Round
         );
 
         NOX_SYSCALL_GATE
         (
             rint,
             NOX_HOT_LABEL,
-            RINT
+            Rint
         );
 
         NOX_SYSCALL_GATE
         (
             imax,
             NOX_HOT_LABEL,
-            IMAX
+            Imax
         );
 
         NOX_SYSCALL_GATE
         (
             imin,
             NOX_HOT_LABEL,
-            IMIN
+            Imin
         );
 
         NOX_SYSCALL_GATE
         (
             fmax,
             NOX_HOT_LABEL,
-            FMAX
+            Fmax
         );
 
         NOX_SYSCALL_GATE
         (
             fmin,
             NOX_HOT_LABEL,
-            FMIN
+            Fmin
         );
 
         NOX_SYSCALL_GATE
         (
             fdim,
             NOX_HOT_LABEL,
-            FDIM
+            Fdim
         );
 
         NOX_SYSCALL_GATE
         (
             iabs,
             NOX_HOT_LABEL,
-            IABS
+            Iabs
         );
 
         NOX_SYSCALL_GATE
         (
             fabs,
             NOX_HOT_LABEL,
-            FABS
+            Fabs
         );
 
         NOX_SYSCALL_GATE
         (
             print_int,
             NOX_HOT_LABEL,
-            PRINT_INT
+            PrintInt
         );
 
         NOX_SYSCALL_GATE
         (
             print_float,
             NOX_HOT_LABEL,
-            PRINT_FLOAT
+            PrintFloat
         );
 
         NOX_SYSCALL_GATE
         (
             print_char,
             NOX_HOT_LABEL,
-            PRINT_CHAR
+            PrintChar
         );
 
         NOX_SYSCALL_GATE
         (
             print_bool,
             NOX_HOT_LABEL,
-            PRINT_BOOL
+            PrintBool
         );
 
         NOX_SYSCALL_GATE
         (
             flush,
             NOX_HOT_LABEL,
-            FLUSH
+            Flush
         );
 
         NOX_SYSCALL_GATE
         (
             newline,
             NOX_HOT_LABEL,
-            NEWLINE
+            PrintNewline
         );
     }
 }

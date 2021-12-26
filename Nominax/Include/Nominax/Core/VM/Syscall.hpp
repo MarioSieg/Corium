@@ -217,8 +217,8 @@ namespace Nominax::Core
     #define NOX_SYSCALL_GATE(name, hot, impl)       \
         NOX_SYSCALL_GATE_ID(name):                  \
         hot;                                        \
-        impl(sp);                                   \
-        return
+        sp = impl(sp);                              \
+        return sp
 
-    NOX_HOT extern auto SysCallIntrin(Foundation::Record* NOX_RESTRICT sp, std::uint64_t gate) -> void;
+    NOX_HOT extern auto SysCallIntrin(Foundation::Record* NOX_RESTRICT sp, std::uint64_t gate) -> Foundation::Record*;
 }

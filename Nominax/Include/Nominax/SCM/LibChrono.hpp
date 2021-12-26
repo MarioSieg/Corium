@@ -205,20 +205,40 @@
 
 #pragma once
 
-#include "../../Include/Nominax/Foundation/Platform.hpp"
-#include "../../Include/Nominax/Foundation/Record.hpp"
-#include "../../Include/Nominax/Foundation/VariadicMacroHelper.hpp"
-#include "../../Include/Nominax/ByteCode/Instruction.hpp"
-#include "../../Include/Nominax/Core/ReactorValidator.hpp"
+#include <chrono>
 
-namespace Nominax::Core
+#include "SysCallProxy.hpp"
+
+namespace Nominax::SCM
 {
-	#define NOX_SYSCALL_GATE_ID(name) $##name##$
-    #define NOX_SYSCALL_GATE(name, hot, impl)   \
-        NOX_SYSCALL_GATE_ID(name):              \
-        hot;                                    \
-        impl(sp);                               \
-        return
+	inline const auto ChronoBootTimePoint { std::chrono::high_resolution_clock::now() };
+	static_assert(std::is_same_v<std::chrono::high_resolution_clock::duration, std::chrono::nanoseconds>);
 
-    NOX_HOT extern auto SysCallIntrin(Foundation::Record* NOX_RESTRICT sp, std::uint64_t gate) -> void;
+    /// <summary>
+	/// ++ NOMINAX SYSCALL INTERFACE ++
+	/// %SP[0] ARG1  | R  | I64 |  -> X
+	/// %SP[1] ARG2  | ?? |  ?  |  -> UNUSED
+	/// %SP[2] ARG3  | ?? |  ?  |  -> UNUSED
+	/// %SP[3] ARG4  | ?? |  ?  |  -> UNUSED
+	/// %SP[4] ARG5  | ?? |  ?  |  -> UNUSED
+	/// %SP[5] ARG6  | ?? |  ?  |  -> UNUSED
+	/// %SP[6] ARG7  | ?? |  ?  |  -> UNUSED
+	/// %SP[7] ARG8  | ?? |  ?  |  -> UNUSED
+	/// %SP[8] ARG9  | ?? |  ?  |  -> UNUSED
+	/// %SP[0] ARG10 | ?? |  ?  |  -> UNUSED
+	/// Syscall description: Converts an integer to a decimal native string and prints it.
+	/// Syscall gate: 0x22
+	/// </summary>
+	/// <param name="sp">Stack pointer of the current VM reactor.</param>
+	/// <returns>None.</returns>
+	IMPL_SYSCALL(NanoTime)
+	{
+		PROLOGUE();
+
+		const auto now { std::chrono::high_resolution_clock::now() };
+		const FRecord diff { std::chrono::duration_cast<std::chrono::duration<std::int64_t, std::nano>>(now - ChronoBootTimePoint).count() };
+		STACK_PUSH(diff);
+
+		EPILOGUE();
+	}
 }

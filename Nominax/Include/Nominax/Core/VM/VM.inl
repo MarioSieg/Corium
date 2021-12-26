@@ -221,32 +221,35 @@
 
 namespace Nominax::Core::VM
 {
-	using VM::InputDescriptor;
-	using VM::OutputState;
-	using VM::Interrupt;
-	using VM::InterruptRoutine;
-	using VM::Error;
-	using VM::Exception;
-	using VM::Breakpoint;
+	using
+		VM::InputDescriptor,
+		VM::OutputState,
+		VM::Interrupt,
+		VM::InterruptRoutine,
+		VM::Error,
+		VM::Exception,
+		VM::Breakpoint;
 
-	using Foundation::Record;
-	using Foundation::CPU::BreakpointInterrupt;
-	using Foundation::CPU::NoOperation;
-	using Foundation::Algorithm::Rol64;
-	using Foundation::Algorithm::Ror64;
-	using Foundation::VectorLib::F64_X4_Add_Unaligned;
-	using Foundation::VectorLib::F64_X4_Sub_Unaligned;
-	using Foundation::VectorLib::F64_X4_Mul_Unaligned;
-	using Foundation::VectorLib::F64_X4_Div_Unaligned;
-	using Foundation::VectorLib::F64_X16_Add_Unaligned;
-	using Foundation::VectorLib::F64_X16_Sub_Unaligned;
-	using Foundation::VectorLib::F64_X16_Mul_Unaligned;
-	using Foundation::VectorLib::F64_X16_Div_Unaligned;
+	using
+		Foundation::Record,
+		Foundation::CPU::BreakpointInterrupt,
+		Foundation::CPU::NoOperation,
+		Foundation::Algorithm::Rol64,
+		Foundation::Algorithm::Ror64,
+		Foundation::VectorLib::F64_X4_Add_Unaligned,
+		Foundation::VectorLib::F64_X4_Sub_Unaligned,
+		Foundation::VectorLib::F64_X4_Mul_Unaligned,
+		Foundation::VectorLib::F64_X4_Div_Unaligned,
+		Foundation::VectorLib::F64_X16_Add_Unaligned,
+		Foundation::VectorLib::F64_X16_Sub_Unaligned,
+		Foundation::VectorLib::F64_X16_Mul_Unaligned,
+		Foundation::VectorLib::F64_X16_Div_Unaligned;
 
-	using ByteCode::Syscall;
-	using ByteCode::Instruction;
-	using ByteCode::IntrinsicRoutine;
-	using ByteCode::Signal;
+	using
+		ByteCode::Syscall,
+		ByteCode::Instruction,
+		ByteCode::IntrinsicRoutine,
+		ByteCode::Signal;
 
 	/*
 	 * This inserts a comment with the msg into the assembler code.
@@ -428,7 +431,7 @@ namespace Nominax::Core::VM
 		NOX_HOT_LABEL;
 		ASM_MARKER("syscall");
 
-		SysCallIntrin(sp, (*++ip).AsRecord.AsU64); // syscall(sp, imm())
+		sp = SysCallIntrin(sp, (*++ip).AsRecord.AsU64); // syscall(sp, imm())
 
 		goto
 		PEEK_DISPATCH();

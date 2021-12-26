@@ -209,7 +209,7 @@
 #include <cstring>
 
 #include "ReactorCores.hpp"
-#include "SysCall.hpp"
+#include "../../../Include/Nominax/Core/VM/Syscall.hpp"
 
 #include "../../Include/Nominax/ByteCode/Signal.hpp"
 #include "../../Include/Nominax/ByteCode/Instruction.hpp"

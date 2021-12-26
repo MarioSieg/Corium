@@ -219,7 +219,6 @@ namespace Nominax::Core::Kernel
 	Host_ { },
 	Pipes_ { }
 	{
-        Protocol::ResetTimeStamp();
         Print("Booting Nominax runtime environment...\n");
         Version::Current().DisplayToConsole();
 		this->Host_.BootAll();

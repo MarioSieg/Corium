@@ -220,17 +220,12 @@ namespace Nominax::Foundation::Protocol
         return std::cin;
     }
 
-    inline thread_local auto TimeStampCounter { std::chrono::high_resolution_clock::now() };
-
-    inline auto ResetTimeStamp()
-    {
-        TimeStampCounter = std::chrono::high_resolution_clock::now();
-    }
+    inline const auto BOOT_TIME_POINT { std::chrono::high_resolution_clock::now() };
 
     inline auto GetTimeStamp() noexcept -> double
     {
         const auto now { std::chrono::high_resolution_clock::now() };
-        auto duration { std::chrono::duration_cast<std::chrono::duration<double>>(now - TimeStampCounter) };
+        auto duration { std::chrono::duration_cast<std::chrono::duration<double>>(now - BOOT_TIME_POINT) };
         return duration.count();
     }
 }

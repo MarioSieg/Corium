@@ -228,9 +228,13 @@ namespace Nominax::SCM
     /// </summary>
     /// <param name="sp">Stack pointer of the current VM reactor.</param>
     /// <returns>None.</returns>
-    NOX_SYSCALL_PROXY(COS)
+    IMPL_SYSCALL(Cos)
     {
+        PROLOGUE();
+
         ARG1.AsF64 = std::cos(ARG1.AsF64);
+
+        EPILOGUE();
     }
 
     /// <summary>
@@ -250,9 +254,13 @@ namespace Nominax::SCM
     /// </summary>
     /// <param name="sp">Stack pointer of the current VM reactor.</param>
     /// <returns>None.</returns>
-    NOX_SYSCALL_PROXY(SIN)
+    IMPL_SYSCALL(Sin)
     {
+        PROLOGUE();
+
         ARG1.AsF64 = std::sin(ARG1.AsF64);
+
+        EPILOGUE();
     }
 
     /// <summary>
@@ -272,9 +280,13 @@ namespace Nominax::SCM
     /// </summary>
     /// <param name="sp">Stack pointer of the current VM reactor.</param>
     /// <returns>None.</returns>
-    NOX_SYSCALL_PROXY(TAN)
+    IMPL_SYSCALL(Tan)
     {
+        PROLOGUE();
+
         ARG1.AsF64 = std::tan(ARG1.AsF64);
+
+        EPILOGUE();
     }
 
     /// <summary>
@@ -294,9 +306,13 @@ namespace Nominax::SCM
     /// </summary>
     /// <param name="sp">Stack pointer of the current VM reactor.</param>
     /// <returns>None.</returns>
-    NOX_SYSCALL_PROXY(ACOS)
+    IMPL_SYSCALL(Acos)
     {
+        PROLOGUE();
+
         ARG1.AsF64 = std::acos(ARG1.AsF64);
+
+        EPILOGUE();
     }
 
     /// <summary>
@@ -316,9 +332,13 @@ namespace Nominax::SCM
     /// </summary>
     /// <param name="sp">Stack pointer of the current VM reactor.</param>
     /// <returns>None.</returns>
-    NOX_SYSCALL_PROXY(ASIN)
+    IMPL_SYSCALL(Asin)
     {
+        PROLOGUE();
+
         ARG1.AsF64 = std::asin(ARG1.AsF64);
+
+        EPILOGUE();
     }
 
     /// <summary>
@@ -338,9 +358,13 @@ namespace Nominax::SCM
     /// </summary>
     /// <param name="sp">Stack pointer of the current VM reactor.</param>
     /// <returns>None.</returns>
-    NOX_SYSCALL_PROXY(ATAN)
+    IMPL_SYSCALL(Atan)
     {
-        ARG1.AsF64 = std::atan(ARG1.AsF64);
+        PROLOGUE();
+
+    	ARG1.AsF64 = std::atan(ARG1.AsF64);
+
+    	EPILOGUE();
     }
 
     /// <summary>
@@ -360,9 +384,13 @@ namespace Nominax::SCM
     /// </summary>
     /// <param name="sp">Stack pointer of the current VM reactor.</param>
     /// <returns>None.</returns>
-    NOX_SYSCALL_PROXY(ATAN2)
+    IMPL_SYSCALL(Atan2)
     {
-        ARG2.AsF64 = std::atan2(NOX_REVERSE(2, ARG1.AsF64, ARG2.AsF64));
+        PROLOGUE();
+
+    	ARG2.AsF64 = std::atan2(NOX_REVERSE(2, ARG1.AsF64, ARG2.AsF64));
+
+    	EPILOGUE();
     }
 
     /// <summary>
@@ -382,9 +410,13 @@ namespace Nominax::SCM
     /// </summary>
     /// <param name="sp">Stack pointer of the current VM reactor.</param>
     /// <returns>None.</returns>
-    NOX_SYSCALL_PROXY(COSH)
+    IMPL_SYSCALL(Cosh)
     {
-        ARG1.AsF64 = std::cosh(ARG1.AsF64);
+        PROLOGUE();
+
+    	ARG1.AsF64 = std::cosh(ARG1.AsF64);
+
+    	EPILOGUE();
     }
 
     /// <summary>
@@ -404,9 +436,13 @@ namespace Nominax::SCM
     /// </summary>
     /// <param name="sp">Stack pointer of the current VM reactor.</param>
     /// <returns>None.</returns>
-    NOX_SYSCALL_PROXY(SINH)
+    IMPL_SYSCALL(Sinh)
     {
-        ARG1.AsF64 = std::sinh(ARG1.AsF64);
+        PROLOGUE();
+
+    	ARG1.AsF64 = std::sinh(ARG1.AsF64);
+
+    	EPILOGUE();
     }
 
     /// <summary>
@@ -426,9 +462,13 @@ namespace Nominax::SCM
     /// </summary>
     /// <param name="sp">Stack pointer of the current VM reactor.</param>
     /// <returns>None.</returns>
-    NOX_SYSCALL_PROXY(TANH)
+    IMPL_SYSCALL(Tanh)
     {
-        ARG1.AsF64 = std::tanh(ARG1.AsF64);
+        PROLOGUE();
+
+    	ARG1.AsF64 = std::tanh(ARG1.AsF64);
+
+    	EPILOGUE();
     }
 
     /// <summary>
@@ -448,9 +488,13 @@ namespace Nominax::SCM
     /// </summary>
     /// <param name="sp">Stack pointer of the current VM reactor.</param>
     /// <returns>None.</returns>
-    NOX_SYSCALL_PROXY(ACOSH)
+    IMPL_SYSCALL(Acosh)
     {
-        ARG1.AsF64 = std::acosh(ARG1.AsF64);
+        PROLOGUE();
+
+    	ARG1.AsF64 = std::acosh(ARG1.AsF64);
+
+    	EPILOGUE();
     }
 
     /// <summary>
@@ -470,9 +514,13 @@ namespace Nominax::SCM
     /// </summary>
     /// <param name="sp">Stack pointer of the current VM reactor.</param>
     /// <returns>None.</returns>
-    NOX_SYSCALL_PROXY(ASINH)
+    IMPL_SYSCALL(Asinh)
     {
-        ARG1.AsF64 = std::asinh(ARG1.AsF64);
+        PROLOGUE();
+
+    	ARG1.AsF64 = std::asinh(ARG1.AsF64);
+
+    	EPILOGUE();
     }
 
     /// <summary>
@@ -492,9 +540,13 @@ namespace Nominax::SCM
     /// </summary>
     /// <param name="sp">Stack pointer of the current VM reactor.</param>
     /// <returns>None.</returns>
-    NOX_SYSCALL_PROXY(ATANH)
+    IMPL_SYSCALL(Atanh)
     {
-        ARG1.AsF64 = std::atanh(ARG1.AsF64);
+        PROLOGUE();
+
+    	ARG1.AsF64 = std::atanh(ARG1.AsF64);
+
+    	EPILOGUE();
     }
 
     /// <summary>
@@ -514,9 +566,13 @@ namespace Nominax::SCM
     /// </summary>
     /// <param name="sp">Stack pointer of the current VM reactor.</param>
     /// <returns>None.</returns>
-    NOX_SYSCALL_PROXY(EXP)
+    IMPL_SYSCALL(Exp)
     {
+        PROLOGUE();
+
         ARG1.AsF64 = std::exp(ARG1.AsF64);
+
+        EPILOGUE();
     }
 
     /// <summary>
@@ -536,9 +592,13 @@ namespace Nominax::SCM
     /// </summary>
     /// <param name="sp">Stack pointer of the current VM reactor.</param>
     /// <returns>None.</returns>
-    NOX_SYSCALL_PROXY(LOG)
+    IMPL_SYSCALL(Log)
     {
-        ARG1.AsF64 = std::log(ARG1.AsF64);
+        PROLOGUE();
+
+    	ARG1.AsF64 = std::log(ARG1.AsF64);
+
+    	EPILOGUE();
     }
 
     /// <summary>
@@ -558,9 +618,13 @@ namespace Nominax::SCM
     /// </summary>
     /// <param name="sp">Stack pointer of the current VM reactor.</param>
     /// <returns>None.</returns>
-    NOX_SYSCALL_PROXY(LOG10)
+    IMPL_SYSCALL(Log10)
     {
-        ARG1.AsF64 = std::log10(ARG1.AsF64);
+        PROLOGUE();
+
+    	ARG1.AsF64 = std::log10(ARG1.AsF64);
+
+    	EPILOGUE();
     }
 
     /// <summary>
@@ -580,9 +644,13 @@ namespace Nominax::SCM
     /// </summary>
     /// <param name="sp">Stack pointer of the current VM reactor.</param>
     /// <returns>None.</returns>
-    NOX_SYSCALL_PROXY(EXP2)
+    IMPL_SYSCALL(Exp2)
     {
-        ARG1.AsF64 = std::exp2(ARG1.AsF64);
+        PROLOGUE();
+
+    	ARG1.AsF64 = std::exp2(ARG1.AsF64);
+
+    	EPILOGUE();
     }
 
     /// <summary>
@@ -602,9 +670,13 @@ namespace Nominax::SCM
     /// </summary>
     /// <param name="sp">Stack pointer of the current VM reactor.</param>
     /// <returns>None.</returns>
-    NOX_SYSCALL_PROXY(ILOGB)
+    IMPL_SYSCALL(Ilogb)
     {
-        ARG1.AsF64 = std::ilogb(ARG1.AsF64);
+        PROLOGUE();
+
+    	ARG1.AsF64 = std::ilogb(ARG1.AsF64);
+
+    	EPILOGUE();
     }
 
     /// <summary>
@@ -624,9 +696,13 @@ namespace Nominax::SCM
     /// </summary>
     /// <param name="sp">Stack pointer of the current VM reactor.</param>
     /// <returns>None.</returns>
-    NOX_SYSCALL_PROXY(LOG2)
+    IMPL_SYSCALL(Log2)
     {
-        ARG1.AsF64 = std::log2(ARG1.AsF64);
+        PROLOGUE();
+
+    	ARG1.AsF64 = std::log2(ARG1.AsF64);
+
+    	EPILOGUE();
     }
 
     /// <summary>
@@ -646,9 +722,13 @@ namespace Nominax::SCM
     /// </summary>
     /// <param name="sp">Stack pointer of the current VM reactor.</param>
     /// <returns>None.</returns>
-    NOX_SYSCALL_PROXY(POW)
+    IMPL_SYSCALL(Pow)
     {
-        ARG2.AsF64 = std::pow(NOX_REVERSE(2, ARG1.AsF64, ARG2.AsF64));
+        PROLOGUE();
+
+    	ARG2.AsF64 = std::pow(NOX_REVERSE(2, ARG1.AsF64, ARG2.AsF64));
+
+    	EPILOGUE();
     }
 
     /// <summary>
@@ -668,9 +748,13 @@ namespace Nominax::SCM
     /// </summary>
     /// <param name="sp">Stack pointer of the current VM reactor.</param>
     /// <returns>None.</returns>
-    NOX_SYSCALL_PROXY(SQRT)
+    IMPL_SYSCALL(Sqrt)
     {
-        ARG1.AsF64 = std::sqrt(ARG1.AsF64);
+        PROLOGUE();
+
+    	ARG1.AsF64 = std::sqrt(ARG1.AsF64);
+
+    	EPILOGUE();
     }
 
     /// <summary>
@@ -690,9 +774,13 @@ namespace Nominax::SCM
     /// </summary>
     /// <param name="sp">Stack pointer of the current VM reactor.</param>
     /// <returns>None.</returns>
-    NOX_SYSCALL_PROXY(CBRT)
+    IMPL_SYSCALL(Cbrt)
     {
-        ARG1.AsF64 = std::cbrt(ARG1.AsF64);
+        PROLOGUE();
+
+    	ARG1.AsF64 = std::cbrt(ARG1.AsF64);
+
+    	EPILOGUE();
     }
 
     /// <summary>
@@ -712,9 +800,13 @@ namespace Nominax::SCM
     /// </summary>
     /// <param name="sp">Stack pointer of the current VM reactor.</param>
     /// <returns>None.</returns>
-    NOX_SYSCALL_PROXY(HYPOT)
+    IMPL_SYSCALL(Hypot)
     {
-        ARG2.AsF64 = std::hypot(NOX_REVERSE(2, ARG1.AsF64, ARG2.AsF64));
+        PROLOGUE();
+
+    	ARG2.AsF64 = std::hypot(NOX_REVERSE(2, ARG1.AsF64, ARG2.AsF64));
+
+    	EPILOGUE();
     }
 
     /// <summary>
@@ -734,9 +826,13 @@ namespace Nominax::SCM
     /// </summary>
     /// <param name="sp">Stack pointer of the current VM reactor.</param>
     /// <returns>None.</returns>
-    NOX_SYSCALL_PROXY(CEIL)
+    IMPL_SYSCALL(Ceil)
     {
-        ARG1.AsF64 = std::ceil(ARG1.AsF64);
+        PROLOGUE();
+
+    	ARG1.AsF64 = std::ceil(ARG1.AsF64);
+
+    	EPILOGUE();
     }
 
     /// <summary>
@@ -756,9 +852,13 @@ namespace Nominax::SCM
     /// </summary>
     /// <param name="sp">Stack pointer of the current VM reactor.</param>
     /// <returns>None.</returns>
-    NOX_SYSCALL_PROXY(FLOOR)
+    IMPL_SYSCALL(Floor)
     {
-        ARG1.AsF64 = std::floor(ARG1.AsF64);
+        PROLOGUE();
+
+    	ARG1.AsF64 = std::floor(ARG1.AsF64);
+
+    	EPILOGUE();
     }
 
     /// <summary>
@@ -778,9 +878,13 @@ namespace Nominax::SCM
     /// </summary>
     /// <param name="sp">Stack pointer of the current VM reactor.</param>
     /// <returns>None.</returns>
-    NOX_SYSCALL_PROXY(ROUND)
+    IMPL_SYSCALL(Round)
     {
-        ARG1.AsF64 = std::round(ARG1.AsF64);
+        PROLOGUE();
+
+    	ARG1.AsF64 = std::round(ARG1.AsF64);
+
+    	EPILOGUE();
     }
 
     /// <summary>
@@ -800,9 +904,13 @@ namespace Nominax::SCM
     /// </summary>
     /// <param name="sp">Stack pointer of the current VM reactor.</param>
     /// <returns>None.</returns>
-    NOX_SYSCALL_PROXY(RINT)
+    IMPL_SYSCALL(Rint)
     {
-        ARG1.AsF64 = std::rint(ARG1.AsF64);
+        PROLOGUE();
+
+    	ARG1.AsF64 = std::rint(ARG1.AsF64);
+
+    	EPILOGUE();
     }
 
     /// <summary>
@@ -822,9 +930,13 @@ namespace Nominax::SCM
     /// </summary>
     /// <param name="sp">Stack pointer of the current VM reactor.</param>
     /// <returns>None.</returns>
-    NOX_SYSCALL_PROXY(IMAX)
+    IMPL_SYSCALL(Imax)
     {
-        ARG2.AsI64 = std::max(NOX_REVERSE(2, ARG1.AsI64, ARG2.AsI64));
+        PROLOGUE();
+
+    	ARG2.AsI64 = std::max(NOX_REVERSE(2, ARG1.AsI64, ARG2.AsI64));
+
+    	EPILOGUE();
     }
 
     /// <summary>
@@ -844,9 +956,13 @@ namespace Nominax::SCM
     /// </summary>
     /// <param name="sp">Stack pointer of the current VM reactor.</param>
     /// <returns>None.</returns>
-    NOX_SYSCALL_PROXY(IMIN)
+    IMPL_SYSCALL(Imin)
     {
-        ARG2.AsI64 = std::min(NOX_REVERSE(2, ARG1.AsI64, ARG2.AsI64));
+        PROLOGUE();
+
+    	ARG2.AsI64 = std::min(NOX_REVERSE(2, ARG1.AsI64, ARG2.AsI64));
+
+    	EPILOGUE();
     }
 
     /// <summary>
@@ -866,9 +982,13 @@ namespace Nominax::SCM
     /// </summary>
     /// <param name="sp">Stack pointer of the current VM reactor.</param>
     /// <returns>None.</returns>
-    NOX_SYSCALL_PROXY(FMAX)
+    IMPL_SYSCALL(Fmax)
     {
-        ARG2.AsF64 = std::max(NOX_REVERSE(2, ARG1.AsF64, ARG2.AsF64));
+        PROLOGUE();
+
+    	ARG2.AsF64 = std::max(NOX_REVERSE(2, ARG1.AsF64, ARG2.AsF64));
+
+    	EPILOGUE();
     }
 
     /// <summary>
@@ -888,9 +1008,13 @@ namespace Nominax::SCM
     /// </summary>
     /// <param name="sp">Stack pointer of the current VM reactor.</param>
     /// <returns>None.</returns>
-    NOX_SYSCALL_PROXY(FMIN)
+    IMPL_SYSCALL(Fmin)
     {
-        ARG2.AsF64 = std::min(NOX_REVERSE(2, ARG1.AsF64, ARG2.AsF64));
+        PROLOGUE();
+
+    	ARG2.AsF64 = std::min(NOX_REVERSE(2, ARG1.AsF64, ARG2.AsF64));
+
+    	EPILOGUE();
     }
 
     /// <summary>
@@ -910,9 +1034,13 @@ namespace Nominax::SCM
     /// </summary>
     /// <param name="sp">Stack pointer of the current VM reactor.</param>
     /// <returns>None.</returns>
-    NOX_SYSCALL_PROXY(FDIM)
+    IMPL_SYSCALL(Fdim)
     {
-        ARG2.AsF64 = std::fdim(NOX_REVERSE(2, ARG1.AsF64, ARG2.AsF64));
+        PROLOGUE();
+
+    	ARG2.AsF64 = std::fdim(NOX_REVERSE(2, ARG1.AsF64, ARG2.AsF64));
+
+    	EPILOGUE();
     }
 
     /// <summary>
@@ -932,9 +1060,13 @@ namespace Nominax::SCM
     /// </summary>
     /// <param name="sp">Stack pointer of the current VM reactor.</param>
     /// <returns>None.</returns>
-    NOX_SYSCALL_PROXY(IABS)
+    IMPL_SYSCALL(Iabs)
     {
-        ARG2.AsI64 = std::abs(ARG1.AsI64);
+        PROLOGUE();
+
+    	ARG2.AsI64 = std::abs(ARG1.AsI64);
+
+    	EPILOGUE();
     }
 
     /// <summary>
@@ -954,8 +1086,12 @@ namespace Nominax::SCM
     /// </summary>
     /// <param name="sp">Stack pointer of the current VM reactor.</param>
     /// <returns>None.</returns>
-    NOX_SYSCALL_PROXY(FABS)
+    IMPL_SYSCALL(Fabs)
     {
-        ARG2.AsF64 = std::abs(ARG1.AsF64);
+        PROLOGUE();
+
+    	ARG2.AsF64 = std::abs(ARG1.AsF64);
+
+    	EPILOGUE();
     }
 }
