@@ -1,7 +1,0 @@
-[package]
-name = "corium_installer"
-version = "0.0.1"
-edition = "2021"
-authors = ["Mario \"pinsrq\" Sieg <mt3000@gmx.de>"]
-
-[dependencies]

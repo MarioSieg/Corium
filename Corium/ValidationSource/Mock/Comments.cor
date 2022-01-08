@@ -1,7 +1,0 @@
-# This is a single line comment
-let x = 10
-
-## This
-is a long block comment
-##
-let y = 10

@@ -1,3 +1,0 @@
-DATE=11/07/2021 21:10:52
-SDK_VERSION=v.3.5
-CORIUM_HOME=C:\Users\mt300\Documents\GitHub\Corium
