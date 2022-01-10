@@ -1,1 +1,5 @@
-tests.exe
+corium/tests.exe
+.vscode/
+.idea/
+cmake-build-debug/
+cmake-build-release/

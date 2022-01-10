@@ -11,23 +11,22 @@ int main() {
 }
 
 void test_parser() {
-    struct parser_t *p;
-    parser_new(&p);
+    parser_t *p = parser_new();
     ASSERT(p != NULL);
 
     p->s = "2022";
     parser_run(p);
-    ASSERT(p->imm == 2022);
+    ASSERT(p->val.imm == 2022);
     ASSERT(p->tok == TK_INT_LIT);
 
     p->s = "0xC0FFEE";
     parser_run(p);
-    ASSERT(p->imm == 0xC0FFEE);
+    ASSERT(p->val.imm == 0xC0FFEE);
     ASSERT(p->tok == TK_INT_LIT);
 
     p->s = "#comment\n01234567";
     parser_run(p);
-    ASSERT(p->imm == 01234567);
+    ASSERT(p->val.imm == 01234567);
     ASSERT(p->tok == TK_INT_LIT);
 
     const char buf[] = "hello";
@@ -40,7 +39,7 @@ void test_parser() {
 
     p->s = " \n \r  43\r\r\n ";
     parser_run(p);
-    ASSERT(p->imm == 43);
+    ASSERT(p->val.imm == 43);
     ASSERT(p->tok == TK_INT_LIT);
 
     p->s = "hello1234567#comment\n";
@@ -50,7 +49,7 @@ void test_parser() {
     ASSERT(*p->iE == 'o');
 
     parser_run(p);
-    ASSERT(p->imm == 1234567);
+    ASSERT(p->val.imm == 1234567);
     ASSERT(p->tok == TK_INT_LIT);
 
     p->s = "=";
@@ -137,6 +136,5 @@ void test_parser() {
     parser_run(p);
     ASSERT(p->tok == TK_MOD);
 
-    parser_delete(&p);
-    ASSERT(p == NULL);
+    parser_delete(p);
 }
